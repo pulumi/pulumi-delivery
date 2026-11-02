@@ -1,0 +1,27 @@
+name: check
+on:
+  pull_request: {}
+permissions:
+  contents: read
+jobs:
+  check-sdk:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+    - name: Install the pinned Pulumi CLI
+      run: |
+        curl -fsSL https://get.pulumi.com | sh -s -- --version "$(make -s pulumi-version)"
+        echo "$HOME/.pulumi/bin" >> "$GITHUB_PATH"
+    - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+      with:
+        go-version-file: provider/go.mod
+    - name: Build and test the provider
+      run: cd provider && go build ./... && go test ./...
+    - name: Check that schema.json is the schema of the provider
+      run: make schema && git diff --exit-code schema.json
+    - name: Check the generated SDK is current
+      run: make check-sdk
+    - name: Check that a Go and a .NET program compile against the generated SDK
+      run: make check-programs
+    - name: Check that the TypeScript example compiles against the generated SDK
+      run: cd examples/basic && npm ci && npx tsc --noEmit --skipLibCheck --target es2020 --module commonjs --moduleResolution node --strict index.ts

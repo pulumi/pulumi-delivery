@@ -1,0 +1,199 @@
+// Copyright 2026, Pulumi Corporation. All rights reserved.
+
+package main
+
+import (
+	"encoding/json"
+	"errors"
+	"maps"
+	"strings"
+
+	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	comProvider "github.com/pulumi/pulumi/sdk/v3/go/pulumi/provider"
+)
+
+// buildComponent is the component code. A Job registers its internal child; the other components only
+// declare themselves.
+func buildComponent(ctx *pulumi.Context, typ, name string, inputs comProvider.ConstructInputs,
+	opts pulumi.ResourceOption, d declaration, organization, commit string,
+) (*comProvider.ConstructResult, error) {
+	switch typ {
+	case typePipeline:
+		return register(ctx, typ, name, &Pipeline{}, opts, pulumi.Map{})
+	case typeStage:
+		return register(ctx, typ, name, &Stage{}, opts, pulumi.Map{})
+	case typeJob:
+		return buildJob(ctx, name, inputs, opts, d, organization)
+	case typeStacks:
+		return buildStacks(ctx, name, inputs, opts, d, organization)
+	case typeArtifact:
+		return buildArtifact(ctx, name, inputs, opts, d, organization)
+	case typePipelineSource:
+		// The wrapper sets the outputs.
+		return register(ctx, typ, name, &PipelineSource{}, opts, pulumi.Map{})
+	}
+	// A source. Its commit output is replaced by the wrapper when the commit is unknown.
+	source := &GitHubSource{}
+	source.Commit = pulumi.String(commit).ToStringOutput()
+	return register(ctx, typ, name, source, opts, pulumi.Map{"commit": source.Commit})
+}
+
+func register(ctx *pulumi.Context, typ, name string, component pulumi.ComponentResource,
+	opts pulumi.ResourceOption, outputs pulumi.Map,
+) (*comProvider.ConstructResult, error) {
+	if err := ctx.RegisterComponentResource(typ, name, component, opts); err != nil {
+		return nil, err
+	}
+	if err := ctx.RegisterResourceOutputs(component, outputs); err != nil {
+		return nil, err
+	}
+	return comProvider.NewConstructResult(component)
+}
+
+func buildJob(ctx *pulumi.Context, name string, inputs comProvider.ConstructInputs,
+	opts pulumi.ResourceOption, d declaration, organization string,
+) (*comProvider.ConstructResult, error) {
+	job := &Job{}
+	if err := ctx.RegisterComponentResource(typeJob, name, job, opts); err != nil {
+		return nil, err
+	}
+	inputMap, err := inputs.Map()
+	if err != nil {
+		return nil, err
+	}
+	child := &memberRunResource{}
+	if err := ctx.RegisterResource(typeMemberRun, name, pulumi.Map{
+		"organization": pulumi.String(organization),
+		"member":       pulumi.String(d.urn),
+		"declaration":  d.forChild(inputMap),
+	}, child, pulumi.Parent(job)); err != nil {
+		return nil, err
+	}
+	// The Job output type is map<string, string>, so a structured value is encoded as JSON.
+	job.Outputs = child.Outputs.ApplyT(func(outputs map[string]any) map[string]string {
+		out := make(map[string]string, len(outputs))
+		for key, value := range outputs {
+			if s, ok := value.(string); ok {
+				out[key] = s
+			} else if b, err := json.Marshal(value); err == nil {
+				out[key] = string(b)
+			}
+		}
+		return out
+	}).(pulumi.StringMapOutput)
+	job.ChildUrn = child.URN().ApplyT(func(u pulumi.URN) string { return string(u) }).(pulumi.StringOutput)
+	if err := ctx.RegisterResourceOutputs(job, pulumi.Map{"outputs": job.Outputs, "childUrn": job.ChildUrn}); err != nil {
+		return nil, err
+	}
+	return comProvider.NewConstructResult(job)
+}
+
+// buildArtifact registers the child of an Artifact. The value output reads the child through Unsecret,
+// so that it is never a secret without a value, which the engine rejects. The wrapper marks a known value
+// secret when the input is.
+func buildArtifact(ctx *pulumi.Context, name string, inputs comProvider.ConstructInputs,
+	opts pulumi.ResourceOption, d declaration, organization string,
+) (*comProvider.ConstructResult, error) {
+	artifact := &Artifact{}
+	if err := ctx.RegisterComponentResource(typeArtifact, name, artifact, opts); err != nil {
+		return nil, err
+	}
+	inputMap, err := inputs.Map()
+	if err != nil {
+		return nil, err
+	}
+	child := &memberRunResource{}
+	if err := ctx.RegisterResource(typeMemberRun, name, pulumi.Map{
+		"organization": pulumi.String(organization),
+		"member":       pulumi.String(d.urn),
+		"declaration":  d.forChild(inputMap),
+	}, child, pulumi.Parent(artifact)); err != nil {
+		return nil, err
+	}
+	artifact.Value = pulumi.Unsecret(child.Outputs).ApplyT(func(outputs map[string]any) any {
+		return outputs["value"]
+	}).(pulumi.AnyOutput)
+	artifact.ChildUrn = child.URN().ApplyT(func(u pulumi.URN) string { return string(u) }).(pulumi.StringOutput)
+	if err := ctx.RegisterResourceOutputs(artifact, pulumi.Map{"value": artifact.Value, "childUrn": artifact.ChildUrn}); err != nil {
+		return nil, err
+	}
+	return comProvider.NewConstructResult(artifact)
+}
+
+// buildStacks registers one child for each entry. The name of a child is <component>#<entry>: an entry
+// name cannot contain '#', so two components never produce the same child name.
+func buildStacks(ctx *pulumi.Context, name string, inputs comProvider.ConstructInputs,
+	opts pulumi.ResourceOption, d declaration, organization string,
+) (*comProvider.ConstructResult, error) {
+	stacks := &Stacks{}
+	if err := ctx.RegisterComponentResource(typeStacks, name, stacks, opts); err != nil {
+		return nil, err
+	}
+	// The entry names come from the request: the type of the decoded input depends on its dependencies and
+	// secrecy. An entry is never dropped.
+	if len(d.entries) == 0 {
+		return nil, errors.New("stacks must be a known map with at least one entry")
+	}
+	var args struct {
+		Stacks pulumi.MapMapInput `pulumi:"stacks"`
+	}
+	if err := inputs.CopyTo(&args); err != nil {
+		return nil, err
+	}
+	inputMap, err := inputs.Map()
+	if err != nil {
+		return nil, err
+	}
+	all := args.Stacks.ToMapMapOutput()
+	var childOutputs []any
+	childUrns := pulumi.StringMap{}
+	for _, entry := range d.entries {
+		// The child carries the full declaration, narrowed to its own entry.
+		own := d
+		own.propertyDependencies = map[string][]string{}
+		for key, found := range d.propertyDependencies {
+			if !strings.HasPrefix(key, "stacks.") || key == "stacks."+entry {
+				own.propertyDependencies[key] = found
+			}
+		}
+		ownInputs := pulumi.Map{}
+		maps.Copy(ownInputs, inputMap)
+		ownInputs["stacks"] = pulumi.Map{entry: all.MapIndex(pulumi.String(entry))}
+		child := &memberRunResource{}
+		if err := ctx.RegisterResource(typeMemberRun, name+"#"+entry, pulumi.Map{
+			"organization": pulumi.String(organization),
+			"member":       pulumi.String(d.urn),
+			"entry":        pulumi.String(entry),
+			"declaration":  own.forChild(ownInputs),
+		}, child, pulumi.Parent(stacks)); err != nil {
+			return nil, err
+		}
+		childOutputs = append(childOutputs, child.Outputs)
+		childUrns[entry] = child.URN().ApplyT(func(u pulumi.URN) string { return string(u) }).(pulumi.StringOutput)
+	}
+	stacks.Outputs = groupOutputs(d.entries, childOutputs)
+	stacks.ChildUrns = childUrns.ToStringMapOutput()
+	if err := ctx.RegisterResourceOutputs(stacks, pulumi.Map{"outputs": stacks.Outputs, "childUrns": stacks.ChildUrns}); err != nil {
+		return nil, err
+	}
+	return comProvider.NewConstructResult(stacks)
+}
+
+// groupOutputs is the outputs of a Stacks resource: one value for the whole group, secret iff a child is. A map
+// that mixes a known secret entry and an awaiting one cannot go to the engine (a secret without a value), so the
+// secret mark is dropped while any entry waits, and the apply, which runs only for known values, sets it again.
+func groupOutputs(entries []string, childOutputs []any) pulumi.MapMapOutput {
+	return pulumi.Unsecret(pulumi.All(childOutputs...)).ApplyT(func(values []any) pulumi.MapMapOutput {
+		out := pulumi.MapMap{}
+		secret := false
+		for i, entry := range entries {
+			m, _ := values[i].(map[string]any)
+			out[entry] = pulumi.ToMap(m)
+			secret = secret || pulumi.IsSecret(childOutputs[i].(pulumi.Output))
+		}
+		if secret {
+			return pulumi.ToSecret(out).(pulumi.MapMapOutput)
+		}
+		return out.ToMapMapOutput()
+	}).(pulumi.MapMapOutput)
+}

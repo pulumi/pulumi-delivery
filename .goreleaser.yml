@@ -1,0 +1,36 @@
+version: 2
+project_name: pulumi-resource-delivery
+builds:
+- id: build-provider
+  dir: provider
+  env:
+  - CGO_ENABLED=0
+  goos:
+  - darwin
+  - linux
+  goarch:
+  - amd64
+  - arm64
+  main: .
+  ldflags:
+  - -s
+  - -w
+  - -X main.Version={{ .Version }}
+  binary: pulumi-resource-delivery
+archives:
+- name_template: "{{ .Binary }}-{{ .Tag }}-{{ .Os }}-{{ .Arch }}"
+  id: archive
+snapshot:
+  version_template: "{{ .Tag }}-SNAPSHOT"
+changelog:
+  disable: true
+# No GitHub release. Plugin archives go to get.pulumi.com only.
+release:
+  disable: true
+blobs:
+- provider: s3
+  region: us-west-2
+  bucket: get.pulumi.com
+  directory: releases/plugins/
+  ids:
+  - archive
