@@ -3,6 +3,9 @@
 # Stock CLI used to generate the SDKs. CI installs this version.
 PULUMI_VERSION := 3.272.0
 
+# Version stamped into local builds and the committed SDK. A release takes its version from the git tag.
+PROVIDER_VERSION ?= 0.0.0-dev
+
 # Fails when the CLI on PATH is not the pinned one: other versions generate SDKs that do not compile.
 define require-pulumi
 	@pulumi version | grep -qx "v$(PULUMI_VERSION)" || { echo "pulumi $(PULUMI_VERSION) is required (found $$(pulumi version)); put it first on PATH"; exit 1; }
@@ -11,20 +14,21 @@ endef
 provider:
 	cd provider && GOTOOLCHAIN=auto go build -o bin/pulumi-resource-delivery .
 
-# Writes schema.json from the built provider. The version stays the one in schema.json.
+# Writes schema.json from the built provider, without a version. A release takes its version from the git tag.
 schema:
 	$(require-pulumi)
-	cd provider && GOTOOLCHAIN=auto go build -ldflags "-X main.Version=$$(jq -r .version ../schema.json)" -o bin/pulumi-resource-delivery .
-	pulumi package get-schema ./provider/bin/pulumi-resource-delivery | jq --indent 2 . > schema.json.new
+	cd provider && GOTOOLCHAIN=auto go build -ldflags "-X main.Version=$(PROVIDER_VERSION)" -o bin/pulumi-resource-delivery .
+	pulumi package get-schema ./provider/bin/pulumi-resource-delivery | jq --indent 2 'del(.version)' > schema.json.new
 	mv schema.json.new schema.json
 
-# Generates every SDK from schema.json. Never edit sdk/ by hand.
+# Generates every SDK from schema.json, stamped with PROVIDER_VERSION. Never edit sdk/ by hand.
 sdk:
 	$(require-pulumi)
 	rm -rf sdk
+	tmp=$$(mktemp -d) && jq --arg v "$(PROVIDER_VERSION)" '.version=$$v' schema.json > $$tmp/schema.json && \
 	for lang in nodejs python go dotnet java; do \
-		pulumi package gen-sdk schema.json --language $$lang -o sdk $$( [ $$lang = nodejs ] && echo --local ) || exit 1; \
-	done
+		pulumi package gen-sdk $$tmp/schema.json --language $$lang -o sdk $$( [ $$lang = nodejs ] && echo --local ) || exit 1; \
+	done; rm -rf $$tmp
 
 check-sdk: sdk
 	@test -z "$$(git status --porcelain --untracked-files=all -- sdk)" || { git status --short -- sdk; echo "sdk/ is stale: run make sdk and commit"; exit 1; }

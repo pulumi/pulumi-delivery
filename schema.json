@@ -1,7 +1,6 @@
 {
   "name": "delivery",
   "displayName": "Pulumi Delivery",
-  "version": "0.2.0",
   "description": "Define pipelines, stages and jobs in a Pulumi program.",
   "keywords": [
     "pulumi",
