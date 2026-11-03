@@ -388,14 +388,13 @@ Do not write the run number into the environment variables of a Lambda function.
 | Members in a pipeline | 200 (a `Stacks` entry counts as one) |
 | Passes in a run | 10,000, then the run fails |
 | Time limit of a pass | 1 hour |
-| Concurrent jobs in your organization | 1 (Individual), 5 (Team), 25 (Enterprise), 150 (Business Critical). A Deployments concurrency that your organization sets applies instead. |
 | Time limit of a member | 2 hours. Set `timeout` on a `Stacks` entry, in seconds. |
 | Job outputs | 1 MiB |
 | Run stacks | Deleted 90 days after the run ends |
 
 A pass is one execution of the pipeline program on the run stack. A failed pass starts again up to 3 times in a row. A pass that makes progress resets the count.
 
-Each entry of a `Stacks` group uses one concurrency slot. A group with more entries than the limit can block itself, and registration records a warning for it.
+Each entry of a `Stacks` group uses one concurrency slot of your organization. A group with more entries than the concurrency limit of your organization can block itself, and registration records a warning for it.
 
 ## Known limitations
 
@@ -410,7 +409,3 @@ Each entry of a `Stacks` group uses one concurrency slot. A group with more entr
 - You cannot delete a pipeline stack while runs are in progress. Deleting a pipeline stack stops the pipeline and deletes its run stacks. After you restore the stack, run `pulumi up` on it to register the pipeline again.
 - You cannot move a pipeline stack to another organization. You cannot rename or move a run stack.
 - The preview has no time-based triggers, no ESC triggers, no dispatch inputs and no `pulumi delivery` command.
-
-## Help
-
-To get help or to give feedback, contact your Pulumi account team.
