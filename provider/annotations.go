@@ -55,7 +55,7 @@ func (r *ApprovalArgs) Annotate(a infer.Annotator) {
 }
 
 func (r *HTTP) Annotate(a infer.Annotator) {
-	a.Describe(r, `Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true.
+	a.Describe(r, `Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true. Delivery does not support this rule in the private preview. Registration rejects a stage that uses it.
 
 ## Example Usage
 

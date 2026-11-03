@@ -273,6 +273,155 @@ const platform = new delivery.PipelineSource("platform", {
 
 `trigger` must be `true` or, on a source with a repository, an object with a non-empty `paths` list. `false` is an error. Leave the setting out instead.
 
+## Patterns
+
+The examples in this section assume the `delivery` import, a source `repo` and a `pipeline` as in [Getting started](#getting-started). A stage reads only the outputs of its own members, its sources and the pipelines it reads with a `PipelineSource`. Do not pass the output of a member in one stage to a member in a later stage.
+
+### One stage per environment from a helper function
+
+Write a function that adds the members of one environment to a stage. Call it once for each stage.
+
+```typescript
+function deploy(stage: delivery.Stage, name: string, region: string) {
+    const app = new delivery.Stacks(name, {
+        stage,
+        stacks: { app: { stack: `acme/shop-app/${name}`, source: repo, directory: "app" } },
+    });
+    new delivery.Job(`smoke-${name}`, {
+        stage,
+        source: repo,
+        directory: "delivery",
+        command: "sh smoke.sh",
+        environment: {
+            ENDPOINT: app.outputs.apply(o => String(o["app"]["endpoint"])),
+            EXPECTED_REGION: region,
+        },
+    });
+}
+
+const dev = new delivery.Stage("dev", { pipeline });
+deploy(dev, "dev", "eu-central-1");
+const staging = new delivery.Stage("staging", { pipeline, from: [dev] });
+deploy(staging, "staging", "eu-west-1");
+const prod = new delivery.Stage("prod", { pipeline, from: [staging], when: delivery.approval() });
+deploy(prod, "prod", "us-west-2");
+```
+
+Use this pattern when the environments differ only in a few values. Resource names must be unique, so build them from the environment name. The region comes from the config file of each target stack (`aws:region` in `Pulumi.<stack>.yaml`), not from the pipeline. The `region` argument only tells the smoke test which region to expect.
+
+### Smoke test after each deploy
+
+Put a `Job` in the same stage as the `Stacks` member. The job reads the outputs of that member. It does not read the outputs of an earlier stage. The example above passes the endpoint in `ENDPOINT`. This is the `smoke.sh` for it:
+
+```sh
+set -eu
+for attempt in 1 2 3 4 5; do
+  if curl -fsS "$ENDPOINT/health" > /dev/null; then
+    echo "{\"checked\": \"$ENDPOINT\"}" > "$DELIVERY_OUTPUTS"
+    exit 0
+  fi
+  sleep 10
+done
+echo "Smoke test failed for $ENDPOINT" >&2
+exit 1
+```
+
+A job that exits with a non-zero code fails, and its stage fails. A stage that depends on it with `from` then does not start. Use `curl -fsS` so that an HTTP error status gives a non-zero exit code. Retry in the script, because a new deployment can need some seconds to answer. See [Retry a failed run](#retry-a-failed-run) to run the job again.
+
+### Stacks that deploy together
+
+Put the stacks in one `Stacks` group when they depend on each other and you want to update them in the same step.
+
+```typescript
+new delivery.Stacks("platform", {
+    stage: dev,
+    stacks: {
+        network: { stack: "acme/shop-network/dev", source: repo, directory: "network" },
+        app: { stack: "acme/shop-app/dev", source: repo, directory: "app" },
+    },
+});
+```
+
+The program of the `app` stack reads the outputs of the `network` stack with a stack reference:
+
+```typescript
+const network = new pulumi.StackReference("acme/shop-network/dev");
+const subnetId = network.getOutput("subnetId");
+```
+
+The entries of a group run together, and they read the new outputs of each other. A group is one unit for dependencies and a retry, and each entry uses one concurrency slot. See [Limits](#limits). Keep a group small. Put stacks that need no shared step in separate groups.
+
+### Combined gates
+
+Use `allOf()` when a stage needs more than one rule. The stage waits until all rules pass. Build the rule with `allOfOutput()` and the `Output` form of each rule, because `rules` does not accept the promise that a plain rule function returns.
+
+```typescript
+const prod = new delivery.Stage("prod", {
+    pipeline,
+    from: [staging],
+    when: delivery.allOfOutput({
+        rules: [
+            delivery.approvalOutput({ approvers: ["your-colleague"] }),
+            delivery.manualOutput({ name: "dashboards", description: "Check the dashboards first." }),
+        ],
+    }),
+});
+```
+
+Use `anyOf()` when one of the rules is enough. The `manual()` rule gives the person who continues the gate a description of what to check. See [Gates](#gates) for the other rules and for how to continue a manual gate.
+
+### Upstream and downstream pipelines
+
+The upstream pipeline publishes an `Artifact` in a stage. The downstream pipeline reads it with a `PipelineSource`.
+
+In the upstream pipeline:
+
+```typescript
+new delivery.Artifact("clusterEndpoint", { stage: prod, value: cluster.endpoint });
+```
+
+In the downstream pipeline:
+
+```typescript
+const platform = new delivery.PipelineSource("platform", {
+    pipeline: "acme/platform-delivery/main",
+    stage: "prod",
+    trigger: true,
+});
+
+new delivery.Stacks("app", {
+    stage: dev,
+    stacks: {
+        app: {
+            stack: "acme/shop-app/dev",
+            source: repo,
+            directory: "app",
+            config: { clusterEndpoint: platform.artifacts["clusterEndpoint"] },
+        },
+    },
+});
+```
+
+Both pipelines must be in the same organization. With `trigger: true`, each new release of the upstream stage starts a run of the downstream pipeline. The `artifacts` map is secret as a whole when one artifact is secret. A secret value in `config` is rejected, so pass such a value in `environment`.
+
+### One repository, several pipelines
+
+A monorepo can hold the programs of several pipelines. Give each pipeline its own program directory, its own pipeline stack and a source that triggers only on its own paths.
+
+```typescript
+// delivery/shop/index.ts
+const repo = new delivery.GitHubSource("repo", {
+    repository: "acme/monorepo",
+    branch: "main",
+    trigger: { paths: ["shop/**", "delivery/shop/**"] },
+});
+const pipeline = new delivery.Pipeline("shop", {
+    program: { source: repo, directory: "delivery/shop" },
+});
+```
+
+The pipeline in `delivery/search/index.ts` is the same, with `search/**` and `delivery/search/**` as the paths. A push that changes only `search/` then starts only the `search` pipeline. Every pipeline needs its own pipeline stack, for example `acme/shop-delivery/main` and `acme/search-delivery/main`. Register each one with `pulumi up` in its own directory.
+
 ## Recover a run
 
 Delivery never retries a member by itself. A person retries a failed run or cancels an active run. Use the console, or these API routes:
@@ -343,7 +492,6 @@ Gates are rules in `when`.
 
 - `approval()` needs approvals and the Approvals feature.
 - `manual()` waits until someone continues the gate. It works on every plan.
-- `http()` polls a URL until a JMESPath `successExpression` is true.
 - `allOf()` and `anyOf()` combine rules. You can nest them up to three levels.
 
 `approval()` takes `approvers` (user names or team names) and `count`. The person who started the run can never approve it. A run that a push starts has no starter, so the person who pushed can approve it if they are an eligible approver. If you name no approvers, anyone with the organization update permission can approve. A name that matches no user or team keeps the gate waiting. An approval gate shows a preview of the stack updates. The preview can be partial, and "Not available" is not the same as "no changes".
@@ -408,4 +556,5 @@ Each entry of a `Stacks` group uses one concurrency slot of your organization. A
 - Delivery deletes a run stack without a destroy. Resources in the pipeline program that are not Delivery resources stay in the cloud without state. A run that waits keeps its stack.
 - You cannot delete a pipeline stack while runs are in progress. Deleting a pipeline stack stops the pipeline and deletes its run stacks. After you restore the stack, run `pulumi up` on it to register the pipeline again.
 - You cannot move a pipeline stack to another organization. You cannot rename or move a run stack.
+- The `http()` rule is not available in the preview. Registration rejects a stage with an `http()` rule.
 - The preview has no time-based triggers, no ESC triggers, no dispatch inputs and no `pulumi delivery` command.

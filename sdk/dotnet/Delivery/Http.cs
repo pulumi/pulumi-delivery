@@ -13,7 +13,7 @@ namespace Pulumi.Delivery.Delivery
     public static class Http
     {
         /// <summary>
-        /// Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true.
+        /// Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true. Delivery does not support this rule in the private preview. Registration rejects a stage that uses it.
         /// 
         /// ## Example Usage
         /// 
@@ -31,7 +31,7 @@ namespace Pulumi.Delivery.Delivery
             => global::Pulumi.Deployment.Instance.InvokeAsync<HttpResult>("delivery:index:http", args ?? new HttpArgs(), options.WithDefaults());
 
         /// <summary>
-        /// Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true.
+        /// Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true. Delivery does not support this rule in the private preview. Registration rejects a stage that uses it.
         /// 
         /// ## Example Usage
         /// 
@@ -49,7 +49,7 @@ namespace Pulumi.Delivery.Delivery
             => global::Pulumi.Deployment.Instance.Invoke<HttpResult>("delivery:index:http", args ?? new HttpInvokeArgs(), options.WithDefaults());
 
         /// <summary>
-        /// Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true.
+        /// Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true. Delivery does not support this rule in the private preview. Registration rejects a stage that uses it.
         /// 
         /// ## Example Usage
         /// 

@@ -943,7 +943,7 @@
       }
     },
     "delivery:index:http": {
-      "description": "Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nconst prod = new delivery.Stage(\"prod\", {\n    pipeline,\n    from: [dev],\n    when: delivery.http({ url: \"https://example.com/check\", successExpression: \"status == 'ok'\" }),\n});\n```",
+      "description": "Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true. Delivery does not support this rule in the private preview. Registration rejects a stage that uses it.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nconst prod = new delivery.Stage(\"prod\", {\n    pipeline,\n    from: [dev],\n    when: delivery.http({ url: \"https://example.com/check\", successExpression: \"status == 'ok'\" }),\n});\n```",
       "inputs": {
         "description": "HTTP rule settings.",
         "properties": {
