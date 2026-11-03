@@ -14,8 +14,6 @@ Pulumi Delivery is in private preview. Behavior, the SDK, the API and the routes
 - Pulumi CLI v3.272.0 or later.
 - Linux or macOS. The provider has no Windows build.
 - A Pulumi Cloud backend. Delivery does not work with a file backend or with self-hosted Pulumi Cloud.
-- Node.js, to run the TypeScript examples in this guide. The preview tests TypeScript only. Python and Go are untested. C# and Java are not supported.
-- For approval gates, the Approvals feature in your plan and a second person who can approve. A `manual()` gate works on every plan.
 
 ### Connect your version control
 
