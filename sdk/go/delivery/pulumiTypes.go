@@ -13,9 +13,9 @@ import (
 
 var _ = internal.GetEnvOrDefault
 
-// Checkout location of the pipeline program.
+// Location of the pipeline program in a repository.
 type ProgramSource struct {
-	// Directory containing the pipeline Pulumi.yaml, relative to the repository root.
+	// Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root.
 	Directory string `pulumi:"directory"`
 	// VCS source of the pipeline program.
 	Source interface{} `pulumi:"source"`
@@ -32,9 +32,9 @@ type ProgramSourceInput interface {
 	ToProgramSourceOutputWithContext(context.Context) ProgramSourceOutput
 }
 
-// Checkout location of the pipeline program.
+// Location of the pipeline program in a repository.
 type ProgramSourceArgs struct {
-	// Directory containing the pipeline Pulumi.yaml, relative to the repository root.
+	// Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root.
 	Directory pulumi.StringInput `pulumi:"directory"`
 	// VCS source of the pipeline program.
 	Source pulumi.Input `pulumi:"source"`
@@ -52,7 +52,7 @@ func (i ProgramSourceArgs) ToProgramSourceOutputWithContext(ctx context.Context)
 	return pulumi.ToOutputWithContext(ctx, i).(ProgramSourceOutput)
 }
 
-// Checkout location of the pipeline program.
+// Location of the pipeline program in a repository.
 type ProgramSourceOutput struct{ *pulumi.OutputState }
 
 func (ProgramSourceOutput) ElementType() reflect.Type {
@@ -67,7 +67,7 @@ func (o ProgramSourceOutput) ToProgramSourceOutputWithContext(ctx context.Contex
 	return o
 }
 
-// Directory containing the pipeline Pulumi.yaml, relative to the repository root.
+// Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root.
 func (o ProgramSourceOutput) Directory() pulumi.StringOutput {
 	return o.ApplyT(func(v ProgramSource) string { return v.Directory }).(pulumi.StringOutput)
 }
@@ -77,35 +77,35 @@ func (o ProgramSourceOutput) Source() pulumi.AnyOutput {
 	return o.ApplyT(func(v ProgramSource) interface{} { return v.Source }).(pulumi.AnyOutput)
 }
 
-// Stage entry rule. Rules may nest at most three levels.
+// Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.
 type Rule struct {
-	// Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
+	// Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it.
 	Approvers []string `pulumi:"approvers"`
-	// HTTP request body. Pulumi secret values remain secret.
+	// HTTP request body. Secret values stay secret.
 	Body *string `pulumi:"body"`
-	// Number of approvals required. For approval rules, omitted or zero means one.
+	// Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
 	Count *int `pulumi:"count"`
 	// Text for the person who continues a manual gate, for example what to check first.
 	Description *string `pulumi:"description"`
-	// HTTP request headers. Pulumi secret values remain secret.
+	// HTTP request headers. Secret values stay secret.
 	Headers map[string]string `pulumi:"headers"`
-	// Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule.
+	// Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
 	HeadersEnvironment *string `pulumi:"headersEnvironment"`
-	// HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
+	// Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
 	Interval *string `pulumi:"interval"`
-	// Rule kind: approval, http, manual, all, or any.
+	// Kind of the rule. Valid values are approval, http, manual, all, and any.
 	Kind string `pulumi:"kind"`
 	// HTTP request method. The default is GET.
 	Method *string `pulumi:"method"`
 	// Rule name. Omit it to let Delivery assign one.
 	Name *string `pulumi:"name"`
-	// Child rules for all or any. At least one child is required.
+	// Child rules for all and any rules. At least one is required.
 	Rules []Rule `pulumi:"rules"`
-	// JMESPath expression that the service evaluates over the status, headers and body of the HTTP response. The rule passes when it is true. Required for http rules.
+	// JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
 	SuccessExpression *string `pulumi:"successExpression"`
-	// HTTP request timeout as a Go duration, such as 10s. Must be a positive whole number of seconds, at most 20 seconds.
+	// Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
 	Timeout *string `pulumi:"timeout"`
-	// URL to call for an http rule. Required for that kind.
+	// URL to call. Required for http rules.
 	Url *string `pulumi:"url"`
 }
 
@@ -120,35 +120,35 @@ type RuleInput interface {
 	ToRuleOutputWithContext(context.Context) RuleOutput
 }
 
-// Stage entry rule. Rules may nest at most three levels.
+// Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.
 type RuleArgs struct {
-	// Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
+	// Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it.
 	Approvers pulumi.StringArrayInput `pulumi:"approvers"`
-	// HTTP request body. Pulumi secret values remain secret.
+	// HTTP request body. Secret values stay secret.
 	Body pulumi.StringPtrInput `pulumi:"body"`
-	// Number of approvals required. For approval rules, omitted or zero means one.
+	// Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
 	Count pulumi.IntPtrInput `pulumi:"count"`
 	// Text for the person who continues a manual gate, for example what to check first.
 	Description pulumi.StringPtrInput `pulumi:"description"`
-	// HTTP request headers. Pulumi secret values remain secret.
+	// HTTP request headers. Secret values stay secret.
 	Headers pulumi.StringMapInput `pulumi:"headers"`
-	// Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule.
+	// Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
 	HeadersEnvironment pulumi.StringPtrInput `pulumi:"headersEnvironment"`
-	// HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
+	// Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
 	Interval pulumi.StringPtrInput `pulumi:"interval"`
-	// Rule kind: approval, http, manual, all, or any.
+	// Kind of the rule. Valid values are approval, http, manual, all, and any.
 	Kind pulumi.StringInput `pulumi:"kind"`
 	// HTTP request method. The default is GET.
 	Method pulumi.StringPtrInput `pulumi:"method"`
 	// Rule name. Omit it to let Delivery assign one.
 	Name pulumi.StringPtrInput `pulumi:"name"`
-	// Child rules for all or any. At least one child is required.
+	// Child rules for all and any rules. At least one is required.
 	Rules RuleArrayInput `pulumi:"rules"`
-	// JMESPath expression that the service evaluates over the status, headers and body of the HTTP response. The rule passes when it is true. Required for http rules.
+	// JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
 	SuccessExpression pulumi.StringPtrInput `pulumi:"successExpression"`
-	// HTTP request timeout as a Go duration, such as 10s. Must be a positive whole number of seconds, at most 20 seconds.
+	// Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
 	Timeout pulumi.StringPtrInput `pulumi:"timeout"`
-	// URL to call for an http rule. Required for that kind.
+	// URL to call. Required for http rules.
 	Url pulumi.StringPtrInput `pulumi:"url"`
 }
 
@@ -230,7 +230,7 @@ func (i RuleArray) ToRuleArrayOutputWithContext(ctx context.Context) RuleArrayOu
 	return pulumi.ToOutputWithContext(ctx, i).(RuleArrayOutput)
 }
 
-// Stage entry rule. Rules may nest at most three levels.
+// Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.
 type RuleOutput struct{ *pulumi.OutputState }
 
 func (RuleOutput) ElementType() reflect.Type {
@@ -255,17 +255,17 @@ func (o RuleOutput) ToRulePtrOutputWithContext(ctx context.Context) RulePtrOutpu
 	}).(RulePtrOutput)
 }
 
-// Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
+// Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it.
 func (o RuleOutput) Approvers() pulumi.StringArrayOutput {
 	return o.ApplyT(func(v Rule) []string { return v.Approvers }).(pulumi.StringArrayOutput)
 }
 
-// HTTP request body. Pulumi secret values remain secret.
+// HTTP request body. Secret values stay secret.
 func (o RuleOutput) Body() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v Rule) *string { return v.Body }).(pulumi.StringPtrOutput)
 }
 
-// Number of approvals required. For approval rules, omitted or zero means one.
+// Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
 func (o RuleOutput) Count() pulumi.IntPtrOutput {
 	return o.ApplyT(func(v Rule) *int { return v.Count }).(pulumi.IntPtrOutput)
 }
@@ -275,22 +275,22 @@ func (o RuleOutput) Description() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v Rule) *string { return v.Description }).(pulumi.StringPtrOutput)
 }
 
-// HTTP request headers. Pulumi secret values remain secret.
+// HTTP request headers. Secret values stay secret.
 func (o RuleOutput) Headers() pulumi.StringMapOutput {
 	return o.ApplyT(func(v Rule) map[string]string { return v.Headers }).(pulumi.StringMapOutput)
 }
 
-// Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule.
+// Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
 func (o RuleOutput) HeadersEnvironment() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v Rule) *string { return v.HeadersEnvironment }).(pulumi.StringPtrOutput)
 }
 
-// HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
+// Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
 func (o RuleOutput) Interval() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v Rule) *string { return v.Interval }).(pulumi.StringPtrOutput)
 }
 
-// Rule kind: approval, http, manual, all, or any.
+// Kind of the rule. Valid values are approval, http, manual, all, and any.
 func (o RuleOutput) Kind() pulumi.StringOutput {
 	return o.ApplyT(func(v Rule) string { return v.Kind }).(pulumi.StringOutput)
 }
@@ -305,22 +305,22 @@ func (o RuleOutput) Name() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v Rule) *string { return v.Name }).(pulumi.StringPtrOutput)
 }
 
-// Child rules for all or any. At least one child is required.
+// Child rules for all and any rules. At least one is required.
 func (o RuleOutput) Rules() RuleArrayOutput {
 	return o.ApplyT(func(v Rule) []Rule { return v.Rules }).(RuleArrayOutput)
 }
 
-// JMESPath expression that the service evaluates over the status, headers and body of the HTTP response. The rule passes when it is true. Required for http rules.
+// JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
 func (o RuleOutput) SuccessExpression() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v Rule) *string { return v.SuccessExpression }).(pulumi.StringPtrOutput)
 }
 
-// HTTP request timeout as a Go duration, such as 10s. Must be a positive whole number of seconds, at most 20 seconds.
+// Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
 func (o RuleOutput) Timeout() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v Rule) *string { return v.Timeout }).(pulumi.StringPtrOutput)
 }
 
-// URL to call for an http rule. Required for that kind.
+// URL to call. Required for http rules.
 func (o RuleOutput) Url() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v Rule) *string { return v.Url }).(pulumi.StringPtrOutput)
 }
@@ -349,7 +349,7 @@ func (o RulePtrOutput) Elem() RuleOutput {
 	}).(RuleOutput)
 }
 
-// Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
+// Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it.
 func (o RulePtrOutput) Approvers() pulumi.StringArrayOutput {
 	return o.ApplyT(func(v *Rule) []string {
 		if v == nil {
@@ -359,7 +359,7 @@ func (o RulePtrOutput) Approvers() pulumi.StringArrayOutput {
 	}).(pulumi.StringArrayOutput)
 }
 
-// HTTP request body. Pulumi secret values remain secret.
+// HTTP request body. Secret values stay secret.
 func (o RulePtrOutput) Body() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Rule) *string {
 		if v == nil {
@@ -369,7 +369,7 @@ func (o RulePtrOutput) Body() pulumi.StringPtrOutput {
 	}).(pulumi.StringPtrOutput)
 }
 
-// Number of approvals required. For approval rules, omitted or zero means one.
+// Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
 func (o RulePtrOutput) Count() pulumi.IntPtrOutput {
 	return o.ApplyT(func(v *Rule) *int {
 		if v == nil {
@@ -389,7 +389,7 @@ func (o RulePtrOutput) Description() pulumi.StringPtrOutput {
 	}).(pulumi.StringPtrOutput)
 }
 
-// HTTP request headers. Pulumi secret values remain secret.
+// HTTP request headers. Secret values stay secret.
 func (o RulePtrOutput) Headers() pulumi.StringMapOutput {
 	return o.ApplyT(func(v *Rule) map[string]string {
 		if v == nil {
@@ -399,7 +399,7 @@ func (o RulePtrOutput) Headers() pulumi.StringMapOutput {
 	}).(pulumi.StringMapOutput)
 }
 
-// Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule.
+// Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
 func (o RulePtrOutput) HeadersEnvironment() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Rule) *string {
 		if v == nil {
@@ -409,7 +409,7 @@ func (o RulePtrOutput) HeadersEnvironment() pulumi.StringPtrOutput {
 	}).(pulumi.StringPtrOutput)
 }
 
-// HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
+// Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
 func (o RulePtrOutput) Interval() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Rule) *string {
 		if v == nil {
@@ -419,7 +419,7 @@ func (o RulePtrOutput) Interval() pulumi.StringPtrOutput {
 	}).(pulumi.StringPtrOutput)
 }
 
-// Rule kind: approval, http, manual, all, or any.
+// Kind of the rule. Valid values are approval, http, manual, all, and any.
 func (o RulePtrOutput) Kind() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Rule) *string {
 		if v == nil {
@@ -449,7 +449,7 @@ func (o RulePtrOutput) Name() pulumi.StringPtrOutput {
 	}).(pulumi.StringPtrOutput)
 }
 
-// Child rules for all or any. At least one child is required.
+// Child rules for all and any rules. At least one is required.
 func (o RulePtrOutput) Rules() RuleArrayOutput {
 	return o.ApplyT(func(v *Rule) []Rule {
 		if v == nil {
@@ -459,7 +459,7 @@ func (o RulePtrOutput) Rules() RuleArrayOutput {
 	}).(RuleArrayOutput)
 }
 
-// JMESPath expression that the service evaluates over the status, headers and body of the HTTP response. The rule passes when it is true. Required for http rules.
+// JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
 func (o RulePtrOutput) SuccessExpression() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Rule) *string {
 		if v == nil {
@@ -469,7 +469,7 @@ func (o RulePtrOutput) SuccessExpression() pulumi.StringPtrOutput {
 	}).(pulumi.StringPtrOutput)
 }
 
-// HTTP request timeout as a Go duration, such as 10s. Must be a positive whole number of seconds, at most 20 seconds.
+// Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
 func (o RulePtrOutput) Timeout() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Rule) *string {
 		if v == nil {
@@ -479,7 +479,7 @@ func (o RulePtrOutput) Timeout() pulumi.StringPtrOutput {
 	}).(pulumi.StringPtrOutput)
 }
 
-// URL to call for an http rule. Required for that kind.
+// URL to call. Required for http rules.
 func (o RulePtrOutput) Url() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Rule) *string {
 		if v == nil {
@@ -511,7 +511,7 @@ func (o RuleArrayOutput) Index(i pulumi.IntInput) RuleOutput {
 
 // Limits the pushes that start a run.
 type SourceTrigger struct {
-	// Glob patterns of changed files. A push starts a run only when it changes a file that matches.
+	// Glob patterns of changed files. A push starts a run only when it changes a file that matches one of them.
 	Paths []string `pulumi:"paths"`
 }
 
@@ -528,7 +528,7 @@ type SourceTriggerInput interface {
 
 // Limits the pushes that start a run.
 type SourceTriggerArgs struct {
-	// Glob patterns of changed files. A push starts a run only when it changes a file that matches.
+	// Glob patterns of changed files. A push starts a run only when it changes a file that matches one of them.
 	Paths pulumi.StringArrayInput `pulumi:"paths"`
 }
 
@@ -610,7 +610,7 @@ func (o SourceTriggerOutput) ToSourceTriggerPtrOutputWithContext(ctx context.Con
 	}).(SourceTriggerPtrOutput)
 }
 
-// Glob patterns of changed files. A push starts a run only when it changes a file that matches.
+// Glob patterns of changed files. A push starts a run only when it changes a file that matches one of them.
 func (o SourceTriggerOutput) Paths() pulumi.StringArrayOutput {
 	return o.ApplyT(func(v SourceTrigger) []string { return v.Paths }).(pulumi.StringArrayOutput)
 }
@@ -639,7 +639,7 @@ func (o SourceTriggerPtrOutput) Elem() SourceTriggerOutput {
 	}).(SourceTriggerOutput)
 }
 
-// Glob patterns of changed files. A push starts a run only when it changes a file that matches.
+// Glob patterns of changed files. A push starts a run only when it changes a file that matches one of them.
 func (o SourceTriggerPtrOutput) Paths() pulumi.StringArrayOutput {
 	return o.ApplyT(func(v *SourceTrigger) []string {
 		if v == nil {
@@ -651,13 +651,13 @@ func (o SourceTriggerPtrOutput) Paths() pulumi.StringArrayOutput {
 
 // One target stack that a Stacks resource updates.
 type StacksEntry struct {
-	// Config values that Delivery sets on the target stack before the update. Values are plain strings, and Delivery rejects secret values. Keep secrets in the config file of the target stack or in an ESC environment.
+	// Config values that Delivery sets on the target stack before the update. Values are plain strings. Delivery rejects secret values. Keep secrets in the config file of the target stack or in an ESC environment.
 	Config map[string]string `pulumi:"config"`
 	// Directory of the stack project, relative to the repository root.
 	Directory string `pulumi:"directory"`
-	// Environment variables for the update, for example cloud credentials. A secret value stays secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
+	// Environment variables for the update, for example cloud credentials. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
 	Environment map[string]string `pulumi:"environment"`
-	// Pool that runs the update. The preview runs on the hosted pool only, so omit it.
+	// Pool that runs the update. In the private preview, all work runs on the hosted pool, so omit it.
 	Runtime *WorkflowsRuntime `pulumi:"runtime"`
 	// VCS source to check out. The update uses the commit of the run for this source.
 	Source interface{} `pulumi:"source"`
@@ -680,13 +680,13 @@ type StacksEntryInput interface {
 
 // One target stack that a Stacks resource updates.
 type StacksEntryArgs struct {
-	// Config values that Delivery sets on the target stack before the update. Values are plain strings, and Delivery rejects secret values. Keep secrets in the config file of the target stack or in an ESC environment.
+	// Config values that Delivery sets on the target stack before the update. Values are plain strings. Delivery rejects secret values. Keep secrets in the config file of the target stack or in an ESC environment.
 	Config pulumi.StringMapInput `pulumi:"config"`
 	// Directory of the stack project, relative to the repository root.
 	Directory pulumi.StringInput `pulumi:"directory"`
-	// Environment variables for the update, for example cloud credentials. A secret value stays secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
+	// Environment variables for the update, for example cloud credentials. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
 	Environment pulumi.StringMapInput `pulumi:"environment"`
-	// Pool that runs the update. The preview runs on the hosted pool only, so omit it.
+	// Pool that runs the update. In the private preview, all work runs on the hosted pool, so omit it.
 	Runtime WorkflowsRuntimeInput `pulumi:"runtime"`
 	// VCS source to check out. The update uses the commit of the run for this source.
 	Source pulumi.Input `pulumi:"source"`
@@ -748,7 +748,7 @@ func (o StacksEntryOutput) ToStacksEntryOutputWithContext(ctx context.Context) S
 	return o
 }
 
-// Config values that Delivery sets on the target stack before the update. Values are plain strings, and Delivery rejects secret values. Keep secrets in the config file of the target stack or in an ESC environment.
+// Config values that Delivery sets on the target stack before the update. Values are plain strings. Delivery rejects secret values. Keep secrets in the config file of the target stack or in an ESC environment.
 func (o StacksEntryOutput) Config() pulumi.StringMapOutput {
 	return o.ApplyT(func(v StacksEntry) map[string]string { return v.Config }).(pulumi.StringMapOutput)
 }
@@ -758,12 +758,12 @@ func (o StacksEntryOutput) Directory() pulumi.StringOutput {
 	return o.ApplyT(func(v StacksEntry) string { return v.Directory }).(pulumi.StringOutput)
 }
 
-// Environment variables for the update, for example cloud credentials. A secret value stays secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
+// Environment variables for the update, for example cloud credentials. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
 func (o StacksEntryOutput) Environment() pulumi.StringMapOutput {
 	return o.ApplyT(func(v StacksEntry) map[string]string { return v.Environment }).(pulumi.StringMapOutput)
 }
 
-// Pool that runs the update. The preview runs on the hosted pool only, so omit it.
+// Pool that runs the update. In the private preview, all work runs on the hosted pool, so omit it.
 func (o StacksEntryOutput) Runtime() WorkflowsRuntimeOutput {
 	return o.ApplyT(func(v StacksEntry) *WorkflowsRuntime { return v.Runtime }).(WorkflowsRuntimeOutput)
 }
@@ -803,13 +803,13 @@ func (o StacksEntryMapOutput) MapIndex(k pulumi.StringInput) StacksEntryOutput {
 	}).(StacksEntryOutput)
 }
 
-// Pool selection. The preview runs on the hosted pool only.
+// Pool selection. In the private preview, all work runs on the hosted pool.
 type WorkflowsRuntimeArgsType struct {
-	// Pool identifier. Returned unchanged as the ref of the resource.
+	// Pool identifier. The resource returns it unchanged as ref.
 	AgentPool string `pulumi:"agentPool"`
 }
 
-// Pool selection. The preview runs on the hosted pool only.
+// Pool selection. In the private preview, all work runs on the hosted pool.
 type WorkflowsRuntimeArgsTypeOutput struct{ *pulumi.OutputState }
 
 func (WorkflowsRuntimeArgsTypeOutput) ElementType() reflect.Type {
@@ -824,7 +824,7 @@ func (o WorkflowsRuntimeArgsTypeOutput) ToWorkflowsRuntimeArgsTypeOutputWithCont
 	return o
 }
 
-// Pool identifier. Returned unchanged as the ref of the resource.
+// Pool identifier. The resource returns it unchanged as ref.
 func (o WorkflowsRuntimeArgsTypeOutput) AgentPool() pulumi.StringOutput {
 	return o.ApplyT(func(v WorkflowsRuntimeArgsType) string { return v.AgentPool }).(pulumi.StringOutput)
 }

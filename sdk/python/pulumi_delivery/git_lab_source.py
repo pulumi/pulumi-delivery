@@ -30,7 +30,7 @@ class GitLabSourceArgs:
         :param pulumi.Input[_builtins.str] branch: Branch of the source.
         :param pulumi.Input[_builtins.str] repository: Repository identifier understood by the VCS integration.
         :param pulumi.Input[_builtins.str] integration: Name of the VCS integration. Omit it when the organization has one integration for this forge.
-        :param pulumi.Input[Union[_builtins.bool, 'SourceTriggerArgs']] trigger: Starts a run on a push to the branch. Set true for every push, or { paths } for pushes that change a matching file. Omit it for a source that is part of the release but never starts a run.
+        :param pulumi.Input[Union[_builtins.bool, 'SourceTriggerArgs']] trigger: Starts a run when someone pushes to the branch. Set true for every push, or { paths } for pushes that change a matching file. If you omit it, the source is part of the release but never starts a run.
         """
         pulumi.set(__self__, "branch", branch)
         pulumi.set(__self__, "repository", repository)
@@ -79,7 +79,7 @@ class GitLabSourceArgs:
     @pulumi.getter
     def trigger(self) -> pulumi.Input[Optional[Union[_builtins.bool, 'SourceTriggerArgs']]]:
         """
-        Starts a run on a push to the branch. Set true for every push, or { paths } for pushes that change a matching file. Omit it for a source that is part of the release but never starts a run.
+        Starts a run when someone pushes to the branch. Set true for every push, or { paths } for pushes that change a matching file. If you omit it, the source is part of the release but never starts a run.
         """
         return pulumi.get(self, "trigger")
 
@@ -107,7 +107,7 @@ class GitLabSource(pulumi.ComponentResource):
         :param pulumi.Input[_builtins.str] branch: Branch of the source.
         :param pulumi.Input[_builtins.str] integration: Name of the VCS integration. Omit it when the organization has one integration for this forge.
         :param pulumi.Input[_builtins.str] repository: Repository identifier understood by the VCS integration.
-        :param pulumi.Input[Union[_builtins.bool, Union['SourceTriggerArgs', 'SourceTriggerArgsDict']]] trigger: Starts a run on a push to the branch. Set true for every push, or { paths } for pushes that change a matching file. Omit it for a source that is part of the release but never starts a run.
+        :param pulumi.Input[Union[_builtins.bool, Union['SourceTriggerArgs', 'SourceTriggerArgsDict']]] trigger: Starts a run when someone pushes to the branch. Set true for every push, or { paths } for pushes that change a matching file. If you omit it, the source is part of the release but never starts a run.
         """
         ...
     @overload

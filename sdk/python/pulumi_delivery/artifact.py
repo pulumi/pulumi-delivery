@@ -26,7 +26,7 @@ class ArtifactArgs:
         The set of arguments for constructing a Artifact resource.
 
         :param pulumi.Input['Stage'] stage: Stage that publishes the artifact.
-        :param Any value: Value to publish. It can be any value, also a secret or a structure.
+        :param Any value: Value to publish. It can be any value, including a secret or a structure.
         """
         pulumi.set(__self__, "stage", stage)
         pulumi.set(__self__, "value", value)
@@ -47,7 +47,7 @@ class ArtifactArgs:
     @pulumi.getter
     def value(self) -> Any:
         """
-        Value to publish. It can be any value, also a secret or a structure.
+        Value to publish. It can be any value, including a secret or a structure.
         """
         return pulumi.get(self, "value")
 
@@ -66,14 +66,14 @@ class Artifact(pulumi.ComponentResource):
                  value: Optional[Any] = None,
                  __props__=None):
         """
-        Publishes a value for the pipelines that read this stage with a PipelineSource. The artifact is named like the resource. It succeeds once its stage is admitted and its value is known.
+        Publishes a value for the pipelines that read this stage with a PipelineSource. The artifact has the name of the resource. It succeeds when its stage admits the release and its value is known.
 
         ## Example Usage
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
         :param pulumi.Input['Stage'] stage: Stage that publishes the artifact.
-        :param Any value: Value to publish. It can be any value, also a secret or a structure.
+        :param Any value: Value to publish. It can be any value, including a secret or a structure.
         """
         ...
     @overload
@@ -82,7 +82,7 @@ class Artifact(pulumi.ComponentResource):
                  args: ArtifactArgs,
                  opts: Optional[pulumi.ResourceOptions] = None):
         """
-        Publishes a value for the pipelines that read this stage with a PipelineSource. The artifact is named like the resource. It succeeds once its stage is admitted and its value is known.
+        Publishes a value for the pipelines that read this stage with a PipelineSource. The artifact has the name of the resource. It succeeds when its stage admits the release and its value is known.
 
         ## Example Usage
 

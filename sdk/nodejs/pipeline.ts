@@ -9,9 +9,9 @@ import * as utilities from "./utilities";
 import {AzureDevOpsSource, BitbucketSource, GitHubSource, GitLabSource} from "./index";
 
 /**
- * Declares the pipeline: the source and directory of the pipeline program itself, and the release number of the run. A program has one Pipeline.
+ * Declares the pipeline. It names the source and directory of the pipeline program itself, and it gives the release number of the run. A program has one Pipeline.
  *
- * Run pulumi up on the pipeline stack to register it. Registration ends with exit code 10, because the members wait for a run.
+ * To register the pipeline, run pulumi up on the pipeline stack. Registration ends with exit code 10, because the members wait for a run.
  *
  * ## Example Usage
  *

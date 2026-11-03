@@ -12,19 +12,19 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-// Updates one or more existing stacks in a stage. Each entry of stacks is one update of a target stack. Delivery checks out the source of the entry at the commit of the run and runs pulumi up on the target stack.
+// Updates one or more existing stacks in a stage. Each entry of stacks updates one target stack. Delivery checks out the source of the entry at the commit of the run and runs pulumi up on the target stack.
 //
 // Create each target stack before the first run. A target stack must be an ordinary stack in the organization of the pipeline.
 //
-// The entries of a group run together and can read each other's new outputs through stack references. The group is one unit for dependencies and retries: a resource that uses an output of one entry waits for the whole group, and a retry runs every entry again if one entry failed. Each entry uses one slot of the concurrent job limit of the organization. A group with more entries than the limit can block itself, and Delivery fails it after 2 hours without progress.
+// The entries of a group run together. They can read the new outputs of each other through stack references. The group is one unit for dependencies and retries. A resource that uses an output of one entry waits for the whole group. If one entry fails, a retry runs every entry again. Each entry uses one slot of the concurrent job limit of the organization. A group with more entries than the limit can block itself. Delivery fails it after 2 hours without progress.
 //
-// The outputs of the group are secret as a whole if the output of one entry is secret.
+// If the output of one entry is secret, all outputs of the group are secret.
 //
 // ## Example Usage
 type Stacks struct {
 	pulumi.ResourceState
 
-	// Outputs of each entry, by entry name. They are unknown until the group has run.
+	// Outputs of each entry, by entry name. They are unknown until the group runs.
 	Outputs pulumi.MapMapOutput `pulumi:"outputs"`
 }
 
@@ -51,17 +51,17 @@ func NewStacks(ctx *pulumi.Context,
 }
 
 type stacksArgs struct {
-	// Entries by name. Names can use letters, digits, underscores and hyphens. Each entry updates one target stack.
+	// Entries by name. A name can contain letters, digits, underscores and hyphens. Each entry updates one target stack.
 	Stacks map[string]StacksEntry `pulumi:"stacks"`
-	// Stage that the group runs in. A pipeline requires it.
+	// Stage that the group runs in.
 	Stage *Stage `pulumi:"stage"`
 }
 
 // The set of arguments for constructing a Stacks resource.
 type StacksArgs struct {
-	// Entries by name. Names can use letters, digits, underscores and hyphens. Each entry updates one target stack.
+	// Entries by name. A name can contain letters, digits, underscores and hyphens. Each entry updates one target stack.
 	Stacks StacksEntryMapInput
-	// Stage that the group runs in. A pipeline requires it.
+	// Stage that the group runs in.
 	Stage StageInput
 }
 
@@ -152,7 +152,7 @@ func (o StacksOutput) ToStacksOutputWithContext(ctx context.Context) StacksOutpu
 	return o
 }
 
-// Outputs of each entry, by entry name. They are unknown until the group has run.
+// Outputs of each entry, by entry name. They are unknown until the group runs.
 func (o StacksOutput) Outputs() pulumi.MapMapOutput {
 	return o.ApplyT(func(v *Stacks) pulumi.MapMapOutput { return v.Outputs }).(pulumi.MapMapOutput)
 }

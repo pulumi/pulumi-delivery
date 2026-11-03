@@ -11,14 +11,14 @@ import java.util.Objects;
 @CustomType
 public final class WorkflowsRuntimeArgs {
     /**
-     * @return Pool identifier. Returned unchanged as the ref of the resource.
+     * @return Pool identifier. The resource returns it unchanged as ref.
      * 
      */
     private String agentPool;
 
     private WorkflowsRuntimeArgs() {}
     /**
-     * @return Pool identifier. Returned unchanged as the ref of the resource.
+     * @return Pool identifier. The resource returns it unchanged as ref.
      * 
      */
     public String agentPool() {

@@ -86,7 +86,7 @@ class Stage(pulumi.ComponentResource):
                  when: pulumi.Input[Optional[Union['RuleArgs', 'RuleArgsDict', 'outputs.Rule']]] = None,
                  __props__=None):
         """
-        Declares a stage of the pipeline. The from stages define promotion edges, and when adds an optional rule such as approval. A stage with several upstream stages waits for the same release to converge in all of them.
+        Declares a stage of the pipeline. The from stages set the order of promotion, and when adds an optional rule, such as an approval. A stage with several upstream stages waits until the same release converges in all of them.
 
         ## Example Usage
 
@@ -103,7 +103,7 @@ class Stage(pulumi.ComponentResource):
                  args: StageArgs,
                  opts: Optional[pulumi.ResourceOptions] = None):
         """
-        Declares a stage of the pipeline. The from stages define promotion edges, and when adds an optional rule such as approval. A stage with several upstream stages waits for the same release to converge in all of them.
+        Declares a stage of the pipeline. The from stages set the order of promotion, and when adds an optional rule, such as an approval. A stage with several upstream stages waits until the same release converges in all of them.
 
         ## Example Usage
 

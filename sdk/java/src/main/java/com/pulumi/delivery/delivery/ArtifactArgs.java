@@ -31,14 +31,14 @@ public final class ArtifactArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * Value to publish. It can be any value, also a secret or a structure.
+     * Value to publish. It can be any value, including a secret or a structure.
      * 
      */
     @Import(name="value", required=true)
     private Output<Object> value;
 
     /**
-     * @return Value to publish. It can be any value, also a secret or a structure.
+     * @return Value to publish. It can be any value, including a secret or a structure.
      * 
      */
     public Output<Object> value() {
@@ -92,7 +92,7 @@ public final class ArtifactArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param value Value to publish. It can be any value, also a secret or a structure.
+         * @param value Value to publish. It can be any value, including a secret or a structure.
          * 
          * @return builder
          * 
@@ -103,7 +103,7 @@ public final class ArtifactArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param value Value to publish. It can be any value, also a secret or a structure.
+         * @param value Value to publish. It can be any value, including a secret or a structure.
          * 
          * @return builder
          * 

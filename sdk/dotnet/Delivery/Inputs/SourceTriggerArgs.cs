@@ -20,7 +20,7 @@ namespace Pulumi.Delivery.Delivery.Inputs
         private InputList<string>? _paths;
 
         /// <summary>
-        /// Glob patterns of changed files. A push starts a run only when it changes a file that matches.
+        /// Glob patterns of changed files. A push starts a run only when it changes a file that matches one of them.
         /// </summary>
         public InputList<string> Paths
         {

@@ -1,2 +1,2 @@
-// Define pipelines, stages and jobs in a Pulumi program.
+// Define Delivery pipelines, stages, jobs and sources in a Pulumi program.
 package delivery

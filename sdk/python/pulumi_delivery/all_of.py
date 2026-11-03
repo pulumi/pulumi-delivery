@@ -26,7 +26,7 @@ __all__ = [
 @pulumi.output_type
 class AllOfResult:
     """
-    Stage entry rule. Rules may nest at most three levels.
+    Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.
     """
     def __init__(__self__, approvers=None, body=None, count=None, description=None, headers=None, headers_environment=None, interval=None, kind=None, method=None, name=None, rules=None, success_expression=None, timeout=None, url=None):
         if approvers and not isinstance(approvers, list):
@@ -76,7 +76,7 @@ class AllOfResult:
     @pulumi.getter
     def approvers(self) -> Optional[Sequence[_builtins.str]]:
         """
-        Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
+        Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it.
         """
         return pulumi.get(self, "approvers")
 
@@ -84,7 +84,7 @@ class AllOfResult:
     @pulumi.getter
     def body(self) -> Optional[_builtins.str]:
         """
-        HTTP request body. Pulumi secret values remain secret.
+        HTTP request body. Secret values stay secret.
         """
         return pulumi.get(self, "body")
 
@@ -92,7 +92,7 @@ class AllOfResult:
     @pulumi.getter
     def count(self) -> Optional[_builtins.int]:
         """
-        Number of approvals required. For approval rules, omitted or zero means one.
+        Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
         """
         return pulumi.get(self, "count")
 
@@ -108,7 +108,7 @@ class AllOfResult:
     @pulumi.getter
     def headers(self) -> Optional[Mapping[str, _builtins.str]]:
         """
-        HTTP request headers. Pulumi secret values remain secret.
+        HTTP request headers. Secret values stay secret.
         """
         return pulumi.get(self, "headers")
 
@@ -116,7 +116,7 @@ class AllOfResult:
     @pulumi.getter(name="headersEnvironment")
     def headers_environment(self) -> Optional[_builtins.str]:
         """
-        Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule.
+        Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
         """
         return pulumi.get(self, "headers_environment")
 
@@ -124,7 +124,7 @@ class AllOfResult:
     @pulumi.getter
     def interval(self) -> Optional[_builtins.str]:
         """
-        HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
+        Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
         """
         return pulumi.get(self, "interval")
 
@@ -132,7 +132,7 @@ class AllOfResult:
     @pulumi.getter
     def kind(self) -> _builtins.str:
         """
-        Rule kind: approval, http, manual, all, or any.
+        Kind of the rule. Valid values are approval, http, manual, all, and any.
         """
         return pulumi.get(self, "kind")
 
@@ -156,7 +156,7 @@ class AllOfResult:
     @pulumi.getter
     def rules(self) -> Optional[Sequence['outputs.Rule']]:
         """
-        Child rules for all or any. At least one child is required.
+        Child rules for all and any rules. At least one is required.
         """
         return pulumi.get(self, "rules")
 
@@ -164,7 +164,7 @@ class AllOfResult:
     @pulumi.getter(name="successExpression")
     def success_expression(self) -> Optional[_builtins.str]:
         """
-        JMESPath expression that the service evaluates over the status, headers and body of the HTTP response. The rule passes when it is true. Required for http rules.
+        JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
         """
         return pulumi.get(self, "success_expression")
 
@@ -172,7 +172,7 @@ class AllOfResult:
     @pulumi.getter
     def timeout(self) -> Optional[_builtins.str]:
         """
-        HTTP request timeout as a Go duration, such as 10s. Must be a positive whole number of seconds, at most 20 seconds.
+        Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
         """
         return pulumi.get(self, "timeout")
 
@@ -180,7 +180,7 @@ class AllOfResult:
     @pulumi.getter
     def url(self) -> Optional[_builtins.str]:
         """
-        URL to call for an http rule. Required for that kind.
+        URL to call. Required for http rules.
         """
         return pulumi.get(self, "url")
 
@@ -211,12 +211,12 @@ def all_of(name: Optional[_builtins.str] = None,
            rules: Optional[Sequence[Union['Rule', 'RuleDict', 'outputs.Rule']]] = None,
            opts: Optional[pulumi.InvokeOptions] = None) -> AwaitableAllOfResult:
     """
-    Builds an all rule for a Stage's when: passes once every child rule passes.
+    Builds an all rule for the when property of a Stage. The rule passes when every child rule passes.
 
     ## Example Usage
 
     :param _builtins.str name: Rule name. Omit it to let Delivery assign one.
-    :param Sequence[Union['Rule', 'RuleDict', 'outputs.Rule']] rules: Child rules. At least one is required. Rules may nest at most three levels.
+    :param Sequence[Union['Rule', 'RuleDict', 'outputs.Rule']] rules: Child rules. At least one is required. A rule can contain other rules, up to three levels deep.
     """
     __args__ = dict()
     __args__['name'] = name
@@ -243,12 +243,12 @@ def all_of_output(name: pulumi.Input[Optional[Optional[_builtins.str]]] = None,
                   rules: pulumi.Input[Optional[Sequence[Union['Rule', 'RuleDict', 'outputs.Rule']]]] = None,
                   opts: Optional[Union[pulumi.InvokeOptions, pulumi.InvokeOutputOptions]] = None) -> pulumi.Output[AllOfResult]:
     """
-    Builds an all rule for a Stage's when: passes once every child rule passes.
+    Builds an all rule for the when property of a Stage. The rule passes when every child rule passes.
 
     ## Example Usage
 
     :param _builtins.str name: Rule name. Omit it to let Delivery assign one.
-    :param Sequence[Union['Rule', 'RuleDict', 'outputs.Rule']] rules: Child rules. At least one is required. Rules may nest at most three levels.
+    :param Sequence[Union['Rule', 'RuleDict', 'outputs.Rule']] rules: Child rules. At least one is required. A rule can contain other rules, up to three levels deep.
     """
     __args__ = dict()
     __args__['name'] = name

@@ -12,12 +12,12 @@ namespace Pulumi.Delivery.Delivery.Inputs
 {
 
     /// <summary>
-    /// Checkout location of the pipeline program.
+    /// Location of the pipeline program in a repository.
     /// </summary>
     public sealed class ProgramSourceArgs : global::Pulumi.ResourceArgs
     {
         /// <summary>
-        /// Directory containing the pipeline Pulumi.yaml, relative to the repository root.
+        /// Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root.
         /// </summary>
         [Input("directory", required: true)]
         public Input<string> Directory { get; set; } = null!;

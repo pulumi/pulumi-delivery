@@ -48,14 +48,14 @@ public final class PipelineSourceArgs extends com.pulumi.resources.ResourceArgs 
     }
 
     /**
-     * Set true to start a run of this pipeline when the stage deploys a new release. Omit it for a source that is part of the release but never starts a run.
+     * Set true to start a run of this pipeline when the stage deploys a new release. If you omit it, the source is part of the release but never starts a run.
      * 
      */
     @Import(name="trigger")
     private @Nullable Output<Boolean> trigger;
 
     /**
-     * @return Set true to start a run of this pipeline when the stage deploys a new release. Omit it for a source that is part of the release but never starts a run.
+     * @return Set true to start a run of this pipeline when the stage deploys a new release. If you omit it, the source is part of the release but never starts a run.
      * 
      */
     public Optional<Output<Boolean>> trigger() {
@@ -131,7 +131,7 @@ public final class PipelineSourceArgs extends com.pulumi.resources.ResourceArgs 
         }
 
         /**
-         * @param trigger Set true to start a run of this pipeline when the stage deploys a new release. Omit it for a source that is part of the release but never starts a run.
+         * @param trigger Set true to start a run of this pipeline when the stage deploys a new release. If you omit it, the source is part of the release but never starts a run.
          * 
          * @return builder
          * 
@@ -142,7 +142,7 @@ public final class PipelineSourceArgs extends com.pulumi.resources.ResourceArgs 
         }
 
         /**
-         * @param trigger Set true to start a run of this pipeline when the stage deploys a new release. Omit it for a source that is part of the release but never starts a run.
+         * @param trigger Set true to start a run of this pipeline when the stage deploys a new release. If you omit it, the source is part of the release but never starts a run.
          * 
          * @return builder
          * 

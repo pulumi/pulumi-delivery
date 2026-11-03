@@ -54,9 +54,9 @@ class Pipeline(pulumi.ComponentResource):
                  program: pulumi.Input[Optional[Union['ProgramSourceArgs', 'ProgramSourceArgsDict']]] = None,
                  __props__=None):
         """
-        Declares the pipeline: the source and directory of the pipeline program itself, and the release number of the run. A program has one Pipeline.
+        Declares the pipeline. It names the source and directory of the pipeline program itself, and it gives the release number of the run. A program has one Pipeline.
 
-        Run pulumi up on the pipeline stack to register it. Registration ends with exit code 10, because the members wait for a run.
+        To register the pipeline, run pulumi up on the pipeline stack. Registration ends with exit code 10, because the members wait for a run.
 
         ## Example Usage
 
@@ -71,9 +71,9 @@ class Pipeline(pulumi.ComponentResource):
                  args: PipelineArgs,
                  opts: Optional[pulumi.ResourceOptions] = None):
         """
-        Declares the pipeline: the source and directory of the pipeline program itself, and the release number of the run. A program has one Pipeline.
+        Declares the pipeline. It names the source and directory of the pipeline program itself, and it gives the release number of the run. A program has one Pipeline.
 
-        Run pulumi up on the pipeline stack to register it. Registration ends with exit code 10, because the members wait for a run.
+        To register the pipeline, run pulumi up on the pipeline stack. Registration ends with exit code 10, because the members wait for a run.
 
         ## Example Usage
 

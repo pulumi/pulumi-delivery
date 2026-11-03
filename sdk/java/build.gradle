@@ -96,7 +96,7 @@ publishing {
                 inceptionYear = "2022"
                 name = "pulumi-delivery"
                 packaging = "jar"
-                description = $/Define pipelines, stages and jobs in a Pulumi program./$
+                description = $/Define Delivery pipelines, stages, jobs and sources in a Pulumi program./$
 
                 url = "https://github.com/pulumi/pulumi-delivery"
 

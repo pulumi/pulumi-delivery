@@ -30,7 +30,7 @@ class GitHubSourceArgs:
         :param pulumi.Input[_builtins.str] branch: Branch of the source.
         :param pulumi.Input[_builtins.str] repository: Repository identifier understood by the VCS integration.
         :param pulumi.Input[_builtins.str] integration: Name of the VCS integration. Omit it when the organization has one integration for this forge.
-        :param pulumi.Input[Union[_builtins.bool, 'SourceTriggerArgs']] trigger: Starts a run on a push to the branch. Set true for every push, or { paths } for pushes that change a matching file. Omit it for a source that is part of the release but never starts a run.
+        :param pulumi.Input[Union[_builtins.bool, 'SourceTriggerArgs']] trigger: Starts a run when someone pushes to the branch. Set true for every push, or { paths } for pushes that change a matching file. If you omit it, the source is part of the release but never starts a run.
         """
         pulumi.set(__self__, "branch", branch)
         pulumi.set(__self__, "repository", repository)
@@ -79,7 +79,7 @@ class GitHubSourceArgs:
     @pulumi.getter
     def trigger(self) -> pulumi.Input[Optional[Union[_builtins.bool, 'SourceTriggerArgs']]]:
         """
-        Starts a run on a push to the branch. Set true for every push, or { paths } for pushes that change a matching file. Omit it for a source that is part of the release but never starts a run.
+        Starts a run when someone pushes to the branch. Set true for every push, or { paths } for pushes that change a matching file. If you omit it, the source is part of the release but never starts a run.
         """
         return pulumi.get(self, "trigger")
 
@@ -100,9 +100,9 @@ class GitHubSource(pulumi.ComponentResource):
                  trigger: pulumi.Input[Optional[Union[_builtins.bool, Union['SourceTriggerArgs', 'SourceTriggerArgsDict']]]] = None,
                  __props__=None):
         """
-        Declares a GitHub repository and branch. Members check out this source. The source locks its commit when the run first creates it, and every stage of the run gets that commit. The commit output is that commit. It is unknown during registration and preview.
+        Declares a GitHub repository and branch. Members check out this source. The source locks its commit when the run first creates it, and every stage of the run gets that commit. The commit output holds this commit. It is unknown during registration and preview.
 
-        A source does not start runs unless you set trigger. Set trigger to true to start a run on every push to the branch, or to { paths } to start one only when a push changes a matching file.
+        A source does not start runs unless you set trigger. Set trigger to true to start a run on every push to the branch. Set it to { paths } to start a run only when a push changes a matching file.
 
         ## Example Usage
 
@@ -111,7 +111,7 @@ class GitHubSource(pulumi.ComponentResource):
         :param pulumi.Input[_builtins.str] branch: Branch of the source.
         :param pulumi.Input[_builtins.str] integration: Name of the VCS integration. Omit it when the organization has one integration for this forge.
         :param pulumi.Input[_builtins.str] repository: Repository identifier understood by the VCS integration.
-        :param pulumi.Input[Union[_builtins.bool, Union['SourceTriggerArgs', 'SourceTriggerArgsDict']]] trigger: Starts a run on a push to the branch. Set true for every push, or { paths } for pushes that change a matching file. Omit it for a source that is part of the release but never starts a run.
+        :param pulumi.Input[Union[_builtins.bool, Union['SourceTriggerArgs', 'SourceTriggerArgsDict']]] trigger: Starts a run when someone pushes to the branch. Set true for every push, or { paths } for pushes that change a matching file. If you omit it, the source is part of the release but never starts a run.
         """
         ...
     @overload
@@ -120,9 +120,9 @@ class GitHubSource(pulumi.ComponentResource):
                  args: GitHubSourceArgs,
                  opts: Optional[pulumi.ResourceOptions] = None):
         """
-        Declares a GitHub repository and branch. Members check out this source. The source locks its commit when the run first creates it, and every stage of the run gets that commit. The commit output is that commit. It is unknown during registration and preview.
+        Declares a GitHub repository and branch. Members check out this source. The source locks its commit when the run first creates it, and every stage of the run gets that commit. The commit output holds this commit. It is unknown during registration and preview.
 
-        A source does not start runs unless you set trigger. Set trigger to true to start a run on every push to the branch, or to { paths } to start one only when a push changes a matching file.
+        A source does not start runs unless you set trigger. Set trigger to true to start a run on every push to the branch. Set it to { paths } to start a run only when a push changes a matching file.
 
         ## Example Usage
 

@@ -1,6 +1,6 @@
 [project]
   name = "pulumi_delivery"
-  description = "Define pipelines, stages and jobs in a Pulumi program."
+  description = "Define Delivery pipelines, stages, jobs and sources in a Pulumi program."
   dependencies = ["packaging>=24.0", "pulumi>=3.231.0,<4.0.0", "semver>=2.8.1", "typing-extensions>=4.11,<5; python_version < \"3.11\""]
   keywords = ["pulumi", "delivery", "category/utility", "kind/native"]
   readme = "README.md"

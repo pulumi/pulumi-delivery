@@ -49,7 +49,7 @@ type gitLabSourceArgs struct {
 	Integration *string `pulumi:"integration"`
 	// Repository identifier understood by the VCS integration.
 	Repository string `pulumi:"repository"`
-	// Starts a run on a push to the branch. Set true for every push, or { paths } for pushes that change a matching file. Omit it for a source that is part of the release but never starts a run.
+	// Starts a run when someone pushes to the branch. Set true for every push, or { paths } for pushes that change a matching file. If you omit it, the source is part of the release but never starts a run.
 	Trigger interface{} `pulumi:"trigger"`
 }
 
@@ -61,7 +61,7 @@ type GitLabSourceArgs struct {
 	Integration pulumi.StringPtrInput
 	// Repository identifier understood by the VCS integration.
 	Repository pulumi.StringInput
-	// Starts a run on a push to the branch. Set true for every push, or { paths } for pushes that change a matching file. Omit it for a source that is part of the release but never starts a run.
+	// Starts a run when someone pushes to the branch. Set true for every push, or { paths } for pushes that change a matching file. If you omit it, the source is part of the release but never starts a run.
 	Trigger pulumi.Input
 }
 

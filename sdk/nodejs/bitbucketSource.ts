@@ -76,7 +76,7 @@ export interface BitbucketSourceArgs {
      */
     repository: pulumi.Input<string>;
     /**
-     * Starts a run on a push to the branch. Set true for every push, or { paths } for pushes that change a matching file. Omit it for a source that is part of the release but never starts a run.
+     * Starts a run when someone pushes to the branch. Set true for every push, or { paths } for pushes that change a matching file. If you omit it, the source is part of the release but never starts a run.
      */
     trigger?: pulumi.Input<boolean | inputs.SourceTriggerArgs | undefined>;
 }

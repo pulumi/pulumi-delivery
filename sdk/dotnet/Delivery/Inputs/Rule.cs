@@ -12,7 +12,7 @@ namespace Pulumi.Delivery.Delivery.Inputs
 {
 
     /// <summary>
-    /// Stage entry rule. Rules may nest at most three levels.
+    /// Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.
     /// </summary>
     public sealed class Rule : global::Pulumi.InvokeArgs
     {
@@ -20,7 +20,7 @@ namespace Pulumi.Delivery.Delivery.Inputs
         private List<string>? _approvers;
 
         /// <summary>
-        /// Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
+        /// Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it.
         /// </summary>
         public List<string> Approvers
         {
@@ -29,13 +29,13 @@ namespace Pulumi.Delivery.Delivery.Inputs
         }
 
         /// <summary>
-        /// HTTP request body. Pulumi secret values remain secret.
+        /// HTTP request body. Secret values stay secret.
         /// </summary>
         [Input("body")]
         public string? Body { get; set; }
 
         /// <summary>
-        /// Number of approvals required. For approval rules, omitted or zero means one.
+        /// Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
         /// </summary>
         [Input("count")]
         public int? Count { get; set; }
@@ -50,7 +50,7 @@ namespace Pulumi.Delivery.Delivery.Inputs
         private Dictionary<string, string>? _headers;
 
         /// <summary>
-        /// HTTP request headers. Pulumi secret values remain secret.
+        /// HTTP request headers. Secret values stay secret.
         /// </summary>
         public Dictionary<string, string> Headers
         {
@@ -59,19 +59,19 @@ namespace Pulumi.Delivery.Delivery.Inputs
         }
 
         /// <summary>
-        /// Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule.
+        /// Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
         /// </summary>
         [Input("headersEnvironment")]
         public string? HeadersEnvironment { get; set; }
 
         /// <summary>
-        /// HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
+        /// Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
         /// </summary>
         [Input("interval")]
         public string? Interval { get; set; }
 
         /// <summary>
-        /// Rule kind: approval, http, manual, all, or any.
+        /// Kind of the rule. Valid values are approval, http, manual, all, and any.
         /// </summary>
         [Input("kind", required: true)]
         public string Kind { get; set; } = null!;
@@ -92,7 +92,7 @@ namespace Pulumi.Delivery.Delivery.Inputs
         private List<Inputs.Rule>? _rules;
 
         /// <summary>
-        /// Child rules for all or any. At least one child is required.
+        /// Child rules for all and any rules. At least one is required.
         /// </summary>
         public List<Inputs.Rule> Rules
         {
@@ -101,19 +101,19 @@ namespace Pulumi.Delivery.Delivery.Inputs
         }
 
         /// <summary>
-        /// JMESPath expression that the service evaluates over the status, headers and body of the HTTP response. The rule passes when it is true. Required for http rules.
+        /// JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
         /// </summary>
         [Input("successExpression")]
         public string? SuccessExpression { get; set; }
 
         /// <summary>
-        /// HTTP request timeout as a Go duration, such as 10s. Must be a positive whole number of seconds, at most 20 seconds.
+        /// Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
         /// </summary>
         [Input("timeout")]
         public string? Timeout { get; set; }
 
         /// <summary>
-        /// URL to call for an http rule. Required for that kind.
+        /// URL to call. Required for http rules.
         /// </summary>
         [Input("url")]
         public string? Url { get; set; }
