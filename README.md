@@ -12,11 +12,13 @@ The repository has these directories.
 
 ## Install the plugin
 
-Releases and prereleases are on get.pulumi.com. They are not in the registry index.
+Releases and prereleases are on get.pulumi.com. Until the registry lists the package, name the server, or the CLI stops at the registry lookup.
 
 ```sh
-pulumi plugin install resource delivery <version>
+pulumi plugin install resource delivery <version> --server https://get.pulumi.com/releases/plugins
 ```
+
+Then `pulumi package add delivery@<version>` in a project generates the SDK from the installed plugin.
 
 To install a local build:
 
