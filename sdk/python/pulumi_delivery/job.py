@@ -33,12 +33,12 @@ class JobArgs:
         """
         The set of arguments for constructing a Job resource.
 
-        :param pulumi.Input[_builtins.str] command: Command to run. It runs with sh -c. The command can write outputs to the file that DELIVERY_OUTPUTS names.
+        :param pulumi.Input[_builtins.str] command: Command to run with sh -c. To publish outputs, the command writes them to the file that DELIVERY_OUTPUTS names.
         :param pulumi.Input[_builtins.str] directory: Directory to run the command in, relative to the repository root.
         :param pulumi.Input[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource']] source: VCS source to check out.
-        :param pulumi.Input['Stage'] stage: Stage that the job runs in. A pipeline requires it.
-        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] environment: Environment variables for the command. A secret value stays secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
-        :param pulumi.Input[_builtins.str] timeout: Maximum run time as a Go duration, such as 30m. The preview does not apply this value yet. A job stops after 2 hours.
+        :param pulumi.Input['Stage'] stage: Stage that the job runs in.
+        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] environment: Environment variables for the command. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
+        :param pulumi.Input[_builtins.str] timeout: Maximum run time as a Go duration, such as 30m. Delivery does not apply this value in the private preview. A job stops after 2 hours.
         """
         pulumi.set(__self__, "command", command)
         pulumi.set(__self__, "directory", directory)
@@ -53,7 +53,7 @@ class JobArgs:
     @pulumi.getter
     def command(self) -> pulumi.Input[_builtins.str]:
         """
-        Command to run. It runs with sh -c. The command can write outputs to the file that DELIVERY_OUTPUTS names.
+        Command to run with sh -c. To publish outputs, the command writes them to the file that DELIVERY_OUTPUTS names.
         """
         return pulumi.get(self, "command")
 
@@ -89,7 +89,7 @@ class JobArgs:
     @pulumi.getter
     def stage(self) -> pulumi.Input['Stage']:
         """
-        Stage that the job runs in. A pipeline requires it.
+        Stage that the job runs in.
         """
         return pulumi.get(self, "stage")
 
@@ -101,7 +101,7 @@ class JobArgs:
     @pulumi.getter
     def environment(self) -> pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]]:
         """
-        Environment variables for the command. A secret value stays secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
+        Environment variables for the command. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
         """
         return pulumi.get(self, "environment")
 
@@ -113,7 +113,7 @@ class JobArgs:
     @pulumi.getter
     def timeout(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        Maximum run time as a Go duration, such as 30m. The preview does not apply this value yet. A job stops after 2 hours.
+        Maximum run time as a Go duration, such as 30m. Delivery does not apply this value in the private preview. A job stops after 2 hours.
         """
         return pulumi.get(self, "timeout")
 
@@ -136,24 +136,24 @@ class Job(pulumi.ComponentResource):
                  timeout: pulumi.Input[Optional[_builtins.str]] = None,
                  __props__=None):
         """
-        Declares a command that a run executes in a stage. The service checks out the source at the commit of the run and runs the command in directory.
+        Declares a command that a run executes in a stage. Delivery checks out the source at the commit of the run and runs the command in directory.
 
         A resource that is not a Delivery resource waits for the job when it uses an output of the job.
 
-        The command sees these variables: DELIVERY_RELEASE, DELIVERY_RUN, DELIVERY_STAGE, DELIVERY_COMMIT and DELIVERY_PIPELINE. To publish outputs, the command writes a JSON object to the file that DELIVERY_OUTPUTS names. Each key is one output. The file can be at most 1 MiB. To mark an output as secret, write it as {"value": ..., "secret": true}.
+        The command can read these variables: DELIVERY_RELEASE, DELIVERY_RUN, DELIVERY_STAGE, DELIVERY_COMMIT and DELIVERY_PIPELINE. To publish outputs, write a JSON object to the file that DELIVERY_OUTPUTS names. Each key is one output. The file can be at most 1 MiB. To mark an output as secret, write it as {"value": ..., "secret": true}.
 
-        If any output is secret, the whole map is secret. An output is secret when the job marks it or when it contains a secret environment value.
+        If one output is secret, the whole map is secret. An output is secret when the job marks it as secret or when it contains a secret environment value.
 
         ## Example Usage
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
-        :param pulumi.Input[_builtins.str] command: Command to run. It runs with sh -c. The command can write outputs to the file that DELIVERY_OUTPUTS names.
+        :param pulumi.Input[_builtins.str] command: Command to run with sh -c. To publish outputs, the command writes them to the file that DELIVERY_OUTPUTS names.
         :param pulumi.Input[_builtins.str] directory: Directory to run the command in, relative to the repository root.
-        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] environment: Environment variables for the command. A secret value stays secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
+        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] environment: Environment variables for the command. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
         :param pulumi.Input[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource']] source: VCS source to check out.
-        :param pulumi.Input['Stage'] stage: Stage that the job runs in. A pipeline requires it.
-        :param pulumi.Input[_builtins.str] timeout: Maximum run time as a Go duration, such as 30m. The preview does not apply this value yet. A job stops after 2 hours.
+        :param pulumi.Input['Stage'] stage: Stage that the job runs in.
+        :param pulumi.Input[_builtins.str] timeout: Maximum run time as a Go duration, such as 30m. Delivery does not apply this value in the private preview. A job stops after 2 hours.
         """
         ...
     @overload
@@ -162,13 +162,13 @@ class Job(pulumi.ComponentResource):
                  args: JobArgs,
                  opts: Optional[pulumi.ResourceOptions] = None):
         """
-        Declares a command that a run executes in a stage. The service checks out the source at the commit of the run and runs the command in directory.
+        Declares a command that a run executes in a stage. Delivery checks out the source at the commit of the run and runs the command in directory.
 
         A resource that is not a Delivery resource waits for the job when it uses an output of the job.
 
-        The command sees these variables: DELIVERY_RELEASE, DELIVERY_RUN, DELIVERY_STAGE, DELIVERY_COMMIT and DELIVERY_PIPELINE. To publish outputs, the command writes a JSON object to the file that DELIVERY_OUTPUTS names. Each key is one output. The file can be at most 1 MiB. To mark an output as secret, write it as {"value": ..., "secret": true}.
+        The command can read these variables: DELIVERY_RELEASE, DELIVERY_RUN, DELIVERY_STAGE, DELIVERY_COMMIT and DELIVERY_PIPELINE. To publish outputs, write a JSON object to the file that DELIVERY_OUTPUTS names. Each key is one output. The file can be at most 1 MiB. To mark an output as secret, write it as {"value": ..., "secret": true}.
 
-        If any output is secret, the whole map is secret. An output is secret when the job marks it or when it contains a secret environment value.
+        If one output is secret, the whole map is secret. An output is secret when the job marks it as secret or when it contains a secret environment value.
 
         ## Example Usage
 
@@ -230,7 +230,7 @@ class Job(pulumi.ComponentResource):
     @pulumi.getter
     def outputs(self) -> pulumi.Output[Mapping[str, _builtins.str]]:
         """
-        Outputs that the command wrote. They are unknown until the job has run.
+        Outputs that the command wrote. They are unknown until the job runs.
         """
         return pulumi.get(self, "outputs")
 

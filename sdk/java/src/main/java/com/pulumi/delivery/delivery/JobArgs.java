@@ -24,14 +24,14 @@ public final class JobArgs extends com.pulumi.resources.ResourceArgs {
     public static final JobArgs Empty = new JobArgs();
 
     /**
-     * Command to run. It runs with sh -c. The command can write outputs to the file that DELIVERY_OUTPUTS names.
+     * Command to run with sh -c. To publish outputs, the command writes them to the file that DELIVERY_OUTPUTS names.
      * 
      */
     @Import(name="command", required=true)
     private Output<String> command;
 
     /**
-     * @return Command to run. It runs with sh -c. The command can write outputs to the file that DELIVERY_OUTPUTS names.
+     * @return Command to run with sh -c. To publish outputs, the command writes them to the file that DELIVERY_OUTPUTS names.
      * 
      */
     public Output<String> command() {
@@ -54,14 +54,14 @@ public final class JobArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * Environment variables for the command. A secret value stays secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
+     * Environment variables for the command. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
      * 
      */
     @Import(name="environment")
     private @Nullable Output<Map<String,String>> environment;
 
     /**
-     * @return Environment variables for the command. A secret value stays secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
+     * @return Environment variables for the command. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
      * 
      */
     public Optional<Output<Map<String,String>>> environment() {
@@ -84,14 +84,14 @@ public final class JobArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * Stage that the job runs in. A pipeline requires it.
+     * Stage that the job runs in.
      * 
      */
     @Import(name="stage", required=true)
     private Output<Stage> stage;
 
     /**
-     * @return Stage that the job runs in. A pipeline requires it.
+     * @return Stage that the job runs in.
      * 
      */
     public Output<Stage> stage() {
@@ -99,14 +99,14 @@ public final class JobArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * Maximum run time as a Go duration, such as 30m. The preview does not apply this value yet. A job stops after 2 hours.
+     * Maximum run time as a Go duration, such as 30m. Delivery does not apply this value in the private preview. A job stops after 2 hours.
      * 
      */
     @Import(name="timeout")
     private @Nullable Output<String> timeout;
 
     /**
-     * @return Maximum run time as a Go duration, such as 30m. The preview does not apply this value yet. A job stops after 2 hours.
+     * @return Maximum run time as a Go duration, such as 30m. Delivery does not apply this value in the private preview. A job stops after 2 hours.
      * 
      */
     public Optional<Output<String>> timeout() {
@@ -143,7 +143,7 @@ public final class JobArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param command Command to run. It runs with sh -c. The command can write outputs to the file that DELIVERY_OUTPUTS names.
+         * @param command Command to run with sh -c. To publish outputs, the command writes them to the file that DELIVERY_OUTPUTS names.
          * 
          * @return builder
          * 
@@ -154,7 +154,7 @@ public final class JobArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param command Command to run. It runs with sh -c. The command can write outputs to the file that DELIVERY_OUTPUTS names.
+         * @param command Command to run with sh -c. To publish outputs, the command writes them to the file that DELIVERY_OUTPUTS names.
          * 
          * @return builder
          * 
@@ -185,7 +185,7 @@ public final class JobArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param environment Environment variables for the command. A secret value stays secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
+         * @param environment Environment variables for the command. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
          * 
          * @return builder
          * 
@@ -196,7 +196,7 @@ public final class JobArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param environment Environment variables for the command. A secret value stays secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
+         * @param environment Environment variables for the command. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
          * 
          * @return builder
          * 
@@ -227,7 +227,7 @@ public final class JobArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param stage Stage that the job runs in. A pipeline requires it.
+         * @param stage Stage that the job runs in.
          * 
          * @return builder
          * 
@@ -238,7 +238,7 @@ public final class JobArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param stage Stage that the job runs in. A pipeline requires it.
+         * @param stage Stage that the job runs in.
          * 
          * @return builder
          * 
@@ -248,7 +248,7 @@ public final class JobArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param timeout Maximum run time as a Go duration, such as 30m. The preview does not apply this value yet. A job stops after 2 hours.
+         * @param timeout Maximum run time as a Go duration, such as 30m. Delivery does not apply this value in the private preview. A job stops after 2 hours.
          * 
          * @return builder
          * 
@@ -259,7 +259,7 @@ public final class JobArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param timeout Maximum run time as a Go duration, such as 30m. The preview does not apply this value yet. A job stops after 2 hours.
+         * @param timeout Maximum run time as a Go duration, such as 30m. Delivery does not apply this value in the private preview. A job stops after 2 hours.
          * 
          * @return builder
          * 

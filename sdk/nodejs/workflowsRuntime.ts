@@ -7,7 +7,7 @@ import * as outputs from "./types/output";
 import * as utilities from "./utilities";
 
 /**
- * Selects the pool that runs the work of a member. The preview runs on the hosted pool only, so do not use this resource in the preview. Agent pools are not available yet.
+ * Selects the pool that runs the work of a member. In the private preview, all work runs on the hosted pool, so do not use this resource yet. Agent pools are not available.
  */
 export class WorkflowsRuntime extends pulumi.CustomResource {
     /**
@@ -72,7 +72,7 @@ export class WorkflowsRuntime extends pulumi.CustomResource {
  */
 export interface WorkflowsRuntimeArgs {
     /**
-     * Pool identifier. Returned unchanged as the ref of the resource.
+     * Pool identifier. The resource returns it unchanged as ref.
      */
     agentPool: pulumi.Input<string>;
 }

@@ -16,7 +16,7 @@ import java.util.Objects;
 
 
 /**
- * Checkout location of the pipeline program.
+ * Location of the pipeline program in a repository.
  * 
  */
 public final class ProgramSourceArgs extends com.pulumi.resources.ResourceArgs {
@@ -24,14 +24,14 @@ public final class ProgramSourceArgs extends com.pulumi.resources.ResourceArgs {
     public static final ProgramSourceArgs Empty = new ProgramSourceArgs();
 
     /**
-     * Directory containing the pipeline Pulumi.yaml, relative to the repository root.
+     * Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root.
      * 
      */
     @Import(name="directory", required=true)
     private Output<String> directory;
 
     /**
-     * @return Directory containing the pipeline Pulumi.yaml, relative to the repository root.
+     * @return Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root.
      * 
      */
     public Output<String> directory() {
@@ -79,7 +79,7 @@ public final class ProgramSourceArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param directory Directory containing the pipeline Pulumi.yaml, relative to the repository root.
+         * @param directory Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root.
          * 
          * @return builder
          * 
@@ -90,7 +90,7 @@ public final class ProgramSourceArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param directory Directory containing the pipeline Pulumi.yaml, relative to the repository root.
+         * @param directory Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root.
          * 
          * @return builder
          * 

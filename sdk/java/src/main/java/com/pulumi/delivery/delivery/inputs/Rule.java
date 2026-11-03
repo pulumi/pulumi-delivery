@@ -15,7 +15,7 @@ import javax.annotation.Nullable;
 
 
 /**
- * Stage entry rule. Rules may nest at most three levels.
+ * Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.
  * 
  */
 public final class Rule extends com.pulumi.resources.InvokeArgs {
@@ -23,14 +23,14 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
     public static final Rule Empty = new Rule();
 
     /**
-     * Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
+     * Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it.
      * 
      */
     @Import(name="approvers")
     private @Nullable List<String> approvers;
 
     /**
-     * @return Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
+     * @return Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it.
      * 
      */
     public Optional<List<String>> approvers() {
@@ -38,14 +38,14 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
     }
 
     /**
-     * HTTP request body. Pulumi secret values remain secret.
+     * HTTP request body. Secret values stay secret.
      * 
      */
     @Import(name="body")
     private @Nullable String body;
 
     /**
-     * @return HTTP request body. Pulumi secret values remain secret.
+     * @return HTTP request body. Secret values stay secret.
      * 
      */
     public Optional<String> body() {
@@ -53,14 +53,14 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
     }
 
     /**
-     * Number of approvals required. For approval rules, omitted or zero means one.
+     * Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
      * 
      */
     @Import(name="count")
     private @Nullable Integer count;
 
     /**
-     * @return Number of approvals required. For approval rules, omitted or zero means one.
+     * @return Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
      * 
      */
     public Optional<Integer> count() {
@@ -83,14 +83,14 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
     }
 
     /**
-     * HTTP request headers. Pulumi secret values remain secret.
+     * HTTP request headers. Secret values stay secret.
      * 
      */
     @Import(name="headers")
     private @Nullable Map<String,String> headers;
 
     /**
-     * @return HTTP request headers. Pulumi secret values remain secret.
+     * @return HTTP request headers. Secret values stay secret.
      * 
      */
     public Optional<Map<String,String>> headers() {
@@ -98,14 +98,14 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
     }
 
     /**
-     * Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule.
+     * Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
      * 
      */
     @Import(name="headersEnvironment")
     private @Nullable String headersEnvironment;
 
     /**
-     * @return Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule.
+     * @return Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
      * 
      */
     public Optional<String> headersEnvironment() {
@@ -113,14 +113,14 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
     }
 
     /**
-     * HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
+     * Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
      * 
      */
     @Import(name="interval")
     private @Nullable String interval;
 
     /**
-     * @return HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
+     * @return Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
      * 
      */
     public Optional<String> interval() {
@@ -128,14 +128,14 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
     }
 
     /**
-     * Rule kind: approval, http, manual, all, or any.
+     * Kind of the rule. Valid values are approval, http, manual, all, and any.
      * 
      */
     @Import(name="kind", required=true)
     private String kind;
 
     /**
-     * @return Rule kind: approval, http, manual, all, or any.
+     * @return Kind of the rule. Valid values are approval, http, manual, all, and any.
      * 
      */
     public String kind() {
@@ -173,14 +173,14 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
     }
 
     /**
-     * Child rules for all or any. At least one child is required.
+     * Child rules for all and any rules. At least one is required.
      * 
      */
     @Import(name="rules")
     private @Nullable List<Rule> rules;
 
     /**
-     * @return Child rules for all or any. At least one child is required.
+     * @return Child rules for all and any rules. At least one is required.
      * 
      */
     public Optional<List<Rule>> rules() {
@@ -188,14 +188,14 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
     }
 
     /**
-     * JMESPath expression that the service evaluates over the status, headers and body of the HTTP response. The rule passes when it is true. Required for http rules.
+     * JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
      * 
      */
     @Import(name="successExpression")
     private @Nullable String successExpression;
 
     /**
-     * @return JMESPath expression that the service evaluates over the status, headers and body of the HTTP response. The rule passes when it is true. Required for http rules.
+     * @return JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
      * 
      */
     public Optional<String> successExpression() {
@@ -203,14 +203,14 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
     }
 
     /**
-     * HTTP request timeout as a Go duration, such as 10s. Must be a positive whole number of seconds, at most 20 seconds.
+     * Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
      * 
      */
     @Import(name="timeout")
     private @Nullable String timeout;
 
     /**
-     * @return HTTP request timeout as a Go duration, such as 10s. Must be a positive whole number of seconds, at most 20 seconds.
+     * @return Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
      * 
      */
     public Optional<String> timeout() {
@@ -218,14 +218,14 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
     }
 
     /**
-     * URL to call for an http rule. Required for that kind.
+     * URL to call. Required for http rules.
      * 
      */
     @Import(name="url")
     private @Nullable String url;
 
     /**
-     * @return URL to call for an http rule. Required for that kind.
+     * @return URL to call. Required for http rules.
      * 
      */
     public Optional<String> url() {
@@ -270,7 +270,7 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param approvers Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
+         * @param approvers Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it.
          * 
          * @return builder
          * 
@@ -281,7 +281,7 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param approvers Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
+         * @param approvers Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it.
          * 
          * @return builder
          * 
@@ -291,7 +291,7 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param body HTTP request body. Pulumi secret values remain secret.
+         * @param body HTTP request body. Secret values stay secret.
          * 
          * @return builder
          * 
@@ -302,7 +302,7 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param count Number of approvals required. For approval rules, omitted or zero means one.
+         * @param count Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
          * 
          * @return builder
          * 
@@ -324,7 +324,7 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param headers HTTP request headers. Pulumi secret values remain secret.
+         * @param headers HTTP request headers. Secret values stay secret.
          * 
          * @return builder
          * 
@@ -335,7 +335,7 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param headersEnvironment Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule.
+         * @param headersEnvironment Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
          * 
          * @return builder
          * 
@@ -346,7 +346,7 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param interval HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
+         * @param interval Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
          * 
          * @return builder
          * 
@@ -357,7 +357,7 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param kind Rule kind: approval, http, manual, all, or any.
+         * @param kind Kind of the rule. Valid values are approval, http, manual, all, and any.
          * 
          * @return builder
          * 
@@ -390,7 +390,7 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param rules Child rules for all or any. At least one child is required.
+         * @param rules Child rules for all and any rules. At least one is required.
          * 
          * @return builder
          * 
@@ -401,7 +401,7 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param rules Child rules for all or any. At least one child is required.
+         * @param rules Child rules for all and any rules. At least one is required.
          * 
          * @return builder
          * 
@@ -411,7 +411,7 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param successExpression JMESPath expression that the service evaluates over the status, headers and body of the HTTP response. The rule passes when it is true. Required for http rules.
+         * @param successExpression JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
          * 
          * @return builder
          * 
@@ -422,7 +422,7 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param timeout HTTP request timeout as a Go duration, such as 10s. Must be a positive whole number of seconds, at most 20 seconds.
+         * @param timeout Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
          * 
          * @return builder
          * 
@@ -433,7 +433,7 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param url URL to call for an http rule. Required for that kind.
+         * @param url URL to call. Required for http rules.
          * 
          * @return builder
          * 

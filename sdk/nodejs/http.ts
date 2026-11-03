@@ -7,7 +7,7 @@ import * as outputs from "./types/output";
 import * as utilities from "./utilities";
 
 /**
- * Builds an http rule for a Stage's when.
+ * Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true.
  *
  * ## Example Usage
  *
@@ -41,19 +41,19 @@ export function http(args: HttpArgs, opts?: pulumi.InvokeOptions): Promise<HttpR
  */
 export interface HttpArgs {
     /**
-     * HTTP request body. Pulumi secret values remain secret.
+     * HTTP request body. Secret values stay secret.
      */
     body?: string;
     /**
-     * HTTP request headers. Pulumi secret values remain secret.
+     * HTTP request headers. Secret values stay secret.
      */
     headers?: {[key: string]: string};
     /**
-     * Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule.
+     * Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
      */
     headersEnvironment?: string;
     /**
-     * HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
+     * Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
      */
     interval?: string;
     /**
@@ -65,11 +65,11 @@ export interface HttpArgs {
      */
     name?: string;
     /**
-     * JMESPath expression that the service evaluates over the status, headers and body of the HTTP response. The rule passes when it is true. Required.
+     * JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required.
      */
     successExpression: string;
     /**
-     * HTTP request timeout as a Go duration, such as 10s. Must be a positive whole number of seconds, at most 20 seconds.
+     * Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
      */
     timeout?: string;
     /**
@@ -79,19 +79,19 @@ export interface HttpArgs {
 }
 
 /**
- * Stage entry rule. Rules may nest at most three levels.
+ * Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.
  */
 export interface HttpResult {
     /**
-     * Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
+     * Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it.
      */
     readonly approvers?: string[];
     /**
-     * HTTP request body. Pulumi secret values remain secret.
+     * HTTP request body. Secret values stay secret.
      */
     readonly body?: string;
     /**
-     * Number of approvals required. For approval rules, omitted or zero means one.
+     * Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
      */
     readonly count?: number;
     /**
@@ -99,19 +99,19 @@ export interface HttpResult {
      */
     readonly description?: string;
     /**
-     * HTTP request headers. Pulumi secret values remain secret.
+     * HTTP request headers. Secret values stay secret.
      */
     readonly headers?: {[key: string]: string};
     /**
-     * Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule.
+     * Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
      */
     readonly headersEnvironment?: string;
     /**
-     * HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
+     * Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
      */
     readonly interval?: string;
     /**
-     * Rule kind: approval, http, manual, all, or any.
+     * Kind of the rule. Valid values are approval, http, manual, all, and any.
      */
     readonly kind: string;
     /**
@@ -123,24 +123,24 @@ export interface HttpResult {
      */
     readonly name?: string;
     /**
-     * Child rules for all or any. At least one child is required.
+     * Child rules for all and any rules. At least one is required.
      */
     readonly rules?: outputs.Rule[];
     /**
-     * JMESPath expression that the service evaluates over the status, headers and body of the HTTP response. The rule passes when it is true. Required for http rules.
+     * JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
      */
     readonly successExpression?: string;
     /**
-     * HTTP request timeout as a Go duration, such as 10s. Must be a positive whole number of seconds, at most 20 seconds.
+     * Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
      */
     readonly timeout?: string;
     /**
-     * URL to call for an http rule. Required for that kind.
+     * URL to call. Required for http rules.
      */
     readonly url?: string;
 }
 /**
- * Builds an http rule for a Stage's when.
+ * Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true.
  *
  * ## Example Usage
  *
@@ -174,19 +174,19 @@ export function httpOutput(args: HttpOutputArgs, opts?: pulumi.InvokeOutputOptio
  */
 export interface HttpOutputArgs {
     /**
-     * HTTP request body. Pulumi secret values remain secret.
+     * HTTP request body. Secret values stay secret.
      */
     body?: pulumi.Input<string | undefined>;
     /**
-     * HTTP request headers. Pulumi secret values remain secret.
+     * HTTP request headers. Secret values stay secret.
      */
     headers?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
     /**
-     * Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule.
+     * Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
      */
     headersEnvironment?: pulumi.Input<string | undefined>;
     /**
-     * HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
+     * Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
      */
     interval?: pulumi.Input<string | undefined>;
     /**
@@ -198,11 +198,11 @@ export interface HttpOutputArgs {
      */
     name?: pulumi.Input<string | undefined>;
     /**
-     * JMESPath expression that the service evaluates over the status, headers and body of the HTTP response. The rule passes when it is true. Required.
+     * JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required.
      */
     successExpression: pulumi.Input<string>;
     /**
-     * HTTP request timeout as a Go duration, such as 10s. Must be a positive whole number of seconds, at most 20 seconds.
+     * Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
      */
     timeout?: pulumi.Input<string | undefined>;
     /**

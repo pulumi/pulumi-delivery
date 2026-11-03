@@ -65,14 +65,14 @@ public final class BitbucketSourceArgs extends com.pulumi.resources.ResourceArgs
     }
 
     /**
-     * Starts a run on a push to the branch. Set true for every push, or { paths } for pushes that change a matching file. Omit it for a source that is part of the release but never starts a run.
+     * Starts a run when someone pushes to the branch. Set true for every push, or { paths } for pushes that change a matching file. If you omit it, the source is part of the release but never starts a run.
      * 
      */
     @Import(name="trigger")
     private @Nullable Output<Either<Boolean,SourceTriggerArgs>> trigger;
 
     /**
-     * @return Starts a run on a push to the branch. Set true for every push, or { paths } for pushes that change a matching file. Omit it for a source that is part of the release but never starts a run.
+     * @return Starts a run when someone pushes to the branch. Set true for every push, or { paths } for pushes that change a matching file. If you omit it, the source is part of the release but never starts a run.
      * 
      */
     public Optional<Output<Either<Boolean,SourceTriggerArgs>>> trigger() {
@@ -170,7 +170,7 @@ public final class BitbucketSourceArgs extends com.pulumi.resources.ResourceArgs
         }
 
         /**
-         * @param trigger Starts a run on a push to the branch. Set true for every push, or { paths } for pushes that change a matching file. Omit it for a source that is part of the release but never starts a run.
+         * @param trigger Starts a run when someone pushes to the branch. Set true for every push, or { paths } for pushes that change a matching file. If you omit it, the source is part of the release but never starts a run.
          * 
          * @return builder
          * 
@@ -181,7 +181,7 @@ public final class BitbucketSourceArgs extends com.pulumi.resources.ResourceArgs
         }
 
         /**
-         * @param trigger Starts a run on a push to the branch. Set true for every push, or { paths } for pushes that change a matching file. Omit it for a source that is part of the release but never starts a run.
+         * @param trigger Starts a run when someone pushes to the branch. Set true for every push, or { paths } for pushes that change a matching file. If you omit it, the source is part of the release but never starts a run.
          * 
          * @return builder
          * 
@@ -191,7 +191,7 @@ public final class BitbucketSourceArgs extends com.pulumi.resources.ResourceArgs
         }
 
         /**
-         * @param trigger Starts a run on a push to the branch. Set true for every push, or { paths } for pushes that change a matching file. Omit it for a source that is part of the release but never starts a run.
+         * @param trigger Starts a run when someone pushes to the branch. Set true for every push, or { paths } for pushes that change a matching file. If you omit it, the source is part of the release but never starts a run.
          * 
          * @return builder
          * 
@@ -201,7 +201,7 @@ public final class BitbucketSourceArgs extends com.pulumi.resources.ResourceArgs
         }
 
         /**
-         * @param trigger Starts a run on a push to the branch. Set true for every push, or { paths } for pushes that change a matching file. Omit it for a source that is part of the release but never starts a run.
+         * @param trigger Starts a run when someone pushes to the branch. Set true for every push, or { paths } for pushes that change a matching file. If you omit it, the source is part of the release but never starts a run.
          * 
          * @return builder
          * 

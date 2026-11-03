@@ -34,11 +34,11 @@ __all__ = [
 
 class ProgramSourceArgsDict(TypedDict):
     """
-    Checkout location of the pipeline program.
+    Location of the pipeline program in a repository.
     """
     directory: pulumi.Input[_builtins.str]
     """
-    Directory containing the pipeline Pulumi.yaml, relative to the repository root.
+    Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root.
     """
     source: pulumi.Input[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource']]
     """
@@ -51,9 +51,9 @@ class ProgramSourceArgs:
                  directory: pulumi.Input[_builtins.str],
                  source: pulumi.Input[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource']]):
         """
-        Checkout location of the pipeline program.
+        Location of the pipeline program in a repository.
 
-        :param pulumi.Input[_builtins.str] directory: Directory containing the pipeline Pulumi.yaml, relative to the repository root.
+        :param pulumi.Input[_builtins.str] directory: Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root.
         :param pulumi.Input[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource']] source: VCS source of the pipeline program.
         """
         pulumi.set(__self__, "directory", directory)
@@ -63,7 +63,7 @@ class ProgramSourceArgs:
     @pulumi.getter
     def directory(self) -> pulumi.Input[_builtins.str]:
         """
-        Directory containing the pipeline Pulumi.yaml, relative to the repository root.
+        Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root.
         """
         return pulumi.get(self, "directory")
 
@@ -86,23 +86,23 @@ class ProgramSourceArgs:
 
 class RuleDict(TypedDict):
     """
-    Stage entry rule. Rules may nest at most three levels.
+    Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.
     """
     kind: _builtins.str
     """
-    Rule kind: approval, http, manual, all, or any.
+    Kind of the rule. Valid values are approval, http, manual, all, and any.
     """
     approvers: NotRequired[Sequence[_builtins.str]]
     """
-    Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
+    Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it.
     """
     body: NotRequired[_builtins.str]
     """
-    HTTP request body. Pulumi secret values remain secret.
+    HTTP request body. Secret values stay secret.
     """
     count: NotRequired[_builtins.int]
     """
-    Number of approvals required. For approval rules, omitted or zero means one.
+    Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
     """
     description: NotRequired[_builtins.str]
     """
@@ -110,15 +110,15 @@ class RuleDict(TypedDict):
     """
     headers: NotRequired[Mapping[str, _builtins.str]]
     """
-    HTTP request headers. Pulumi secret values remain secret.
+    HTTP request headers. Secret values stay secret.
     """
     headers_environment: NotRequired[_builtins.str]
     """
-    Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule.
+    Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
     """
     interval: NotRequired[_builtins.str]
     """
-    HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
+    Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
     """
     method: NotRequired[_builtins.str]
     """
@@ -130,19 +130,19 @@ class RuleDict(TypedDict):
     """
     rules: NotRequired[Sequence['RuleDict']]
     """
-    Child rules for all or any. At least one child is required.
+    Child rules for all and any rules. At least one is required.
     """
     success_expression: NotRequired[_builtins.str]
     """
-    JMESPath expression that the service evaluates over the status, headers and body of the HTTP response. The rule passes when it is true. Required for http rules.
+    JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
     """
     timeout: NotRequired[_builtins.str]
     """
-    HTTP request timeout as a Go duration, such as 10s. Must be a positive whole number of seconds, at most 20 seconds.
+    Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
     """
     url: NotRequired[_builtins.str]
     """
-    URL to call for an http rule. Required for that kind.
+    URL to call. Required for http rules.
     """
 
 @pulumi.input_type
@@ -163,22 +163,22 @@ class Rule:
                  timeout: Optional[_builtins.str] = None,
                  url: Optional[_builtins.str] = None):
         """
-        Stage entry rule. Rules may nest at most three levels.
+        Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.
 
-        :param _builtins.str kind: Rule kind: approval, http, manual, all, or any.
-        :param Sequence[_builtins.str] approvers: Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
-        :param _builtins.str body: HTTP request body. Pulumi secret values remain secret.
-        :param _builtins.int count: Number of approvals required. For approval rules, omitted or zero means one.
+        :param _builtins.str kind: Kind of the rule. Valid values are approval, http, manual, all, and any.
+        :param Sequence[_builtins.str] approvers: Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it.
+        :param _builtins.str body: HTTP request body. Secret values stay secret.
+        :param _builtins.int count: Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
         :param _builtins.str description: Text for the person who continues a manual gate, for example what to check first.
-        :param Mapping[str, _builtins.str] headers: HTTP request headers. Pulumi secret values remain secret.
-        :param _builtins.str headers_environment: Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule.
-        :param _builtins.str interval: HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
+        :param Mapping[str, _builtins.str] headers: HTTP request headers. Secret values stay secret.
+        :param _builtins.str headers_environment: Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
+        :param _builtins.str interval: Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
         :param _builtins.str method: HTTP request method. The default is GET.
         :param _builtins.str name: Rule name. Omit it to let Delivery assign one.
-        :param Sequence['Rule'] rules: Child rules for all or any. At least one child is required.
-        :param _builtins.str success_expression: JMESPath expression that the service evaluates over the status, headers and body of the HTTP response. The rule passes when it is true. Required for http rules.
-        :param _builtins.str timeout: HTTP request timeout as a Go duration, such as 10s. Must be a positive whole number of seconds, at most 20 seconds.
-        :param _builtins.str url: URL to call for an http rule. Required for that kind.
+        :param Sequence['Rule'] rules: Child rules for all and any rules. At least one is required.
+        :param _builtins.str success_expression: JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
+        :param _builtins.str timeout: Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
+        :param _builtins.str url: URL to call. Required for http rules.
         """
         pulumi.set(__self__, "kind", kind)
         if approvers is not None:
@@ -212,7 +212,7 @@ class Rule:
     @pulumi.getter
     def kind(self) -> _builtins.str:
         """
-        Rule kind: approval, http, manual, all, or any.
+        Kind of the rule. Valid values are approval, http, manual, all, and any.
         """
         return pulumi.get(self, "kind")
 
@@ -224,7 +224,7 @@ class Rule:
     @pulumi.getter
     def approvers(self) -> Optional[Sequence[_builtins.str]]:
         """
-        Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
+        Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it.
         """
         return pulumi.get(self, "approvers")
 
@@ -236,7 +236,7 @@ class Rule:
     @pulumi.getter
     def body(self) -> Optional[_builtins.str]:
         """
-        HTTP request body. Pulumi secret values remain secret.
+        HTTP request body. Secret values stay secret.
         """
         return pulumi.get(self, "body")
 
@@ -248,7 +248,7 @@ class Rule:
     @pulumi.getter
     def count(self) -> Optional[_builtins.int]:
         """
-        Number of approvals required. For approval rules, omitted or zero means one.
+        Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
         """
         return pulumi.get(self, "count")
 
@@ -272,7 +272,7 @@ class Rule:
     @pulumi.getter
     def headers(self) -> Optional[Mapping[str, _builtins.str]]:
         """
-        HTTP request headers. Pulumi secret values remain secret.
+        HTTP request headers. Secret values stay secret.
         """
         return pulumi.get(self, "headers")
 
@@ -284,7 +284,7 @@ class Rule:
     @pulumi.getter(name="headersEnvironment")
     def headers_environment(self) -> Optional[_builtins.str]:
         """
-        Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule.
+        Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
         """
         return pulumi.get(self, "headers_environment")
 
@@ -296,7 +296,7 @@ class Rule:
     @pulumi.getter
     def interval(self) -> Optional[_builtins.str]:
         """
-        HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
+        Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
         """
         return pulumi.get(self, "interval")
 
@@ -332,7 +332,7 @@ class Rule:
     @pulumi.getter
     def rules(self) -> Optional[Sequence['Rule']]:
         """
-        Child rules for all or any. At least one child is required.
+        Child rules for all and any rules. At least one is required.
         """
         return pulumi.get(self, "rules")
 
@@ -344,7 +344,7 @@ class Rule:
     @pulumi.getter(name="successExpression")
     def success_expression(self) -> Optional[_builtins.str]:
         """
-        JMESPath expression that the service evaluates over the status, headers and body of the HTTP response. The rule passes when it is true. Required for http rules.
+        JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
         """
         return pulumi.get(self, "success_expression")
 
@@ -356,7 +356,7 @@ class Rule:
     @pulumi.getter
     def timeout(self) -> Optional[_builtins.str]:
         """
-        HTTP request timeout as a Go duration, such as 10s. Must be a positive whole number of seconds, at most 20 seconds.
+        Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
         """
         return pulumi.get(self, "timeout")
 
@@ -368,7 +368,7 @@ class Rule:
     @pulumi.getter
     def url(self) -> Optional[_builtins.str]:
         """
-        URL to call for an http rule. Required for that kind.
+        URL to call. Required for http rules.
         """
         return pulumi.get(self, "url")
 
@@ -379,23 +379,23 @@ class Rule:
 
 class RuleArgsDict(TypedDict):
     """
-    Stage entry rule. Rules may nest at most three levels.
+    Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.
     """
     kind: pulumi.Input[_builtins.str]
     """
-    Rule kind: approval, http, manual, all, or any.
+    Kind of the rule. Valid values are approval, http, manual, all, and any.
     """
     approvers: NotRequired[pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]]]
     """
-    Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
+    Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it.
     """
     body: NotRequired[pulumi.Input[Optional[_builtins.str]]]
     """
-    HTTP request body. Pulumi secret values remain secret.
+    HTTP request body. Secret values stay secret.
     """
     count: NotRequired[pulumi.Input[Optional[_builtins.int]]]
     """
-    Number of approvals required. For approval rules, omitted or zero means one.
+    Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
     """
     description: NotRequired[pulumi.Input[Optional[_builtins.str]]]
     """
@@ -403,15 +403,15 @@ class RuleArgsDict(TypedDict):
     """
     headers: NotRequired[pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]]]
     """
-    HTTP request headers. Pulumi secret values remain secret.
+    HTTP request headers. Secret values stay secret.
     """
     headers_environment: NotRequired[pulumi.Input[Optional[_builtins.str]]]
     """
-    Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule.
+    Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
     """
     interval: NotRequired[pulumi.Input[Optional[_builtins.str]]]
     """
-    HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
+    Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
     """
     method: NotRequired[pulumi.Input[Optional[_builtins.str]]]
     """
@@ -423,19 +423,19 @@ class RuleArgsDict(TypedDict):
     """
     rules: NotRequired[pulumi.Input[Optional[Sequence[pulumi.Input['RuleArgsDict']]]]]
     """
-    Child rules for all or any. At least one child is required.
+    Child rules for all and any rules. At least one is required.
     """
     success_expression: NotRequired[pulumi.Input[Optional[_builtins.str]]]
     """
-    JMESPath expression that the service evaluates over the status, headers and body of the HTTP response. The rule passes when it is true. Required for http rules.
+    JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
     """
     timeout: NotRequired[pulumi.Input[Optional[_builtins.str]]]
     """
-    HTTP request timeout as a Go duration, such as 10s. Must be a positive whole number of seconds, at most 20 seconds.
+    Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
     """
     url: NotRequired[pulumi.Input[Optional[_builtins.str]]]
     """
-    URL to call for an http rule. Required for that kind.
+    URL to call. Required for http rules.
     """
 
 @pulumi.input_type
@@ -456,22 +456,22 @@ class RuleArgs:
                  timeout: pulumi.Input[Optional[_builtins.str]] = None,
                  url: pulumi.Input[Optional[_builtins.str]] = None):
         """
-        Stage entry rule. Rules may nest at most three levels.
+        Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.
 
-        :param pulumi.Input[_builtins.str] kind: Rule kind: approval, http, manual, all, or any.
-        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] approvers: Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
-        :param pulumi.Input[_builtins.str] body: HTTP request body. Pulumi secret values remain secret.
-        :param pulumi.Input[_builtins.int] count: Number of approvals required. For approval rules, omitted or zero means one.
+        :param pulumi.Input[_builtins.str] kind: Kind of the rule. Valid values are approval, http, manual, all, and any.
+        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] approvers: Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it.
+        :param pulumi.Input[_builtins.str] body: HTTP request body. Secret values stay secret.
+        :param pulumi.Input[_builtins.int] count: Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
         :param pulumi.Input[_builtins.str] description: Text for the person who continues a manual gate, for example what to check first.
-        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] headers: HTTP request headers. Pulumi secret values remain secret.
-        :param pulumi.Input[_builtins.str] headers_environment: Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule.
-        :param pulumi.Input[_builtins.str] interval: HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
+        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] headers: HTTP request headers. Secret values stay secret.
+        :param pulumi.Input[_builtins.str] headers_environment: Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
+        :param pulumi.Input[_builtins.str] interval: Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
         :param pulumi.Input[_builtins.str] method: HTTP request method. The default is GET.
         :param pulumi.Input[_builtins.str] name: Rule name. Omit it to let Delivery assign one.
-        :param pulumi.Input[Sequence[pulumi.Input['RuleArgs']]] rules: Child rules for all or any. At least one child is required.
-        :param pulumi.Input[_builtins.str] success_expression: JMESPath expression that the service evaluates over the status, headers and body of the HTTP response. The rule passes when it is true. Required for http rules.
-        :param pulumi.Input[_builtins.str] timeout: HTTP request timeout as a Go duration, such as 10s. Must be a positive whole number of seconds, at most 20 seconds.
-        :param pulumi.Input[_builtins.str] url: URL to call for an http rule. Required for that kind.
+        :param pulumi.Input[Sequence[pulumi.Input['RuleArgs']]] rules: Child rules for all and any rules. At least one is required.
+        :param pulumi.Input[_builtins.str] success_expression: JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
+        :param pulumi.Input[_builtins.str] timeout: Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
+        :param pulumi.Input[_builtins.str] url: URL to call. Required for http rules.
         """
         pulumi.set(__self__, "kind", kind)
         if approvers is not None:
@@ -505,7 +505,7 @@ class RuleArgs:
     @pulumi.getter
     def kind(self) -> pulumi.Input[_builtins.str]:
         """
-        Rule kind: approval, http, manual, all, or any.
+        Kind of the rule. Valid values are approval, http, manual, all, and any.
         """
         return pulumi.get(self, "kind")
 
@@ -517,7 +517,7 @@ class RuleArgs:
     @pulumi.getter
     def approvers(self) -> pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]]:
         """
-        Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
+        Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it.
         """
         return pulumi.get(self, "approvers")
 
@@ -529,7 +529,7 @@ class RuleArgs:
     @pulumi.getter
     def body(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        HTTP request body. Pulumi secret values remain secret.
+        HTTP request body. Secret values stay secret.
         """
         return pulumi.get(self, "body")
 
@@ -541,7 +541,7 @@ class RuleArgs:
     @pulumi.getter
     def count(self) -> pulumi.Input[Optional[_builtins.int]]:
         """
-        Number of approvals required. For approval rules, omitted or zero means one.
+        Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
         """
         return pulumi.get(self, "count")
 
@@ -565,7 +565,7 @@ class RuleArgs:
     @pulumi.getter
     def headers(self) -> pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]]:
         """
-        HTTP request headers. Pulumi secret values remain secret.
+        HTTP request headers. Secret values stay secret.
         """
         return pulumi.get(self, "headers")
 
@@ -577,7 +577,7 @@ class RuleArgs:
     @pulumi.getter(name="headersEnvironment")
     def headers_environment(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule.
+        Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
         """
         return pulumi.get(self, "headers_environment")
 
@@ -589,7 +589,7 @@ class RuleArgs:
     @pulumi.getter
     def interval(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
+        Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
         """
         return pulumi.get(self, "interval")
 
@@ -625,7 +625,7 @@ class RuleArgs:
     @pulumi.getter
     def rules(self) -> pulumi.Input[Optional[Sequence[pulumi.Input['RuleArgs']]]]:
         """
-        Child rules for all or any. At least one child is required.
+        Child rules for all and any rules. At least one is required.
         """
         return pulumi.get(self, "rules")
 
@@ -637,7 +637,7 @@ class RuleArgs:
     @pulumi.getter(name="successExpression")
     def success_expression(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        JMESPath expression that the service evaluates over the status, headers and body of the HTTP response. The rule passes when it is true. Required for http rules.
+        JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
         """
         return pulumi.get(self, "success_expression")
 
@@ -649,7 +649,7 @@ class RuleArgs:
     @pulumi.getter
     def timeout(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        HTTP request timeout as a Go duration, such as 10s. Must be a positive whole number of seconds, at most 20 seconds.
+        Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
         """
         return pulumi.get(self, "timeout")
 
@@ -661,7 +661,7 @@ class RuleArgs:
     @pulumi.getter
     def url(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        URL to call for an http rule. Required for that kind.
+        URL to call. Required for http rules.
         """
         return pulumi.get(self, "url")
 
@@ -676,7 +676,7 @@ class SourceTriggerArgsDict(TypedDict):
     """
     paths: pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]
     """
-    Glob patterns of changed files. A push starts a run only when it changes a file that matches.
+    Glob patterns of changed files. A push starts a run only when it changes a file that matches one of them.
     """
 
 @pulumi.input_type
@@ -686,7 +686,7 @@ class SourceTriggerArgs:
         """
         Limits the pushes that start a run.
 
-        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] paths: Glob patterns of changed files. A push starts a run only when it changes a file that matches.
+        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] paths: Glob patterns of changed files. A push starts a run only when it changes a file that matches one of them.
         """
         pulumi.set(__self__, "paths", paths)
 
@@ -694,7 +694,7 @@ class SourceTriggerArgs:
     @pulumi.getter
     def paths(self) -> pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]:
         """
-        Glob patterns of changed files. A push starts a run only when it changes a file that matches.
+        Glob patterns of changed files. A push starts a run only when it changes a file that matches one of them.
         """
         return pulumi.get(self, "paths")
 
@@ -721,15 +721,15 @@ class StacksEntryArgsDict(TypedDict):
     """
     config: NotRequired[pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]]]
     """
-    Config values that Delivery sets on the target stack before the update. Values are plain strings, and Delivery rejects secret values. Keep secrets in the config file of the target stack or in an ESC environment.
+    Config values that Delivery sets on the target stack before the update. Values are plain strings. Delivery rejects secret values. Keep secrets in the config file of the target stack or in an ESC environment.
     """
     environment: NotRequired[pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]]]
     """
-    Environment variables for the update, for example cloud credentials. A secret value stays secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
+    Environment variables for the update, for example cloud credentials. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
     """
     runtime: NotRequired[pulumi.Input[Optional['WorkflowsRuntime']]]
     """
-    Pool that runs the update. The preview runs on the hosted pool only, so omit it.
+    Pool that runs the update. In the private preview, all work runs on the hosted pool, so omit it.
     """
     timeout: NotRequired[pulumi.Input[Optional[_builtins.int]]]
     """
@@ -752,9 +752,9 @@ class StacksEntryArgs:
         :param pulumi.Input[_builtins.str] directory: Directory of the stack project, relative to the repository root.
         :param pulumi.Input[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource']] source: VCS source to check out. The update uses the commit of the run for this source.
         :param pulumi.Input[_builtins.str] stack: Target stack as organization/project/stack. It must exist before the first run, in the organization of the pipeline.
-        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] config: Config values that Delivery sets on the target stack before the update. Values are plain strings, and Delivery rejects secret values. Keep secrets in the config file of the target stack or in an ESC environment.
-        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] environment: Environment variables for the update, for example cloud credentials. A secret value stays secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
-        :param pulumi.Input['WorkflowsRuntime'] runtime: Pool that runs the update. The preview runs on the hosted pool only, so omit it.
+        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] config: Config values that Delivery sets on the target stack before the update. Values are plain strings. Delivery rejects secret values. Keep secrets in the config file of the target stack or in an ESC environment.
+        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] environment: Environment variables for the update, for example cloud credentials. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
+        :param pulumi.Input['WorkflowsRuntime'] runtime: Pool that runs the update. In the private preview, all work runs on the hosted pool, so omit it.
         :param pulumi.Input[_builtins.int] timeout: Maximum run time of the update in seconds. The default is 7200 (2 hours).
         """
         pulumi.set(__self__, "directory", directory)
@@ -809,7 +809,7 @@ class StacksEntryArgs:
     @pulumi.getter
     def config(self) -> pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]]:
         """
-        Config values that Delivery sets on the target stack before the update. Values are plain strings, and Delivery rejects secret values. Keep secrets in the config file of the target stack or in an ESC environment.
+        Config values that Delivery sets on the target stack before the update. Values are plain strings. Delivery rejects secret values. Keep secrets in the config file of the target stack or in an ESC environment.
         """
         return pulumi.get(self, "config")
 
@@ -821,7 +821,7 @@ class StacksEntryArgs:
     @pulumi.getter
     def environment(self) -> pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]]:
         """
-        Environment variables for the update, for example cloud credentials. A secret value stays secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
+        Environment variables for the update, for example cloud credentials. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
         """
         return pulumi.get(self, "environment")
 
@@ -833,7 +833,7 @@ class StacksEntryArgs:
     @pulumi.getter
     def runtime(self) -> pulumi.Input[Optional['WorkflowsRuntime']]:
         """
-        Pool that runs the update. The preview runs on the hosted pool only, so omit it.
+        Pool that runs the update. In the private preview, all work runs on the hosted pool, so omit it.
         """
         return pulumi.get(self, "runtime")
 

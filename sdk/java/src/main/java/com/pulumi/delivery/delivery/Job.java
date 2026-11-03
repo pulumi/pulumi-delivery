@@ -14,13 +14,13 @@ import java.util.Map;
 import javax.annotation.Nullable;
 
 /**
- * Declares a command that a run executes in a stage. The service checks out the source at the commit of the run and runs the command in directory.
+ * Declares a command that a run executes in a stage. Delivery checks out the source at the commit of the run and runs the command in directory.
  * 
  * A resource that is not a Delivery resource waits for the job when it uses an output of the job.
  * 
- * The command sees these variables: DELIVERY_RELEASE, DELIVERY_RUN, DELIVERY_STAGE, DELIVERY_COMMIT and DELIVERY_PIPELINE. To publish outputs, the command writes a JSON object to the file that DELIVERY_OUTPUTS names. Each key is one output. The file can be at most 1 MiB. To mark an output as secret, write it as {&#34;value&#34;: ..., &#34;secret&#34;: true}.
+ * The command can read these variables: DELIVERY_RELEASE, DELIVERY_RUN, DELIVERY_STAGE, DELIVERY_COMMIT and DELIVERY_PIPELINE. To publish outputs, write a JSON object to the file that DELIVERY_OUTPUTS names. Each key is one output. The file can be at most 1 MiB. To mark an output as secret, write it as {&#34;value&#34;: ..., &#34;secret&#34;: true}.
  * 
- * If any output is secret, the whole map is secret. An output is secret when the job marks it or when it contains a secret environment value.
+ * If one output is secret, the whole map is secret. An output is secret when the job marks it as secret or when it contains a secret environment value.
  * 
  * ## Example Usage
  * 
@@ -28,14 +28,14 @@ import javax.annotation.Nullable;
 @ResourceType(type="delivery:index:Job")
 public class Job extends com.pulumi.resources.ComponentResource {
     /**
-     * Outputs that the command wrote. They are unknown until the job has run.
+     * Outputs that the command wrote. They are unknown until the job runs.
      * 
      */
     @Export(name="outputs", refs={Map.class,String.class}, tree="[0,1,1]")
     private Output<Map<String,String>> outputs;
 
     /**
-     * @return Outputs that the command wrote. They are unknown until the job has run.
+     * @return Outputs that the command wrote. They are unknown until the job runs.
      * 
      */
     public Output<Map<String,String>> outputs() {

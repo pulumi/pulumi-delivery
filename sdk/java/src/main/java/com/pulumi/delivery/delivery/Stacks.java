@@ -15,13 +15,13 @@ import java.util.Map;
 import javax.annotation.Nullable;
 
 /**
- * Updates one or more existing stacks in a stage. Each entry of stacks is one update of a target stack. Delivery checks out the source of the entry at the commit of the run and runs pulumi up on the target stack.
+ * Updates one or more existing stacks in a stage. Each entry of stacks updates one target stack. Delivery checks out the source of the entry at the commit of the run and runs pulumi up on the target stack.
  * 
  * Create each target stack before the first run. A target stack must be an ordinary stack in the organization of the pipeline.
  * 
- * The entries of a group run together and can read each other&#39;s new outputs through stack references. The group is one unit for dependencies and retries: a resource that uses an output of one entry waits for the whole group, and a retry runs every entry again if one entry failed. Each entry uses one slot of the concurrent job limit of the organization. A group with more entries than the limit can block itself, and Delivery fails it after 2 hours without progress.
+ * The entries of a group run together. They can read the new outputs of each other through stack references. The group is one unit for dependencies and retries. A resource that uses an output of one entry waits for the whole group. If one entry fails, a retry runs every entry again. Each entry uses one slot of the concurrent job limit of the organization. A group with more entries than the limit can block itself. Delivery fails it after 2 hours without progress.
  * 
- * The outputs of the group are secret as a whole if the output of one entry is secret.
+ * If the output of one entry is secret, all outputs of the group are secret.
  * 
  * ## Example Usage
  * 
@@ -29,14 +29,14 @@ import javax.annotation.Nullable;
 @ResourceType(type="delivery:index:Stacks")
 public class Stacks extends com.pulumi.resources.ComponentResource {
     /**
-     * Outputs of each entry, by entry name. They are unknown until the group has run.
+     * Outputs of each entry, by entry name. They are unknown until the group runs.
      * 
      */
     @Export(name="outputs", refs={Map.class,String.class,Object.class}, tree="[0,1,[0,1,2]]")
     private Output<Map<String,Map<String,Object>>> outputs;
 
     /**
-     * @return Outputs of each entry, by entry name. They are unknown until the group has run.
+     * @return Outputs of each entry, by entry name. They are unknown until the group runs.
      * 
      */
     public Output<Map<String,Map<String,Object>>> outputs() {

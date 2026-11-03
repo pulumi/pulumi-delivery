@@ -20,14 +20,14 @@ public final class SourceTriggerArgs extends com.pulumi.resources.ResourceArgs {
     public static final SourceTriggerArgs Empty = new SourceTriggerArgs();
 
     /**
-     * Glob patterns of changed files. A push starts a run only when it changes a file that matches.
+     * Glob patterns of changed files. A push starts a run only when it changes a file that matches one of them.
      * 
      */
     @Import(name="paths", required=true)
     private Output<List<String>> paths;
 
     /**
-     * @return Glob patterns of changed files. A push starts a run only when it changes a file that matches.
+     * @return Glob patterns of changed files. A push starts a run only when it changes a file that matches one of them.
      * 
      */
     public Output<List<String>> paths() {
@@ -59,7 +59,7 @@ public final class SourceTriggerArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param paths Glob patterns of changed files. A push starts a run only when it changes a file that matches.
+         * @param paths Glob patterns of changed files. A push starts a run only when it changes a file that matches one of them.
          * 
          * @return builder
          * 
@@ -70,7 +70,7 @@ public final class SourceTriggerArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param paths Glob patterns of changed files. A push starts a run only when it changes a file that matches.
+         * @param paths Glob patterns of changed files. A push starts a run only when it changes a file that matches one of them.
          * 
          * @return builder
          * 
@@ -80,7 +80,7 @@ public final class SourceTriggerArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param paths Glob patterns of changed files. A push starts a run only when it changes a file that matches.
+         * @param paths Glob patterns of changed files. A push starts a run only when it changes a file that matches one of them.
          * 
          * @return builder
          * 

@@ -12,7 +12,7 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-// Publishes a value for the pipelines that read this stage with a PipelineSource. The artifact is named like the resource. It succeeds once its stage is admitted and its value is known.
+// Publishes a value for the pipelines that read this stage with a PipelineSource. The artifact has the name of the resource. It succeeds when its stage admits the release and its value is known.
 //
 // ## Example Usage
 type Artifact struct {
@@ -46,7 +46,7 @@ func NewArtifact(ctx *pulumi.Context,
 type artifactArgs struct {
 	// Stage that publishes the artifact.
 	Stage *Stage `pulumi:"stage"`
-	// Value to publish. It can be any value, also a secret or a structure.
+	// Value to publish. It can be any value, including a secret or a structure.
 	Value interface{} `pulumi:"value"`
 }
 
@@ -54,7 +54,7 @@ type artifactArgs struct {
 type ArtifactArgs struct {
 	// Stage that publishes the artifact.
 	Stage StageInput
-	// Value to publish. It can be any value, also a secret or a structure.
+	// Value to publish. It can be any value, including a secret or a structure.
 	Value pulumi.Input
 }
 

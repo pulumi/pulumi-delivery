@@ -11,13 +11,13 @@ using Pulumi;
 namespace Pulumi.Delivery.Delivery
 {
     /// <summary>
-    /// Updates one or more existing stacks in a stage. Each entry of stacks is one update of a target stack. Delivery checks out the source of the entry at the commit of the run and runs pulumi up on the target stack.
+    /// Updates one or more existing stacks in a stage. Each entry of stacks updates one target stack. Delivery checks out the source of the entry at the commit of the run and runs pulumi up on the target stack.
     /// 
     /// Create each target stack before the first run. A target stack must be an ordinary stack in the organization of the pipeline.
     /// 
-    /// The entries of a group run together and can read each other's new outputs through stack references. The group is one unit for dependencies and retries: a resource that uses an output of one entry waits for the whole group, and a retry runs every entry again if one entry failed. Each entry uses one slot of the concurrent job limit of the organization. A group with more entries than the limit can block itself, and Delivery fails it after 2 hours without progress.
+    /// The entries of a group run together. They can read the new outputs of each other through stack references. The group is one unit for dependencies and retries. A resource that uses an output of one entry waits for the whole group. If one entry fails, a retry runs every entry again. Each entry uses one slot of the concurrent job limit of the organization. A group with more entries than the limit can block itself. Delivery fails it after 2 hours without progress.
     /// 
-    /// The outputs of the group are secret as a whole if the output of one entry is secret.
+    /// If the output of one entry is secret, all outputs of the group are secret.
     /// 
     /// ## Example Usage
     /// </summary>
@@ -25,7 +25,7 @@ namespace Pulumi.Delivery.Delivery
     public partial class Stacks : global::Pulumi.ComponentResource
     {
         /// <summary>
-        /// Outputs of each entry, by entry name. They are unknown until the group has run.
+        /// Outputs of each entry, by entry name. They are unknown until the group runs.
         /// </summary>
         [Output("outputs")]
         public Output<ImmutableDictionary<string, ImmutableDictionary<string, object>>> Outputs { get; private set; } = null!;
@@ -63,7 +63,7 @@ namespace Pulumi.Delivery.Delivery
         private InputMap<Inputs.StacksEntryArgs>? _stacks;
 
         /// <summary>
-        /// Entries by name. Names can use letters, digits, underscores and hyphens. Each entry updates one target stack.
+        /// Entries by name. A name can contain letters, digits, underscores and hyphens. Each entry updates one target stack.
         /// </summary>
         public InputMap<Inputs.StacksEntryArgs> Stacks
         {
@@ -72,7 +72,7 @@ namespace Pulumi.Delivery.Delivery
         }
 
         /// <summary>
-        /// Stage that the group runs in. A pipeline requires it.
+        /// Stage that the group runs in.
         /// </summary>
         [Input("stage", required: true)]
         public Input<Pulumi.Delivery.Delivery.Stage> Stage { get; set; } = null!;

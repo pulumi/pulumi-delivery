@@ -12,19 +12,19 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-// Declares a command that a run executes in a stage. The service checks out the source at the commit of the run and runs the command in directory.
+// Declares a command that a run executes in a stage. Delivery checks out the source at the commit of the run and runs the command in directory.
 //
 // A resource that is not a Delivery resource waits for the job when it uses an output of the job.
 //
-// The command sees these variables: DELIVERY_RELEASE, DELIVERY_RUN, DELIVERY_STAGE, DELIVERY_COMMIT and DELIVERY_PIPELINE. To publish outputs, the command writes a JSON object to the file that DELIVERY_OUTPUTS names. Each key is one output. The file can be at most 1 MiB. To mark an output as secret, write it as {"value": ..., "secret": true}.
+// The command can read these variables: DELIVERY_RELEASE, DELIVERY_RUN, DELIVERY_STAGE, DELIVERY_COMMIT and DELIVERY_PIPELINE. To publish outputs, write a JSON object to the file that DELIVERY_OUTPUTS names. Each key is one output. The file can be at most 1 MiB. To mark an output as secret, write it as {"value": ..., "secret": true}.
 //
-// If any output is secret, the whole map is secret. An output is secret when the job marks it or when it contains a secret environment value.
+// If one output is secret, the whole map is secret. An output is secret when the job marks it as secret or when it contains a secret environment value.
 //
 // ## Example Usage
 type Job struct {
 	pulumi.ResourceState
 
-	// Outputs that the command wrote. They are unknown until the job has run.
+	// Outputs that the command wrote. They are unknown until the job runs.
 	Outputs pulumi.StringMapOutput `pulumi:"outputs"`
 }
 
@@ -57,33 +57,33 @@ func NewJob(ctx *pulumi.Context,
 }
 
 type jobArgs struct {
-	// Command to run. It runs with sh -c. The command can write outputs to the file that DELIVERY_OUTPUTS names.
+	// Command to run with sh -c. To publish outputs, the command writes them to the file that DELIVERY_OUTPUTS names.
 	Command string `pulumi:"command"`
 	// Directory to run the command in, relative to the repository root.
 	Directory string `pulumi:"directory"`
-	// Environment variables for the command. A secret value stays secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
+	// Environment variables for the command. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
 	Environment map[string]string `pulumi:"environment"`
 	// VCS source to check out.
 	Source interface{} `pulumi:"source"`
-	// Stage that the job runs in. A pipeline requires it.
+	// Stage that the job runs in.
 	Stage *Stage `pulumi:"stage"`
-	// Maximum run time as a Go duration, such as 30m. The preview does not apply this value yet. A job stops after 2 hours.
+	// Maximum run time as a Go duration, such as 30m. Delivery does not apply this value in the private preview. A job stops after 2 hours.
 	Timeout *string `pulumi:"timeout"`
 }
 
 // The set of arguments for constructing a Job resource.
 type JobArgs struct {
-	// Command to run. It runs with sh -c. The command can write outputs to the file that DELIVERY_OUTPUTS names.
+	// Command to run with sh -c. To publish outputs, the command writes them to the file that DELIVERY_OUTPUTS names.
 	Command pulumi.StringInput
 	// Directory to run the command in, relative to the repository root.
 	Directory pulumi.StringInput
-	// Environment variables for the command. A secret value stays secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
+	// Environment variables for the command. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
 	Environment pulumi.StringMapInput
 	// VCS source to check out.
 	Source pulumi.Input
-	// Stage that the job runs in. A pipeline requires it.
+	// Stage that the job runs in.
 	Stage StageInput
-	// Maximum run time as a Go duration, such as 30m. The preview does not apply this value yet. A job stops after 2 hours.
+	// Maximum run time as a Go duration, such as 30m. Delivery does not apply this value in the private preview. A job stops after 2 hours.
 	Timeout pulumi.StringPtrInput
 }
 
@@ -174,7 +174,7 @@ func (o JobOutput) ToJobOutputWithContext(ctx context.Context) JobOutput {
 	return o
 }
 
-// Outputs that the command wrote. They are unknown until the job has run.
+// Outputs that the command wrote. They are unknown until the job runs.
 func (o JobOutput) Outputs() pulumi.StringMapOutput {
 	return o.ApplyT(func(v *Job) pulumi.StringMapOutput { return v.Outputs }).(pulumi.StringMapOutput)
 }

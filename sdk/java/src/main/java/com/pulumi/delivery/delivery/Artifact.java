@@ -13,7 +13,7 @@ import java.lang.Object;
 import javax.annotation.Nullable;
 
 /**
- * Publishes a value for the pipelines that read this stage with a PipelineSource. The artifact is named like the resource. It succeeds once its stage is admitted and its value is known.
+ * Publishes a value for the pipelines that read this stage with a PipelineSource. The artifact has the name of the resource. It succeeds when its stage admits the release and its value is known.
  * 
  * ## Example Usage
  * 

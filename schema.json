@@ -1,7 +1,7 @@
 {
   "name": "delivery",
   "displayName": "Pulumi Delivery",
-  "description": "Define pipelines, stages and jobs in a Pulumi program.",
+  "description": "Define Delivery pipelines, stages, jobs and sources in a Pulumi program.",
   "keywords": [
     "pulumi",
     "delivery",
@@ -44,11 +44,11 @@
   "config": {},
   "types": {
     "delivery:index:ProgramSource": {
-      "description": "Checkout location of the pipeline program.",
+      "description": "Location of the pipeline program in a repository.",
       "properties": {
         "directory": {
           "type": "string",
-          "description": "Directory containing the pipeline Pulumi.yaml, relative to the repository root."
+          "description": "Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root."
         },
         "source": {
           "oneOf": [
@@ -75,22 +75,22 @@
       ]
     },
     "delivery:index:Rule": {
-      "description": "Stage entry rule. Rules may nest at most three levels.",
+      "description": "Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.",
       "properties": {
         "approvers": {
           "type": "array",
           "items": {
             "type": "string"
           },
-          "description": "Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that."
+          "description": "Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it."
         },
         "body": {
           "type": "string",
-          "description": "HTTP request body. Pulumi secret values remain secret."
+          "description": "HTTP request body. Secret values stay secret."
         },
         "count": {
           "type": "integer",
-          "description": "Number of approvals required. For approval rules, omitted or zero means one."
+          "description": "Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules."
         },
         "description": {
           "type": "string",
@@ -101,19 +101,19 @@
           "additionalProperties": {
             "type": "string"
           },
-          "description": "HTTP request headers. Pulumi secret values remain secret."
+          "description": "HTTP request headers. Secret values stay secret."
         },
         "headersEnvironment": {
           "type": "string",
-          "description": "Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule."
+          "description": "Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule."
         },
         "interval": {
           "type": "string",
-          "description": "HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds."
+          "description": "Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds."
         },
         "kind": {
           "type": "string",
-          "description": "Rule kind: approval, http, manual, all, or any."
+          "description": "Kind of the rule. Valid values are approval, http, manual, all, and any."
         },
         "method": {
           "type": "string",
@@ -128,19 +128,19 @@
           "items": {
             "$ref": "#/types/delivery:index:Rule"
           },
-          "description": "Child rules for all or any. At least one child is required."
+          "description": "Child rules for all and any rules. At least one is required."
         },
         "successExpression": {
           "type": "string",
-          "description": "JMESPath expression that the service evaluates over the status, headers and body of the HTTP response. The rule passes when it is true. Required for http rules."
+          "description": "JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules."
         },
         "timeout": {
           "type": "string",
-          "description": "HTTP request timeout as a Go duration, such as 10s. Must be a positive whole number of seconds, at most 20 seconds."
+          "description": "Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20."
         },
         "url": {
           "type": "string",
-          "description": "URL to call for an http rule. Required for that kind."
+          "description": "URL to call. Required for http rules."
         }
       },
       "type": "object",
@@ -156,7 +156,7 @@
           "items": {
             "type": "string"
           },
-          "description": "Glob patterns of changed files. A push starts a run only when it changes a file that matches."
+          "description": "Glob patterns of changed files. A push starts a run only when it changes a file that matches one of them."
         }
       },
       "type": "object",
@@ -172,7 +172,7 @@
           "additionalProperties": {
             "type": "string"
           },
-          "description": "Config values that Delivery sets on the target stack before the update. Values are plain strings, and Delivery rejects secret values. Keep secrets in the config file of the target stack or in an ESC environment."
+          "description": "Config values that Delivery sets on the target stack before the update. Values are plain strings. Delivery rejects secret values. Keep secrets in the config file of the target stack or in an ESC environment."
         },
         "directory": {
           "type": "string",
@@ -183,11 +183,11 @@
           "additionalProperties": {
             "type": "string"
           },
-          "description": "Environment variables for the update, for example cloud credentials. A secret value stays secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved."
+          "description": "Environment variables for the update, for example cloud credentials. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved."
         },
         "runtime": {
           "$ref": "#/resources/delivery:index:WorkflowsRuntime",
-          "description": "Pool that runs the update. The preview runs on the hosted pool only, so omit it."
+          "description": "Pool that runs the update. In the private preview, all work runs on the hosted pool, so omit it."
         },
         "source": {
           "oneOf": [
@@ -223,11 +223,11 @@
       ]
     },
     "delivery:index:WorkflowsRuntimeArgs": {
-      "description": "Pool selection. The preview runs on the hosted pool only.",
+      "description": "Pool selection. In the private preview, all work runs on the hosted pool.",
       "properties": {
         "agentPool": {
           "type": "string",
-          "description": "Pool identifier. Returned unchanged as the ref of the resource.",
+          "description": "Pool identifier. The resource returns it unchanged as ref.",
           "replaceOnChanges": true
         }
       },
@@ -239,7 +239,7 @@
   },
   "resources": {
     "delivery:index:Artifact": {
-      "description": "Publishes a value for the pipelines that read this stage with a PipelineSource. The artifact is named like the resource. It succeeds once its stage is admitted and its value is known.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nnew delivery.Artifact(\"clusterEndpoint\", {\n    stage: prod,\n    value: cluster.endpoint,\n});\n```",
+      "description": "Publishes a value for the pipelines that read this stage with a PipelineSource. The artifact has the name of the resource. It succeeds when its stage admits the release and its value is known.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nnew delivery.Artifact(\"clusterEndpoint\", {\n    stage: prod,\n    value: cluster.endpoint,\n});\n```",
       "properties": {
         "value": {
           "$ref": "pulumi.json#/Any"
@@ -255,7 +255,7 @@
         },
         "value": {
           "$ref": "pulumi.json#/Any",
-          "description": "Value to publish. It can be any value, also a secret or a structure."
+          "description": "Value to publish. It can be any value, including a secret or a structure."
         }
       },
       "requiredInputs": [
@@ -297,7 +297,7 @@
               "$ref": "#/types/delivery:index:SourceTrigger"
             }
           ],
-          "description": "Starts a run on a push to the branch. Set true for every push, or { paths } for pushes that change a matching file. Omit it for a source that is part of the release but never starts a run."
+          "description": "Starts a run when someone pushes to the branch. Set true for every push, or { paths } for pushes that change a matching file. If you omit it, the source is part of the release but never starts a run."
         }
       },
       "requiredInputs": [
@@ -339,7 +339,7 @@
               "$ref": "#/types/delivery:index:SourceTrigger"
             }
           ],
-          "description": "Starts a run on a push to the branch. Set true for every push, or { paths } for pushes that change a matching file. Omit it for a source that is part of the release but never starts a run."
+          "description": "Starts a run when someone pushes to the branch. Set true for every push, or { paths } for pushes that change a matching file. If you omit it, the source is part of the release but never starts a run."
         }
       },
       "requiredInputs": [
@@ -349,7 +349,7 @@
       "isComponent": true
     },
     "delivery:index:GitHubSource": {
-      "description": "Declares a GitHub repository and branch. Members check out this source. The source locks its commit when the run first creates it, and every stage of the run gets that commit. The commit output is that commit. It is unknown during registration and preview.\n\nA source does not start runs unless you set trigger. Set trigger to true to start a run on every push to the branch, or to { paths } to start one only when a push changes a matching file.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nconst code = new delivery.GitHubSource(\"code\", {\n    repository: \"acme/shop\",\n    branch: \"main\",\n    trigger: { paths: [\"src/**\", \"delivery/**\"] },\n});\n```",
+      "description": "Declares a GitHub repository and branch. Members check out this source. The source locks its commit when the run first creates it, and every stage of the run gets that commit. The commit output holds this commit. It is unknown during registration and preview.\n\nA source does not start runs unless you set trigger. Set trigger to true to start a run on every push to the branch. Set it to { paths } to start a run only when a push changes a matching file.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nconst code = new delivery.GitHubSource(\"code\", {\n    repository: \"acme/shop\",\n    branch: \"main\",\n    trigger: { paths: [\"src/**\", \"delivery/**\"] },\n});\n```",
       "properties": {
         "commit": {
           "type": "string",
@@ -381,7 +381,7 @@
               "$ref": "#/types/delivery:index:SourceTrigger"
             }
           ],
-          "description": "Starts a run on a push to the branch. Set true for every push, or { paths } for pushes that change a matching file. Omit it for a source that is part of the release but never starts a run."
+          "description": "Starts a run when someone pushes to the branch. Set true for every push, or { paths } for pushes that change a matching file. If you omit it, the source is part of the release but never starts a run."
         }
       },
       "requiredInputs": [
@@ -423,7 +423,7 @@
               "$ref": "#/types/delivery:index:SourceTrigger"
             }
           ],
-          "description": "Starts a run on a push to the branch. Set true for every push, or { paths } for pushes that change a matching file. Omit it for a source that is part of the release but never starts a run."
+          "description": "Starts a run when someone pushes to the branch. Set true for every push, or { paths } for pushes that change a matching file. If you omit it, the source is part of the release but never starts a run."
         }
       },
       "requiredInputs": [
@@ -433,7 +433,7 @@
       "isComponent": true
     },
     "delivery:index:Job": {
-      "description": "Declares a command that a run executes in a stage. The service checks out the source at the commit of the run and runs the command in directory.\n\nA resource that is not a Delivery resource waits for the job when it uses an output of the job.\n\nThe command sees these variables: DELIVERY_RELEASE, DELIVERY_RUN, DELIVERY_STAGE, DELIVERY_COMMIT and DELIVERY_PIPELINE. To publish outputs, the command writes a JSON object to the file that DELIVERY_OUTPUTS names. Each key is one output. The file can be at most 1 MiB. To mark an output as secret, write it as {\"value\": ..., \"secret\": true}.\n\nIf any output is secret, the whole map is secret. An output is secret when the job marks it or when it contains a secret environment value.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nnew delivery.Job(\"smoke\", {\n    stage: prod,\n    source: code,\n    directory: \"delivery\",\n    command: \"./scripts/smoke.sh\",\n});\n```",
+      "description": "Declares a command that a run executes in a stage. Delivery checks out the source at the commit of the run and runs the command in directory.\n\nA resource that is not a Delivery resource waits for the job when it uses an output of the job.\n\nThe command can read these variables: DELIVERY_RELEASE, DELIVERY_RUN, DELIVERY_STAGE, DELIVERY_COMMIT and DELIVERY_PIPELINE. To publish outputs, write a JSON object to the file that DELIVERY_OUTPUTS names. Each key is one output. The file can be at most 1 MiB. To mark an output as secret, write it as {\"value\": ..., \"secret\": true}.\n\nIf one output is secret, the whole map is secret. An output is secret when the job marks it as secret or when it contains a secret environment value.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nnew delivery.Job(\"smoke\", {\n    stage: prod,\n    source: code,\n    directory: \"delivery\",\n    command: \"./scripts/smoke.sh\",\n});\n```",
       "properties": {
         "outputs": {
           "type": "object",
@@ -441,7 +441,7 @@
             "type": "string",
             "plain": true
           },
-          "description": "Outputs that the command wrote. They are unknown until the job has run."
+          "description": "Outputs that the command wrote. They are unknown until the job runs."
         }
       },
       "required": [
@@ -450,7 +450,7 @@
       "inputProperties": {
         "command": {
           "type": "string",
-          "description": "Command to run. It runs with sh -c. The command can write outputs to the file that DELIVERY_OUTPUTS names."
+          "description": "Command to run with sh -c. To publish outputs, the command writes them to the file that DELIVERY_OUTPUTS names."
         },
         "directory": {
           "type": "string",
@@ -461,7 +461,7 @@
           "additionalProperties": {
             "type": "string"
           },
-          "description": "Environment variables for the command. A secret value stays secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved."
+          "description": "Environment variables for the command. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved."
         },
         "source": {
           "oneOf": [
@@ -482,11 +482,11 @@
         },
         "stage": {
           "$ref": "#/resources/delivery:index:Stage",
-          "description": "Stage that the job runs in. A pipeline requires it."
+          "description": "Stage that the job runs in."
         },
         "timeout": {
           "type": "string",
-          "description": "Maximum run time as a Go duration, such as 30m. The preview does not apply this value yet. A job stops after 2 hours."
+          "description": "Maximum run time as a Go duration, such as 30m. Delivery does not apply this value in the private preview. A job stops after 2 hours."
         }
       },
       "requiredInputs": [
@@ -498,7 +498,7 @@
       "isComponent": true
     },
     "delivery:index:Pipeline": {
-      "description": "Declares the pipeline: the source and directory of the pipeline program itself, and the release number of the run. A program has one Pipeline.\n\nRun pulumi up on the pipeline stack to register it. Registration ends with exit code 10, because the members wait for a run.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nconst code = new delivery.GitHubSource(\"code\", {\n    repository: \"acme/shop\",\n    branch: \"main\",\n    trigger: true,\n});\nconst pipeline = new delivery.Pipeline(\"shop\", {\n    program: { source: code, directory: \"delivery\" },\n});\nexport const release = pipeline.releaseNumber;\n```",
+      "description": "Declares the pipeline. It names the source and directory of the pipeline program itself, and it gives the release number of the run. A program has one Pipeline.\n\nTo register the pipeline, run pulumi up on the pipeline stack. Registration ends with exit code 10, because the members wait for a run.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nconst code = new delivery.GitHubSource(\"code\", {\n    repository: \"acme/shop\",\n    branch: \"main\",\n    trigger: true,\n});\nconst pipeline = new delivery.Pipeline(\"shop\", {\n    program: { source: code, directory: \"delivery\" },\n});\nexport const release = pipeline.releaseNumber;\n```",
       "properties": {
         "releaseNumber": {
           "type": "integer",
@@ -520,7 +520,7 @@
       "isComponent": true
     },
     "delivery:index:PipelineSource": {
-      "description": "Reads the release that a stage of another pipeline in the same organization deployed. The outputs are unknown during registration and preview. If any artifact is secret, the whole map is secret.\n\nA pipeline source is not a checkout source: a job cannot check it out.\n\nA pipeline source does not start runs unless you set trigger: true. Then a new release of the upstream stage starts a run of this pipeline.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nconst platform = new delivery.PipelineSource(\"platform\", {\n    pipeline: \"acme/platform-delivery/main\",\n    stage: \"prod\",\n    trigger: true,\n});\nconst endpoint = platform.artifacts.apply(a => a[\"clusterEndpoint\"]);\n```",
+      "description": "Reads the release that a stage of another pipeline in the same organization deployed. The outputs are unknown during registration and preview. If one artifact is secret, the whole map is secret.\n\nA job cannot check out a pipeline source.\n\nA pipeline source does not start runs unless you set trigger: true. Then each new release of the upstream stage starts a run of this pipeline.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nconst platform = new delivery.PipelineSource(\"platform\", {\n    pipeline: \"acme/platform-delivery/main\",\n    stage: \"prod\",\n    trigger: true,\n});\nconst endpoint = platform.artifacts.apply(a => a[\"clusterEndpoint\"]);\n```",
       "properties": {
         "artifacts": {
           "type": "object",
@@ -554,7 +554,7 @@
         },
         "trigger": {
           "type": "boolean",
-          "description": "Set true to start a run of this pipeline when the stage deploys a new release. Omit it for a source that is part of the release but never starts a run."
+          "description": "Set true to start a run of this pipeline when the stage deploys a new release. If you omit it, the source is part of the release but never starts a run."
         }
       },
       "requiredInputs": [
@@ -564,7 +564,7 @@
       "isComponent": true
     },
     "delivery:index:Stacks": {
-      "description": "Updates one or more existing stacks in a stage. Each entry of stacks is one update of a target stack. Delivery checks out the source of the entry at the commit of the run and runs pulumi up on the target stack.\n\nCreate each target stack before the first run. A target stack must be an ordinary stack in the organization of the pipeline.\n\nThe entries of a group run together and can read each other's new outputs through stack references. The group is one unit for dependencies and retries: a resource that uses an output of one entry waits for the whole group, and a retry runs every entry again if one entry failed. Each entry uses one slot of the concurrent job limit of the organization. A group with more entries than the limit can block itself, and Delivery fails it after 2 hours without progress.\n\nThe outputs of the group are secret as a whole if the output of one entry is secret.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nnew delivery.Stacks(\"dev\", {\n    stage: dev,\n    stacks: {\n        api: { stack: \"acme/shop-infra/dev\", source: code, directory: \"infra\", config: { environment: \"dev\" } },\n    },\n});\n```",
+      "description": "Updates one or more existing stacks in a stage. Each entry of stacks updates one target stack. Delivery checks out the source of the entry at the commit of the run and runs pulumi up on the target stack.\n\nCreate each target stack before the first run. A target stack must be an ordinary stack in the organization of the pipeline.\n\nThe entries of a group run together. They can read the new outputs of each other through stack references. The group is one unit for dependencies and retries. A resource that uses an output of one entry waits for the whole group. If one entry fails, a retry runs every entry again. Each entry uses one slot of the concurrent job limit of the organization. A group with more entries than the limit can block itself. Delivery fails it after 2 hours without progress.\n\nIf the output of one entry is secret, all outputs of the group are secret.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nnew delivery.Stacks(\"dev\", {\n    stage: dev,\n    stacks: {\n        api: { stack: \"acme/shop-infra/dev\", source: code, directory: \"infra\", config: { environment: \"dev\" } },\n    },\n});\n```",
       "properties": {
         "outputs": {
           "type": "object",
@@ -574,7 +574,7 @@
               "$ref": "pulumi.json#/Any"
             }
           },
-          "description": "Outputs of each entry, by entry name. They are unknown until the group has run."
+          "description": "Outputs of each entry, by entry name. They are unknown until the group runs."
         }
       },
       "required": [
@@ -586,11 +586,11 @@
           "additionalProperties": {
             "$ref": "#/types/delivery:index:StacksEntry"
           },
-          "description": "Entries by name. Names can use letters, digits, underscores and hyphens. Each entry updates one target stack."
+          "description": "Entries by name. A name can contain letters, digits, underscores and hyphens. Each entry updates one target stack."
         },
         "stage": {
           "$ref": "#/resources/delivery:index:Stage",
-          "description": "Stage that the group runs in. A pipeline requires it."
+          "description": "Stage that the group runs in."
         }
       },
       "requiredInputs": [
@@ -600,7 +600,7 @@
       "isComponent": true
     },
     "delivery:index:Stage": {
-      "description": "Declares a stage of the pipeline. The from stages define promotion edges, and when adds an optional rule such as approval. A stage with several upstream stages waits for the same release to converge in all of them.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nconst dev = new delivery.Stage(\"dev\", { pipeline });\nnew delivery.Stage(\"prod\", {\n    pipeline,\n    from: [dev],\n    when: delivery.approval({ approvers: [\"your-username\"] }),\n});\n```",
+      "description": "Declares a stage of the pipeline. The from stages set the order of promotion, and when adds an optional rule, such as an approval. A stage with several upstream stages waits until the same release converges in all of them.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nconst dev = new delivery.Stage(\"dev\", { pipeline });\nnew delivery.Stage(\"prod\", {\n    pipeline,\n    from: [dev],\n    when: delivery.approval({ approvers: [\"your-username\"] }),\n});\n```",
       "inputProperties": {
         "from": {
           "type": "array",
@@ -624,7 +624,7 @@
       "isComponent": true
     },
     "delivery:index:WorkflowsRuntime": {
-      "description": "Selects the pool that runs the work of a member. The preview runs on the hosted pool only, so do not use this resource in the preview. Agent pools are not available yet.",
+      "description": "Selects the pool that runs the work of a member. In the private preview, all work runs on the hosted pool, so do not use this resource yet. Agent pools are not available.",
       "properties": {
         "inputs": {
           "$ref": "#/types/delivery:index:WorkflowsRuntimeArgs"
@@ -640,7 +640,7 @@
       "inputProperties": {
         "agentPool": {
           "type": "string",
-          "description": "Pool identifier. Returned unchanged as the ref of the resource.",
+          "description": "Pool identifier. The resource returns it unchanged as ref.",
           "replaceOnChanges": true
         }
       },
@@ -651,9 +651,9 @@
   },
   "functions": {
     "delivery:index:allOf": {
-      "description": "Builds an all rule for a Stage's when: passes once every child rule passes.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nconst prod = new delivery.Stage(\"prod\", {\n    pipeline,\n    from: [dev],\n    when: delivery.allOfOutput({\n        rules: [delivery.approvalOutput({ approvers: [\"your-username\"] })],\n    }),\n});\n```",
+      "description": "Builds an all rule for the when property of a Stage. The rule passes when every child rule passes.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nconst prod = new delivery.Stage(\"prod\", {\n    pipeline,\n    from: [dev],\n    when: delivery.allOfOutput({\n        rules: [delivery.approvalOutput({ approvers: [\"your-username\"] })],\n    }),\n});\n```",
       "inputs": {
-        "description": "All/any rule settings.",
+        "description": "Settings of an all or any rule.",
         "properties": {
           "name": {
             "type": "string",
@@ -664,7 +664,7 @@
             "items": {
               "$ref": "#/types/delivery:index:Rule"
             },
-            "description": "Child rules. At least one is required. Rules may nest at most three levels."
+            "description": "Child rules. At least one is required. A rule can contain other rules, up to three levels deep."
           }
         },
         "type": "object",
@@ -673,21 +673,21 @@
         ]
       },
       "outputs": {
-        "description": "Stage entry rule. Rules may nest at most three levels.",
+        "description": "Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.",
         "properties": {
           "approvers": {
-            "description": "Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.",
+            "description": "Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it.",
             "items": {
               "type": "string"
             },
             "type": "array"
           },
           "body": {
-            "description": "HTTP request body. Pulumi secret values remain secret.",
+            "description": "HTTP request body. Secret values stay secret.",
             "type": "string"
           },
           "count": {
-            "description": "Number of approvals required. For approval rules, omitted or zero means one.",
+            "description": "Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.",
             "type": "integer"
           },
           "description": {
@@ -698,19 +698,19 @@
             "additionalProperties": {
               "type": "string"
             },
-            "description": "HTTP request headers. Pulumi secret values remain secret.",
+            "description": "HTTP request headers. Secret values stay secret.",
             "type": "object"
           },
           "headersEnvironment": {
-            "description": "Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule.",
+            "description": "Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.",
             "type": "string"
           },
           "interval": {
-            "description": "HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.",
+            "description": "Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.",
             "type": "string"
           },
           "kind": {
-            "description": "Rule kind: approval, http, manual, all, or any.",
+            "description": "Kind of the rule. Valid values are approval, http, manual, all, and any.",
             "type": "string"
           },
           "method": {
@@ -722,22 +722,22 @@
             "type": "string"
           },
           "rules": {
-            "description": "Child rules for all or any. At least one child is required.",
+            "description": "Child rules for all and any rules. At least one is required.",
             "items": {
               "$ref": "#/types/delivery:index:Rule"
             },
             "type": "array"
           },
           "successExpression": {
-            "description": "JMESPath expression that the service evaluates over the status, headers and body of the HTTP response. The rule passes when it is true. Required for http rules.",
+            "description": "JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.",
             "type": "string"
           },
           "timeout": {
-            "description": "HTTP request timeout as a Go duration, such as 10s. Must be a positive whole number of seconds, at most 20 seconds.",
+            "description": "Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.",
             "type": "string"
           },
           "url": {
-            "description": "URL to call for an http rule. Required for that kind.",
+            "description": "URL to call. Required for http rules.",
             "type": "string"
           }
         },
@@ -748,9 +748,9 @@
       }
     },
     "delivery:index:anyOf": {
-      "description": "Builds an any rule for a Stage's when: passes once one child rule passes.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nconst prod = new delivery.Stage(\"prod\", {\n    pipeline,\n    from: [dev],\n    when: delivery.anyOfOutput({\n        rules: [delivery.approvalOutput({ approvers: [\"your-username\"] }), delivery.manualOutput()],\n    }),\n});\n```",
+      "description": "Builds an any rule for the when property of a Stage. The rule passes when one child rule passes.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nconst prod = new delivery.Stage(\"prod\", {\n    pipeline,\n    from: [dev],\n    when: delivery.anyOfOutput({\n        rules: [delivery.approvalOutput({ approvers: [\"your-username\"] }), delivery.manualOutput()],\n    }),\n});\n```",
       "inputs": {
-        "description": "All/any rule settings.",
+        "description": "Settings of an all or any rule.",
         "properties": {
           "name": {
             "type": "string",
@@ -761,7 +761,7 @@
             "items": {
               "$ref": "#/types/delivery:index:Rule"
             },
-            "description": "Child rules. At least one is required. Rules may nest at most three levels."
+            "description": "Child rules. At least one is required. A rule can contain other rules, up to three levels deep."
           }
         },
         "type": "object",
@@ -770,21 +770,21 @@
         ]
       },
       "outputs": {
-        "description": "Stage entry rule. Rules may nest at most three levels.",
+        "description": "Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.",
         "properties": {
           "approvers": {
-            "description": "Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.",
+            "description": "Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it.",
             "items": {
               "type": "string"
             },
             "type": "array"
           },
           "body": {
-            "description": "HTTP request body. Pulumi secret values remain secret.",
+            "description": "HTTP request body. Secret values stay secret.",
             "type": "string"
           },
           "count": {
-            "description": "Number of approvals required. For approval rules, omitted or zero means one.",
+            "description": "Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.",
             "type": "integer"
           },
           "description": {
@@ -795,19 +795,19 @@
             "additionalProperties": {
               "type": "string"
             },
-            "description": "HTTP request headers. Pulumi secret values remain secret.",
+            "description": "HTTP request headers. Secret values stay secret.",
             "type": "object"
           },
           "headersEnvironment": {
-            "description": "Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule.",
+            "description": "Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.",
             "type": "string"
           },
           "interval": {
-            "description": "HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.",
+            "description": "Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.",
             "type": "string"
           },
           "kind": {
-            "description": "Rule kind: approval, http, manual, all, or any.",
+            "description": "Kind of the rule. Valid values are approval, http, manual, all, and any.",
             "type": "string"
           },
           "method": {
@@ -819,22 +819,22 @@
             "type": "string"
           },
           "rules": {
-            "description": "Child rules for all or any. At least one child is required.",
+            "description": "Child rules for all and any rules. At least one is required.",
             "items": {
               "$ref": "#/types/delivery:index:Rule"
             },
             "type": "array"
           },
           "successExpression": {
-            "description": "JMESPath expression that the service evaluates over the status, headers and body of the HTTP response. The rule passes when it is true. Required for http rules.",
+            "description": "JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.",
             "type": "string"
           },
           "timeout": {
-            "description": "HTTP request timeout as a Go duration, such as 10s. Must be a positive whole number of seconds, at most 20 seconds.",
+            "description": "Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.",
             "type": "string"
           },
           "url": {
-            "description": "URL to call for an http rule. Required for that kind.",
+            "description": "URL to call. Required for http rules.",
             "type": "string"
           }
         },
@@ -845,7 +845,7 @@
       }
     },
     "delivery:index:approval": {
-      "description": "Builds an approval rule for a Stage's when. The gate waits until the required number of eligible people approve. Omitted or zero count means one approval. The person who started the run cannot approve it. Without named approvers, anyone with the organization update permission can approve. Approving needs the Approvals feature.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nconst prod = new delivery.Stage(\"prod\", {\n    pipeline,\n    from: [dev],\n    when: delivery.approval({ approvers: [\"your-username\"] }),\n});\n```",
+      "description": "Builds an approval rule for the when property of a Stage. The gate waits until the required number of eligible people approve. If you omit count or set it to zero, one approval is required. The person who started the run cannot approve it. If you name no approvers, anyone with the organization update permission can approve. Approving needs the Approvals feature.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nconst prod = new delivery.Stage(\"prod\", {\n    pipeline,\n    from: [dev],\n    when: delivery.approval({ approvers: [\"your-username\"] }),\n});\n```",
       "inputs": {
         "description": "Approval rule settings.",
         "properties": {
@@ -854,11 +854,11 @@
             "items": {
               "type": "string"
             },
-            "description": "Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that."
+            "description": "Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it."
           },
           "count": {
             "type": "integer",
-            "description": "Number of approvals required. Omitted or zero means one."
+            "description": "Number of approvals required. If you omit it or set it to zero, one approval is required."
           },
           "name": {
             "type": "string",
@@ -868,21 +868,21 @@
         "type": "object"
       },
       "outputs": {
-        "description": "Stage entry rule. Rules may nest at most three levels.",
+        "description": "Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.",
         "properties": {
           "approvers": {
-            "description": "Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.",
+            "description": "Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it.",
             "items": {
               "type": "string"
             },
             "type": "array"
           },
           "body": {
-            "description": "HTTP request body. Pulumi secret values remain secret.",
+            "description": "HTTP request body. Secret values stay secret.",
             "type": "string"
           },
           "count": {
-            "description": "Number of approvals required. For approval rules, omitted or zero means one.",
+            "description": "Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.",
             "type": "integer"
           },
           "description": {
@@ -893,19 +893,19 @@
             "additionalProperties": {
               "type": "string"
             },
-            "description": "HTTP request headers. Pulumi secret values remain secret.",
+            "description": "HTTP request headers. Secret values stay secret.",
             "type": "object"
           },
           "headersEnvironment": {
-            "description": "Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule.",
+            "description": "Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.",
             "type": "string"
           },
           "interval": {
-            "description": "HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.",
+            "description": "Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.",
             "type": "string"
           },
           "kind": {
-            "description": "Rule kind: approval, http, manual, all, or any.",
+            "description": "Kind of the rule. Valid values are approval, http, manual, all, and any.",
             "type": "string"
           },
           "method": {
@@ -917,22 +917,22 @@
             "type": "string"
           },
           "rules": {
-            "description": "Child rules for all or any. At least one child is required.",
+            "description": "Child rules for all and any rules. At least one is required.",
             "items": {
               "$ref": "#/types/delivery:index:Rule"
             },
             "type": "array"
           },
           "successExpression": {
-            "description": "JMESPath expression that the service evaluates over the status, headers and body of the HTTP response. The rule passes when it is true. Required for http rules.",
+            "description": "JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.",
             "type": "string"
           },
           "timeout": {
-            "description": "HTTP request timeout as a Go duration, such as 10s. Must be a positive whole number of seconds, at most 20 seconds.",
+            "description": "Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.",
             "type": "string"
           },
           "url": {
-            "description": "URL to call for an http rule. Required for that kind.",
+            "description": "URL to call. Required for http rules.",
             "type": "string"
           }
         },
@@ -943,28 +943,28 @@
       }
     },
     "delivery:index:http": {
-      "description": "Builds an http rule for a Stage's when.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nconst prod = new delivery.Stage(\"prod\", {\n    pipeline,\n    from: [dev],\n    when: delivery.http({ url: \"https://example.com/check\", successExpression: \"status == 'ok'\" }),\n});\n```",
+      "description": "Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nconst prod = new delivery.Stage(\"prod\", {\n    pipeline,\n    from: [dev],\n    when: delivery.http({ url: \"https://example.com/check\", successExpression: \"status == 'ok'\" }),\n});\n```",
       "inputs": {
         "description": "HTTP rule settings.",
         "properties": {
           "body": {
             "type": "string",
-            "description": "HTTP request body. Pulumi secret values remain secret."
+            "description": "HTTP request body. Secret values stay secret."
           },
           "headers": {
             "type": "object",
             "additionalProperties": {
               "type": "string"
             },
-            "description": "HTTP request headers. Pulumi secret values remain secret."
+            "description": "HTTP request headers. Secret values stay secret."
           },
           "headersEnvironment": {
             "type": "string",
-            "description": "Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule."
+            "description": "Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule."
           },
           "interval": {
             "type": "string",
-            "description": "HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds."
+            "description": "Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds."
           },
           "method": {
             "type": "string",
@@ -976,11 +976,11 @@
           },
           "successExpression": {
             "type": "string",
-            "description": "JMESPath expression that the service evaluates over the status, headers and body of the HTTP response. The rule passes when it is true. Required."
+            "description": "JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required."
           },
           "timeout": {
             "type": "string",
-            "description": "HTTP request timeout as a Go duration, such as 10s. Must be a positive whole number of seconds, at most 20 seconds."
+            "description": "Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20."
           },
           "url": {
             "type": "string",
@@ -994,21 +994,21 @@
         ]
       },
       "outputs": {
-        "description": "Stage entry rule. Rules may nest at most three levels.",
+        "description": "Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.",
         "properties": {
           "approvers": {
-            "description": "Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.",
+            "description": "Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it.",
             "items": {
               "type": "string"
             },
             "type": "array"
           },
           "body": {
-            "description": "HTTP request body. Pulumi secret values remain secret.",
+            "description": "HTTP request body. Secret values stay secret.",
             "type": "string"
           },
           "count": {
-            "description": "Number of approvals required. For approval rules, omitted or zero means one.",
+            "description": "Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.",
             "type": "integer"
           },
           "description": {
@@ -1019,19 +1019,19 @@
             "additionalProperties": {
               "type": "string"
             },
-            "description": "HTTP request headers. Pulumi secret values remain secret.",
+            "description": "HTTP request headers. Secret values stay secret.",
             "type": "object"
           },
           "headersEnvironment": {
-            "description": "Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule.",
+            "description": "Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.",
             "type": "string"
           },
           "interval": {
-            "description": "HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.",
+            "description": "Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.",
             "type": "string"
           },
           "kind": {
-            "description": "Rule kind: approval, http, manual, all, or any.",
+            "description": "Kind of the rule. Valid values are approval, http, manual, all, and any.",
             "type": "string"
           },
           "method": {
@@ -1043,22 +1043,22 @@
             "type": "string"
           },
           "rules": {
-            "description": "Child rules for all or any. At least one child is required.",
+            "description": "Child rules for all and any rules. At least one is required.",
             "items": {
               "$ref": "#/types/delivery:index:Rule"
             },
             "type": "array"
           },
           "successExpression": {
-            "description": "JMESPath expression that the service evaluates over the status, headers and body of the HTTP response. The rule passes when it is true. Required for http rules.",
+            "description": "JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.",
             "type": "string"
           },
           "timeout": {
-            "description": "HTTP request timeout as a Go duration, such as 10s. Must be a positive whole number of seconds, at most 20 seconds.",
+            "description": "Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.",
             "type": "string"
           },
           "url": {
-            "description": "URL to call for an http rule. Required for that kind.",
+            "description": "URL to call. Required for http rules.",
             "type": "string"
           }
         },
@@ -1069,7 +1069,7 @@
       }
     },
     "delivery:index:manual": {
-      "description": "Builds a manual rule for a Stage's when. A manual gate waits until someone continues it, from the console or with a POST to the continue route of the gate. It works on every plan. Use approval() when you need named approvers and the Approvals feature.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nconst prod = new delivery.Stage(\"prod\", {\n    pipeline,\n    from: [dev],\n    when: delivery.manual({ name: \"dashboards\", description: \"Check the dashboards before you continue.\" }),\n});\n```",
+      "description": "Builds a manual rule for the when property of a Stage. A manual gate waits until someone continues it. Continue it in the console or with a POST to the continue route of the gate. It works on every plan. To require named approvers, use approval(), which needs the Approvals feature.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nconst prod = new delivery.Stage(\"prod\", {\n    pipeline,\n    from: [dev],\n    when: delivery.manual({ name: \"dashboards\", description: \"Check the dashboards before you continue.\" }),\n});\n```",
       "inputs": {
         "description": "Manual rule settings.",
         "properties": {
@@ -1079,27 +1079,27 @@
           },
           "name": {
             "type": "string",
-            "description": "Rule name. Omit it to let Delivery use the kind, manual. Names are unique within a gate."
+            "description": "Rule name. If you omit it, Delivery uses manual. Names must be unique within a gate."
           }
         },
         "type": "object"
       },
       "outputs": {
-        "description": "Stage entry rule. Rules may nest at most three levels.",
+        "description": "Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.",
         "properties": {
           "approvers": {
-            "description": "Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.",
+            "description": "Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it.",
             "items": {
               "type": "string"
             },
             "type": "array"
           },
           "body": {
-            "description": "HTTP request body. Pulumi secret values remain secret.",
+            "description": "HTTP request body. Secret values stay secret.",
             "type": "string"
           },
           "count": {
-            "description": "Number of approvals required. For approval rules, omitted or zero means one.",
+            "description": "Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.",
             "type": "integer"
           },
           "description": {
@@ -1110,19 +1110,19 @@
             "additionalProperties": {
               "type": "string"
             },
-            "description": "HTTP request headers. Pulumi secret values remain secret.",
+            "description": "HTTP request headers. Secret values stay secret.",
             "type": "object"
           },
           "headersEnvironment": {
-            "description": "Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule.",
+            "description": "Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.",
             "type": "string"
           },
           "interval": {
-            "description": "HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.",
+            "description": "Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.",
             "type": "string"
           },
           "kind": {
-            "description": "Rule kind: approval, http, manual, all, or any.",
+            "description": "Kind of the rule. Valid values are approval, http, manual, all, and any.",
             "type": "string"
           },
           "method": {
@@ -1134,22 +1134,22 @@
             "type": "string"
           },
           "rules": {
-            "description": "Child rules for all or any. At least one child is required.",
+            "description": "Child rules for all and any rules. At least one is required.",
             "items": {
               "$ref": "#/types/delivery:index:Rule"
             },
             "type": "array"
           },
           "successExpression": {
-            "description": "JMESPath expression that the service evaluates over the status, headers and body of the HTTP response. The rule passes when it is true. Required for http rules.",
+            "description": "JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.",
             "type": "string"
           },
           "timeout": {
-            "description": "HTTP request timeout as a Go duration, such as 10s. Must be a positive whole number of seconds, at most 20 seconds.",
+            "description": "Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.",
             "type": "string"
           },
           "url": {
-            "description": "URL to call for an http rule. Required for that kind.",
+            "description": "URL to call. Required for http rules.",
             "type": "string"
           }
         },

@@ -27,7 +27,7 @@ class PipelineSourceArgs:
 
         :param pulumi.Input[_builtins.str] pipeline: Upstream pipeline as org/project/stack.
         :param pulumi.Input[_builtins.str] stage: Stage of the upstream pipeline.
-        :param pulumi.Input[_builtins.bool] trigger: Set true to start a run of this pipeline when the stage deploys a new release. Omit it for a source that is part of the release but never starts a run.
+        :param pulumi.Input[_builtins.bool] trigger: Set true to start a run of this pipeline when the stage deploys a new release. If you omit it, the source is part of the release but never starts a run.
         """
         pulumi.set(__self__, "pipeline", pipeline)
         pulumi.set(__self__, "stage", stage)
@@ -62,7 +62,7 @@ class PipelineSourceArgs:
     @pulumi.getter
     def trigger(self) -> pulumi.Input[Optional[_builtins.bool]]:
         """
-        Set true to start a run of this pipeline when the stage deploys a new release. Omit it for a source that is part of the release but never starts a run.
+        Set true to start a run of this pipeline when the stage deploys a new release. If you omit it, the source is part of the release but never starts a run.
         """
         return pulumi.get(self, "trigger")
 
@@ -82,11 +82,11 @@ class PipelineSource(pulumi.ComponentResource):
                  trigger: pulumi.Input[Optional[_builtins.bool]] = None,
                  __props__=None):
         """
-        Reads the release that a stage of another pipeline in the same organization deployed. The outputs are unknown during registration and preview. If any artifact is secret, the whole map is secret.
+        Reads the release that a stage of another pipeline in the same organization deployed. The outputs are unknown during registration and preview. If one artifact is secret, the whole map is secret.
 
-        A pipeline source is not a checkout source: a job cannot check it out.
+        A job cannot check out a pipeline source.
 
-        A pipeline source does not start runs unless you set trigger: true. Then a new release of the upstream stage starts a run of this pipeline.
+        A pipeline source does not start runs unless you set trigger: true. Then each new release of the upstream stage starts a run of this pipeline.
 
         ## Example Usage
 
@@ -94,7 +94,7 @@ class PipelineSource(pulumi.ComponentResource):
         :param pulumi.ResourceOptions opts: Options for the resource.
         :param pulumi.Input[_builtins.str] pipeline: Upstream pipeline as org/project/stack.
         :param pulumi.Input[_builtins.str] stage: Stage of the upstream pipeline.
-        :param pulumi.Input[_builtins.bool] trigger: Set true to start a run of this pipeline when the stage deploys a new release. Omit it for a source that is part of the release but never starts a run.
+        :param pulumi.Input[_builtins.bool] trigger: Set true to start a run of this pipeline when the stage deploys a new release. If you omit it, the source is part of the release but never starts a run.
         """
         ...
     @overload
@@ -103,11 +103,11 @@ class PipelineSource(pulumi.ComponentResource):
                  args: PipelineSourceArgs,
                  opts: Optional[pulumi.ResourceOptions] = None):
         """
-        Reads the release that a stage of another pipeline in the same organization deployed. The outputs are unknown during registration and preview. If any artifact is secret, the whole map is secret.
+        Reads the release that a stage of another pipeline in the same organization deployed. The outputs are unknown during registration and preview. If one artifact is secret, the whole map is secret.
 
-        A pipeline source is not a checkout source: a job cannot check it out.
+        A job cannot check out a pipeline source.
 
-        A pipeline source does not start runs unless you set trigger: true. Then a new release of the upstream stage starts a run of this pipeline.
+        A pipeline source does not start runs unless you set trigger: true. Then each new release of the upstream stage starts a run of this pipeline.
 
         ## Example Usage
 

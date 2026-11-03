@@ -20,7 +20,7 @@ namespace Pulumi.Delivery.Delivery.Inputs
         private InputMap<string>? _config;
 
         /// <summary>
-        /// Config values that Delivery sets on the target stack before the update. Values are plain strings, and Delivery rejects secret values. Keep secrets in the config file of the target stack or in an ESC environment.
+        /// Config values that Delivery sets on the target stack before the update. Values are plain strings. Delivery rejects secret values. Keep secrets in the config file of the target stack or in an ESC environment.
         /// </summary>
         public InputMap<string> Config
         {
@@ -38,7 +38,7 @@ namespace Pulumi.Delivery.Delivery.Inputs
         private InputMap<string>? _environment;
 
         /// <summary>
-        /// Environment variables for the update, for example cloud credentials. A secret value stays secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
+        /// Environment variables for the update, for example cloud credentials. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
         /// </summary>
         public InputMap<string> Environment
         {
@@ -47,7 +47,7 @@ namespace Pulumi.Delivery.Delivery.Inputs
         }
 
         /// <summary>
-        /// Pool that runs the update. The preview runs on the hosted pool only, so omit it.
+        /// Pool that runs the update. In the private preview, all work runs on the hosted pool, so omit it.
         /// </summary>
         [Input("runtime")]
         public Input<Pulumi.Delivery.Delivery.WorkflowsRuntime>? Runtime { get; set; }

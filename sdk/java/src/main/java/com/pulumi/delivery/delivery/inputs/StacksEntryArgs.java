@@ -29,14 +29,14 @@ public final class StacksEntryArgs extends com.pulumi.resources.ResourceArgs {
     public static final StacksEntryArgs Empty = new StacksEntryArgs();
 
     /**
-     * Config values that Delivery sets on the target stack before the update. Values are plain strings, and Delivery rejects secret values. Keep secrets in the config file of the target stack or in an ESC environment.
+     * Config values that Delivery sets on the target stack before the update. Values are plain strings. Delivery rejects secret values. Keep secrets in the config file of the target stack or in an ESC environment.
      * 
      */
     @Import(name="config")
     private @Nullable Output<Map<String,String>> config;
 
     /**
-     * @return Config values that Delivery sets on the target stack before the update. Values are plain strings, and Delivery rejects secret values. Keep secrets in the config file of the target stack or in an ESC environment.
+     * @return Config values that Delivery sets on the target stack before the update. Values are plain strings. Delivery rejects secret values. Keep secrets in the config file of the target stack or in an ESC environment.
      * 
      */
     public Optional<Output<Map<String,String>>> config() {
@@ -59,14 +59,14 @@ public final class StacksEntryArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * Environment variables for the update, for example cloud credentials. A secret value stays secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
+     * Environment variables for the update, for example cloud credentials. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
      * 
      */
     @Import(name="environment")
     private @Nullable Output<Map<String,String>> environment;
 
     /**
-     * @return Environment variables for the update, for example cloud credentials. A secret value stays secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
+     * @return Environment variables for the update, for example cloud credentials. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
      * 
      */
     public Optional<Output<Map<String,String>>> environment() {
@@ -74,14 +74,14 @@ public final class StacksEntryArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * Pool that runs the update. The preview runs on the hosted pool only, so omit it.
+     * Pool that runs the update. In the private preview, all work runs on the hosted pool, so omit it.
      * 
      */
     @Import(name="runtime")
     private @Nullable Output<WorkflowsRuntime> runtime;
 
     /**
-     * @return Pool that runs the update. The preview runs on the hosted pool only, so omit it.
+     * @return Pool that runs the update. In the private preview, all work runs on the hosted pool, so omit it.
      * 
      */
     public Optional<Output<WorkflowsRuntime>> runtime() {
@@ -164,7 +164,7 @@ public final class StacksEntryArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param config Config values that Delivery sets on the target stack before the update. Values are plain strings, and Delivery rejects secret values. Keep secrets in the config file of the target stack or in an ESC environment.
+         * @param config Config values that Delivery sets on the target stack before the update. Values are plain strings. Delivery rejects secret values. Keep secrets in the config file of the target stack or in an ESC environment.
          * 
          * @return builder
          * 
@@ -175,7 +175,7 @@ public final class StacksEntryArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param config Config values that Delivery sets on the target stack before the update. Values are plain strings, and Delivery rejects secret values. Keep secrets in the config file of the target stack or in an ESC environment.
+         * @param config Config values that Delivery sets on the target stack before the update. Values are plain strings. Delivery rejects secret values. Keep secrets in the config file of the target stack or in an ESC environment.
          * 
          * @return builder
          * 
@@ -206,7 +206,7 @@ public final class StacksEntryArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param environment Environment variables for the update, for example cloud credentials. A secret value stays secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
+         * @param environment Environment variables for the update, for example cloud credentials. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
          * 
          * @return builder
          * 
@@ -217,7 +217,7 @@ public final class StacksEntryArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param environment Environment variables for the update, for example cloud credentials. A secret value stays secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
+         * @param environment Environment variables for the update, for example cloud credentials. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
          * 
          * @return builder
          * 
@@ -227,7 +227,7 @@ public final class StacksEntryArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param runtime Pool that runs the update. The preview runs on the hosted pool only, so omit it.
+         * @param runtime Pool that runs the update. In the private preview, all work runs on the hosted pool, so omit it.
          * 
          * @return builder
          * 
@@ -238,7 +238,7 @@ public final class StacksEntryArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param runtime Pool that runs the update. The preview runs on the hosted pool only, so omit it.
+         * @param runtime Pool that runs the update. In the private preview, all work runs on the hosted pool, so omit it.
          * 
          * @return builder
          * 

@@ -31,8 +31,8 @@ class StacksArgs:
         """
         The set of arguments for constructing a Stacks resource.
 
-        :param pulumi.Input[Mapping[str, pulumi.Input['StacksEntryArgs']]] stacks: Entries by name. Names can use letters, digits, underscores and hyphens. Each entry updates one target stack.
-        :param pulumi.Input['Stage'] stage: Stage that the group runs in. A pipeline requires it.
+        :param pulumi.Input[Mapping[str, pulumi.Input['StacksEntryArgs']]] stacks: Entries by name. A name can contain letters, digits, underscores and hyphens. Each entry updates one target stack.
+        :param pulumi.Input['Stage'] stage: Stage that the group runs in.
         """
         pulumi.set(__self__, "stacks", stacks)
         pulumi.set(__self__, "stage", stage)
@@ -41,7 +41,7 @@ class StacksArgs:
     @pulumi.getter
     def stacks(self) -> pulumi.Input[Mapping[str, pulumi.Input['StacksEntryArgs']]]:
         """
-        Entries by name. Names can use letters, digits, underscores and hyphens. Each entry updates one target stack.
+        Entries by name. A name can contain letters, digits, underscores and hyphens. Each entry updates one target stack.
         """
         return pulumi.get(self, "stacks")
 
@@ -53,7 +53,7 @@ class StacksArgs:
     @pulumi.getter
     def stage(self) -> pulumi.Input['Stage']:
         """
-        Stage that the group runs in. A pipeline requires it.
+        Stage that the group runs in.
         """
         return pulumi.get(self, "stage")
 
@@ -72,20 +72,20 @@ class Stacks(pulumi.ComponentResource):
                  stage: pulumi.Input[Optional['Stage']] = None,
                  __props__=None):
         """
-        Updates one or more existing stacks in a stage. Each entry of stacks is one update of a target stack. Delivery checks out the source of the entry at the commit of the run and runs pulumi up on the target stack.
+        Updates one or more existing stacks in a stage. Each entry of stacks updates one target stack. Delivery checks out the source of the entry at the commit of the run and runs pulumi up on the target stack.
 
         Create each target stack before the first run. A target stack must be an ordinary stack in the organization of the pipeline.
 
-        The entries of a group run together and can read each other's new outputs through stack references. The group is one unit for dependencies and retries: a resource that uses an output of one entry waits for the whole group, and a retry runs every entry again if one entry failed. Each entry uses one slot of the concurrent job limit of the organization. A group with more entries than the limit can block itself, and Delivery fails it after 2 hours without progress.
+        The entries of a group run together. They can read the new outputs of each other through stack references. The group is one unit for dependencies and retries. A resource that uses an output of one entry waits for the whole group. If one entry fails, a retry runs every entry again. Each entry uses one slot of the concurrent job limit of the organization. A group with more entries than the limit can block itself. Delivery fails it after 2 hours without progress.
 
-        The outputs of the group are secret as a whole if the output of one entry is secret.
+        If the output of one entry is secret, all outputs of the group are secret.
 
         ## Example Usage
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
-        :param pulumi.Input[Mapping[str, pulumi.Input[Union['StacksEntryArgs', 'StacksEntryArgsDict']]]] stacks: Entries by name. Names can use letters, digits, underscores and hyphens. Each entry updates one target stack.
-        :param pulumi.Input['Stage'] stage: Stage that the group runs in. A pipeline requires it.
+        :param pulumi.Input[Mapping[str, pulumi.Input[Union['StacksEntryArgs', 'StacksEntryArgsDict']]]] stacks: Entries by name. A name can contain letters, digits, underscores and hyphens. Each entry updates one target stack.
+        :param pulumi.Input['Stage'] stage: Stage that the group runs in.
         """
         ...
     @overload
@@ -94,13 +94,13 @@ class Stacks(pulumi.ComponentResource):
                  args: StacksArgs,
                  opts: Optional[pulumi.ResourceOptions] = None):
         """
-        Updates one or more existing stacks in a stage. Each entry of stacks is one update of a target stack. Delivery checks out the source of the entry at the commit of the run and runs pulumi up on the target stack.
+        Updates one or more existing stacks in a stage. Each entry of stacks updates one target stack. Delivery checks out the source of the entry at the commit of the run and runs pulumi up on the target stack.
 
         Create each target stack before the first run. A target stack must be an ordinary stack in the organization of the pipeline.
 
-        The entries of a group run together and can read each other's new outputs through stack references. The group is one unit for dependencies and retries: a resource that uses an output of one entry waits for the whole group, and a retry runs every entry again if one entry failed. Each entry uses one slot of the concurrent job limit of the organization. A group with more entries than the limit can block itself, and Delivery fails it after 2 hours without progress.
+        The entries of a group run together. They can read the new outputs of each other through stack references. The group is one unit for dependencies and retries. A resource that uses an output of one entry waits for the whole group. If one entry fails, a retry runs every entry again. Each entry uses one slot of the concurrent job limit of the organization. A group with more entries than the limit can block itself. Delivery fails it after 2 hours without progress.
 
-        The outputs of the group are secret as a whole if the output of one entry is secret.
+        If the output of one entry is secret, all outputs of the group are secret.
 
         ## Example Usage
 
@@ -150,7 +150,7 @@ class Stacks(pulumi.ComponentResource):
     @pulumi.getter
     def outputs(self) -> pulumi.Output[Mapping[str, Mapping[str, Any]]]:
         """
-        Outputs of each entry, by entry name. They are unknown until the group has run.
+        Outputs of each entry, by entry name. They are unknown until the group runs.
         """
         return pulumi.get(self, "outputs")
 

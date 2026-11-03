@@ -33,14 +33,14 @@ public final class AnyOfPlainArgs extends com.pulumi.resources.InvokeArgs {
     }
 
     /**
-     * Child rules. At least one is required. Rules may nest at most three levels.
+     * Child rules. At least one is required. A rule can contain other rules, up to three levels deep.
      * 
      */
     @Import(name="rules", required=true)
     private List<Rule> rules;
 
     /**
-     * @return Child rules. At least one is required. Rules may nest at most three levels.
+     * @return Child rules. At least one is required. A rule can contain other rules, up to three levels deep.
      * 
      */
     public List<Rule> rules() {
@@ -84,7 +84,7 @@ public final class AnyOfPlainArgs extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param rules Child rules. At least one is required. Rules may nest at most three levels.
+         * @param rules Child rules. At least one is required. A rule can contain other rules, up to three levels deep.
          * 
          * @return builder
          * 
@@ -95,7 +95,7 @@ public final class AnyOfPlainArgs extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param rules Child rules. At least one is required. Rules may nest at most three levels.
+         * @param rules Child rules. At least one is required. A rule can contain other rules, up to three levels deep.
          * 
          * @return builder
          * 
