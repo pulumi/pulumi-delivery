@@ -26,21 +26,17 @@ Set up the Pulumi integration for your forge.
 
 Give the integration access to each repository that a source names, including the repository of the pipeline program. If your organization has more than one integration for a forge, set `integration` on the source. Otherwise registration fails with "Several <forge> integrations exist. Set integration on the source."
 
-### Install the plugin and the SDK
+### Add the SDK
 
-The Pulumi CLI downloads the provider plugin when a program needs it. To install it by hand, run:
-
-```sh
-pulumi plugin install resource delivery <version>
-```
-
-To add the SDK, run this command in the directory of the pipeline program, for example with version `0.0.1-alpha.2`:
+Run this command in the directory of the pipeline program:
 
 ```sh
-pulumi package add delivery@<version>
+pulumi package add delivery
 ```
 
-The command writes `packages: delivery: delivery@<version>` to `Pulumi.yaml` and generates a local SDK. Keep the `packages` entry. The hosted runner reads it and runs `pulumi install` for your program.
+The command adds the latest version of the SDK and writes it to the `packages` section of `Pulumi.yaml`, for example `delivery: delivery@<version>`. Keep that entry. The hosted runner reads it and runs `pulumi install` for your program. To add a specific version, run `pulumi package add delivery@<version>`.
+
+The Pulumi CLI downloads the provider plugin when a program needs it.
 
 ### Create the stacks
 
