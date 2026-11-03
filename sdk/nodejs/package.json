@@ -1,6 +1,6 @@
 {
     "name": "@pulumi/delivery",
-    "version": "0.2.0",
+    "version": "0.0.0-dev",
     "keywords": [
         "pulumi",
         "delivery",
@@ -22,7 +22,7 @@
     "pulumi": {
         "resource": true,
         "name": "delivery",
-        "version": "0.2.0",
+        "version": "0.0.0-dev",
         "server": "https://get.pulumi.com/releases/plugins/"
     }
 }
