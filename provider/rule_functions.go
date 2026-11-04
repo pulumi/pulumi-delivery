@@ -28,6 +28,10 @@ type Rule struct {
 	Rules              []Rule            `pulumi:"rules,optional"`
 	// Description tells the person who continues a manual gate what to check.
 	Description string `pulumi:"description,optional"`
+	// Agent is the Decision Agent that a decision rule asks.
+	Agent string `pulumi:"agent,optional"`
+	// Inputs are the prompt fields of a decision rule. Any JSON shape is allowed.
+	Inputs map[string]any `pulumi:"inputs,optional"`
 }
 
 // validateDuration checks an optional whole-second duration of an http rule.
@@ -93,6 +97,15 @@ func validateRuleValue(value property.Value, depth int) error {
 			}
 		}
 	case "manual":
+	case "decision":
+		if v, known := text("agent"); known {
+			if err := required("rule.agent", v); err != nil {
+				return err
+			}
+		}
+		if inputs := rule.Get("inputs"); !inputs.IsComputed() && !inputs.IsNull() && !inputs.IsMap() {
+			return fmt.Errorf("rule.inputs must be an object")
+		}
 	case "all", "any":
 		rules := rule.Get("rules")
 		if rules.IsComputed() {
@@ -138,6 +151,8 @@ func validateRule(r Rule, d int) error {
 		return nil
 	case "manual":
 		return nil
+	case "decision":
+		return required("rule.agent", r.Agent)
 	case "all", "any":
 		if len(r.Rules) == 0 {
 			return fmt.Errorf("%s rule must contain at least one rule", r.Kind)
@@ -218,6 +233,21 @@ type ManualArgs struct {
 
 func (Manual) Invoke(ctx context.Context, req infer.FunctionRequest[ManualArgs]) (infer.FunctionResponse[Rule], error) {
 	rule := Rule{Kind: "manual", Name: req.Input.Name, Description: req.Input.Description}
+	if err := validateRule(rule, 1); err != nil {
+		return infer.FunctionResponse[Rule]{}, err
+	}
+	return infer.FunctionResponse[Rule]{Output: rule}, nil
+}
+
+type Decision struct{}
+type DecisionArgs struct {
+	Name   string         `pulumi:"name,optional"`
+	Agent  string         `pulumi:"agent"`
+	Inputs map[string]any `pulumi:"inputs,optional"`
+}
+
+func (Decision) Invoke(ctx context.Context, req infer.FunctionRequest[DecisionArgs]) (infer.FunctionResponse[Rule], error) {
+	rule := Rule{Kind: "decision", Name: req.Input.Name, Agent: req.Input.Agent, Inputs: req.Input.Inputs}
 	if err := validateRule(rule, 1); err != nil {
 		return infer.FunctionResponse[Rule]{}, err
 	}

@@ -41,6 +41,8 @@ var referencePatches = []struct {
 	{[]string{"resources", typeJob, "inputProperties", "source"}, sourceRef},
 	{[]string{"resources", typeStacks, "inputProperties", "stage"}, func() map[string]any { return ref(typeStage) }},
 	{[]string{"resources", typeArtifact, "inputProperties", "stage"}, func() map[string]any { return ref(typeStage) }},
+	{[]string{"resources", typeAgent, "inputProperties", "stage"}, func() map[string]any { return ref(typeStage) }},
+	{[]string{"resources", typeAgent, "inputProperties", "source"}, sourceRef},
 	{[]string{"types", "delivery:index:StacksEntry", "properties", "source"}, sourceRef},
 	{[]string{"resources", "delivery:index:GitHubSource", "inputProperties", "trigger"}, sourceTrigger},
 	{[]string{"resources", "delivery:index:GitLabSource", "inputProperties", "trigger"}, sourceTrigger},
@@ -138,7 +140,7 @@ func unplainInputs(doc map[string]any) {
 func hideInternals(doc map[string]any) {
 	resources, _ := doc["resources"].(map[string]any)
 	delete(resources, typeMemberRun)
-	for typ, name := range map[string]string{typeJob: "childUrn", typeArtifact: "childUrn", typeStacks: "childUrns"} {
+	for typ, name := range map[string]string{typeJob: "childUrn", typeArtifact: "childUrn", typeAgent: "childUrn", typeStacks: "childUrns"} {
 		component, _ := resources[typ].(map[string]any)
 		if properties, ok := component["properties"].(map[string]any); ok {
 			delete(properties, name)

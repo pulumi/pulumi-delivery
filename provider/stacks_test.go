@@ -432,7 +432,7 @@ func TestMemberChildURNKeepsTheParentTypeChain(t *testing.T) {
 func TestFinishStateKeepsJobOutputsUnknown(t *testing.T) {
 	child := string(urnOf(typeJob+"$"+typeMemberRun, "build"))
 	// The SDK leaves an unknown value out of the state: a missing value is unknown too.
-	finished := finishState(typeJob, property.NewMap(map[string]property.Value{"childUrn": property.New(child)}), "", nil, nil, property.Map{})
+	finished := finishState(typeJob, property.NewMap(map[string]property.Value{"childUrn": property.New(child)}), "", nil, nil, nil, property.Map{})
 
 	outputs := finished.Get("outputs")
 	assert.True(t, outputs.IsComputed(), "%v", outputs)

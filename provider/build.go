@@ -28,9 +28,15 @@ func buildComponent(ctx *pulumi.Context, typ, name string, inputs comProvider.Co
 		return buildStacks(ctx, name, inputs, opts, d, organization)
 	case typeArtifact:
 		return buildArtifact(ctx, name, inputs, opts, d, organization)
+	case typeAgent:
+		return buildAgent(ctx, name, inputs, opts, d, organization)
 	case typePipelineSource:
 		// The wrapper sets the outputs.
 		return register(ctx, typ, name, &PipelineSource{}, opts, pulumi.Map{})
+	case typeWebhookSource:
+		return buildWebhookSource(ctx, name, opts)
+	case typeLinearIssueSource:
+		return buildLinearIssueSource(ctx, name, inputs, opts)
 	}
 	// A source. Its commit output is replaced by the wrapper when the commit is unknown.
 	source := &GitHubSource{}
@@ -86,6 +92,44 @@ func buildJob(ctx *pulumi.Context, name string, inputs comProvider.ConstructInpu
 		return nil, err
 	}
 	return comProvider.NewConstructResult(job)
+}
+
+// buildAgent registers the child of an Agent, like a Job. The result and the task id are two outputs of the
+// child.
+func buildAgent(ctx *pulumi.Context, name string, inputs comProvider.ConstructInputs,
+	opts pulumi.ResourceOption, d declaration, organization string,
+) (*comProvider.ConstructResult, error) {
+	agent := &Agent{}
+	if err := ctx.RegisterComponentResource(typeAgent, name, agent, opts); err != nil {
+		return nil, err
+	}
+	inputMap, err := inputs.Map()
+	if err != nil {
+		return nil, err
+	}
+	child := &memberRunResource{}
+	if err := ctx.RegisterResource(typeMemberRun, name, pulumi.Map{
+		"organization": pulumi.String(organization),
+		"member":       pulumi.String(d.urn),
+		"declaration":  d.forChild(inputMap),
+	}, child, pulumi.Parent(agent)); err != nil {
+		return nil, err
+	}
+	agent.Result = child.Outputs.ApplyT(func(outputs map[string]any) map[string]any {
+		result, _ := outputs["result"].(map[string]any)
+		return result
+	}).(pulumi.MapOutput)
+	agent.TaskId = child.Outputs.ApplyT(func(outputs map[string]any) string {
+		taskID, _ := outputs["taskId"].(string)
+		return taskID
+	}).(pulumi.StringOutput)
+	agent.ChildUrn = child.URN().ApplyT(func(u pulumi.URN) string { return string(u) }).(pulumi.StringOutput)
+	if err := ctx.RegisterResourceOutputs(agent, pulumi.Map{
+		"result": agent.Result, "taskId": agent.TaskId, "childUrn": agent.ChildUrn,
+	}); err != nil {
+		return nil, err
+	}
+	return comProvider.NewConstructResult(agent)
 }
 
 // buildArtifact registers the child of an Artifact. The value output reads the child through Unsecret,

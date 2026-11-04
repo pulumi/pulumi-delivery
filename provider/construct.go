@@ -39,8 +39,19 @@ func clientFor(organization string, resourceURN urn.URN) (*cloudclient.Client, e
 
 func isDeliveryComponent(typ string) bool {
 	_, source := sourceKinds[typ]
-	return source || typ == typePipeline || typ == typeStage || typ == typeJob || typ == typeStacks ||
-		typ == typeArtifact || typ == typePipelineSource
+	return source || isMember(typ) || typ == typePipeline || typ == typeStage || typ == typePipelineSource ||
+		typ == typeWebhookSource || typ == typeLinearIssueSource
+}
+
+// isMember reports whether a component does work in a stage and owns a MemberRun child.
+func isMember(typ string) bool {
+	return typ == typeJob || typ == typeStacks || typ == typeArtifact || typ == typeAgent
+}
+
+// isDeclared reports whether the service sees a component itself. A LinearIssueSource is not declared: its
+// WebhookSource child, named like it, is.
+func isDeclared(typ string) bool {
+	return typ != typeLinearIssueSource
 }
 
 // withDeliveryConstruct wraps the Construct of the provider. For a Delivery component it
@@ -55,7 +66,7 @@ func withDeliveryConstruct(inner func(context.Context, p.ConstructRequest) (p.Co
 		if !isDeliveryComponent(typ) {
 			return inner(ctx, req)
 		}
-		if (typ == typeJob || typ == typeStacks || typ == typeArtifact) && req.ResourceHooks != nil && len(req.ResourceHooks.OnError) > 0 {
+		if isMember(typ) && req.ResourceHooks != nil && len(req.ResourceHooks.OnError) > 0 {
 			return p.ConstructResponse{}, errors.New("Delivery resources do not support error hooks. Use a retry or a new run.")
 		}
 		if err := validateInputs(typ, req.Inputs); err != nil {
@@ -66,20 +77,26 @@ func withDeliveryConstruct(inner func(context.Context, p.ConstructRequest) (p.Co
 		commit := ""
 		var release *int64
 		var upstream *pipelineValue
-		if !req.DryRun {
-			client, err := clientFor(req.Organization, req.Urn)
-			if err != nil {
+		var webhook *webhookValue
+		var client *cloudclient.Client
+		if req.DryRun {
+			webhook = previewWebhookSource(req)
+		} else {
+			var err error
+			if client, err = clientFor(req.Organization, req.Urn); err != nil {
 				return p.ConstructResponse{}, err
 			}
-			request, err := decl.request(ctx, req.Inputs)
-			if err != nil {
-				return p.ConstructResponse{}, err
+			if isDeclared(typ) {
+				request, err := decl.request(ctx, req.Inputs)
+				if err != nil {
+					return p.ConstructResponse{}, err
+				}
+				response, err := client.Declare(ctx, request)
+				if err != nil {
+					return p.ConstructResponse{}, err
+				}
+				reportDeclaration(p.GetLogger(ctx), response)
 			}
-			response, err := client.Declare(ctx, request)
-			if err != nil {
-				return p.ConstructResponse{}, err
-			}
-			reportDeclaration(p.GetLogger(ctx), response)
 			if commit, err = sourceCommit(ctx, client, req); err != nil {
 				return p.ConstructResponse{}, err
 			}
@@ -99,16 +116,32 @@ func withDeliveryConstruct(inner func(context.Context, p.ConstructRequest) (p.Co
 		if err != nil {
 			return resp, err
 		}
-		resp.State = finishState(typ, resp.State, commit, release, upstream, req.Inputs)
+		if !req.DryRun {
+			// After the component code: the child of a LinearIssueSource is declared by then.
+			if webhook, err = readWebhookSource(ctx, client, req); err != nil {
+				return p.ConstructResponse{}, err
+			}
+		}
+		resp.State = finishState(typ, resp.State, commit, release, upstream, webhook, req.Inputs)
 		logConstruct(req.Urn, resp)
 		return resp, nil
 	}
 }
 
-// finishState makes the outputs of a Job or an Artifact depend on its child (and drops the child URN), gives a
-// source without a value an unknown commit, sets the release number of a Pipeline, and sets the outputs of a
-// PipelineSource. The Go SDK does not carry any of them in its response.
-func finishState(typ string, state property.Map, commit string, release *int64, upstream *pipelineValue, inputs property.Map) property.Map {
+// memberOutputs are the public outputs of each member with one child, which finishState maps the same way: unknown
+// while the child waits, and dependent on the child.
+var memberOutputs = map[string][]string{
+	typeJob:      {"outputs"},
+	typeArtifact: {"value"},
+	typeAgent:    {"result", "taskId"},
+}
+
+// finishState makes the outputs of a Job, an Artifact or an Agent depend on its child (and drops the child URN),
+// gives a source without a value an unknown commit, sets the release number of a Pipeline, and sets the outputs
+// of a PipelineSource and of a webhook source. The Go SDK does not carry any of them in its response.
+func finishState(typ string, state property.Map, commit string, release *int64, upstream *pipelineValue,
+	webhook *webhookValue, inputs property.Map,
+) property.Map {
 	if typ == typePipeline {
 		if release == nil {
 			return state.Set("releaseNumber", property.New(property.Computed))
@@ -117,6 +150,9 @@ func finishState(typ string, state property.Map, commit string, release *int64, 
 	}
 	if typ == typePipelineSource {
 		return upstream.state(state)
+	}
+	if typ == typeWebhookSource || typ == typeLinearIssueSource {
+		return webhook.state(state)
 	}
 	if _, isSource := sourceKinds[typ]; isSource {
 		if commit == "" {
@@ -138,13 +174,13 @@ func finishState(typ string, state property.Map, commit string, release *int64, 
 		out[key] = value.WithDependencies(append(value.Dependencies(), childURN))
 	}
 	// The SDK leaves an unknown value out of the state, so a missing value is unknown too.
-	key := "outputs"
-	if typ == typeArtifact {
-		key = "value"
+	for _, key := range memberOutputs[typ] {
+		if _, ok := out[key]; !ok {
+			out[key] = property.New(property.Computed).WithDependencies([]urn.URN{childURN})
+		}
 	}
-	if _, ok := out[key]; !ok {
-		out[key] = property.New(property.Computed).WithDependencies([]urn.URN{childURN})
-	} else if typ == typeArtifact && out[key].IsComputed() {
+	key := "value"
+	if typ == typeArtifact && out[key].IsComputed() {
 		// An unknown value is not secret: the engine rejects a secret without a value.
 		out[key] = out[key].WithSecret(false)
 	} else if typ == typeArtifact && hasSecret(inputs.Get("value")) {
@@ -410,14 +446,51 @@ func validateInputs(typ string, inputs property.Map) error {
 				return err
 			}
 		}
-		if timeout := stringInput(inputs, "timeout"); timeout != "" {
-			if d, err := time.ParseDuration(timeout); err != nil || d <= 0 {
-				return fmt.Errorf("timeout must be a positive duration, such as 30m")
-			}
+		if err := validateTimeout(inputs); err != nil {
+			return err
 		}
 		return checkEnvironment(inputs)
+	case typeAgent:
+		return validateAgent(inputs)
+	case typeWebhookSource:
+		return validateWebhookSource(inputs)
+	case typeLinearIssueSource:
+		return validateLinearIssueSource(inputs)
 	}
 	return nil
+}
+
+// validateTimeout checks the optional timeout of a member, a Go duration such as 30m.
+func validateTimeout(inputs property.Map) error {
+	if timeout := stringInput(inputs, "timeout"); timeout != "" {
+		if d, err := time.ParseDuration(timeout); err != nil || d <= 0 {
+			return fmt.Errorf("timeout must be a positive duration, such as 30m")
+		}
+	}
+	return nil
+}
+
+// validateAgent checks the inputs of an Agent: the stage, the agent and the prompt are required, the source is a
+// VCS source when set (a webhook source cannot be checked out), and the result schema is an object. Unknown
+// values pass.
+func validateAgent(inputs property.Map) error {
+	if err := requireRef(inputs, "stage", typeStage); err != nil {
+		return err
+	}
+	for _, name := range []string{"agent", "prompt"} {
+		if err := requiredUnlessUnknown(inputs, stringInput(inputs, name), name); err != nil {
+			return err
+		}
+	}
+	if source, ok := inputs.GetOk("source"); ok && !source.IsNull() {
+		if err := requireRef(inputs, "source", sourceTypes...); err != nil {
+			return err
+		}
+	}
+	if schema, ok := inputs.GetOk("resultSchema"); ok && !schema.IsNull() && !schema.IsComputed() && !schema.IsMap() {
+		return errors.New("resultSchema must be a JSON Schema object")
+	}
+	return validateTimeout(inputs)
 }
 
 func checkEnvironment(inputs property.Map) error {

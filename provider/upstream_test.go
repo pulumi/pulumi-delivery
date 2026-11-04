@@ -183,28 +183,28 @@ func TestFinishStateOfAnArtifact(t *testing.T) {
 	child := string(urnOf(typeArtifact+"$"+typeMemberRun, "clusterEndpoint"))
 	withChild := property.NewMap(map[string]property.Value{"childUrn": property.New(child)})
 
-	missing := finishState(typeArtifact, withChild, "", nil, nil, artifactRequest(false, property.New("x")).Inputs)
+	missing := finishState(typeArtifact, withChild, "", nil, nil, nil, artifactRequest(false, property.New("x")).Inputs)
 	assert.True(t, missing.Get("value").IsComputed())
 	assert.False(t, missing.Get("value").Secret(), "an unknown value is not secret")
 	assert.Equal(t, []resource.URN{resource.URN(child)}, missing.Get("value").Dependencies())
 
 	known := withChild.Set("value", property.New(property.NewMap(map[string]property.Value{"host": property.New("h")})))
-	plain := finishState(typeArtifact, known, "", nil, nil, artifactRequest(false, property.New("x")).Inputs)
+	plain := finishState(typeArtifact, known, "", nil, nil, nil, artifactRequest(false, property.New("x")).Inputs)
 	assert.False(t, plain.Get("value").Secret())
 	assert.True(t, plain.Get("value").IsMap(), "a structure keeps its shape")
 
 	inner := property.New(property.NewMap(map[string]property.Value{"k": property.New("v").WithSecret(true)}))
 	for _, input := range []property.Value{property.New("x").WithSecret(true), inner} {
-		secret := finishState(typeArtifact, known, "", nil, nil, artifactRequest(false, input).Inputs)
+		secret := finishState(typeArtifact, known, "", nil, nil, nil, artifactRequest(false, input).Inputs)
 		assert.True(t, secret.Get("value").Secret())
 		assert.True(t, secret.Get("value").IsMap())
 	}
 
 	// A secret input that is unknown is not secret in the response.
 	computed := withChild.Set("value", property.New(property.Computed).WithSecret(true))
-	assert.False(t, finishState(typeArtifact, computed, "", nil, nil, artifactRequest(false, property.New("x").WithSecret(true)).Inputs).
+	assert.False(t, finishState(typeArtifact, computed, "", nil, nil, nil, artifactRequest(false, property.New("x").WithSecret(true)).Inputs).
 		Get("value").Secret(), "an unknown output is not secret, also when the input is")
-	unknown := finishState(typeArtifact, withChild, "", nil, nil, artifactRequest(false, property.New(property.Computed).WithSecret(true)).Inputs)
+	unknown := finishState(typeArtifact, withChild, "", nil, nil, nil, artifactRequest(false, property.New(property.Computed).WithSecret(true)).Inputs)
 	assert.False(t, unknown.Get("value").Secret())
 }
 

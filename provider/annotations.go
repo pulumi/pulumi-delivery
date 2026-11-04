@@ -15,7 +15,7 @@ func (r *WorkflowsRuntimeArgs) Annotate(a infer.Annotator) {
 
 func (r *Rule) Annotate(a infer.Annotator) {
 	a.Describe(r, "Stage entry rule. Rules may nest at most three levels.")
-	a.Describe(&r.Kind, "Rule kind: approval, http, manual, all, or any.")
+	a.Describe(&r.Kind, "Rule kind: approval, http, manual, decision, all, or any.")
 	a.Describe(&r.Name, "Rule name. Omit it to let Delivery assign one.")
 	a.Describe(&r.Approvers, "Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.")
 	a.Describe(&r.Count, "Number of approvals required. For approval rules, omitted or zero means one.")
@@ -29,6 +29,8 @@ func (r *Rule) Annotate(a infer.Annotator) {
 	a.Describe(&r.Timeout, "HTTP request timeout as a Go duration, such as 10s. Must be a positive whole number of seconds, at most 20 seconds.")
 	a.Describe(&r.Rules, "Child rules for all or any. At least one child is required.")
 	a.Describe(&r.Description, "Text for the person who continues a manual gate, for example what to check first.")
+	a.Describe(&r.Agent, "Name of the Decision Agent definition that a decision rule asks. Required for that kind.")
+	a.Describe(&r.Inputs, "Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.")
 }
 
 func (r *Approval) Annotate(a infer.Annotator) {
@@ -103,6 +105,32 @@ func (r *ManualArgs) Annotate(a infer.Annotator) {
 	a.Describe(r, "Manual rule settings.")
 	a.Describe(&r.Name, "Rule name. Omit it to let Delivery use the kind, manual. Names are unique within a gate.")
 	a.Describe(&r.Description, "Text for the person who continues the gate, for example what to check first.")
+}
+
+func (r *Decision) Annotate(a infer.Annotator) {
+	a.Describe(r, `Builds a decision rule for a Stage's when. The gate asks a Decision Agent of the organization, with the inputs as the fields of its prompt, and passes when the agent decides to continue. The inputs are usually built from the outputs of members of earlier stages, so the pass that declares the rule can be a later pass of the run.
+
+## Example Usage
+
+`+"```"+`typescript
+import * as delivery from "@pulumi/delivery";
+
+const merge = new delivery.Stage("merge", {
+    pipeline,
+    from: [implement],
+    when: delivery.decisionOutput({
+        agent: "reviewer",
+        inputs: { pullRequest: fix.result.apply(result => result["pullRequest"]) },
+    }),
+});
+`+"```")
+}
+
+func (r *DecisionArgs) Annotate(a infer.Annotator) {
+	a.Describe(r, "Decision rule settings.")
+	a.Describe(&r.Name, "Rule name. Omit it to let Delivery use the kind, decision. Names are unique within a gate.")
+	a.Describe(&r.Agent, "Name of the Decision Agent definition in the organization. Required.")
+	a.Describe(&r.Inputs, "Prompt fields of the decision. Any JSON shape is allowed, usually built from member outputs with apply.")
 }
 
 func (r *AllOf) Annotate(a infer.Annotator) {
@@ -239,6 +267,41 @@ func (r *JobArgs) Annotate(a infer.Annotator) {
 	a.Describe(&r.Timeout, "Maximum run time as a Go duration, such as 30m. The preview does not apply this value yet. A job stops after 2 hours.")
 }
 
+func (r *Agent) Annotate(a infer.Annotator) {
+	a.Describe(r, `Declares a task for a Custom Agent of the organization that a run executes in a stage. The agent works on the prompt, in the repository of source when one is set, and returns a typed result that the result schema describes.
+
+The prompt can use the outputs of other members with apply. The pass that declares the task is then a later pass of the run.
+
+A resource that is not a Delivery resource waits for the task when it uses an output of the task.
+
+## Example Usage
+
+`+"```"+`typescript
+import * as delivery from "@pulumi/delivery";
+
+const fix = new delivery.Agent("fix", {
+    stage: implement,
+    agent: "implementer",
+    source: code,
+    prompt: pulumi.interpolate`+"`"+`Implement ${issue.data.apply(data => data["identifier"])}: ${issue.data.apply(data => data["title"])}`+"`"+`,
+    resultSchema: { type: "object", properties: { pullRequest: { type: "integer" } }, required: ["pullRequest"] },
+});
+export const pullRequest = fix.result.apply(result => result["pullRequest"]);
+`+"```")
+	a.Describe(&r.Result, "Typed result of the task, as the result schema describes it. It is unknown until the task has run.")
+	a.Describe(&r.TaskId, "Identifier of the task in Pulumi Cloud. It is unknown until the task has started.")
+}
+
+func (r *AgentArgs) Annotate(a infer.Annotator) {
+	a.Describe(r, "Agent task settings.")
+	a.Describe(&r.Stage, "Stage that the task runs in. A pipeline requires it.")
+	a.Describe(&r.Agent, "Name of the Custom Agent definition in the organization.")
+	a.Describe(&r.Prompt, "Prompt of the task. Build it from the outputs of other members with apply.")
+	a.Describe(&r.ResultSchema, "JSON Schema that the typed result of the task must satisfy. Omit it for a result without a fixed shape.")
+	a.Describe(&r.Source, "VCS source of the repository that the agent works in. The agent gets the commit of the run for this source.")
+	a.Describe(&r.Timeout, "Maximum run time as a Go duration, such as 30m.")
+}
+
 func (r *Stacks) Annotate(a infer.Annotator) {
 	a.Describe(r, `Updates one or more existing stacks in a stage. Each entry of stacks is one update of a target stack. Delivery checks out the source of the entry at the commit of the run and runs pulumi up on the target stack.
 
@@ -372,6 +435,80 @@ func (r *PipelineSourceArgs) Annotate(a infer.Annotator) {
 	a.Describe(&r.Pipeline, "Upstream pipeline as org/project/stack.")
 	a.Describe(&r.Stage, "Stage of the upstream pipeline.")
 	a.Describe(&r.Trigger, "Set true to start a run of this pipeline when the stage deploys a new release. Omit it for a source that is part of the release but never starts a run.")
+}
+
+func (r *WebhookSource) Annotate(a infer.Annotator) {
+	a.Describe(r, `Declares a source that an external system posts to. The url output is where it posts. The service verifies each post with signing, checks it against when, and maps it with map to the subject, version and data of the run that the post starts. Every stage of the run sees that value.
+
+The subject, version and data outputs are what the map expression yielded for the post that started the run. They are unknown during registration and preview.
+
+A webhook source is not a checkout source: a job cannot check it out.
+
+## Example Usage
+
+`+"```"+`typescript
+import * as delivery from "@pulumi/delivery";
+
+const orders = new delivery.WebhookSource("orders", {
+    signing: { kind: "hmac-sha256", secret: config.requireSecret("ordersSecret") },
+    when: "event == 'order.created'",
+    map: "{subject: order.id, version: order.updatedAt, data: order}",
+});
+export const ordersUrl = orders.url;
+`+"```")
+	a.Describe(&r.Ref, "Identifier of the source, as webhook:<name>.")
+	a.Describe(&r.URL, "URL where the external system posts. It is <backend>/api/preview/delivery/webhooks/<organization>/<project>/<pipeline stack>/<name>.")
+	a.Describe(&r.Subject, "Subject that the map expression yielded for the post that started the run. It is unknown during registration and preview.")
+	a.Describe(&r.Version, "Version that the map expression yielded for the post that started the run. It is unknown during registration and preview.")
+	a.Describe(&r.Data, "Data that the map expression yielded for the post that started the run. It is unknown during registration and preview.")
+}
+
+func (r *WebhookSourceArgs) Annotate(a infer.Annotator) {
+	a.Describe(r, "Webhook source settings.")
+	a.Describe(&r.Signing, "How the service verifies a post. Omit it for a source that accepts every post.")
+	a.Describe(&r.Map, "JMESPath expression over the JSON body of a post. It must yield an object { subject: string, version: string, data: object }.")
+	a.Describe(&r.When, "JMESPath expression over the JSON body of a post. A post starts a run only when it is truthy. Omit it to accept every post.")
+	a.Describe(&r.Trigger, "Starts a run on a matching post. The default is true. Set false for a source that is part of the release but never starts a run.")
+	a.SetDefault(&r.Trigger, true)
+}
+
+func (r *WebhookSigning) Annotate(a infer.Annotator) {
+	a.Describe(r, "How the service verifies a post to a webhook source.")
+	a.Describe(&r.Kind, "Kind of signature: hmac-sha256 (an HMAC over the raw body) or token (a shared secret).")
+	a.Describe(&r.Secret, "Secret that the external system signs with. It stays secret.")
+}
+
+func (r *LinearIssueSource) Annotate(a infer.Annotator) {
+	a.Describe(r, `Declares a WebhookSource for the issue webhooks of Linear, with a fixed map and a when built from the filters. Point a Linear webhook for issues at the url output. Linear signs each post with HMAC-SHA256 over the raw body in the Linear-Signature header.
+
+A post starts a run when it is about an issue that was created or updated, every label in labels is on the issue, the state of the issue is one of states, and (with ignoreBots) a user made the change. The subject is the id of the issue, the version is when the issue changed, and the data holds identifier, title, description, url, state, labels, team and action.
+
+## Example Usage
+
+`+"```"+`typescript
+import * as delivery from "@pulumi/delivery";
+
+const issues = new delivery.LinearIssueSource("issues", {
+    signingSecret: config.requireSecret("linearSigningSecret"),
+    labels: ["neon"],
+    states: ["Todo"],
+});
+export const issuesUrl = issues.url;
+`+"```")
+	a.Describe(&r.Ref, "Identifier of the source, as webhook:<name>.")
+	a.Describe(&r.URL, "URL to point the Linear webhook at.")
+	a.Describe(&r.Subject, "Id of the issue of the post that started the run. It is unknown during registration and preview.")
+	a.Describe(&r.Version, "When the issue changed. It is unknown during registration and preview.")
+	a.Describe(&r.Data, "Fields of the issue: identifier, title, description, url, state, labels, team and action. They are unknown during registration and preview.")
+}
+
+func (r *LinearIssueSourceArgs) Annotate(a infer.Annotator) {
+	a.Describe(r, "Linear issue source settings.")
+	a.Describe(&r.SigningSecret, "Signing secret of the Linear webhook. It stays secret.")
+	a.Describe(&r.Labels, "Names of labels that must all be on the issue. Omit it to accept issues with any labels.")
+	a.Describe(&r.States, "Names of states, one of which the issue must be in. Omit it to accept issues in any state.")
+	a.Describe(&r.IgnoreBots, "Ignores a change that an app or an integration made rather than a user. The default is true.")
+	a.SetDefault(&r.IgnoreBots, true)
 }
 
 func (r *Artifact) Annotate(a infer.Annotator) {

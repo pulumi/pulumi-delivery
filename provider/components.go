@@ -120,6 +120,25 @@ type PipelineSource struct {
 	Artifacts pulumi.MapOutput `pulumi:"artifacts"`
 }
 
+type AgentArgs struct {
+	Stage  any    `pulumi:"stage"`
+	Agent  string `pulumi:"agent"`
+	Prompt string `pulumi:"prompt"`
+	// ResultSchema is the JSON Schema of the result. Any object is accepted here; the service checks it.
+	ResultSchema map[string]any `pulumi:"resultSchema,optional"`
+	Source       any            `pulumi:"source,optional"`
+	Timeout      string         `pulumi:"timeout,optional"`
+}
+type Agent struct {
+	pulumi.ResourceState
+	// Result is the typed result of the task.
+	Result pulumi.MapOutput `pulumi:"result"`
+	// TaskId is the identifier of the task in Pulumi Cloud.
+	TaskId pulumi.StringOutput `pulumi:"taskId"`
+	// ChildUrn is the URN of the internal child resource of the task.
+	ChildUrn pulumi.StringOutput `pulumi:"childUrn"`
+}
+
 type ArtifactArgs struct {
 	Stage any `pulumi:"stage"`
 	// Value is the value to publish. The artifact is named like the resource.
@@ -131,6 +150,47 @@ type Artifact struct {
 	Value pulumi.AnyOutput `pulumi:"value"`
 	// ChildUrn is the URN of the internal child resource of the artifact.
 	ChildUrn pulumi.StringOutput `pulumi:"childUrn"`
+}
+
+// WebhookSigning is how the service verifies a post to a webhook source.
+type WebhookSigning struct {
+	Kind   string `pulumi:"kind"`
+	Secret string `pulumi:"secret" provider:"secret"`
+}
+
+type WebhookSourceArgs struct {
+	Signing *WebhookSigning `pulumi:"signing,optional"`
+	Map     string          `pulumi:"map"`
+	When    string          `pulumi:"when,optional"`
+	// Trigger starts a run on a matching post. The default is true.
+	Trigger bool `pulumi:"trigger,optional"`
+}
+type WebhookSource struct {
+	pulumi.ResourceState
+	// Ref is the identifier of the source, as webhook:<name>.
+	Ref pulumi.StringOutput `pulumi:"ref"`
+	// URL is where the external system posts.
+	URL pulumi.StringOutput `pulumi:"url"`
+	// Subject, Version and Data are what the map expression yielded for the post that started the run.
+	Subject pulumi.StringOutput `pulumi:"subject"`
+	Version pulumi.StringOutput `pulumi:"version"`
+	Data    pulumi.MapOutput    `pulumi:"data"`
+}
+
+type LinearIssueSourceArgs struct {
+	SigningSecret string   `pulumi:"signingSecret" provider:"secret"`
+	Labels        []string `pulumi:"labels,optional"`
+	States        []string `pulumi:"states,optional"`
+	// IgnoreBots ignores a change that an app or an integration made. The default is true.
+	IgnoreBots bool `pulumi:"ignoreBots,optional"`
+}
+type LinearIssueSource struct {
+	pulumi.ResourceState
+	Ref     pulumi.StringOutput `pulumi:"ref"`
+	URL     pulumi.StringOutput `pulumi:"url"`
+	Subject pulumi.StringOutput `pulumi:"subject"`
+	Version pulumi.StringOutput `pulumi:"version"`
+	Data    pulumi.MapOutput    `pulumi:"data"`
 }
 
 // notInferred stands in for the Construct of a component. The wrapper in construct.go handles every
@@ -154,6 +214,10 @@ const (
 	typeJob      = "delivery:index:Job"
 	typeStacks   = "delivery:index:Stacks"
 	typeArtifact = "delivery:index:Artifact"
+	typeAgent    = "delivery:index:Agent"
+
+	typeWebhookSource     = "delivery:index:WebhookSource"
+	typeLinearIssueSource = "delivery:index:LinearIssueSource"
 
 	typePipelineSource = "delivery:index:PipelineSource"
 	typeMemberRun      = "delivery:index:MemberRun"
