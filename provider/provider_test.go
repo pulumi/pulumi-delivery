@@ -288,6 +288,10 @@ func TestSourceInARunReturnsTheRecordedCommit(t *testing.T) {
 
 	assert.Equal(t, "abc123", resp.State.Get("commit").AsString())
 	assert.Len(t, service.declared(), 1)
+	require.Len(t, service.valueRequests, 1)
+	identity, ok := service.valueRequests[0]["identity"].(map[string]any)
+	require.True(t, ok)
+	assert.Equal(t, "", identity["integration"], "the service requires the field and resolves an empty one")
 }
 
 func TestSourceInARegistrationHasAnUnknownCommit(t *testing.T) {
@@ -663,10 +667,9 @@ func TestComponentsRecordTheirInputs(t *testing.T) {
 			"pipeline": property.New("org/shop/main"),
 			"stage":    property.New("prod"),
 		})},
-		{typ: "delivery:index:GitHubSource", name: "code", key: "integration", inputs: property.NewMap(map[string]property.Value{
-			"repository":  property.New("acme/shop"),
-			"branch":      property.New("main"),
-			"integration": property.New("one"),
+		{typ: "delivery:index:GitHubSource", name: "code", key: "repository", inputs: property.NewMap(map[string]property.Value{
+			"repository": property.New("acme/shop"),
+			"branch":     property.New("main"),
 		})},
 		{typ: typeJob, name: "build", key: "command", inputs: jobRequest(true).Inputs},
 		{typ: typeArtifact, name: "version", key: "value", inputs: property.NewMap(map[string]property.Value{

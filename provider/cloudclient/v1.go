@@ -66,7 +66,8 @@ func (c *Client) GetRun(ctx context.Context) (*RunInfo, error) {
 
 // SourceIdentity identifies a source. The service canonicalizes it.
 type SourceIdentity struct {
-	Kind        string `json:"kind"`
+	Kind string `json:"kind"`
+	// Integration is always sent. The service requires the field, and resolves an empty one from the repository.
 	Integration string `json:"integration"`
 	Repository  string `json:"repository"`
 	Branch      string `json:"branch"`

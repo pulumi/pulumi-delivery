@@ -58,13 +58,7 @@ namespace Pulumi.Delivery.Delivery
         public Input<string> Branch { get; set; } = null!;
 
         /// <summary>
-        /// Name of the VCS integration. Omit it when the organization has one integration for this forge.
-        /// </summary>
-        [Input("integration")]
-        public Input<string>? Integration { get; set; }
-
-        /// <summary>
-        /// Repository identifier understood by the VCS integration.
+        /// Repository of the source. Use `owner/repo` on GitHub, `group/subgroup/repo` (the full path) on GitLab, `workspace/repo` on Bitbucket and `org/project/repo` on Azure DevOps. Pulumi Cloud picks the integration of the organization whose account (GitHub), group (GitLab), workspace (Bitbucket) or organization and project (Azure DevOps) holds the repository.
         /// </summary>
         [Input("repository", required: true)]
         public Input<string> Repository { get; set; } = null!;

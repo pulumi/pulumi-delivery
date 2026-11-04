@@ -74,9 +74,8 @@ type Stacks struct {
 }
 
 type SourceArgs struct {
-	Repository  string `pulumi:"repository"`
-	Branch      string `pulumi:"branch"`
-	Integration string `pulumi:"integration,optional"`
+	Repository string `pulumi:"repository"`
+	Branch     string `pulumi:"branch"`
 	// Trigger starts a run on a push to the branch. The schema type is true or SourceTrigger (schema_refs.go).
 	Trigger *SourceTrigger `pulumi:"trigger,optional"`
 }

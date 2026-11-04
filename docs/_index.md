@@ -24,7 +24,14 @@ Set up the Pulumi integration for your forge.
 - [Bitbucket](https://www.pulumi.com/docs/integrations/version-control/bitbucket/)
 - [Azure DevOps](https://www.pulumi.com/docs/integrations/version-control/azure-devops-integration/)
 
-Give the integration access to each repository that a source names, including the repository of the pipeline program. If your organization has more than one integration for a forge, set `integration` on the source. Otherwise registration fails with "Several <forge> integrations exist. Set integration on the source."
+Give the integration access to each repository that a source names, including the repository of the pipeline program. Pulumi Cloud picks the integration of your organization whose account (GitHub), group (GitLab), workspace (Bitbucket) or organization and project (Azure DevOps) holds the repository.
+
+Write the `repository` of a source like this:
+
+- GitHub: `owner/repo`
+- GitLab: `group/subgroup/repo`, the full path
+- Bitbucket: `workspace/repo`
+- Azure DevOps: `org/project/repo`
 
 ### Add the SDK
 
