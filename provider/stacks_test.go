@@ -276,6 +276,13 @@ func TestStacksValidation(t *testing.T) {
 	require.NoError(t, construct(map[string]property.Value{
 		"a": property.New(unknownStack), "b": property.New(unknownStack),
 	}))
+	// A null runtime is an omitted one. Pulumi HCL sends every unset field of an object as null.
+	require.NoError(t, construct(map[string]property.Value{
+		"a": stacksEntry("org/p/s", map[string]property.Value{"runtime": property.New(property.Null)}),
+	}))
+	require.ErrorContains(t, construct(map[string]property.Value{
+		"a": stacksEntry("org/p/s", map[string]property.Value{"runtime": property.New("pool")}),
+	}), "runtime is required and must be a resource")
 
 	request := stacksRequest("app", true, twoEntries())
 	request.ResourceHooks = &p.ResourceHooksBinding{OnError: []string{"retry"}}

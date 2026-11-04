@@ -471,7 +471,7 @@ func validateStacks(inputs property.Map) error {
 		if err := requiredUnlessUnknown(entry, stringInput(entry, "directory"), "directory"); err != nil {
 			return fail(err)
 		}
-		if _, ok := entry.GetOk("runtime"); ok {
+		if runtime, ok := entry.GetOk("runtime"); ok && !runtime.IsNull() {
 			if err := requireRef(entry, "runtime", "delivery:index:WorkflowsRuntime"); err != nil {
 				return fail(err)
 			}
