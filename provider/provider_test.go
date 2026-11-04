@@ -639,39 +639,83 @@ func TestReportDeclarationShowsTheMessageAndWarnings(t *testing.T) {
 	assert.Empty(t, log.warnings)
 }
 
+// TestComponentsRecordTheirInputs checks that every registration path stores the inputs of the component, so
+// that a change of an input shows in a preview.
 func TestComponentsRecordTheirInputs(t *testing.T) {
-	newFakeService(t)
-	var mu sync.Mutex
-	var recorded property.Map
-	provider, err := newProvider()
-	require.NoError(t, err)
-	server, err := integration.NewServer(t.Context(), "delivery", semver.MustParse("0.0.1"),
-		integration.WithProvider(provider),
-		integration.WithMocks(&integration.MockResourceMonitor{
-			NewResourceF: func(args integration.MockResourceArgs) (string, property.Map, error) {
-				if args.TypeToken == typeStage {
-					mu.Lock()
-					recorded = args.Inputs
-					mu.Unlock()
-				}
-				return args.Name, property.NewMap(nil), nil
-			},
-		}))
-	require.NoError(t, err)
-
-	_, err = server.Construct(p.ConstructRequest{
-		Urn:          urnOf(typeStage, "dev"),
-		Organization: "org",
-		Inputs: property.NewMap(map[string]property.Value{
+	stacks := stacksRequest("app", true, twoEntries())
+	cases := []struct {
+		typ    string
+		name   string
+		inputs property.Map
+		key    string
+		want   property.Value
+	}{
+		{typ: typePipeline, name: "main", key: "program", inputs: property.NewMap(map[string]property.Value{
+			"program": property.New(property.NewMap(map[string]property.Value{
+				"source":    reference("delivery:index:GitHubSource", "code"),
+				"directory": property.New("infra"),
+			})),
+		})},
+		{typ: typeStage, name: "dev", key: "pipeline", inputs: property.NewMap(map[string]property.Value{
 			"pipeline": reference(typePipeline, "main"),
-			"token":    property.New("t").WithSecret(true),
-		}),
-	})
-	require.NoError(t, err)
+		})},
+		{typ: typePipelineSource, name: "up", key: "pipeline", inputs: property.NewMap(map[string]property.Value{
+			"pipeline": property.New("org/shop/main"),
+			"stage":    property.New("prod"),
+		})},
+		{typ: "delivery:index:GitHubSource", name: "code", key: "integration", inputs: property.NewMap(map[string]property.Value{
+			"repository":  property.New("acme/shop"),
+			"branch":      property.New("main"),
+			"integration": property.New("one"),
+		})},
+		{typ: typeJob, name: "build", key: "command", inputs: jobRequest(true).Inputs},
+		{typ: typeArtifact, name: "version", key: "value", inputs: property.NewMap(map[string]property.Value{
+			"stage": reference(typeStage, "dev"),
+			"value": property.New("v1").WithSecret(true),
+		})},
+		{typ: typeStacks, name: "app", key: "stacks", inputs: stacks.Inputs},
+	}
+	// The wanted value of a key is the value that the request carries.
+	for i := range cases {
+		cases[i].want = cases[i].inputs.Get(cases[i].key)
+	}
 
-	mu.Lock()
-	defer mu.Unlock()
-	require.NotNil(t, recorded.AsMap())
-	assert.Contains(t, recorded.AsMap(), "pipeline")
-	assert.True(t, recorded.AsMap()["token"].Secret())
+	for _, c := range cases {
+		t.Run(c.typ, func(t *testing.T) {
+			newFakeService(t)
+			var mu sync.Mutex
+			var recorded property.Map
+			provider, err := newProvider()
+			require.NoError(t, err)
+			server, err := integration.NewServer(t.Context(), "delivery", semver.MustParse("0.0.1"),
+				integration.WithProvider(provider),
+				integration.WithMocks(&integration.MockResourceMonitor{
+					NewResourceF: func(args integration.MockResourceArgs) (string, property.Map, error) {
+						if string(args.TypeToken) == c.typ {
+							mu.Lock()
+							recorded = args.Inputs
+							mu.Unlock()
+						}
+						return args.Name, property.NewMap(map[string]property.Value{
+							"outputs": property.New(property.NewMap(nil)),
+						}), nil
+					},
+				}))
+			require.NoError(t, err)
+
+			_, err = server.Construct(p.ConstructRequest{
+				Urn:          urnOf(c.typ, c.name),
+				Organization: "org",
+				DryRun:       true,
+				Inputs:       c.inputs,
+			})
+			require.NoError(t, err)
+
+			mu.Lock()
+			defer mu.Unlock()
+			got, ok := recorded.GetOk(c.key)
+			require.True(t, ok, "input %q is not recorded: %v", c.key, recorded)
+			assert.True(t, c.want.Equals(got), "input %q: want %v, got %v", c.key, c.want, got)
+		})
+	}
 }
