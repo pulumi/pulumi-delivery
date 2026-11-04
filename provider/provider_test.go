@@ -667,10 +667,9 @@ func TestComponentsRecordTheirInputs(t *testing.T) {
 			"pipeline": property.New("org/shop/main"),
 			"stage":    property.New("prod"),
 		})},
-		{typ: "delivery:index:GitHubSource", name: "code", key: "integration", inputs: property.NewMap(map[string]property.Value{
-			"repository":  property.New("acme/shop"),
-			"branch":      property.New("main"),
-			"integration": property.New("one"),
+		{typ: "delivery:index:GitHubSource", name: "code", key: "repository", inputs: property.NewMap(map[string]property.Value{
+			"repository": property.New("acme/shop"),
+			"branch":     property.New("main"),
 		})},
 		{typ: typeJob, name: "build", key: "command", inputs: jobRequest(true).Inputs},
 		{typ: typeArtifact, name: "version", key: "value", inputs: property.NewMap(map[string]property.Value{
