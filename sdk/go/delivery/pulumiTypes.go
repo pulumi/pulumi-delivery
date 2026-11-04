@@ -79,6 +79,8 @@ func (o ProgramSourceOutput) Source() pulumi.AnyOutput {
 
 // Stage entry rule. Rules may nest at most three levels.
 type Rule struct {
+	// Name of the Decision Agent definition that a decision rule asks. Required for that kind.
+	Agent *string `pulumi:"agent"`
 	// Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
 	Approvers []string `pulumi:"approvers"`
 	// HTTP request body. Pulumi secret values remain secret.
@@ -91,9 +93,11 @@ type Rule struct {
 	Headers map[string]string `pulumi:"headers"`
 	// Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule.
 	HeadersEnvironment *string `pulumi:"headersEnvironment"`
+	// Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.
+	Inputs map[string]interface{} `pulumi:"inputs"`
 	// HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
 	Interval *string `pulumi:"interval"`
-	// Rule kind: approval, http, manual, all, or any.
+	// Rule kind: approval, http, manual, decision, all, or any.
 	Kind string `pulumi:"kind"`
 	// HTTP request method. The default is GET.
 	Method *string `pulumi:"method"`
@@ -122,6 +126,8 @@ type RuleInput interface {
 
 // Stage entry rule. Rules may nest at most three levels.
 type RuleArgs struct {
+	// Name of the Decision Agent definition that a decision rule asks. Required for that kind.
+	Agent pulumi.StringPtrInput `pulumi:"agent"`
 	// Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
 	Approvers pulumi.StringArrayInput `pulumi:"approvers"`
 	// HTTP request body. Pulumi secret values remain secret.
@@ -134,9 +140,11 @@ type RuleArgs struct {
 	Headers pulumi.StringMapInput `pulumi:"headers"`
 	// Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule.
 	HeadersEnvironment pulumi.StringPtrInput `pulumi:"headersEnvironment"`
+	// Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.
+	Inputs pulumi.MapInput `pulumi:"inputs"`
 	// HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
 	Interval pulumi.StringPtrInput `pulumi:"interval"`
-	// Rule kind: approval, http, manual, all, or any.
+	// Rule kind: approval, http, manual, decision, all, or any.
 	Kind pulumi.StringInput `pulumi:"kind"`
 	// HTTP request method. The default is GET.
 	Method pulumi.StringPtrInput `pulumi:"method"`
@@ -255,6 +263,11 @@ func (o RuleOutput) ToRulePtrOutputWithContext(ctx context.Context) RulePtrOutpu
 	}).(RulePtrOutput)
 }
 
+// Name of the Decision Agent definition that a decision rule asks. Required for that kind.
+func (o RuleOutput) Agent() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v Rule) *string { return v.Agent }).(pulumi.StringPtrOutput)
+}
+
 // Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
 func (o RuleOutput) Approvers() pulumi.StringArrayOutput {
 	return o.ApplyT(func(v Rule) []string { return v.Approvers }).(pulumi.StringArrayOutput)
@@ -285,12 +298,17 @@ func (o RuleOutput) HeadersEnvironment() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v Rule) *string { return v.HeadersEnvironment }).(pulumi.StringPtrOutput)
 }
 
+// Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.
+func (o RuleOutput) Inputs() pulumi.MapOutput {
+	return o.ApplyT(func(v Rule) map[string]interface{} { return v.Inputs }).(pulumi.MapOutput)
+}
+
 // HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
 func (o RuleOutput) Interval() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v Rule) *string { return v.Interval }).(pulumi.StringPtrOutput)
 }
 
-// Rule kind: approval, http, manual, all, or any.
+// Rule kind: approval, http, manual, decision, all, or any.
 func (o RuleOutput) Kind() pulumi.StringOutput {
 	return o.ApplyT(func(v Rule) string { return v.Kind }).(pulumi.StringOutput)
 }
@@ -347,6 +365,16 @@ func (o RulePtrOutput) Elem() RuleOutput {
 		var ret Rule
 		return ret
 	}).(RuleOutput)
+}
+
+// Name of the Decision Agent definition that a decision rule asks. Required for that kind.
+func (o RulePtrOutput) Agent() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *Rule) *string {
+		if v == nil {
+			return nil
+		}
+		return v.Agent
+	}).(pulumi.StringPtrOutput)
 }
 
 // Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
@@ -409,6 +437,16 @@ func (o RulePtrOutput) HeadersEnvironment() pulumi.StringPtrOutput {
 	}).(pulumi.StringPtrOutput)
 }
 
+// Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.
+func (o RulePtrOutput) Inputs() pulumi.MapOutput {
+	return o.ApplyT(func(v *Rule) map[string]interface{} {
+		if v == nil {
+			return nil
+		}
+		return v.Inputs
+	}).(pulumi.MapOutput)
+}
+
 // HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
 func (o RulePtrOutput) Interval() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Rule) *string {
@@ -419,7 +457,7 @@ func (o RulePtrOutput) Interval() pulumi.StringPtrOutput {
 	}).(pulumi.StringPtrOutput)
 }
 
-// Rule kind: approval, http, manual, all, or any.
+// Rule kind: approval, http, manual, decision, all, or any.
 func (o RulePtrOutput) Kind() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Rule) *string {
 		if v == nil {
@@ -803,6 +841,165 @@ func (o StacksEntryMapOutput) MapIndex(k pulumi.StringInput) StacksEntryOutput {
 	}).(StacksEntryOutput)
 }
 
+// How the service verifies a post to a webhook source.
+type WebhookSigning struct {
+	// Kind of signature: hmac-sha256 (an HMAC over the raw body) or token (a shared secret).
+	Kind string `pulumi:"kind"`
+	// Secret that the external system signs with. It stays secret.
+	Secret string `pulumi:"secret"`
+}
+
+// WebhookSigningInput is an input type that accepts WebhookSigningArgs and WebhookSigningOutput values.
+// You can construct a concrete instance of `WebhookSigningInput` via:
+//
+//	WebhookSigningArgs{...}
+type WebhookSigningInput interface {
+	pulumi.Input
+
+	ToWebhookSigningOutput() WebhookSigningOutput
+	ToWebhookSigningOutputWithContext(context.Context) WebhookSigningOutput
+}
+
+// How the service verifies a post to a webhook source.
+type WebhookSigningArgs struct {
+	// Kind of signature: hmac-sha256 (an HMAC over the raw body) or token (a shared secret).
+	Kind pulumi.StringInput `pulumi:"kind"`
+	// Secret that the external system signs with. It stays secret.
+	Secret pulumi.StringInput `pulumi:"secret"`
+}
+
+func (WebhookSigningArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*WebhookSigning)(nil)).Elem()
+}
+
+func (i WebhookSigningArgs) ToWebhookSigningOutput() WebhookSigningOutput {
+	return i.ToWebhookSigningOutputWithContext(context.Background())
+}
+
+func (i WebhookSigningArgs) ToWebhookSigningOutputWithContext(ctx context.Context) WebhookSigningOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(WebhookSigningOutput)
+}
+
+func (i WebhookSigningArgs) ToWebhookSigningPtrOutput() WebhookSigningPtrOutput {
+	return i.ToWebhookSigningPtrOutputWithContext(context.Background())
+}
+
+func (i WebhookSigningArgs) ToWebhookSigningPtrOutputWithContext(ctx context.Context) WebhookSigningPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(WebhookSigningOutput).ToWebhookSigningPtrOutputWithContext(ctx)
+}
+
+// WebhookSigningPtrInput is an input type that accepts WebhookSigningArgs, WebhookSigningPtr and WebhookSigningPtrOutput values.
+// You can construct a concrete instance of `WebhookSigningPtrInput` via:
+//
+//	        WebhookSigningArgs{...}
+//
+//	or:
+//
+//	        nil
+type WebhookSigningPtrInput interface {
+	pulumi.Input
+
+	ToWebhookSigningPtrOutput() WebhookSigningPtrOutput
+	ToWebhookSigningPtrOutputWithContext(context.Context) WebhookSigningPtrOutput
+}
+
+type webhookSigningPtrType WebhookSigningArgs
+
+func WebhookSigningPtr(v *WebhookSigningArgs) WebhookSigningPtrInput {
+	return (*webhookSigningPtrType)(v)
+}
+
+func (*webhookSigningPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**WebhookSigning)(nil)).Elem()
+}
+
+func (i *webhookSigningPtrType) ToWebhookSigningPtrOutput() WebhookSigningPtrOutput {
+	return i.ToWebhookSigningPtrOutputWithContext(context.Background())
+}
+
+func (i *webhookSigningPtrType) ToWebhookSigningPtrOutputWithContext(ctx context.Context) WebhookSigningPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(WebhookSigningPtrOutput)
+}
+
+// How the service verifies a post to a webhook source.
+type WebhookSigningOutput struct{ *pulumi.OutputState }
+
+func (WebhookSigningOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*WebhookSigning)(nil)).Elem()
+}
+
+func (o WebhookSigningOutput) ToWebhookSigningOutput() WebhookSigningOutput {
+	return o
+}
+
+func (o WebhookSigningOutput) ToWebhookSigningOutputWithContext(ctx context.Context) WebhookSigningOutput {
+	return o
+}
+
+func (o WebhookSigningOutput) ToWebhookSigningPtrOutput() WebhookSigningPtrOutput {
+	return o.ToWebhookSigningPtrOutputWithContext(context.Background())
+}
+
+func (o WebhookSigningOutput) ToWebhookSigningPtrOutputWithContext(ctx context.Context) WebhookSigningPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v WebhookSigning) *WebhookSigning {
+		return &v
+	}).(WebhookSigningPtrOutput)
+}
+
+// Kind of signature: hmac-sha256 (an HMAC over the raw body) or token (a shared secret).
+func (o WebhookSigningOutput) Kind() pulumi.StringOutput {
+	return o.ApplyT(func(v WebhookSigning) string { return v.Kind }).(pulumi.StringOutput)
+}
+
+// Secret that the external system signs with. It stays secret.
+func (o WebhookSigningOutput) Secret() pulumi.StringOutput {
+	return o.ApplyT(func(v WebhookSigning) string { return v.Secret }).(pulumi.StringOutput)
+}
+
+type WebhookSigningPtrOutput struct{ *pulumi.OutputState }
+
+func (WebhookSigningPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**WebhookSigning)(nil)).Elem()
+}
+
+func (o WebhookSigningPtrOutput) ToWebhookSigningPtrOutput() WebhookSigningPtrOutput {
+	return o
+}
+
+func (o WebhookSigningPtrOutput) ToWebhookSigningPtrOutputWithContext(ctx context.Context) WebhookSigningPtrOutput {
+	return o
+}
+
+func (o WebhookSigningPtrOutput) Elem() WebhookSigningOutput {
+	return o.ApplyT(func(v *WebhookSigning) WebhookSigning {
+		if v != nil {
+			return *v
+		}
+		var ret WebhookSigning
+		return ret
+	}).(WebhookSigningOutput)
+}
+
+// Kind of signature: hmac-sha256 (an HMAC over the raw body) or token (a shared secret).
+func (o WebhookSigningPtrOutput) Kind() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *WebhookSigning) *string {
+		if v == nil {
+			return nil
+		}
+		return &v.Kind
+	}).(pulumi.StringPtrOutput)
+}
+
+// Secret that the external system signs with. It stays secret.
+func (o WebhookSigningPtrOutput) Secret() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *WebhookSigning) *string {
+		if v == nil {
+			return nil
+		}
+		return &v.Secret
+	}).(pulumi.StringPtrOutput)
+}
+
 // Pool selection. The preview runs on the hosted pool only.
 type WorkflowsRuntimeArgsType struct {
 	// Pool identifier. Returned unchanged as the ref of the resource.
@@ -838,6 +1035,8 @@ func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*SourceTriggerPtrInput)(nil)).Elem(), SourceTriggerArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*StacksEntryInput)(nil)).Elem(), StacksEntryArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*StacksEntryMapInput)(nil)).Elem(), StacksEntryMap{})
+	pulumi.RegisterInputType(reflect.TypeOf((*WebhookSigningInput)(nil)).Elem(), WebhookSigningArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*WebhookSigningPtrInput)(nil)).Elem(), WebhookSigningArgs{})
 	pulumi.RegisterOutputType(ProgramSourceOutput{})
 	pulumi.RegisterOutputType(RuleOutput{})
 	pulumi.RegisterOutputType(RulePtrOutput{})
@@ -846,5 +1045,7 @@ func init() {
 	pulumi.RegisterOutputType(SourceTriggerPtrOutput{})
 	pulumi.RegisterOutputType(StacksEntryOutput{})
 	pulumi.RegisterOutputType(StacksEntryMapOutput{})
+	pulumi.RegisterOutputType(WebhookSigningOutput{})
+	pulumi.RegisterOutputType(WebhookSigningPtrOutput{})
 	pulumi.RegisterOutputType(WorkflowsRuntimeArgsTypeOutput{})
 }

@@ -1,6 +1,6 @@
 {
   "resource": true,
   "name": "delivery",
-  "version": "0.2.0",
+  "version": "0.2.0-neon.1",
   "server": "https://get.pulumi.com/releases/plugins/"
 }

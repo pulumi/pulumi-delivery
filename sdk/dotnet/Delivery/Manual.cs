@@ -113,6 +113,10 @@ namespace Pulumi.Delivery.Delivery
     public sealed class ManualResult
     {
         /// <summary>
+        /// Name of the Decision Agent definition that a decision rule asks. Required for that kind.
+        /// </summary>
+        public readonly string? Agent;
+        /// <summary>
         /// Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
         /// </summary>
         public readonly ImmutableArray<string> Approvers;
@@ -137,11 +141,15 @@ namespace Pulumi.Delivery.Delivery
         /// </summary>
         public readonly string? HeadersEnvironment;
         /// <summary>
+        /// Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.
+        /// </summary>
+        public readonly ImmutableDictionary<string, object>? Inputs;
+        /// <summary>
         /// HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
         /// </summary>
         public readonly string? Interval;
         /// <summary>
-        /// Rule kind: approval, http, manual, all, or any.
+        /// Rule kind: approval, http, manual, decision, all, or any.
         /// </summary>
         public readonly string Kind;
         /// <summary>
@@ -171,6 +179,8 @@ namespace Pulumi.Delivery.Delivery
 
         [OutputConstructor]
         private ManualResult(
+            string? agent,
+
             ImmutableArray<string> approvers,
 
             string? body,
@@ -182,6 +192,8 @@ namespace Pulumi.Delivery.Delivery
             ImmutableDictionary<string, string>? headers,
 
             string? headersEnvironment,
+
+            ImmutableDictionary<string, object>? inputs,
 
             string? interval,
 
@@ -199,12 +211,14 @@ namespace Pulumi.Delivery.Delivery
 
             string? url)
         {
+            Agent = agent;
             Approvers = approvers;
             Body = body;
             Count = count;
             Description = description;
             Headers = headers;
             HeadersEnvironment = headersEnvironment;
+            Inputs = inputs;
             Interval = interval;
             Kind = kind;
             Method = method;

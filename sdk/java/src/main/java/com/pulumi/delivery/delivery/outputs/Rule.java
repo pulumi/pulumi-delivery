@@ -6,6 +6,7 @@ package com.pulumi.delivery.delivery.outputs;
 import com.pulumi.core.annotations.CustomType;
 import com.pulumi.exceptions.MissingRequiredPropertyException;
 import java.lang.Integer;
+import java.lang.Object;
 import java.lang.String;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,11 @@ import javax.annotation.Nullable;
 
 @CustomType
 public final class Rule {
+    /**
+     * @return Name of the Decision Agent definition that a decision rule asks. Required for that kind.
+     * 
+     */
+    private @Nullable String agent;
     /**
      * @return Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
      * 
@@ -46,12 +52,17 @@ public final class Rule {
      */
     private @Nullable String headersEnvironment;
     /**
+     * @return Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.
+     * 
+     */
+    private @Nullable Map<String,Object> inputs;
+    /**
      * @return HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
      * 
      */
     private @Nullable String interval;
     /**
-     * @return Rule kind: approval, http, manual, all, or any.
+     * @return Rule kind: approval, http, manual, decision, all, or any.
      * 
      */
     private String kind;
@@ -87,6 +98,13 @@ public final class Rule {
     private @Nullable String url;
 
     private Rule() {}
+    /**
+     * @return Name of the Decision Agent definition that a decision rule asks. Required for that kind.
+     * 
+     */
+    public Optional<String> agent() {
+        return Optional.ofNullable(this.agent);
+    }
     /**
      * @return Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
      * 
@@ -130,6 +148,13 @@ public final class Rule {
         return Optional.ofNullable(this.headersEnvironment);
     }
     /**
+     * @return Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.
+     * 
+     */
+    public Map<String,Object> inputs() {
+        return this.inputs == null ? Map.of() : this.inputs;
+    }
+    /**
      * @return HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
      * 
      */
@@ -137,7 +162,7 @@ public final class Rule {
         return Optional.ofNullable(this.interval);
     }
     /**
-     * @return Rule kind: approval, http, manual, all, or any.
+     * @return Rule kind: approval, http, manual, decision, all, or any.
      * 
      */
     public String kind() {
@@ -195,12 +220,14 @@ public final class Rule {
     }
     @CustomType.Builder
     public static final class Builder {
+        private @Nullable String agent;
         private @Nullable List<String> approvers;
         private @Nullable String body;
         private @Nullable Integer count;
         private @Nullable String description;
         private @Nullable Map<String,String> headers;
         private @Nullable String headersEnvironment;
+        private @Nullable Map<String,Object> inputs;
         private @Nullable String interval;
         private String kind;
         private @Nullable String method;
@@ -212,12 +239,14 @@ public final class Rule {
         public Builder() {}
         public Builder(Rule defaults) {
     	      Objects.requireNonNull(defaults);
+    	      this.agent = defaults.agent;
     	      this.approvers = defaults.approvers;
     	      this.body = defaults.body;
     	      this.count = defaults.count;
     	      this.description = defaults.description;
     	      this.headers = defaults.headers;
     	      this.headersEnvironment = defaults.headersEnvironment;
+    	      this.inputs = defaults.inputs;
     	      this.interval = defaults.interval;
     	      this.kind = defaults.kind;
     	      this.method = defaults.method;
@@ -228,6 +257,12 @@ public final class Rule {
     	      this.url = defaults.url;
         }
 
+        @CustomType.Setter
+        public Builder agent(@Nullable String agent) {
+
+            this.agent = agent;
+            return this;
+        }
         @CustomType.Setter
         public Builder approvers(@Nullable List<String> approvers) {
 
@@ -265,6 +300,12 @@ public final class Rule {
         public Builder headersEnvironment(@Nullable String headersEnvironment) {
 
             this.headersEnvironment = headersEnvironment;
+            return this;
+        }
+        @CustomType.Setter
+        public Builder inputs(@Nullable Map<String,Object> inputs) {
+
+            this.inputs = inputs;
             return this;
         }
         @CustomType.Setter
@@ -322,12 +363,14 @@ public final class Rule {
         }
         public Rule build() {
             final var _resultValue = new Rule();
+            _resultValue.agent = agent;
             _resultValue.approvers = approvers;
             _resultValue.body = body;
             _resultValue.count = count;
             _resultValue.description = description;
             _resultValue.headers = headers;
             _resultValue.headersEnvironment = headersEnvironment;
+            _resultValue.inputs = inputs;
             _resultValue.interval = interval;
             _resultValue.kind = kind;
             _resultValue.method = method;

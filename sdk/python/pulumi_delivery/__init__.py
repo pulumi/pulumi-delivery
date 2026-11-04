@@ -6,22 +6,26 @@ import builtins as _builtins
 from . import _utilities
 import typing
 # Export this package's modules as members:
+from .agent import *
 from .all_of import *
 from .any_of import *
 from .approval import *
 from .artifact import *
 from .azure_dev_ops_source import *
 from .bitbucket_source import *
+from .decision import *
 from .git_hub_source import *
 from .git_lab_source import *
 from .http import *
 from .job import *
+from .linear_issue_source import *
 from .manual import *
 from .pipeline import *
 from .pipeline_source import *
 from .provider import *
 from .stacks import *
 from .stage import *
+from .webhook_source import *
 from .workflows_runtime import *
 from ._inputs import *
 from . import outputs
@@ -33,16 +37,19 @@ _utilities.register(
   "mod": "index",
   "fqn": "pulumi_delivery",
   "classes": {
+   "delivery:index:Agent": "Agent",
    "delivery:index:Artifact": "Artifact",
    "delivery:index:AzureDevOpsSource": "AzureDevOpsSource",
    "delivery:index:BitbucketSource": "BitbucketSource",
    "delivery:index:GitHubSource": "GitHubSource",
    "delivery:index:GitLabSource": "GitLabSource",
    "delivery:index:Job": "Job",
+   "delivery:index:LinearIssueSource": "LinearIssueSource",
    "delivery:index:Pipeline": "Pipeline",
    "delivery:index:PipelineSource": "PipelineSource",
    "delivery:index:Stacks": "Stacks",
    "delivery:index:Stage": "Stage",
+   "delivery:index:WebhookSource": "WebhookSource",
    "delivery:index:WorkflowsRuntime": "WorkflowsRuntime"
   }
  }

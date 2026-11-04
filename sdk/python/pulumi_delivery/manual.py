@@ -27,7 +27,10 @@ class ManualResult:
     """
     Stage entry rule. Rules may nest at most three levels.
     """
-    def __init__(__self__, approvers=None, body=None, count=None, description=None, headers=None, headers_environment=None, interval=None, kind=None, method=None, name=None, rules=None, success_expression=None, timeout=None, url=None):
+    def __init__(__self__, agent=None, approvers=None, body=None, count=None, description=None, headers=None, headers_environment=None, inputs=None, interval=None, kind=None, method=None, name=None, rules=None, success_expression=None, timeout=None, url=None):
+        if agent and not isinstance(agent, str):
+            raise TypeError("Expected argument 'agent' to be a str")
+        pulumi.set(__self__, "agent", agent)
         if approvers and not isinstance(approvers, list):
             raise TypeError("Expected argument 'approvers' to be a list")
         pulumi.set(__self__, "approvers", approvers)
@@ -46,6 +49,9 @@ class ManualResult:
         if headers_environment and not isinstance(headers_environment, str):
             raise TypeError("Expected argument 'headers_environment' to be a str")
         pulumi.set(__self__, "headers_environment", headers_environment)
+        if inputs and not isinstance(inputs, dict):
+            raise TypeError("Expected argument 'inputs' to be a dict")
+        pulumi.set(__self__, "inputs", inputs)
         if interval and not isinstance(interval, str):
             raise TypeError("Expected argument 'interval' to be a str")
         pulumi.set(__self__, "interval", interval)
@@ -70,6 +76,14 @@ class ManualResult:
         if url and not isinstance(url, str):
             raise TypeError("Expected argument 'url' to be a str")
         pulumi.set(__self__, "url", url)
+
+    @_builtins.property
+    @pulumi.getter
+    def agent(self) -> Optional[_builtins.str]:
+        """
+        Name of the Decision Agent definition that a decision rule asks. Required for that kind.
+        """
+        return pulumi.get(self, "agent")
 
     @_builtins.property
     @pulumi.getter
@@ -121,6 +135,14 @@ class ManualResult:
 
     @_builtins.property
     @pulumi.getter
+    def inputs(self) -> Optional[Mapping[str, Any]]:
+        """
+        Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.
+        """
+        return pulumi.get(self, "inputs")
+
+    @_builtins.property
+    @pulumi.getter
     def interval(self) -> Optional[_builtins.str]:
         """
         HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
@@ -131,7 +153,7 @@ class ManualResult:
     @pulumi.getter
     def kind(self) -> _builtins.str:
         """
-        Rule kind: approval, http, manual, all, or any.
+        Rule kind: approval, http, manual, decision, all, or any.
         """
         return pulumi.get(self, "kind")
 
@@ -190,12 +212,14 @@ class AwaitableManualResult(ManualResult):
         if False:
             yield self
         return ManualResult(
+            agent=self.agent,
             approvers=self.approvers,
             body=self.body,
             count=self.count,
             description=self.description,
             headers=self.headers,
             headers_environment=self.headers_environment,
+            inputs=self.inputs,
             interval=self.interval,
             kind=self.kind,
             method=self.method,
@@ -224,12 +248,14 @@ def manual(description: Optional[_builtins.str] = None,
     __ret__ = pulumi.runtime.invoke('delivery:index:manual', __args__, opts=opts, typ=ManualResult).value
 
     return AwaitableManualResult(
+        agent=pulumi.get(__ret__, 'agent'),
         approvers=pulumi.get(__ret__, 'approvers'),
         body=pulumi.get(__ret__, 'body'),
         count=pulumi.get(__ret__, 'count'),
         description=pulumi.get(__ret__, 'description'),
         headers=pulumi.get(__ret__, 'headers'),
         headers_environment=pulumi.get(__ret__, 'headers_environment'),
+        inputs=pulumi.get(__ret__, 'inputs'),
         interval=pulumi.get(__ret__, 'interval'),
         kind=pulumi.get(__ret__, 'kind'),
         method=pulumi.get(__ret__, 'method'),
@@ -255,12 +281,14 @@ def manual_output(description: pulumi.Input[Optional[Optional[_builtins.str]]] =
     opts = pulumi.InvokeOutputOptions.merge(_utilities.get_invoke_opts_defaults(), opts)
     __ret__ = pulumi.runtime.invoke_output('delivery:index:manual', __args__, opts=opts, typ=ManualResult)
     return __ret__.apply(lambda __response__: ManualResult(
+        agent=pulumi.get(__response__, 'agent'),
         approvers=pulumi.get(__response__, 'approvers'),
         body=pulumi.get(__response__, 'body'),
         count=pulumi.get(__response__, 'count'),
         description=pulumi.get(__response__, 'description'),
         headers=pulumi.get(__response__, 'headers'),
         headers_environment=pulumi.get(__response__, 'headers_environment'),
+        inputs=pulumi.get(__response__, 'inputs'),
         interval=pulumi.get(__response__, 'interval'),
         kind=pulumi.get(__response__, 'kind'),
         method=pulumi.get(__response__, 'method'),

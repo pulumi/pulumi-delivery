@@ -27,12 +27,14 @@ class Rule(dict):
     """
     def __init__(__self__, *,
                  kind: _builtins.str,
+                 agent: Optional[_builtins.str] = None,
                  approvers: Optional[Sequence[_builtins.str]] = None,
                  body: Optional[_builtins.str] = None,
                  count: Optional[_builtins.int] = None,
                  description: Optional[_builtins.str] = None,
                  headers: Optional[Mapping[str, _builtins.str]] = None,
                  headers_environment: Optional[_builtins.str] = None,
+                 inputs: Optional[Mapping[str, Any]] = None,
                  interval: Optional[_builtins.str] = None,
                  method: Optional[_builtins.str] = None,
                  name: Optional[_builtins.str] = None,
@@ -43,13 +45,15 @@ class Rule(dict):
         """
         Stage entry rule. Rules may nest at most three levels.
 
-        :param _builtins.str kind: Rule kind: approval, http, manual, all, or any.
+        :param _builtins.str kind: Rule kind: approval, http, manual, decision, all, or any.
+        :param _builtins.str agent: Name of the Decision Agent definition that a decision rule asks. Required for that kind.
         :param Sequence[_builtins.str] approvers: Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
         :param _builtins.str body: HTTP request body. Pulumi secret values remain secret.
         :param _builtins.int count: Number of approvals required. For approval rules, omitted or zero means one.
         :param _builtins.str description: Text for the person who continues a manual gate, for example what to check first.
         :param Mapping[str, _builtins.str] headers: HTTP request headers. Pulumi secret values remain secret.
         :param _builtins.str headers_environment: Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule.
+        :param Mapping[str, Any] inputs: Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.
         :param _builtins.str interval: HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
         :param _builtins.str method: HTTP request method. The default is GET.
         :param _builtins.str name: Rule name. Omit it to let Delivery assign one.
@@ -59,6 +63,8 @@ class Rule(dict):
         :param _builtins.str url: URL to call for an http rule. Required for that kind.
         """
         pulumi.set(__self__, "kind", kind)
+        if agent is not None:
+            pulumi.set(__self__, "agent", agent)
         if approvers is not None:
             pulumi.set(__self__, "approvers", approvers)
         if body is not None:
@@ -71,6 +77,8 @@ class Rule(dict):
             pulumi.set(__self__, "headers", headers)
         if headers_environment is not None:
             pulumi.set(__self__, "headers_environment", headers_environment)
+        if inputs is not None:
+            pulumi.set(__self__, "inputs", inputs)
         if interval is not None:
             pulumi.set(__self__, "interval", interval)
         if method is not None:
@@ -90,9 +98,17 @@ class Rule(dict):
     @pulumi.getter
     def kind(self) -> _builtins.str:
         """
-        Rule kind: approval, http, manual, all, or any.
+        Rule kind: approval, http, manual, decision, all, or any.
         """
         return pulumi.get(self, "kind")
+
+    @_builtins.property
+    @pulumi.getter
+    def agent(self) -> Optional[_builtins.str]:
+        """
+        Name of the Decision Agent definition that a decision rule asks. Required for that kind.
+        """
+        return pulumi.get(self, "agent")
 
     @_builtins.property
     @pulumi.getter
@@ -141,6 +157,14 @@ class Rule(dict):
         Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule.
         """
         return pulumi.get(self, "headers_environment")
+
+    @_builtins.property
+    @pulumi.getter
+    def inputs(self) -> Optional[Mapping[str, Any]]:
+        """
+        Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.
+        """
+        return pulumi.get(self, "inputs")
 
     @_builtins.property
     @pulumi.getter

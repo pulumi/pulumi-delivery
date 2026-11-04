@@ -21,6 +21,8 @@ func (m *module) Version() semver.Version {
 
 func (m *module) Construct(ctx *pulumi.Context, name, typ, urn string) (r pulumi.Resource, err error) {
 	switch typ {
+	case "delivery:index:Agent":
+		r = &Agent{}
 	case "delivery:index:Artifact":
 		r = &Artifact{}
 	case "delivery:index:AzureDevOpsSource":
@@ -33,6 +35,8 @@ func (m *module) Construct(ctx *pulumi.Context, name, typ, urn string) (r pulumi
 		r = &GitLabSource{}
 	case "delivery:index:Job":
 		r = &Job{}
+	case "delivery:index:LinearIssueSource":
+		r = &LinearIssueSource{}
 	case "delivery:index:Pipeline":
 		r = &Pipeline{}
 	case "delivery:index:PipelineSource":
@@ -41,6 +45,8 @@ func (m *module) Construct(ctx *pulumi.Context, name, typ, urn string) (r pulumi
 		r = &Stacks{}
 	case "delivery:index:Stage":
 		r = &Stage{}
+	case "delivery:index:WebhookSource":
+		r = &WebhookSource{}
 	case "delivery:index:WorkflowsRuntime":
 		r = &WorkflowsRuntime{}
 	default:

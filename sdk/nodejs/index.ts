@@ -5,6 +5,11 @@ import * as pulumi from "@pulumi/pulumi";
 import * as utilities from "./utilities";
 
 // Export members:
+export { AgentArgs } from "./agent";
+export type Agent = import("./agent").Agent;
+export const Agent: typeof import("./agent").Agent = null as any;
+utilities.lazyLoad(exports, ["Agent"], () => require("./agent"));
+
 export { AllOfArgs, AllOfResult, AllOfOutputArgs } from "./allOf";
 export const allOf: typeof import("./allOf").allOf = null as any;
 export const allOfOutput: typeof import("./allOf").allOfOutput = null as any;
@@ -35,6 +40,11 @@ export type BitbucketSource = import("./bitbucketSource").BitbucketSource;
 export const BitbucketSource: typeof import("./bitbucketSource").BitbucketSource = null as any;
 utilities.lazyLoad(exports, ["BitbucketSource"], () => require("./bitbucketSource"));
 
+export { DecisionArgs, DecisionResult, DecisionOutputArgs } from "./decision";
+export const decision: typeof import("./decision").decision = null as any;
+export const decisionOutput: typeof import("./decision").decisionOutput = null as any;
+utilities.lazyLoad(exports, ["decision","decisionOutput"], () => require("./decision"));
+
 export { GitHubSourceArgs } from "./gitHubSource";
 export type GitHubSource = import("./gitHubSource").GitHubSource;
 export const GitHubSource: typeof import("./gitHubSource").GitHubSource = null as any;
@@ -54,6 +64,11 @@ export { JobArgs } from "./job";
 export type Job = import("./job").Job;
 export const Job: typeof import("./job").Job = null as any;
 utilities.lazyLoad(exports, ["Job"], () => require("./job"));
+
+export { LinearIssueSourceArgs } from "./linearIssueSource";
+export type LinearIssueSource = import("./linearIssueSource").LinearIssueSource;
+export const LinearIssueSource: typeof import("./linearIssueSource").LinearIssueSource = null as any;
+utilities.lazyLoad(exports, ["LinearIssueSource"], () => require("./linearIssueSource"));
 
 export { ManualArgs, ManualResult, ManualOutputArgs } from "./manual";
 export const manual: typeof import("./manual").manual = null as any;
@@ -85,6 +100,11 @@ export type Stage = import("./stage").Stage;
 export const Stage: typeof import("./stage").Stage = null as any;
 utilities.lazyLoad(exports, ["Stage"], () => require("./stage"));
 
+export { WebhookSourceArgs } from "./webhookSource";
+export type WebhookSource = import("./webhookSource").WebhookSource;
+export const WebhookSource: typeof import("./webhookSource").WebhookSource = null as any;
+utilities.lazyLoad(exports, ["WebhookSource"], () => require("./webhookSource"));
+
 export { WorkflowsRuntimeArgs } from "./workflowsRuntime";
 export type WorkflowsRuntime = import("./workflowsRuntime").WorkflowsRuntime;
 export const WorkflowsRuntime: typeof import("./workflowsRuntime").WorkflowsRuntime = null as any;
@@ -102,6 +122,8 @@ const _module = {
     version: utilities.getVersion(),
     construct: (name: string, type: string, urn: string): pulumi.Resource => {
         switch (type) {
+            case "delivery:index:Agent":
+                return new Agent(name, <any>undefined, { urn })
             case "delivery:index:Artifact":
                 return new Artifact(name, <any>undefined, { urn })
             case "delivery:index:AzureDevOpsSource":
@@ -114,6 +136,8 @@ const _module = {
                 return new GitLabSource(name, <any>undefined, { urn })
             case "delivery:index:Job":
                 return new Job(name, <any>undefined, { urn })
+            case "delivery:index:LinearIssueSource":
+                return new LinearIssueSource(name, <any>undefined, { urn })
             case "delivery:index:Pipeline":
                 return new Pipeline(name, <any>undefined, { urn })
             case "delivery:index:PipelineSource":
@@ -122,6 +146,8 @@ const _module = {
                 return new Stacks(name, <any>undefined, { urn })
             case "delivery:index:Stage":
                 return new Stage(name, <any>undefined, { urn })
+            case "delivery:index:WebhookSource":
+                return new WebhookSource(name, <any>undefined, { urn })
             case "delivery:index:WorkflowsRuntime":
                 return new WorkflowsRuntime(name, <any>undefined, { urn })
             default:

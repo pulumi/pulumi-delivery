@@ -6,6 +6,7 @@ package com.pulumi.delivery.delivery.inputs;
 import com.pulumi.core.annotations.Import;
 import com.pulumi.exceptions.MissingRequiredPropertyException;
 import java.lang.Integer;
+import java.lang.Object;
 import java.lang.String;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,21 @@ import javax.annotation.Nullable;
 public final class Rule extends com.pulumi.resources.InvokeArgs {
 
     public static final Rule Empty = new Rule();
+
+    /**
+     * Name of the Decision Agent definition that a decision rule asks. Required for that kind.
+     * 
+     */
+    @Import(name="agent")
+    private @Nullable String agent;
+
+    /**
+     * @return Name of the Decision Agent definition that a decision rule asks. Required for that kind.
+     * 
+     */
+    public Optional<String> agent() {
+        return Optional.ofNullable(this.agent);
+    }
 
     /**
      * Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
@@ -113,6 +129,21 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
     }
 
     /**
+     * Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.
+     * 
+     */
+    @Import(name="inputs")
+    private @Nullable Map<String,Object> inputs;
+
+    /**
+     * @return Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.
+     * 
+     */
+    public Optional<Map<String,Object>> inputs() {
+        return Optional.ofNullable(this.inputs);
+    }
+
+    /**
      * HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
      * 
      */
@@ -128,14 +159,14 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
     }
 
     /**
-     * Rule kind: approval, http, manual, all, or any.
+     * Rule kind: approval, http, manual, decision, all, or any.
      * 
      */
     @Import(name="kind", required=true)
     private String kind;
 
     /**
-     * @return Rule kind: approval, http, manual, all, or any.
+     * @return Rule kind: approval, http, manual, decision, all, or any.
      * 
      */
     public String kind() {
@@ -235,12 +266,14 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
     private Rule() {}
 
     private Rule(Rule $) {
+        this.agent = $.agent;
         this.approvers = $.approvers;
         this.body = $.body;
         this.count = $.count;
         this.description = $.description;
         this.headers = $.headers;
         this.headersEnvironment = $.headersEnvironment;
+        this.inputs = $.inputs;
         this.interval = $.interval;
         this.kind = $.kind;
         this.method = $.method;
@@ -267,6 +300,17 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
 
         public Builder(Rule defaults) {
             $ = new Rule(Objects.requireNonNull(defaults));
+        }
+
+        /**
+         * @param agent Name of the Decision Agent definition that a decision rule asks. Required for that kind.
+         * 
+         * @return builder
+         * 
+         */
+        public Builder agent(@Nullable String agent) {
+            $.agent = agent;
+            return this;
         }
 
         /**
@@ -346,6 +390,17 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
+         * @param inputs Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.
+         * 
+         * @return builder
+         * 
+         */
+        public Builder inputs(@Nullable Map<String,Object> inputs) {
+            $.inputs = inputs;
+            return this;
+        }
+
+        /**
          * @param interval HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
          * 
          * @return builder
@@ -357,7 +412,7 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param kind Rule kind: approval, http, manual, all, or any.
+         * @param kind Rule kind: approval, http, manual, decision, all, or any.
          * 
          * @return builder
          * 

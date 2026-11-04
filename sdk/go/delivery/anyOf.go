@@ -34,6 +34,8 @@ type AnyOfArgs struct {
 
 // Stage entry rule. Rules may nest at most three levels.
 type AnyOfResult struct {
+	// Name of the Decision Agent definition that a decision rule asks. Required for that kind.
+	Agent *string `pulumi:"agent"`
 	// Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
 	Approvers []string `pulumi:"approvers"`
 	// HTTP request body. Pulumi secret values remain secret.
@@ -46,9 +48,11 @@ type AnyOfResult struct {
 	Headers map[string]string `pulumi:"headers"`
 	// Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule.
 	HeadersEnvironment *string `pulumi:"headersEnvironment"`
+	// Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.
+	Inputs map[string]interface{} `pulumi:"inputs"`
 	// HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
 	Interval *string `pulumi:"interval"`
-	// Rule kind: approval, http, manual, all, or any.
+	// Rule kind: approval, http, manual, decision, all, or any.
 	Kind string `pulumi:"kind"`
 	// HTTP request method. The default is GET.
 	Method *string `pulumi:"method"`
@@ -96,6 +100,11 @@ func (o AnyOfResultOutput) ToAnyOfResultOutputWithContext(ctx context.Context) A
 	return o
 }
 
+// Name of the Decision Agent definition that a decision rule asks. Required for that kind.
+func (o AnyOfResultOutput) Agent() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v AnyOfResult) *string { return v.Agent }).(pulumi.StringPtrOutput)
+}
+
 // Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
 func (o AnyOfResultOutput) Approvers() pulumi.StringArrayOutput {
 	return o.ApplyT(func(v AnyOfResult) []string { return v.Approvers }).(pulumi.StringArrayOutput)
@@ -126,12 +135,17 @@ func (o AnyOfResultOutput) HeadersEnvironment() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v AnyOfResult) *string { return v.HeadersEnvironment }).(pulumi.StringPtrOutput)
 }
 
+// Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.
+func (o AnyOfResultOutput) Inputs() pulumi.MapOutput {
+	return o.ApplyT(func(v AnyOfResult) map[string]interface{} { return v.Inputs }).(pulumi.MapOutput)
+}
+
 // HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
 func (o AnyOfResultOutput) Interval() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v AnyOfResult) *string { return v.Interval }).(pulumi.StringPtrOutput)
 }
 
-// Rule kind: approval, http, manual, all, or any.
+// Rule kind: approval, http, manual, decision, all, or any.
 func (o AnyOfResultOutput) Kind() pulumi.StringOutput {
 	return o.ApplyT(func(v AnyOfResult) string { return v.Kind }).(pulumi.StringOutput)
 }

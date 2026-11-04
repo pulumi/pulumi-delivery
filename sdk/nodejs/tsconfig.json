@@ -19,17 +19,20 @@
         "skipLibCheck": true
     },
     "files": [
+        "agent.ts",
         "allOf.ts",
         "anyOf.ts",
         "approval.ts",
         "artifact.ts",
         "azureDevOpsSource.ts",
         "bitbucketSource.ts",
+        "decision.ts",
         "gitHubSource.ts",
         "gitLabSource.ts",
         "http.ts",
         "index.ts",
         "job.ts",
+        "linearIssueSource.ts",
         "manual.ts",
         "pipeline.ts",
         "pipelineSource.ts",
@@ -40,6 +43,7 @@
         "types/input.ts",
         "types/output.ts",
         "utilities.ts",
+        "webhookSource.ts",
         "workflowsRuntime.ts"
     ]
 }

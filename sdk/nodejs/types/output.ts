@@ -12,6 +12,10 @@ import {AzureDevOpsSource, BitbucketSource, GitHubSource, GitLabSource, Workflow
  */
 export interface Rule {
     /**
+     * Name of the Decision Agent definition that a decision rule asks. Required for that kind.
+     */
+    agent?: string;
+    /**
      * Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
      */
     approvers?: string[];
@@ -36,11 +40,15 @@ export interface Rule {
      */
     headersEnvironment?: string;
     /**
+     * Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.
+     */
+    inputs?: {[key: string]: any};
+    /**
      * HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
      */
     interval?: string;
     /**
-     * Rule kind: approval, http, manual, all, or any.
+     * Rule kind: approval, http, manual, decision, all, or any.
      */
     kind: string;
     /**

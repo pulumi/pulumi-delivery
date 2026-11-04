@@ -83,6 +83,10 @@ export interface HttpArgs {
  */
 export interface HttpResult {
     /**
+     * Name of the Decision Agent definition that a decision rule asks. Required for that kind.
+     */
+    readonly agent?: string;
+    /**
      * Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
      */
     readonly approvers?: string[];
@@ -107,11 +111,15 @@ export interface HttpResult {
      */
     readonly headersEnvironment?: string;
     /**
+     * Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.
+     */
+    readonly inputs?: {[key: string]: any};
+    /**
      * HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
      */
     readonly interval?: string;
     /**
-     * Rule kind: approval, http, manual, all, or any.
+     * Rule kind: approval, http, manual, decision, all, or any.
      */
     readonly kind: string;
     /**

@@ -30,6 +30,8 @@ __all__ = [
     'SourceTriggerArgsDict',
     'StacksEntryArgs',
     'StacksEntryArgsDict',
+    'WebhookSigningArgs',
+    'WebhookSigningArgsDict',
 ]
 
 class ProgramSourceArgsDict(TypedDict):
@@ -90,7 +92,11 @@ class RuleDict(TypedDict):
     """
     kind: _builtins.str
     """
-    Rule kind: approval, http, manual, all, or any.
+    Rule kind: approval, http, manual, decision, all, or any.
+    """
+    agent: NotRequired[_builtins.str]
+    """
+    Name of the Decision Agent definition that a decision rule asks. Required for that kind.
     """
     approvers: NotRequired[Sequence[_builtins.str]]
     """
@@ -115,6 +121,10 @@ class RuleDict(TypedDict):
     headers_environment: NotRequired[_builtins.str]
     """
     Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule.
+    """
+    inputs: NotRequired[Mapping[str, Any]]
+    """
+    Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.
     """
     interval: NotRequired[_builtins.str]
     """
@@ -149,12 +159,14 @@ class RuleDict(TypedDict):
 class Rule:
     def __init__(__self__, *,
                  kind: _builtins.str,
+                 agent: Optional[_builtins.str] = None,
                  approvers: Optional[Sequence[_builtins.str]] = None,
                  body: Optional[_builtins.str] = None,
                  count: Optional[_builtins.int] = None,
                  description: Optional[_builtins.str] = None,
                  headers: Optional[Mapping[str, _builtins.str]] = None,
                  headers_environment: Optional[_builtins.str] = None,
+                 inputs: Optional[Mapping[str, Any]] = None,
                  interval: Optional[_builtins.str] = None,
                  method: Optional[_builtins.str] = None,
                  name: Optional[_builtins.str] = None,
@@ -165,13 +177,15 @@ class Rule:
         """
         Stage entry rule. Rules may nest at most three levels.
 
-        :param _builtins.str kind: Rule kind: approval, http, manual, all, or any.
+        :param _builtins.str kind: Rule kind: approval, http, manual, decision, all, or any.
+        :param _builtins.str agent: Name of the Decision Agent definition that a decision rule asks. Required for that kind.
         :param Sequence[_builtins.str] approvers: Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
         :param _builtins.str body: HTTP request body. Pulumi secret values remain secret.
         :param _builtins.int count: Number of approvals required. For approval rules, omitted or zero means one.
         :param _builtins.str description: Text for the person who continues a manual gate, for example what to check first.
         :param Mapping[str, _builtins.str] headers: HTTP request headers. Pulumi secret values remain secret.
         :param _builtins.str headers_environment: Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule.
+        :param Mapping[str, Any] inputs: Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.
         :param _builtins.str interval: HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
         :param _builtins.str method: HTTP request method. The default is GET.
         :param _builtins.str name: Rule name. Omit it to let Delivery assign one.
@@ -181,6 +195,8 @@ class Rule:
         :param _builtins.str url: URL to call for an http rule. Required for that kind.
         """
         pulumi.set(__self__, "kind", kind)
+        if agent is not None:
+            pulumi.set(__self__, "agent", agent)
         if approvers is not None:
             pulumi.set(__self__, "approvers", approvers)
         if body is not None:
@@ -193,6 +209,8 @@ class Rule:
             pulumi.set(__self__, "headers", headers)
         if headers_environment is not None:
             pulumi.set(__self__, "headers_environment", headers_environment)
+        if inputs is not None:
+            pulumi.set(__self__, "inputs", inputs)
         if interval is not None:
             pulumi.set(__self__, "interval", interval)
         if method is not None:
@@ -212,13 +230,25 @@ class Rule:
     @pulumi.getter
     def kind(self) -> _builtins.str:
         """
-        Rule kind: approval, http, manual, all, or any.
+        Rule kind: approval, http, manual, decision, all, or any.
         """
         return pulumi.get(self, "kind")
 
     @kind.setter
     def kind(self, value: _builtins.str):
         pulumi.set(self, "kind", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def agent(self) -> Optional[_builtins.str]:
+        """
+        Name of the Decision Agent definition that a decision rule asks. Required for that kind.
+        """
+        return pulumi.get(self, "agent")
+
+    @agent.setter
+    def agent(self, value: Optional[_builtins.str]):
+        pulumi.set(self, "agent", value)
 
     @_builtins.property
     @pulumi.getter
@@ -291,6 +321,18 @@ class Rule:
     @headers_environment.setter
     def headers_environment(self, value: Optional[_builtins.str]):
         pulumi.set(self, "headers_environment", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def inputs(self) -> Optional[Mapping[str, Any]]:
+        """
+        Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.
+        """
+        return pulumi.get(self, "inputs")
+
+    @inputs.setter
+    def inputs(self, value: Optional[Mapping[str, Any]]):
+        pulumi.set(self, "inputs", value)
 
     @_builtins.property
     @pulumi.getter
@@ -383,7 +425,11 @@ class RuleArgsDict(TypedDict):
     """
     kind: pulumi.Input[_builtins.str]
     """
-    Rule kind: approval, http, manual, all, or any.
+    Rule kind: approval, http, manual, decision, all, or any.
+    """
+    agent: NotRequired[pulumi.Input[Optional[_builtins.str]]]
+    """
+    Name of the Decision Agent definition that a decision rule asks. Required for that kind.
     """
     approvers: NotRequired[pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]]]
     """
@@ -408,6 +454,10 @@ class RuleArgsDict(TypedDict):
     headers_environment: NotRequired[pulumi.Input[Optional[_builtins.str]]]
     """
     Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule.
+    """
+    inputs: NotRequired[pulumi.Input[Optional[Mapping[str, Any]]]]
+    """
+    Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.
     """
     interval: NotRequired[pulumi.Input[Optional[_builtins.str]]]
     """
@@ -442,12 +492,14 @@ class RuleArgsDict(TypedDict):
 class RuleArgs:
     def __init__(__self__, *,
                  kind: pulumi.Input[_builtins.str],
+                 agent: pulumi.Input[Optional[_builtins.str]] = None,
                  approvers: pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]] = None,
                  body: pulumi.Input[Optional[_builtins.str]] = None,
                  count: pulumi.Input[Optional[_builtins.int]] = None,
                  description: pulumi.Input[Optional[_builtins.str]] = None,
                  headers: pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
                  headers_environment: pulumi.Input[Optional[_builtins.str]] = None,
+                 inputs: pulumi.Input[Optional[Mapping[str, Any]]] = None,
                  interval: pulumi.Input[Optional[_builtins.str]] = None,
                  method: pulumi.Input[Optional[_builtins.str]] = None,
                  name: pulumi.Input[Optional[_builtins.str]] = None,
@@ -458,13 +510,15 @@ class RuleArgs:
         """
         Stage entry rule. Rules may nest at most three levels.
 
-        :param pulumi.Input[_builtins.str] kind: Rule kind: approval, http, manual, all, or any.
+        :param pulumi.Input[_builtins.str] kind: Rule kind: approval, http, manual, decision, all, or any.
+        :param pulumi.Input[_builtins.str] agent: Name of the Decision Agent definition that a decision rule asks. Required for that kind.
         :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] approvers: Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
         :param pulumi.Input[_builtins.str] body: HTTP request body. Pulumi secret values remain secret.
         :param pulumi.Input[_builtins.int] count: Number of approvals required. For approval rules, omitted or zero means one.
         :param pulumi.Input[_builtins.str] description: Text for the person who continues a manual gate, for example what to check first.
         :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] headers: HTTP request headers. Pulumi secret values remain secret.
         :param pulumi.Input[_builtins.str] headers_environment: Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule.
+        :param pulumi.Input[Mapping[str, Any]] inputs: Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.
         :param pulumi.Input[_builtins.str] interval: HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
         :param pulumi.Input[_builtins.str] method: HTTP request method. The default is GET.
         :param pulumi.Input[_builtins.str] name: Rule name. Omit it to let Delivery assign one.
@@ -474,6 +528,8 @@ class RuleArgs:
         :param pulumi.Input[_builtins.str] url: URL to call for an http rule. Required for that kind.
         """
         pulumi.set(__self__, "kind", kind)
+        if agent is not None:
+            pulumi.set(__self__, "agent", agent)
         if approvers is not None:
             pulumi.set(__self__, "approvers", approvers)
         if body is not None:
@@ -486,6 +542,8 @@ class RuleArgs:
             pulumi.set(__self__, "headers", headers)
         if headers_environment is not None:
             pulumi.set(__self__, "headers_environment", headers_environment)
+        if inputs is not None:
+            pulumi.set(__self__, "inputs", inputs)
         if interval is not None:
             pulumi.set(__self__, "interval", interval)
         if method is not None:
@@ -505,13 +563,25 @@ class RuleArgs:
     @pulumi.getter
     def kind(self) -> pulumi.Input[_builtins.str]:
         """
-        Rule kind: approval, http, manual, all, or any.
+        Rule kind: approval, http, manual, decision, all, or any.
         """
         return pulumi.get(self, "kind")
 
     @kind.setter
     def kind(self, value: pulumi.Input[_builtins.str]):
         pulumi.set(self, "kind", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def agent(self) -> pulumi.Input[Optional[_builtins.str]]:
+        """
+        Name of the Decision Agent definition that a decision rule asks. Required for that kind.
+        """
+        return pulumi.get(self, "agent")
+
+    @agent.setter
+    def agent(self, value: pulumi.Input[Optional[_builtins.str]]):
+        pulumi.set(self, "agent", value)
 
     @_builtins.property
     @pulumi.getter
@@ -584,6 +654,18 @@ class RuleArgs:
     @headers_environment.setter
     def headers_environment(self, value: pulumi.Input[Optional[_builtins.str]]):
         pulumi.set(self, "headers_environment", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def inputs(self) -> pulumi.Input[Optional[Mapping[str, Any]]]:
+        """
+        Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.
+        """
+        return pulumi.get(self, "inputs")
+
+    @inputs.setter
+    def inputs(self, value: pulumi.Input[Optional[Mapping[str, Any]]]):
+        pulumi.set(self, "inputs", value)
 
     @_builtins.property
     @pulumi.getter
@@ -852,5 +934,57 @@ class StacksEntryArgs:
     @timeout.setter
     def timeout(self, value: pulumi.Input[Optional[_builtins.int]]):
         pulumi.set(self, "timeout", value)
+
+
+class WebhookSigningArgsDict(TypedDict):
+    """
+    How the service verifies a post to a webhook source.
+    """
+    kind: pulumi.Input[_builtins.str]
+    """
+    Kind of signature: hmac-sha256 (an HMAC over the raw body) or token (a shared secret).
+    """
+    secret: pulumi.Input[_builtins.str]
+    """
+    Secret that the external system signs with. It stays secret.
+    """
+
+@pulumi.input_type
+class WebhookSigningArgs:
+    def __init__(__self__, *,
+                 kind: pulumi.Input[_builtins.str],
+                 secret: pulumi.Input[_builtins.str]):
+        """
+        How the service verifies a post to a webhook source.
+
+        :param pulumi.Input[_builtins.str] kind: Kind of signature: hmac-sha256 (an HMAC over the raw body) or token (a shared secret).
+        :param pulumi.Input[_builtins.str] secret: Secret that the external system signs with. It stays secret.
+        """
+        pulumi.set(__self__, "kind", kind)
+        pulumi.set(__self__, "secret", secret)
+
+    @_builtins.property
+    @pulumi.getter
+    def kind(self) -> pulumi.Input[_builtins.str]:
+        """
+        Kind of signature: hmac-sha256 (an HMAC over the raw body) or token (a shared secret).
+        """
+        return pulumi.get(self, "kind")
+
+    @kind.setter
+    def kind(self, value: pulumi.Input[_builtins.str]):
+        pulumi.set(self, "kind", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def secret(self) -> pulumi.Input[_builtins.str]:
+        """
+        Secret that the external system signs with. It stays secret.
+        """
+        return pulumi.get(self, "secret")
+
+    @secret.setter
+    def secret(self, value: pulumi.Input[_builtins.str]):
+        pulumi.set(self, "secret", value)
 
 
