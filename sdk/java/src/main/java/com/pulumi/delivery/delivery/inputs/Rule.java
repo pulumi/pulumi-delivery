@@ -23,14 +23,14 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
     public static final Rule Empty = new Rule();
 
     /**
-     * Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it.
+     * Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
      * 
      */
     @Import(name="approvers")
     private @Nullable List<String> approvers;
 
     /**
-     * @return Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it.
+     * @return Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
      * 
      */
     public Optional<List<String>> approvers() {
@@ -270,7 +270,7 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param approvers Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it.
+         * @param approvers Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
          * 
          * @return builder
          * 
@@ -281,7 +281,7 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param approvers Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it.
+         * @param approvers Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
          * 
          * @return builder
          * 

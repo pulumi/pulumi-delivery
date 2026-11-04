@@ -49,7 +49,7 @@ export interface ManualArgs {
  */
 export interface ManualResult {
     /**
-     * Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it.
+     * Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
      */
     readonly approvers?: string[];
     /**

@@ -18,14 +18,14 @@ public final class ApprovalArgs extends com.pulumi.resources.InvokeArgs {
     public static final ApprovalArgs Empty = new ApprovalArgs();
 
     /**
-     * Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it.
+     * Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
      * 
      */
     @Import(name="approvers")
     private @Nullable Output<List<String>> approvers;
 
     /**
-     * @return Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it.
+     * @return Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
      * 
      */
     public Optional<Output<List<String>>> approvers() {
@@ -89,7 +89,7 @@ public final class ApprovalArgs extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param approvers Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it.
+         * @param approvers Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
          * 
          * @return builder
          * 
@@ -100,7 +100,7 @@ public final class ApprovalArgs extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param approvers Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it.
+         * @param approvers Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
          * 
          * @return builder
          * 
@@ -110,7 +110,7 @@ public final class ApprovalArgs extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param approvers Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it.
+         * @param approvers Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
          * 
          * @return builder
          * 

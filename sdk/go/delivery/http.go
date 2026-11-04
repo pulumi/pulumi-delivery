@@ -48,7 +48,7 @@ type HttpArgs struct {
 
 // Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.
 type HttpResult struct {
-	// Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it.
+	// Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
 	Approvers []string `pulumi:"approvers"`
 	// HTTP request body. Secret values stay secret.
 	Body *string `pulumi:"body"`
@@ -124,7 +124,7 @@ func (o HttpResultOutput) ToHttpResultOutputWithContext(ctx context.Context) Htt
 	return o
 }
 
-// Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it.
+// Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
 func (o HttpResultOutput) Approvers() pulumi.StringArrayOutput {
 	return o.ApplyT(func(v HttpResult) []string { return v.Approvers }).(pulumi.StringArrayOutput)
 }

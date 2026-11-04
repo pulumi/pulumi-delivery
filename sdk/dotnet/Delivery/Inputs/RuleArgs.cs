@@ -20,7 +20,7 @@ namespace Pulumi.Delivery.Delivery.Inputs
         private InputList<string>? _approvers;
 
         /// <summary>
-        /// Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it.
+        /// Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
         /// </summary>
         public InputList<string> Approvers
         {

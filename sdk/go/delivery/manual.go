@@ -34,7 +34,7 @@ type ManualArgs struct {
 
 // Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.
 type ManualResult struct {
-	// Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it.
+	// Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
 	Approvers []string `pulumi:"approvers"`
 	// HTTP request body. Secret values stay secret.
 	Body *string `pulumi:"body"`
@@ -96,7 +96,7 @@ func (o ManualResultOutput) ToManualResultOutputWithContext(ctx context.Context)
 	return o
 }
 
-// Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it.
+// Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
 func (o ManualResultOutput) Approvers() pulumi.StringArrayOutput {
 	return o.ApplyT(func(v ManualResult) []string { return v.Approvers }).(pulumi.StringArrayOutput)
 }
