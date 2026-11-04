@@ -76,7 +76,7 @@ class AllOfResult:
     @pulumi.getter
     def approvers(self) -> Optional[Sequence[_builtins.str]]:
         """
-        Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it.
+        Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
         """
         return pulumi.get(self, "approvers")
 

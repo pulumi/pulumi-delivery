@@ -73,7 +73,7 @@ Declare every source at the top level of the program. A source that a member out
 
 ## Getting started
 
-This guide builds a pipeline with a `dev` stage and a `prod` stage. The `dev` stage updates a stack and runs a smoke check. The `prod` stage waits for an approval and then updates a second stack. You need two people, because the person who starts a run cannot approve it.
+This guide builds a pipeline with a `dev` stage and a `prod` stage. The `dev` stage updates a stack and runs a smoke check. The `prod` stage waits for an approval and then updates a second stack.
 
 ### Repository layout
 
@@ -189,7 +189,7 @@ new delivery.Stacks("prod", {
 });
 ```
 
-Replace `acme/shop` and `your-colleague` with your repository and the Pulumi user name of a second person.
+Replace `acme/shop` and `your-colleague` with your repository and the Pulumi user name of the person who approves `prod`. It can be your own.
 
 `delivery/smoke.sh` prints the endpoint of the `dev` stack. It writes one output to the file that `DELIVERY_OUTPUTS` names.
 
@@ -227,7 +227,7 @@ The update ends with exit code 10 and one of these messages.
 
 Open the Delivery page of your organization in the console and select the run. The `dev` stage updates `acme/shop-infra/dev` and runs the smoke job. The `prod` stage then waits at its gate.
 
-You started this run, so you cannot approve it. Ask the second person to approve the `prod` gate in the console. The `prod` stage then updates `acme/shop-infra/prod`.
+Ask `your-colleague` to approve the `prod` gate in the console. The `prod` stage then updates `acme/shop-infra/prod`.
 
 From now on, a push to `main` starts a run. You can also start a run with the "Run pipeline" button on the Delivery page, or with the API. A second dispatch with the same optional `key` returns the first run.
 
@@ -488,7 +488,7 @@ Gates are rules in `when`.
 - `manual()` waits until someone continues the gate. It works on every plan.
 - `allOf()` and `anyOf()` combine rules. You can nest them up to three levels.
 
-`approval()` takes `approvers` (user names or team names) and `count`. The person who started the run can never approve it. A run that a push starts has no starter, so the person who pushed can approve it if they are an eligible approver. If you name no approvers, anyone with the organization update permission can approve. A name that matches no user or team keeps the gate waiting. An approval gate shows a preview of the stack updates. The preview can be partial, and "Not available" is not the same as "no changes".
+`approval()` takes `approvers` (user names or team names) and `count`. Anyone eligible can approve, including the person who started the run or pushed the commit. If you name no approvers, anyone with the organization update permission can approve. A name that matches no user or team keeps the gate waiting. An approval gate shows a preview of the stack updates. The preview can be partial, and "Not available" is not the same as "no changes".
 
 `manual()` takes an optional `name` and `description`, as the other rules do. The default name is `manual`. Names are unique within a gate. The console shows the description to the person who continues the gate. Use `approval()` when named people must approve or you need several approvals. Otherwise use `manual()`.
 

@@ -24,14 +24,14 @@ public final class RuleArgs extends com.pulumi.resources.ResourceArgs {
     public static final RuleArgs Empty = new RuleArgs();
 
     /**
-     * Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it.
+     * Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
      * 
      */
     @Import(name="approvers")
     private @Nullable Output<List<String>> approvers;
 
     /**
-     * @return Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it.
+     * @return Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
      * 
      */
     public Optional<Output<List<String>>> approvers() {
@@ -271,7 +271,7 @@ public final class RuleArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param approvers Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it.
+         * @param approvers Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
          * 
          * @return builder
          * 
@@ -282,7 +282,7 @@ public final class RuleArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param approvers Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it.
+         * @param approvers Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
          * 
          * @return builder
          * 
@@ -292,7 +292,7 @@ public final class RuleArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param approvers Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it.
+         * @param approvers Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
          * 
          * @return builder
          * 

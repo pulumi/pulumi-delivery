@@ -82,7 +82,7 @@
           "items": {
             "type": "string"
           },
-          "description": "Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it."
+          "description": "Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve."
         },
         "body": {
           "type": "string",
@@ -676,7 +676,7 @@
         "description": "Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.",
         "properties": {
           "approvers": {
-            "description": "Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it.",
+            "description": "Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.",
             "items": {
               "type": "string"
             },
@@ -773,7 +773,7 @@
         "description": "Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.",
         "properties": {
           "approvers": {
-            "description": "Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it.",
+            "description": "Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.",
             "items": {
               "type": "string"
             },
@@ -845,7 +845,7 @@
       }
     },
     "delivery:index:approval": {
-      "description": "Builds an approval rule for the when property of a Stage. The gate waits until the required number of eligible people approve. If you omit count or set it to zero, one approval is required. The person who started the run cannot approve it. If you name no approvers, anyone with the organization update permission can approve. Approving needs the Approvals feature.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nconst prod = new delivery.Stage(\"prod\", {\n    pipeline,\n    from: [dev],\n    when: delivery.approval({ approvers: [\"your-username\"] }),\n});\n```",
+      "description": "Builds an approval rule for the when property of a Stage. The gate waits until the required number of eligible people approve. If you omit count or set it to zero, one approval is required. Anyone eligible can approve, including the person who started the run. If you name no approvers, anyone with the organization update permission can approve. Approving needs the Approvals feature.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nconst prod = new delivery.Stage(\"prod\", {\n    pipeline,\n    from: [dev],\n    when: delivery.approval({ approvers: [\"your-username\"] }),\n});\n```",
       "inputs": {
         "description": "Approval rule settings.",
         "properties": {
@@ -854,7 +854,7 @@
             "items": {
               "type": "string"
             },
-            "description": "Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it."
+            "description": "Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve."
           },
           "count": {
             "type": "integer",
@@ -871,7 +871,7 @@
         "description": "Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.",
         "properties": {
           "approvers": {
-            "description": "Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it.",
+            "description": "Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.",
             "items": {
               "type": "string"
             },
@@ -997,7 +997,7 @@
         "description": "Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.",
         "properties": {
           "approvers": {
-            "description": "Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it.",
+            "description": "Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.",
             "items": {
               "type": "string"
             },
@@ -1088,7 +1088,7 @@
         "description": "Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.",
         "properties": {
           "approvers": {
-            "description": "Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it.",
+            "description": "Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.",
             "items": {
               "type": "string"
             },

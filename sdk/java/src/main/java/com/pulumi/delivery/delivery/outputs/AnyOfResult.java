@@ -17,7 +17,7 @@ import javax.annotation.Nullable;
 @CustomType
 public final class AnyOfResult {
     /**
-     * @return Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it.
+     * @return Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
      * 
      */
     private @Nullable List<String> approvers;
@@ -89,7 +89,7 @@ public final class AnyOfResult {
 
     private AnyOfResult() {}
     /**
-     * @return Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve. The person who started the run can never approve it.
+     * @return Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
      * 
      */
     public List<String> approvers() {
