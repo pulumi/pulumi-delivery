@@ -332,9 +332,8 @@ func (r *AzureDevOpsSource) Annotate(a infer.Annotator) {
 
 func (r *SourceArgs) Annotate(a infer.Annotator) {
 	a.Describe(r, "Source settings.")
-	a.Describe(&r.Repository, "Repository identifier understood by the VCS integration.")
+	a.Describe(&r.Repository, "Repository of the source. Use `owner/repo` on GitHub, `group/subgroup/repo` (the full path) on GitLab, `workspace/repo` on Bitbucket and `org/project/repo` on Azure DevOps. Pulumi Cloud picks the integration of the organization whose account (GitHub), group (GitLab), workspace (Bitbucket) or organization and project (Azure DevOps) holds the repository.")
 	a.Describe(&r.Branch, "Branch of the source.")
-	a.Describe(&r.Integration, "Name of the VCS integration. Omit it when the organization has one integration for this forge.")
 	a.Describe(&r.Trigger, "Starts a run when someone pushes to the branch. Set true for every push, or { paths } for pushes that change a matching file. If you omit it, the source is part of the release but never starts a run.")
 }
 

@@ -47,7 +47,6 @@ export class GitLabSource extends pulumi.ComponentResource {
                 throw new Error("Missing required property 'repository'");
             }
             resourceInputs["branch"] = args?.branch;
-            resourceInputs["integration"] = args?.integration;
             resourceInputs["repository"] = args?.repository;
             resourceInputs["trigger"] = args?.trigger;
             resourceInputs["commit"] = undefined /*out*/;
@@ -68,11 +67,7 @@ export interface GitLabSourceArgs {
      */
     branch: pulumi.Input<string>;
     /**
-     * Name of the VCS integration. Omit it when the organization has one integration for this forge.
-     */
-    integration?: pulumi.Input<string | undefined>;
-    /**
-     * Repository identifier understood by the VCS integration.
+     * Repository of the source. Use `owner/repo` on GitHub, `group/subgroup/repo` (the full path) on GitLab, `workspace/repo` on Bitbucket and `org/project/repo` on Azure DevOps. Pulumi Cloud picks the integration of the organization whose account (GitHub), group (GitLab), workspace (Bitbucket) or organization and project (Azure DevOps) holds the repository.
      */
     repository: pulumi.Input<string>;
     /**

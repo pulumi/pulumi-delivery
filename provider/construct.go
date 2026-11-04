@@ -211,7 +211,7 @@ func sourceCommit(ctx context.Context, client *cloudclient.Client, req p.Constru
 		return "", nil
 	}
 	value, err := client.SourceValue(ctx, cloudclient.SourceIdentity{
-		Kind: kind, Integration: stringInput(req.Inputs, "integration"), Repository: repository, Branch: branch,
+		Kind: kind, Repository: repository, Branch: branch,
 	})
 	if err != nil {
 		return "", err

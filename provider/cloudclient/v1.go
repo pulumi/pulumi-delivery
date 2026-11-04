@@ -66,10 +66,9 @@ func (c *Client) GetRun(ctx context.Context) (*RunInfo, error) {
 
 // SourceIdentity identifies a source. The service canonicalizes it.
 type SourceIdentity struct {
-	Kind        string `json:"kind"`
-	Integration string `json:"integration"`
-	Repository  string `json:"repository"`
-	Branch      string `json:"branch"`
+	Kind       string `json:"kind"`
+	Repository string `json:"repository"`
+	Branch     string `json:"branch"`
 }
 
 // PipelineIdentity identifies the stage of a pipeline that a PipelineSource reads.
