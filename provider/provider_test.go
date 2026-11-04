@@ -638,3 +638,40 @@ func TestReportDeclarationShowsTheMessageAndWarnings(t *testing.T) {
 	assert.Empty(t, log.infos)
 	assert.Empty(t, log.warnings)
 }
+
+func TestComponentsRecordTheirInputs(t *testing.T) {
+	newFakeService(t)
+	var mu sync.Mutex
+	var recorded property.Map
+	provider, err := newProvider()
+	require.NoError(t, err)
+	server, err := integration.NewServer(t.Context(), "delivery", semver.MustParse("0.0.1"),
+		integration.WithProvider(provider),
+		integration.WithMocks(&integration.MockResourceMonitor{
+			NewResourceF: func(args integration.MockResourceArgs) (string, property.Map, error) {
+				if args.TypeToken == typeStage {
+					mu.Lock()
+					recorded = args.Inputs
+					mu.Unlock()
+				}
+				return args.Name, property.NewMap(nil), nil
+			},
+		}))
+	require.NoError(t, err)
+
+	_, err = server.Construct(p.ConstructRequest{
+		Urn:          urnOf(typeStage, "dev"),
+		Organization: "org",
+		Inputs: property.NewMap(map[string]property.Value{
+			"pipeline": reference(typePipeline, "main"),
+			"token":    property.New("t").WithSecret(true),
+		}),
+	})
+	require.NoError(t, err)
+
+	mu.Lock()
+	defer mu.Unlock()
+	require.NotNil(t, recorded.AsMap())
+	assert.Contains(t, recorded.AsMap(), "pipeline")
+	assert.True(t, recorded.AsMap()["token"].Secret())
+}
