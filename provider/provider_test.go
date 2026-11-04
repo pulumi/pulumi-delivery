@@ -288,6 +288,10 @@ func TestSourceInARunReturnsTheRecordedCommit(t *testing.T) {
 
 	assert.Equal(t, "abc123", resp.State.Get("commit").AsString())
 	assert.Len(t, service.declared(), 1)
+	require.Len(t, service.valueRequests, 1)
+	identity, ok := service.valueRequests[0]["identity"].(map[string]any)
+	require.True(t, ok)
+	assert.Equal(t, "", identity["integration"], "the service requires the field and resolves an empty one")
 }
 
 func TestSourceInARegistrationHasAnUnknownCommit(t *testing.T) {
