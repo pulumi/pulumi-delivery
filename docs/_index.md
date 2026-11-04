@@ -497,13 +497,13 @@ Gates are rules in `when`.
 Continue a manual gate in the console, or with a POST to the `continue` route:
 
 ```sh
-curl -X POST -H "Authorization: token $PULUMI_ACCESS_TOKEN" \
+curl -X POST -H "Authorization: token $PULUMI_ACCESS_TOKEN" -H "Content-Type: application/json" -d '{}' \
   https://api.pulumi.com/api/preview/stacks/acme/shop-delivery/main/delivery/runs/<run number>/gates/<gate id>/continue
 ```
 
-A gate with several manual conditions needs the name of the condition in the body: `-d '{"condition":"<manual name>"}'`. A gate with one manual condition needs no body. A 409 response that says the gate is not open means that someone already continued it.
+The body is a JSON object. A request without a body gets a 400 response. A gate with several manual conditions needs the name of the condition: `-d '{"condition":"<manual name>"}'`. A gate with one manual condition takes an empty object. A 409 response that says the gate is not open means that someone already continued it.
 
-A system can continue a gate by itself. Read the run with `GET .../delivery/runs/<run number>`. In `stages`, find the stage of the deployment. If `stages[].gate.status` is `open`, use `stages[].gate.id`. Continue that gate with `POST .../delivery/runs/<run number>/gates/<gate id>/continue`. An approval condition in `stages[].gate.conditions` has a `changeRequestId`. Approve it with `POST /api/change-requests/<org>/<change request id>/approve`. Pass the run number to the system through a resource that the stack updates anyway. For an ECS blue/green deployment, put it in the `hookDetails` of the lifecycle hook:
+A system can continue a gate by itself. Read the run with `GET .../delivery/runs/<run number>`. In `stages`, find the stage of the deployment. If `stages[].gate.status` is `open`, use `stages[].gate.id`. Continue that gate with `POST .../delivery/runs/<run number>/gates/<gate id>/continue`. An approval condition in `stages[].gate.conditions` has a `changeRequestId`. Approve it with `POST /api/change-requests/<org>/<change request id>/approve` and the body `{}`. Pass the run number to the system through a resource that the stack updates anyway. For an ECS blue/green deployment, put it in the `hookDetails` of the lifecycle hook:
 
 ```typescript
 hookDetails: JSON.stringify({
