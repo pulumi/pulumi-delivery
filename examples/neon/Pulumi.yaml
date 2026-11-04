@@ -1,0 +1,3 @@
+name: delivery-neon
+runtime: nodejs
+description: A pipeline that lets an agent work on Linear issues.

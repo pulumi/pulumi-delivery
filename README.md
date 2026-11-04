@@ -7,6 +7,7 @@ The repository has these directories.
 - `provider/`: Go resource provider.
 - `sdk/`: SDK generated from `schema.json` (`make sdk`, never edited by hand).
 - `examples/basic/`: a small pipeline program.
+- `examples/neon/`: a pipeline that starts from Linear issues, runs an agent and gates a merge on a decision agent.
 - `examples/compile/`: programs that check the generated SDKs compile.
 - `docs/`: `_index.md` is the registry guide. `ONBOARDING.md` is the onboarding guide.
 

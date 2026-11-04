@@ -1,0 +1,11 @@
+{
+  "private": true,
+  "dependencies": {
+    "@pulumi/delivery": "file:../../sdk/nodejs",
+    "@pulumi/pulumi": "^3.258.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0"
+  }
+}
