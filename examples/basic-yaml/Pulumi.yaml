@@ -1,0 +1,84 @@
+name: delivery-basic-yaml
+runtime: yaml
+description: A complete Delivery v1 pipeline, in Pulumi YAML.
+packages:
+  delivery: delivery@0.0.1-alpha.3
+
+resources:
+  code:
+    type: delivery:GitHubSource
+    properties:
+      repository: acme/shop
+      branch: main
+      trigger:
+        paths: ["src/**", "delivery/**"]
+  # A stage of another pipeline in the same organization. Its artifacts are known once a run reads them.
+  platform:
+    type: delivery:PipelineSource
+    properties:
+      pipeline: acme/platform-delivery/main
+      stage: prod
+      trigger: true
+  shop:
+    type: delivery:Pipeline
+    properties:
+      program:
+        source: ${code}
+        directory: delivery
+  dev:
+    type: delivery:Stage
+    properties:
+      pipeline: ${shop}
+  prod:
+    type: delivery:Stage
+    properties:
+      pipeline: ${shop}
+      from: ["${dev}"]
+      when:
+        kind: all
+        rules:
+          - kind: approval
+            approvers: [your-username]
+          - kind: manual
+            description: Check the dashboards before prod.
+  test:
+    type: delivery:Job
+    properties:
+      stage: ${dev}
+      source: ${code}
+      directory: app
+      command: npm test
+  smoke:
+    type: delivery:Job
+    properties:
+      stage: ${prod}
+      source: ${code}
+      directory: app
+      command: ./scripts/smoke.sh
+  # Pipelines that read the prod stage with a PipelineSource see this artifact as artifacts["shopEndpoint"].
+  shopEndpoint:
+    type: delivery:Artifact
+    properties:
+      stage: ${prod}
+      value: ${smoke.outputs["endpoint"]}
+  services:
+    type: delivery:Stacks
+    properties:
+      stage: ${dev}
+      stacks:
+        api:
+          stack: acme/shop-api/dev
+          source: ${code}
+          directory: api
+          config:
+            clusterEndpoint: ${platform.artifacts["clusterEndpoint"]}
+        worker:
+          stack: acme/shop-worker/dev
+          source: ${code}
+          directory: worker
+          timeout: 1800
+
+outputs:
+  release: ${shop.releaseNumber}
+  commit: ${code.commit}
+  apiOutputs: ${services.outputs["api"]}

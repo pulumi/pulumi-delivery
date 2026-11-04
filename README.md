@@ -7,6 +7,7 @@ The repository has these directories.
 - `provider/`: Go resource provider.
 - `sdk/`: SDK generated from `schema.json` (`make sdk`, never edited by hand).
 - `examples/basic/`: a small pipeline program.
+- `examples/basic-hcl/`, `examples/basic-yaml/`: the same pipeline in Pulumi HCL and Pulumi YAML.
 - `examples/compile/`: programs that check the generated SDKs compile.
 - `docs/`: `_index.md` is the registry guide. `ONBOARDING.md` is the onboarding guide.
 

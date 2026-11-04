@@ -1,0 +1,3 @@
+name: delivery-basic-hcl
+runtime: hcl
+description: A complete Delivery v1 pipeline, in Pulumi HCL.
