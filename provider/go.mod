@@ -4,6 +4,7 @@ go 1.26.6
 
 require (
 	github.com/blang/semver v3.5.1+incompatible
+	github.com/jmespath/go-jmespath v0.4.0
 	github.com/pulumi/pulumi-go-provider v1.7.0
 	github.com/pulumi/pulumi/pkg/v3 v3.272.0
 	github.com/pulumi/pulumi/sdk/v3 v3.272.0

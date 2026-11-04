@@ -43,10 +43,11 @@ type fakeService struct {
 	// status code and the body. A member without an answer is waiting.
 	memberStarts  []map[string]any
 	memberAnswers map[string]memberAnswer
-	// valueRequests are the bodies of the run value requests. pipelineAnswer is the answer to the kind
-	// "pipeline"; without one the value is the commit of a source.
+	// valueRequests are the bodies of the run value requests. pipelineAnswer and webhookAnswer are the answers to
+	// the kinds "pipeline" and "webhook"; without one the value is the commit of a source.
 	valueRequests  []map[string]any
 	pipelineAnswer *memberAnswer
+	webhookAnswer  *memberAnswer
 }
 
 type memberAnswer struct {
@@ -102,6 +103,11 @@ func newFakeService(t *testing.T) *fakeService {
 				_, _ = w.Write([]byte(s.pipelineAnswer.body))
 				return
 			}
+			if request["kind"] == "webhook" && s.webhookAnswer != nil {
+				w.WriteHeader(s.webhookAnswer.code)
+				_, _ = w.Write([]byte(s.webhookAnswer.body))
+				return
+			}
 			_, _ = w.Write([]byte(`{"value":{"commit":"abc123"}}`))
 		default:
 			w.WriteHeader(http.StatusNotFound)
@@ -121,8 +127,14 @@ func (s *fakeService) declared() []map[string]any {
 
 func newServer(t *testing.T) integration.Server { return newServerCapturing(t, nil) }
 
-// newServerCapturing records the inputs of the child resources that components register.
+// newServerCapturing records the inputs of the MemberRun children that components register.
 func newServerCapturing(t *testing.T, children *[]property.Map) integration.Server {
+	t.Helper()
+	return newServerCapturingType(t, typeMemberRun, children)
+}
+
+// newServerCapturingType records the inputs of the children of one type that components register.
+func newServerCapturingType(t *testing.T, typ string, children *[]property.Map) integration.Server {
 	t.Helper()
 	provider, err := newProvider()
 	require.NoError(t, err)
@@ -132,7 +144,7 @@ func newServerCapturing(t *testing.T, children *[]property.Map) integration.Serv
 		integration.WithProvider(provider),
 		integration.WithMocks(&integration.MockResourceMonitor{
 			NewResourceF: func(args integration.MockResourceArgs) (string, property.Map, error) {
-				if children != nil && args.TypeToken == typeMemberRun {
+				if children != nil && string(args.TypeToken) == typ {
 					mu.Lock()
 					*children = append(*children, args.Inputs)
 					mu.Unlock()

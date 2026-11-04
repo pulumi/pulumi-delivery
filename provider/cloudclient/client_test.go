@@ -90,6 +90,50 @@ func TestRequestsCarryTheProtocolVersion(t *testing.T) {
 	}
 }
 
+// TestWebhookValueAsksForTheKindWebhook proves that the value of a webhook source is read by name under the kind
+// "webhook" of the run value route.
+func TestWebhookValueAsksForTheKindWebhook(t *testing.T) {
+	var body string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		raw, _ := io.ReadAll(r.Body)
+		body = string(raw)
+		_, _ = w.Write([]byte(`{"value":{"subject":"issue-1","version":"2026-01-01T00:00:00Z","data":{"title":"Fix it"}}}`))
+	}))
+	defer srv.Close()
+
+	value, err := New(srv.URL, "org", "proj", "stack", "token").WebhookValue(context.Background(), "issues")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{`"protocolVersion":1`, `"kind":"webhook"`, `"identity":{"name":"issues"}`} {
+		if !strings.Contains(body, want) {
+			t.Fatalf("body = %s, want it to contain %s", body, want)
+		}
+	}
+	if value["subject"] != "issue-1" || value["data"].(map[string]any)["title"] != "Fix it" {
+		t.Fatalf("value = %v", value)
+	}
+}
+
+// TestWebhookURLNamesThePipelineStack proves that the url of a webhook source is under the pipeline stack: a run
+// stack loses its -r<run number> suffix, and a stack whose name only looks like one keeps it.
+func TestWebhookURLNamesThePipelineStack(t *testing.T) {
+	const want = "https://api.example.com/api/preview/delivery/webhooks/acme/shop-delivery/main/issues"
+	if got := New("https://api.example.com/", "acme", "shop-delivery", "main", "token").WebhookURL("issues", nil); got != want {
+		t.Fatalf("url = %q, want %q", got, want)
+	}
+	run := &RunInfo{Number: 12}
+	if got := New("https://api.example.com", "acme", "shop-delivery", "main-r12", "token").WebhookURL("issues", run); got != want {
+		t.Fatalf("url = %q, want %q", got, want)
+	}
+	if got := New("https://api.example.com", "acme", "shop-delivery", "main-r12", "token").WebhookURL("issues", &RunInfo{Number: 3}); !strings.HasSuffix(got, "/shop-delivery/main-r12/issues") {
+		t.Fatalf("url = %q, want the stack kept", got)
+	}
+	if got := New("", "acme", "my project", "main", "token").WebhookURL("a b", nil); got != "https://api.pulumi.com/api/preview/delivery/webhooks/acme/my%20project/main/a%20b" {
+		t.Fatalf("url = %q", got)
+	}
+}
+
 func TestDeclareReturnsTheMessageAndWarnings(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_, _ = w.Write([]byte(`{"message":"Registered.","warnings":["too big"]}`))
