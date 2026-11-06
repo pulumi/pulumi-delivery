@@ -474,8 +474,8 @@ A job writes its outputs as a JSON object, at most 1 MiB, to the file that `DELI
 
 A `Job` and each entry of a `Stacks` member accept two settings for the runner.
 
-- `image` sets the container image the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example `pulumi/pulumi-nodejs:3.272.0`. The image needs `sh`, `curl` and the Pulumi CLI on `PATH`. For a private registry, set `image.credentials` with a `username` and a `password`. The password is a secret.
-- `preRunCommands` is a list of shell commands. They run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over.
+- `image` sets the container image the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example `pulumi/pulumi-nodejs:3.272.0`. The image needs `bash`, `curl`, `gzip` and the Pulumi CLI on `PATH`. For a private registry, set `image.credentials` with a `username` and a `password`. The password is a secret.
+- `preRunCommands` is a list of bash commands. They run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over.
 
 ```typescript
 new delivery.Job("smoke", {

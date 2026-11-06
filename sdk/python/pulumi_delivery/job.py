@@ -43,8 +43,8 @@ class JobArgs:
         :param pulumi.Input[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource']] source: VCS source to check out.
         :param pulumi.Input['Stage'] stage: Stage that the job runs in.
         :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] environment: Environment variables for the command. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
-        :param pulumi.Input['ImageArgs'] image: Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs sh, curl and the Pulumi CLI on PATH.
-        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] pre_run_commands: Shell commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
+        :param pulumi.Input['ImageArgs'] image: Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs bash, curl, gzip and the Pulumi CLI on PATH.
+        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] pre_run_commands: Bash commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
         :param pulumi.Input['WorkflowsRuntime'] runtime: Pool that runs the job. In the private preview, all work runs on the hosted pool, so omit it.
         :param pulumi.Input[_builtins.str] timeout: Maximum run time as a Go duration, such as 30m. Delivery does not apply this value in the private preview. A job stops after 2 hours.
         """
@@ -127,7 +127,7 @@ class JobArgs:
     @pulumi.getter
     def image(self) -> pulumi.Input[Optional['ImageArgs']]:
         """
-        Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs sh, curl and the Pulumi CLI on PATH.
+        Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs bash, curl, gzip and the Pulumi CLI on PATH.
         """
         return pulumi.get(self, "image")
 
@@ -139,7 +139,7 @@ class JobArgs:
     @pulumi.getter(name="preRunCommands")
     def pre_run_commands(self) -> pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]]:
         """
-        Shell commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
+        Bash commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
         """
         return pulumi.get(self, "pre_run_commands")
 
@@ -204,8 +204,8 @@ class Job(pulumi.ComponentResource):
         :param pulumi.Input[_builtins.str] command: Command to run with sh -c. To publish outputs, the command writes them to the file that DELIVERY_OUTPUTS names.
         :param pulumi.Input[_builtins.str] directory: Directory to run the command in, relative to the repository root.
         :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] environment: Environment variables for the command. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
-        :param pulumi.Input[Union['ImageArgs', 'ImageArgsDict']] image: Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs sh, curl and the Pulumi CLI on PATH.
-        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] pre_run_commands: Shell commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
+        :param pulumi.Input[Union['ImageArgs', 'ImageArgsDict']] image: Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs bash, curl, gzip and the Pulumi CLI on PATH.
+        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] pre_run_commands: Bash commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
         :param pulumi.Input['WorkflowsRuntime'] runtime: Pool that runs the job. In the private preview, all work runs on the hosted pool, so omit it.
         :param pulumi.Input[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource']] source: VCS source to check out.
         :param pulumi.Input['Stage'] stage: Stage that the job runs in.

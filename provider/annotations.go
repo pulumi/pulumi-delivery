@@ -206,9 +206,9 @@ func (r *StageArgs) Annotate(a infer.Annotator) {
 }
 
 const (
-	imageDoc = "Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs sh, curl and the Pulumi CLI on PATH."
+	imageDoc = "Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs bash, curl, gzip and the Pulumi CLI on PATH."
 
-	preRunCommandsDoc = "Shell commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step."
+	preRunCommandsDoc = "Bash commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step."
 )
 
 func (r *Image) Annotate(a infer.Annotator) {

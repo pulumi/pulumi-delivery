@@ -63,9 +63,9 @@ type jobArgs struct {
 	Directory string `pulumi:"directory"`
 	// Environment variables for the command. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
 	Environment map[string]string `pulumi:"environment"`
-	// Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs sh, curl and the Pulumi CLI on PATH.
+	// Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs bash, curl, gzip and the Pulumi CLI on PATH.
 	Image *Image `pulumi:"image"`
-	// Shell commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
+	// Bash commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
 	PreRunCommands []string `pulumi:"preRunCommands"`
 	// Pool that runs the job. In the private preview, all work runs on the hosted pool, so omit it.
 	Runtime *WorkflowsRuntime `pulumi:"runtime"`
@@ -85,9 +85,9 @@ type JobArgs struct {
 	Directory pulumi.StringInput
 	// Environment variables for the command. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
 	Environment pulumi.StringMapInput
-	// Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs sh, curl and the Pulumi CLI on PATH.
+	// Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs bash, curl, gzip and the Pulumi CLI on PATH.
 	Image ImagePtrInput
-	// Shell commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
+	// Bash commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
 	PreRunCommands pulumi.StringArrayInput
 	// Pool that runs the job. In the private preview, all work runs on the hosted pool, so omit it.
 	Runtime WorkflowsRuntimeInput
