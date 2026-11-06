@@ -205,6 +205,24 @@ func (r *StageArgs) Annotate(a infer.Annotator) {
 	a.Describe(&r.When, "Optional rule that must pass before the release enters this stage.")
 }
 
+const (
+	imageDoc = "Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs sh, curl and the Pulumi CLI on PATH."
+
+	preRunCommandsDoc = "Shell commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step."
+)
+
+func (r *Image) Annotate(a infer.Annotator) {
+	a.Describe(r, "Container image that a member runs in.")
+	a.Describe(&r.Reference, "Image reference, for example pulumi/pulumi-nodejs:3.272.0.")
+	a.Describe(&r.Credentials, "Credentials for a private registry.")
+}
+
+func (r *ImageCredentials) Annotate(a infer.Annotator) {
+	a.Describe(r, "Credentials for a private registry.")
+	a.Describe(&r.Username, "Registry user name.")
+	a.Describe(&r.Password, "Registry password or token. It is a secret.")
+}
+
 func (r *Job) Annotate(a infer.Annotator) {
 	a.Describe(r, `Declares a command that a run executes in a stage. Delivery checks out the source at the commit of the run and runs the command in directory.
 
@@ -237,6 +255,9 @@ func (r *JobArgs) Annotate(a infer.Annotator) {
 	a.Describe(&r.Command, "Command to run with sh -c. To publish outputs, the command writes them to the file that DELIVERY_OUTPUTS names.")
 	a.Describe(&r.Environment, "Environment variables for the command. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.")
 	a.Describe(&r.Timeout, "Maximum run time as a Go duration, such as 30m. Delivery does not apply this value in the private preview. A job stops after 2 hours.")
+	a.Describe(&r.Runtime, "Pool that runs the job. In the private preview, all work runs on the hosted pool, so omit it.")
+	a.Describe(&r.Image, imageDoc)
+	a.Describe(&r.PreRunCommands, preRunCommandsDoc)
 }
 
 func (r *Stacks) Annotate(a infer.Annotator) {
@@ -278,6 +299,8 @@ func (r *StacksEntry) Annotate(a infer.Annotator) {
 	a.Describe(&r.Environment, "Environment variables for the update, for example cloud credentials. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.")
 	a.Describe(&r.Runtime, "Pool that runs the update. In the private preview, all work runs on the hosted pool, so omit it.")
 	a.Describe(&r.Timeout, "Maximum run time of the update in seconds. The default is 7200 (2 hours).")
+	a.Describe(&r.Image, imageDoc)
+	a.Describe(&r.PreRunCommands, preRunCommandsDoc)
 }
 
 func (r *MemberRun) Annotate(a infer.Annotator) {

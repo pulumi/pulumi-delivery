@@ -13,6 +13,324 @@ import (
 
 var _ = internal.GetEnvOrDefault
 
+// Container image that a member runs in.
+type Image struct {
+	// Credentials for a private registry.
+	Credentials *ImageCredentials `pulumi:"credentials"`
+	// Image reference, for example pulumi/pulumi-nodejs:3.272.0.
+	Reference string `pulumi:"reference"`
+}
+
+// ImageInput is an input type that accepts ImageArgs and ImageOutput values.
+// You can construct a concrete instance of `ImageInput` via:
+//
+//	ImageArgs{...}
+type ImageInput interface {
+	pulumi.Input
+
+	ToImageOutput() ImageOutput
+	ToImageOutputWithContext(context.Context) ImageOutput
+}
+
+// Container image that a member runs in.
+type ImageArgs struct {
+	// Credentials for a private registry.
+	Credentials ImageCredentialsPtrInput `pulumi:"credentials"`
+	// Image reference, for example pulumi/pulumi-nodejs:3.272.0.
+	Reference pulumi.StringInput `pulumi:"reference"`
+}
+
+func (ImageArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*Image)(nil)).Elem()
+}
+
+func (i ImageArgs) ToImageOutput() ImageOutput {
+	return i.ToImageOutputWithContext(context.Background())
+}
+
+func (i ImageArgs) ToImageOutputWithContext(ctx context.Context) ImageOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(ImageOutput)
+}
+
+func (i ImageArgs) ToImagePtrOutput() ImagePtrOutput {
+	return i.ToImagePtrOutputWithContext(context.Background())
+}
+
+func (i ImageArgs) ToImagePtrOutputWithContext(ctx context.Context) ImagePtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(ImageOutput).ToImagePtrOutputWithContext(ctx)
+}
+
+// ImagePtrInput is an input type that accepts ImageArgs, ImagePtr and ImagePtrOutput values.
+// You can construct a concrete instance of `ImagePtrInput` via:
+//
+//	        ImageArgs{...}
+//
+//	or:
+//
+//	        nil
+type ImagePtrInput interface {
+	pulumi.Input
+
+	ToImagePtrOutput() ImagePtrOutput
+	ToImagePtrOutputWithContext(context.Context) ImagePtrOutput
+}
+
+type imagePtrType ImageArgs
+
+func ImagePtr(v *ImageArgs) ImagePtrInput {
+	return (*imagePtrType)(v)
+}
+
+func (*imagePtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**Image)(nil)).Elem()
+}
+
+func (i *imagePtrType) ToImagePtrOutput() ImagePtrOutput {
+	return i.ToImagePtrOutputWithContext(context.Background())
+}
+
+func (i *imagePtrType) ToImagePtrOutputWithContext(ctx context.Context) ImagePtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(ImagePtrOutput)
+}
+
+// Container image that a member runs in.
+type ImageOutput struct{ *pulumi.OutputState }
+
+func (ImageOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*Image)(nil)).Elem()
+}
+
+func (o ImageOutput) ToImageOutput() ImageOutput {
+	return o
+}
+
+func (o ImageOutput) ToImageOutputWithContext(ctx context.Context) ImageOutput {
+	return o
+}
+
+func (o ImageOutput) ToImagePtrOutput() ImagePtrOutput {
+	return o.ToImagePtrOutputWithContext(context.Background())
+}
+
+func (o ImageOutput) ToImagePtrOutputWithContext(ctx context.Context) ImagePtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v Image) *Image {
+		return &v
+	}).(ImagePtrOutput)
+}
+
+// Credentials for a private registry.
+func (o ImageOutput) Credentials() ImageCredentialsPtrOutput {
+	return o.ApplyT(func(v Image) *ImageCredentials { return v.Credentials }).(ImageCredentialsPtrOutput)
+}
+
+// Image reference, for example pulumi/pulumi-nodejs:3.272.0.
+func (o ImageOutput) Reference() pulumi.StringOutput {
+	return o.ApplyT(func(v Image) string { return v.Reference }).(pulumi.StringOutput)
+}
+
+type ImagePtrOutput struct{ *pulumi.OutputState }
+
+func (ImagePtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**Image)(nil)).Elem()
+}
+
+func (o ImagePtrOutput) ToImagePtrOutput() ImagePtrOutput {
+	return o
+}
+
+func (o ImagePtrOutput) ToImagePtrOutputWithContext(ctx context.Context) ImagePtrOutput {
+	return o
+}
+
+func (o ImagePtrOutput) Elem() ImageOutput {
+	return o.ApplyT(func(v *Image) Image {
+		if v != nil {
+			return *v
+		}
+		var ret Image
+		return ret
+	}).(ImageOutput)
+}
+
+// Credentials for a private registry.
+func (o ImagePtrOutput) Credentials() ImageCredentialsPtrOutput {
+	return o.ApplyT(func(v *Image) *ImageCredentials {
+		if v == nil {
+			return nil
+		}
+		return v.Credentials
+	}).(ImageCredentialsPtrOutput)
+}
+
+// Image reference, for example pulumi/pulumi-nodejs:3.272.0.
+func (o ImagePtrOutput) Reference() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *Image) *string {
+		if v == nil {
+			return nil
+		}
+		return &v.Reference
+	}).(pulumi.StringPtrOutput)
+}
+
+// Credentials for a private registry.
+type ImageCredentials struct {
+	// Registry password or token. It is a secret.
+	Password string `pulumi:"password"`
+	// Registry user name.
+	Username string `pulumi:"username"`
+}
+
+// ImageCredentialsInput is an input type that accepts ImageCredentialsArgs and ImageCredentialsOutput values.
+// You can construct a concrete instance of `ImageCredentialsInput` via:
+//
+//	ImageCredentialsArgs{...}
+type ImageCredentialsInput interface {
+	pulumi.Input
+
+	ToImageCredentialsOutput() ImageCredentialsOutput
+	ToImageCredentialsOutputWithContext(context.Context) ImageCredentialsOutput
+}
+
+// Credentials for a private registry.
+type ImageCredentialsArgs struct {
+	// Registry password or token. It is a secret.
+	Password pulumi.StringInput `pulumi:"password"`
+	// Registry user name.
+	Username pulumi.StringInput `pulumi:"username"`
+}
+
+func (ImageCredentialsArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*ImageCredentials)(nil)).Elem()
+}
+
+func (i ImageCredentialsArgs) ToImageCredentialsOutput() ImageCredentialsOutput {
+	return i.ToImageCredentialsOutputWithContext(context.Background())
+}
+
+func (i ImageCredentialsArgs) ToImageCredentialsOutputWithContext(ctx context.Context) ImageCredentialsOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(ImageCredentialsOutput)
+}
+
+func (i ImageCredentialsArgs) ToImageCredentialsPtrOutput() ImageCredentialsPtrOutput {
+	return i.ToImageCredentialsPtrOutputWithContext(context.Background())
+}
+
+func (i ImageCredentialsArgs) ToImageCredentialsPtrOutputWithContext(ctx context.Context) ImageCredentialsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(ImageCredentialsOutput).ToImageCredentialsPtrOutputWithContext(ctx)
+}
+
+// ImageCredentialsPtrInput is an input type that accepts ImageCredentialsArgs, ImageCredentialsPtr and ImageCredentialsPtrOutput values.
+// You can construct a concrete instance of `ImageCredentialsPtrInput` via:
+//
+//	        ImageCredentialsArgs{...}
+//
+//	or:
+//
+//	        nil
+type ImageCredentialsPtrInput interface {
+	pulumi.Input
+
+	ToImageCredentialsPtrOutput() ImageCredentialsPtrOutput
+	ToImageCredentialsPtrOutputWithContext(context.Context) ImageCredentialsPtrOutput
+}
+
+type imageCredentialsPtrType ImageCredentialsArgs
+
+func ImageCredentialsPtr(v *ImageCredentialsArgs) ImageCredentialsPtrInput {
+	return (*imageCredentialsPtrType)(v)
+}
+
+func (*imageCredentialsPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**ImageCredentials)(nil)).Elem()
+}
+
+func (i *imageCredentialsPtrType) ToImageCredentialsPtrOutput() ImageCredentialsPtrOutput {
+	return i.ToImageCredentialsPtrOutputWithContext(context.Background())
+}
+
+func (i *imageCredentialsPtrType) ToImageCredentialsPtrOutputWithContext(ctx context.Context) ImageCredentialsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(ImageCredentialsPtrOutput)
+}
+
+// Credentials for a private registry.
+type ImageCredentialsOutput struct{ *pulumi.OutputState }
+
+func (ImageCredentialsOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*ImageCredentials)(nil)).Elem()
+}
+
+func (o ImageCredentialsOutput) ToImageCredentialsOutput() ImageCredentialsOutput {
+	return o
+}
+
+func (o ImageCredentialsOutput) ToImageCredentialsOutputWithContext(ctx context.Context) ImageCredentialsOutput {
+	return o
+}
+
+func (o ImageCredentialsOutput) ToImageCredentialsPtrOutput() ImageCredentialsPtrOutput {
+	return o.ToImageCredentialsPtrOutputWithContext(context.Background())
+}
+
+func (o ImageCredentialsOutput) ToImageCredentialsPtrOutputWithContext(ctx context.Context) ImageCredentialsPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v ImageCredentials) *ImageCredentials {
+		return &v
+	}).(ImageCredentialsPtrOutput)
+}
+
+// Registry password or token. It is a secret.
+func (o ImageCredentialsOutput) Password() pulumi.StringOutput {
+	return o.ApplyT(func(v ImageCredentials) string { return v.Password }).(pulumi.StringOutput)
+}
+
+// Registry user name.
+func (o ImageCredentialsOutput) Username() pulumi.StringOutput {
+	return o.ApplyT(func(v ImageCredentials) string { return v.Username }).(pulumi.StringOutput)
+}
+
+type ImageCredentialsPtrOutput struct{ *pulumi.OutputState }
+
+func (ImageCredentialsPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**ImageCredentials)(nil)).Elem()
+}
+
+func (o ImageCredentialsPtrOutput) ToImageCredentialsPtrOutput() ImageCredentialsPtrOutput {
+	return o
+}
+
+func (o ImageCredentialsPtrOutput) ToImageCredentialsPtrOutputWithContext(ctx context.Context) ImageCredentialsPtrOutput {
+	return o
+}
+
+func (o ImageCredentialsPtrOutput) Elem() ImageCredentialsOutput {
+	return o.ApplyT(func(v *ImageCredentials) ImageCredentials {
+		if v != nil {
+			return *v
+		}
+		var ret ImageCredentials
+		return ret
+	}).(ImageCredentialsOutput)
+}
+
+// Registry password or token. It is a secret.
+func (o ImageCredentialsPtrOutput) Password() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *ImageCredentials) *string {
+		if v == nil {
+			return nil
+		}
+		return &v.Password
+	}).(pulumi.StringPtrOutput)
+}
+
+// Registry user name.
+func (o ImageCredentialsPtrOutput) Username() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *ImageCredentials) *string {
+		if v == nil {
+			return nil
+		}
+		return &v.Username
+	}).(pulumi.StringPtrOutput)
+}
+
 // Location of the pipeline program in a repository.
 type ProgramSource struct {
 	// Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root.
@@ -657,6 +975,10 @@ type StacksEntry struct {
 	Directory string `pulumi:"directory"`
 	// Environment variables for the update, for example cloud credentials. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
 	Environment map[string]string `pulumi:"environment"`
+	// Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs sh, curl and the Pulumi CLI on PATH.
+	Image *Image `pulumi:"image"`
+	// Shell commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
+	PreRunCommands []string `pulumi:"preRunCommands"`
 	// Pool that runs the update. In the private preview, all work runs on the hosted pool, so omit it.
 	Runtime *WorkflowsRuntime `pulumi:"runtime"`
 	// VCS source to check out. The update uses the commit of the run for this source.
@@ -686,6 +1008,10 @@ type StacksEntryArgs struct {
 	Directory pulumi.StringInput `pulumi:"directory"`
 	// Environment variables for the update, for example cloud credentials. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
 	Environment pulumi.StringMapInput `pulumi:"environment"`
+	// Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs sh, curl and the Pulumi CLI on PATH.
+	Image ImagePtrInput `pulumi:"image"`
+	// Shell commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
+	PreRunCommands pulumi.StringArrayInput `pulumi:"preRunCommands"`
 	// Pool that runs the update. In the private preview, all work runs on the hosted pool, so omit it.
 	Runtime WorkflowsRuntimeInput `pulumi:"runtime"`
 	// VCS source to check out. The update uses the commit of the run for this source.
@@ -763,6 +1089,16 @@ func (o StacksEntryOutput) Environment() pulumi.StringMapOutput {
 	return o.ApplyT(func(v StacksEntry) map[string]string { return v.Environment }).(pulumi.StringMapOutput)
 }
 
+// Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs sh, curl and the Pulumi CLI on PATH.
+func (o StacksEntryOutput) Image() ImagePtrOutput {
+	return o.ApplyT(func(v StacksEntry) *Image { return v.Image }).(ImagePtrOutput)
+}
+
+// Shell commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
+func (o StacksEntryOutput) PreRunCommands() pulumi.StringArrayOutput {
+	return o.ApplyT(func(v StacksEntry) []string { return v.PreRunCommands }).(pulumi.StringArrayOutput)
+}
+
 // Pool that runs the update. In the private preview, all work runs on the hosted pool, so omit it.
 func (o StacksEntryOutput) Runtime() WorkflowsRuntimeOutput {
 	return o.ApplyT(func(v StacksEntry) *WorkflowsRuntime { return v.Runtime }).(WorkflowsRuntimeOutput)
@@ -830,6 +1166,10 @@ func (o WorkflowsRuntimeArgsTypeOutput) AgentPool() pulumi.StringOutput {
 }
 
 func init() {
+	pulumi.RegisterInputType(reflect.TypeOf((*ImageInput)(nil)).Elem(), ImageArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*ImagePtrInput)(nil)).Elem(), ImageArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*ImageCredentialsInput)(nil)).Elem(), ImageCredentialsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*ImageCredentialsPtrInput)(nil)).Elem(), ImageCredentialsArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*ProgramSourceInput)(nil)).Elem(), ProgramSourceArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*RuleInput)(nil)).Elem(), RuleArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*RulePtrInput)(nil)).Elem(), RuleArgs{})
@@ -838,6 +1178,10 @@ func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*SourceTriggerPtrInput)(nil)).Elem(), SourceTriggerArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*StacksEntryInput)(nil)).Elem(), StacksEntryArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*StacksEntryMapInput)(nil)).Elem(), StacksEntryMap{})
+	pulumi.RegisterOutputType(ImageOutput{})
+	pulumi.RegisterOutputType(ImagePtrOutput{})
+	pulumi.RegisterOutputType(ImageCredentialsOutput{})
+	pulumi.RegisterOutputType(ImageCredentialsPtrOutput{})
 	pulumi.RegisterOutputType(ProgramSourceOutput{})
 	pulumi.RegisterOutputType(RuleOutput{})
 	pulumi.RegisterOutputType(RulePtrOutput{})

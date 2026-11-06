@@ -452,9 +452,26 @@ func validateInputs(typ string, inputs property.Map) error {
 				return fmt.Errorf("timeout must be a positive duration, such as 30m")
 			}
 		}
+		if _, ok := inputs.GetOk("runtime"); ok {
+			if err := requireRef(inputs, "runtime", "delivery:index:WorkflowsRuntime"); err != nil {
+				return err
+			}
+		}
+		if err := checkImage(inputs); err != nil {
+			return err
+		}
 		return checkEnvironment(inputs)
 	}
 	return nil
+}
+
+// checkImage requires a reference when an image is set.
+func checkImage(inputs property.Map) error {
+	if _, ok := inputs.GetOk("image"); !ok || unknown(inputs, "image") {
+		return nil
+	}
+	image := mapInput(inputs.Get("image"))
+	return requiredUnlessUnknown(inputs, stringInput(image, "reference"), "image", "reference")
 }
 
 func checkEnvironment(inputs property.Map) error {
@@ -512,6 +529,9 @@ func validateStacks(inputs property.Map) error {
 			if err := requireRef(entry, "runtime", "delivery:index:WorkflowsRuntime"); err != nil {
 				return fail(err)
 			}
+		}
+		if err := checkImage(entry); err != nil {
+			return fail(err)
 		}
 		if err := checkEnvironment(entry); err != nil {
 			return fail(err)

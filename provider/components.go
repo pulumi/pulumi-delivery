@@ -42,6 +42,10 @@ type JobArgs struct {
 	Command     string            `pulumi:"command"`
 	Environment map[string]string `pulumi:"environment,optional"`
 	Timeout     string            `pulumi:"timeout,optional"`
+	// Runtime is a WorkflowsRuntime resource, like the runtime of a Stacks entry.
+	Runtime        any      `pulumi:"runtime,optional"`
+	Image          *Image   `pulumi:"image,optional"`
+	PreRunCommands []string `pulumi:"preRunCommands,optional"`
 }
 type Job struct {
 	pulumi.ResourceState
@@ -53,13 +57,27 @@ type Job struct {
 
 // StacksEntry is one stack that a Stacks resource updates. Timeout is in seconds.
 type StacksEntry struct {
-	Stack       string            `pulumi:"stack"`
-	Source      any               `pulumi:"source"`
-	Directory   string            `pulumi:"directory"`
-	Config      map[string]string `pulumi:"config,optional"`
-	Environment map[string]string `pulumi:"environment,optional"`
-	Timeout     int               `pulumi:"timeout,optional"`
-	Runtime     any               `pulumi:"runtime,optional"`
+	Stack          string            `pulumi:"stack"`
+	Source         any               `pulumi:"source"`
+	Directory      string            `pulumi:"directory"`
+	Config         map[string]string `pulumi:"config,optional"`
+	Environment    map[string]string `pulumi:"environment,optional"`
+	Timeout        int               `pulumi:"timeout,optional"`
+	Runtime        any               `pulumi:"runtime,optional"`
+	Image          *Image            `pulumi:"image,optional"`
+	PreRunCommands []string          `pulumi:"preRunCommands,optional"`
+}
+
+// Image is the container image that a member runs in.
+type Image struct {
+	Reference   string            `pulumi:"reference"`
+	Credentials *ImageCredentials `pulumi:"credentials,optional"`
+}
+
+// ImageCredentials sign in to a private registry.
+type ImageCredentials struct {
+	Username string `pulumi:"username"`
+	Password string `pulumi:"password" provider:"secret"`
 }
 type StacksArgs struct {
 	Stage  any                    `pulumi:"stage"`

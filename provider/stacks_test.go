@@ -13,7 +13,9 @@ import (
 
 	p "github.com/pulumi/pulumi-go-provider"
 	"github.com/pulumi/pulumi-go-provider/integration"
+	"github.com/pulumi/pulumi/pkg/v3/resource/stack"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/resource"
+	"github.com/pulumi/pulumi/sdk/v3/go/common/resource/config"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/resource/urn"
 	"github.com/pulumi/pulumi/sdk/v3/go/property"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
@@ -497,4 +499,74 @@ func TestQualifyStackNamesLeavesOtherValuesUnchanged(t *testing.T) {
 	}
 	inputs := property.NewMap(map[string]property.Value{"pipeline": property.New("p/s")})
 	assert.Equal(t, "p/s", qualifyStackNames(typePipelineSource, inputs, "").Get("pipeline").AsString())
+}
+
+func runnerSettings() map[string]property.Value {
+	return map[string]property.Value{
+		"image": property.New(property.NewMap(map[string]property.Value{
+			"reference": property.New("pulumi/pulumi-nodejs:3.272.0"),
+			"credentials": property.New(property.NewMap(map[string]property.Value{
+				"username": property.New("robot"),
+				"password": property.New("hunter2").WithSecret(true),
+			})),
+		})),
+		"preRunCommands": property.New(property.NewArray([]property.Value{property.New("npm ci"), property.New("make gen")})),
+	}
+}
+
+// checkRunnerSettings checks the inputs the service reads: the settings arrive, and the password stays secret.
+func checkRunnerSettings(t *testing.T, d map[string]any, inputsOf func(resource.PropertyMap) resource.PropertyMap) {
+	decoded, err := stack.DeserializeProperties(d["inputs"].(map[string]any), config.NewErrorCrypter("no ciphertext"))
+	require.NoError(t, err)
+	in := inputsOf(decoded)
+	image := in["image"].ObjectValue()
+	assert.Equal(t, "pulumi/pulumi-nodejs:3.272.0", image["reference"].StringValue())
+	credentials := image["credentials"].ObjectValue()
+	assert.Equal(t, "robot", credentials["username"].StringValue())
+	assert.True(t, credentials["password"].IsSecret())
+	assert.Equal(t, "hunter2", credentials["password"].SecretValue().Element.StringValue())
+	assert.Equal(t, []resource.PropertyValue{resource.NewProperty("npm ci"), resource.NewProperty("make gen")}, in["preRunCommands"].ArrayValue())
+}
+
+func TestJobRunnerSettingsAreDeclared(t *testing.T) {
+	service := newFakeService(t)
+	request := jobRequest(false)
+	for k, v := range runnerSettings() {
+		request.Inputs = request.Inputs.Set(k, v)
+	}
+	request.Inputs = request.Inputs.Set("runtime", reference("delivery:index:WorkflowsRuntime", "pool"))
+	_, err := newServer(t).Construct(request)
+	require.NoError(t, err)
+
+	d := service.declared()[0]
+	checkRunnerSettings(t, d, func(m resource.PropertyMap) resource.PropertyMap { return m })
+	decoded, err := stack.DeserializeProperties(d["inputs"].(map[string]any), config.NewErrorCrypter("no ciphertext"))
+	require.NoError(t, err)
+	assert.True(t, decoded["runtime"].IsResourceReference())
+}
+
+func TestStacksEntryRunnerSettingsAreDeclared(t *testing.T) {
+	service := newFakeService(t)
+	entries := twoEntries()
+	entries["api"] = stacksEntry("org/shop/api", runnerSettings())
+	_, err := newServer(t).Construct(stacksRequest("app", false, entries))
+	require.NoError(t, err)
+
+	checkRunnerSettings(t, service.declared()[0], func(m resource.PropertyMap) resource.PropertyMap {
+		return m["stacks"].ObjectValue()["api"].ObjectValue()
+	})
+}
+
+func TestImageNeedsAReference(t *testing.T) {
+	newFakeService(t)
+	server := newServer(t)
+	empty := map[string]property.Value{"image": property.New(property.NewMap(map[string]property.Value{"reference": property.New("")}))}
+
+	request := jobRequest(true)
+	request.Inputs = request.Inputs.Set("image", empty["image"])
+	_, err := server.Construct(request)
+	require.ErrorContains(t, err, "image.reference")
+
+	_, err = server.Construct(stacksRequest("app", true, map[string]property.Value{"a": stacksEntry("org/p/s", empty)}))
+	require.ErrorContains(t, err, "image.reference")
 }

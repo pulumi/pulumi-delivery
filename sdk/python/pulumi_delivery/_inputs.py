@@ -20,6 +20,10 @@ from .git_lab_source import GitLabSource
 from .workflows_runtime import WorkflowsRuntime
 
 __all__ = [
+    'ImageArgs',
+    'ImageArgsDict',
+    'ImageCredentialsArgs',
+    'ImageCredentialsArgsDict',
     'ProgramSourceArgs',
     'ProgramSourceArgsDict',
     'Rule',
@@ -31,6 +35,111 @@ __all__ = [
     'StacksEntryArgs',
     'StacksEntryArgsDict',
 ]
+
+class ImageArgsDict(TypedDict):
+    """
+    Container image that a member runs in.
+    """
+    reference: pulumi.Input[_builtins.str]
+    """
+    Image reference, for example pulumi/pulumi-nodejs:3.272.0.
+    """
+    credentials: NotRequired[pulumi.Input[Optional['ImageCredentialsArgsDict']]]
+    """
+    Credentials for a private registry.
+    """
+
+@pulumi.input_type
+class ImageArgs:
+    def __init__(__self__, *,
+                 reference: pulumi.Input[_builtins.str],
+                 credentials: pulumi.Input[Optional['ImageCredentialsArgs']] = None):
+        """
+        Container image that a member runs in.
+
+        :param pulumi.Input[_builtins.str] reference: Image reference, for example pulumi/pulumi-nodejs:3.272.0.
+        :param pulumi.Input['ImageCredentialsArgs'] credentials: Credentials for a private registry.
+        """
+        pulumi.set(__self__, "reference", reference)
+        if credentials is not None:
+            pulumi.set(__self__, "credentials", credentials)
+
+    @_builtins.property
+    @pulumi.getter
+    def reference(self) -> pulumi.Input[_builtins.str]:
+        """
+        Image reference, for example pulumi/pulumi-nodejs:3.272.0.
+        """
+        return pulumi.get(self, "reference")
+
+    @reference.setter
+    def reference(self, value: pulumi.Input[_builtins.str]):
+        pulumi.set(self, "reference", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def credentials(self) -> pulumi.Input[Optional['ImageCredentialsArgs']]:
+        """
+        Credentials for a private registry.
+        """
+        return pulumi.get(self, "credentials")
+
+    @credentials.setter
+    def credentials(self, value: pulumi.Input[Optional['ImageCredentialsArgs']]):
+        pulumi.set(self, "credentials", value)
+
+
+class ImageCredentialsArgsDict(TypedDict):
+    """
+    Credentials for a private registry.
+    """
+    password: pulumi.Input[_builtins.str]
+    """
+    Registry password or token. It is a secret.
+    """
+    username: pulumi.Input[_builtins.str]
+    """
+    Registry user name.
+    """
+
+@pulumi.input_type
+class ImageCredentialsArgs:
+    def __init__(__self__, *,
+                 password: pulumi.Input[_builtins.str],
+                 username: pulumi.Input[_builtins.str]):
+        """
+        Credentials for a private registry.
+
+        :param pulumi.Input[_builtins.str] password: Registry password or token. It is a secret.
+        :param pulumi.Input[_builtins.str] username: Registry user name.
+        """
+        pulumi.set(__self__, "password", password)
+        pulumi.set(__self__, "username", username)
+
+    @_builtins.property
+    @pulumi.getter
+    def password(self) -> pulumi.Input[_builtins.str]:
+        """
+        Registry password or token. It is a secret.
+        """
+        return pulumi.get(self, "password")
+
+    @password.setter
+    def password(self, value: pulumi.Input[_builtins.str]):
+        pulumi.set(self, "password", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def username(self) -> pulumi.Input[_builtins.str]:
+        """
+        Registry user name.
+        """
+        return pulumi.get(self, "username")
+
+    @username.setter
+    def username(self, value: pulumi.Input[_builtins.str]):
+        pulumi.set(self, "username", value)
+
 
 class ProgramSourceArgsDict(TypedDict):
     """
@@ -727,6 +836,14 @@ class StacksEntryArgsDict(TypedDict):
     """
     Environment variables for the update, for example cloud credentials. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
     """
+    image: NotRequired[pulumi.Input[Optional['ImageArgsDict']]]
+    """
+    Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs sh, curl and the Pulumi CLI on PATH.
+    """
+    pre_run_commands: NotRequired[pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]]]
+    """
+    Shell commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
+    """
     runtime: NotRequired[pulumi.Input[Optional['WorkflowsRuntime']]]
     """
     Pool that runs the update. In the private preview, all work runs on the hosted pool, so omit it.
@@ -744,6 +861,8 @@ class StacksEntryArgs:
                  stack: pulumi.Input[_builtins.str],
                  config: pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
                  environment: pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
+                 image: pulumi.Input[Optional['ImageArgs']] = None,
+                 pre_run_commands: pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]] = None,
                  runtime: pulumi.Input[Optional['WorkflowsRuntime']] = None,
                  timeout: pulumi.Input[Optional[_builtins.int]] = None):
         """
@@ -754,6 +873,8 @@ class StacksEntryArgs:
         :param pulumi.Input[_builtins.str] stack: Target stack as project/stack. It must exist before the first run, in the organization of the pipeline.
         :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] config: Config values that Delivery sets on the target stack before the update. Values are plain strings. Delivery rejects secret values. Keep secrets in the config file of the target stack or in an ESC environment.
         :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] environment: Environment variables for the update, for example cloud credentials. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
+        :param pulumi.Input['ImageArgs'] image: Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs sh, curl and the Pulumi CLI on PATH.
+        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] pre_run_commands: Shell commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
         :param pulumi.Input['WorkflowsRuntime'] runtime: Pool that runs the update. In the private preview, all work runs on the hosted pool, so omit it.
         :param pulumi.Input[_builtins.int] timeout: Maximum run time of the update in seconds. The default is 7200 (2 hours).
         """
@@ -764,6 +885,10 @@ class StacksEntryArgs:
             pulumi.set(__self__, "config", config)
         if environment is not None:
             pulumi.set(__self__, "environment", environment)
+        if image is not None:
+            pulumi.set(__self__, "image", image)
+        if pre_run_commands is not None:
+            pulumi.set(__self__, "pre_run_commands", pre_run_commands)
         if runtime is not None:
             pulumi.set(__self__, "runtime", runtime)
         if timeout is not None:
@@ -828,6 +953,30 @@ class StacksEntryArgs:
     @environment.setter
     def environment(self, value: pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]]):
         pulumi.set(self, "environment", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def image(self) -> pulumi.Input[Optional['ImageArgs']]:
+        """
+        Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs sh, curl and the Pulumi CLI on PATH.
+        """
+        return pulumi.get(self, "image")
+
+    @image.setter
+    def image(self, value: pulumi.Input[Optional['ImageArgs']]):
+        pulumi.set(self, "image", value)
+
+    @_builtins.property
+    @pulumi.getter(name="preRunCommands")
+    def pre_run_commands(self) -> pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]]:
+        """
+        Shell commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
+        """
+        return pulumi.get(self, "pre_run_commands")
+
+    @pre_run_commands.setter
+    def pre_run_commands(self, value: pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]]):
+        pulumi.set(self, "pre_run_commands", value)
 
     @_builtins.property
     @pulumi.getter

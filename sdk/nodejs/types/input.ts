@@ -8,6 +8,34 @@ import * as outputs from "../types/output";
 import {AzureDevOpsSource, BitbucketSource, GitHubSource, GitLabSource, WorkflowsRuntime} from "..";
 
 /**
+ * Container image that a member runs in.
+ */
+export interface ImageArgs {
+    /**
+     * Credentials for a private registry.
+     */
+    credentials?: pulumi.Input<inputs.ImageCredentialsArgs | undefined>;
+    /**
+     * Image reference, for example pulumi/pulumi-nodejs:3.272.0.
+     */
+    reference: pulumi.Input<string>;
+}
+
+/**
+ * Credentials for a private registry.
+ */
+export interface ImageCredentialsArgs {
+    /**
+     * Registry password or token. It is a secret.
+     */
+    password: pulumi.Input<string>;
+    /**
+     * Registry user name.
+     */
+    username: pulumi.Input<string>;
+}
+
+/**
  * Location of the pipeline program in a repository.
  */
 export interface ProgramSourceArgs {
@@ -171,6 +199,14 @@ export interface StacksEntryArgs {
      * Environment variables for the update, for example cloud credentials. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
      */
     environment?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
+    /**
+     * Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs sh, curl and the Pulumi CLI on PATH.
+     */
+    image?: pulumi.Input<inputs.ImageArgs | undefined>;
+    /**
+     * Shell commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
+     */
+    preRunCommands?: pulumi.Input<pulumi.Input<string>[] | undefined>;
     /**
      * Pool that runs the update. In the private preview, all work runs on the hosted pool, so omit it.
      */

@@ -2,9 +2,11 @@
 // *** Do not edit by hand unless you're certain you know what you are doing! ***
 
 import * as pulumi from "@pulumi/pulumi";
+import * as inputs from "./types/input";
+import * as outputs from "./types/output";
 import * as utilities from "./utilities";
 
-import {AzureDevOpsSource, BitbucketSource, GitHubSource, GitLabSource, Stage} from "./index";
+import {AzureDevOpsSource, BitbucketSource, GitHubSource, GitLabSource, Stage, WorkflowsRuntime} from "./index";
 
 /**
  * Declares a command that a run executes in a stage. Delivery checks out the source at the commit of the run and runs the command in directory.
@@ -74,6 +76,9 @@ export class Job extends pulumi.ComponentResource {
             resourceInputs["command"] = args?.command;
             resourceInputs["directory"] = args?.directory;
             resourceInputs["environment"] = args?.environment;
+            resourceInputs["image"] = args?.image;
+            resourceInputs["preRunCommands"] = args?.preRunCommands;
+            resourceInputs["runtime"] = args?.runtime;
             resourceInputs["source"] = args?.source;
             resourceInputs["stage"] = args?.stage;
             resourceInputs["timeout"] = args?.timeout;
@@ -102,6 +107,18 @@ export interface JobArgs {
      * Environment variables for the command. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
      */
     environment?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
+    /**
+     * Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs sh, curl and the Pulumi CLI on PATH.
+     */
+    image?: pulumi.Input<inputs.ImageArgs | undefined>;
+    /**
+     * Shell commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
+     */
+    preRunCommands?: pulumi.Input<pulumi.Input<string>[] | undefined>;
+    /**
+     * Pool that runs the job. In the private preview, all work runs on the hosted pool, so omit it.
+     */
+    runtime?: pulumi.Input<WorkflowsRuntime | undefined>;
     /**
      * VCS source to check out.
      */

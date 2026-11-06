@@ -13,11 +13,13 @@ if sys.version_info >= (3, 11):
 else:
     from typing_extensions import NotRequired, TypedDict, TypeAlias
 from . import _utilities
+from ._inputs import *
 from .azure_dev_ops_source import AzureDevOpsSource
 from .bitbucket_source import BitbucketSource
 from .git_hub_source import GitHubSource
 from .git_lab_source import GitLabSource
 from .stage import Stage
+from .workflows_runtime import WorkflowsRuntime
 
 __all__ = ['JobArgs', 'Job']
 
@@ -29,6 +31,9 @@ class JobArgs:
                  source: pulumi.Input[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource']],
                  stage: pulumi.Input['Stage'],
                  environment: pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
+                 image: pulumi.Input[Optional['ImageArgs']] = None,
+                 pre_run_commands: pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]] = None,
+                 runtime: pulumi.Input[Optional['WorkflowsRuntime']] = None,
                  timeout: pulumi.Input[Optional[_builtins.str]] = None):
         """
         The set of arguments for constructing a Job resource.
@@ -38,6 +43,9 @@ class JobArgs:
         :param pulumi.Input[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource']] source: VCS source to check out.
         :param pulumi.Input['Stage'] stage: Stage that the job runs in.
         :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] environment: Environment variables for the command. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
+        :param pulumi.Input['ImageArgs'] image: Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs sh, curl and the Pulumi CLI on PATH.
+        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] pre_run_commands: Shell commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
+        :param pulumi.Input['WorkflowsRuntime'] runtime: Pool that runs the job. In the private preview, all work runs on the hosted pool, so omit it.
         :param pulumi.Input[_builtins.str] timeout: Maximum run time as a Go duration, such as 30m. Delivery does not apply this value in the private preview. A job stops after 2 hours.
         """
         pulumi.set(__self__, "command", command)
@@ -46,6 +54,12 @@ class JobArgs:
         pulumi.set(__self__, "stage", stage)
         if environment is not None:
             pulumi.set(__self__, "environment", environment)
+        if image is not None:
+            pulumi.set(__self__, "image", image)
+        if pre_run_commands is not None:
+            pulumi.set(__self__, "pre_run_commands", pre_run_commands)
+        if runtime is not None:
+            pulumi.set(__self__, "runtime", runtime)
         if timeout is not None:
             pulumi.set(__self__, "timeout", timeout)
 
@@ -111,6 +125,42 @@ class JobArgs:
 
     @_builtins.property
     @pulumi.getter
+    def image(self) -> pulumi.Input[Optional['ImageArgs']]:
+        """
+        Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs sh, curl and the Pulumi CLI on PATH.
+        """
+        return pulumi.get(self, "image")
+
+    @image.setter
+    def image(self, value: pulumi.Input[Optional['ImageArgs']]):
+        pulumi.set(self, "image", value)
+
+    @_builtins.property
+    @pulumi.getter(name="preRunCommands")
+    def pre_run_commands(self) -> pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]]:
+        """
+        Shell commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
+        """
+        return pulumi.get(self, "pre_run_commands")
+
+    @pre_run_commands.setter
+    def pre_run_commands(self, value: pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]]):
+        pulumi.set(self, "pre_run_commands", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def runtime(self) -> pulumi.Input[Optional['WorkflowsRuntime']]:
+        """
+        Pool that runs the job. In the private preview, all work runs on the hosted pool, so omit it.
+        """
+        return pulumi.get(self, "runtime")
+
+    @runtime.setter
+    def runtime(self, value: pulumi.Input[Optional['WorkflowsRuntime']]):
+        pulumi.set(self, "runtime", value)
+
+    @_builtins.property
+    @pulumi.getter
     def timeout(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
         Maximum run time as a Go duration, such as 30m. Delivery does not apply this value in the private preview. A job stops after 2 hours.
@@ -131,6 +181,9 @@ class Job(pulumi.ComponentResource):
                  command: pulumi.Input[Optional[_builtins.str]] = None,
                  directory: pulumi.Input[Optional[_builtins.str]] = None,
                  environment: pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
+                 image: pulumi.Input[Optional[Union['ImageArgs', 'ImageArgsDict']]] = None,
+                 pre_run_commands: pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]] = None,
+                 runtime: pulumi.Input[Optional['WorkflowsRuntime']] = None,
                  source: pulumi.Input[Optional[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource']]] = None,
                  stage: pulumi.Input[Optional['Stage']] = None,
                  timeout: pulumi.Input[Optional[_builtins.str]] = None,
@@ -151,6 +204,9 @@ class Job(pulumi.ComponentResource):
         :param pulumi.Input[_builtins.str] command: Command to run with sh -c. To publish outputs, the command writes them to the file that DELIVERY_OUTPUTS names.
         :param pulumi.Input[_builtins.str] directory: Directory to run the command in, relative to the repository root.
         :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] environment: Environment variables for the command. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
+        :param pulumi.Input[Union['ImageArgs', 'ImageArgsDict']] image: Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs sh, curl and the Pulumi CLI on PATH.
+        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] pre_run_commands: Shell commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
+        :param pulumi.Input['WorkflowsRuntime'] runtime: Pool that runs the job. In the private preview, all work runs on the hosted pool, so omit it.
         :param pulumi.Input[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource']] source: VCS source to check out.
         :param pulumi.Input['Stage'] stage: Stage that the job runs in.
         :param pulumi.Input[_builtins.str] timeout: Maximum run time as a Go duration, such as 30m. Delivery does not apply this value in the private preview. A job stops after 2 hours.
@@ -190,6 +246,9 @@ class Job(pulumi.ComponentResource):
                  command: pulumi.Input[Optional[_builtins.str]] = None,
                  directory: pulumi.Input[Optional[_builtins.str]] = None,
                  environment: pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
+                 image: pulumi.Input[Optional[Union['ImageArgs', 'ImageArgsDict']]] = None,
+                 pre_run_commands: pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]] = None,
+                 runtime: pulumi.Input[Optional['WorkflowsRuntime']] = None,
                  source: pulumi.Input[Optional[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource']]] = None,
                  stage: pulumi.Input[Optional['Stage']] = None,
                  timeout: pulumi.Input[Optional[_builtins.str]] = None,
@@ -211,6 +270,9 @@ class Job(pulumi.ComponentResource):
                 raise TypeError("Missing required property 'directory'")
             __props__.__dict__["directory"] = directory
             __props__.__dict__["environment"] = environment
+            __props__.__dict__["image"] = image
+            __props__.__dict__["pre_run_commands"] = pre_run_commands
+            __props__.__dict__["runtime"] = runtime
             if source is None and not opts.urn:
                 raise TypeError("Missing required property 'source'")
             __props__.__dict__["source"] = source
