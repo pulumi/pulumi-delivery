@@ -250,7 +250,10 @@ func qualifyStackNames(typ string, inputs property.Map, organization string) pro
 		return v.WithSecret(old.Secret()).WithDependencies(old.Dependencies())
 	}
 	qualify := func(value property.Value) property.Value {
-		if !value.IsString() || strings.Count(value.AsString(), "/") != 1 {
+		if !value.IsString() || organization == "" {
+			return value
+		}
+		if project, stack, ok := strings.Cut(value.AsString(), "/"); !ok || project == "" || stack == "" || strings.Contains(stack, "/") {
 			return value
 		}
 		return like(value, property.New(organization+"/"+value.AsString()))
