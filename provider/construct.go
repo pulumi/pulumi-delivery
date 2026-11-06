@@ -465,7 +465,6 @@ func validateInputs(typ string, inputs property.Map) error {
 	return nil
 }
 
-// checkImage requires a reference when an image is set.
 func checkImage(inputs property.Map) error {
 	if _, ok := inputs.GetOk("image"); !ok || unknown(inputs, "image") {
 		return nil

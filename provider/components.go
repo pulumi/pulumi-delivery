@@ -36,16 +36,15 @@ type StageArgs struct {
 type Stage struct{ pulumi.ResourceState }
 
 type JobArgs struct {
-	Stage       any               `pulumi:"stage"`
-	Source      any               `pulumi:"source"`
-	Directory   string            `pulumi:"directory"`
-	Command     string            `pulumi:"command"`
-	Environment map[string]string `pulumi:"environment,optional"`
-	Timeout     string            `pulumi:"timeout,optional"`
-	// Runtime is a WorkflowsRuntime resource, like the runtime of a Stacks entry.
-	Runtime        any      `pulumi:"runtime,optional"`
-	Image          *Image   `pulumi:"image,optional"`
-	PreRunCommands []string `pulumi:"preRunCommands,optional"`
+	Stage          any               `pulumi:"stage"`
+	Source         any               `pulumi:"source"`
+	Directory      string            `pulumi:"directory"`
+	Command        string            `pulumi:"command"`
+	Environment    map[string]string `pulumi:"environment,optional"`
+	Timeout        string            `pulumi:"timeout,optional"`
+	Runtime        any               `pulumi:"runtime,optional"`
+	Image          *Image            `pulumi:"image,optional"`
+	PreRunCommands []string          `pulumi:"preRunCommands,optional"`
 }
 type Job struct {
 	pulumi.ResourceState

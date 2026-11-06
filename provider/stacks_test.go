@@ -514,7 +514,6 @@ func runnerSettings() map[string]property.Value {
 	}
 }
 
-// checkRunnerSettings checks the inputs the service reads: the settings arrive, and the password stays secret.
 func checkRunnerSettings(t *testing.T, d map[string]any, inputsOf func(resource.PropertyMap) resource.PropertyMap) {
 	decoded, err := stack.DeserializeProperties(d["inputs"].(map[string]any), config.NewErrorCrypter("no ciphertext"))
 	require.NoError(t, err)
