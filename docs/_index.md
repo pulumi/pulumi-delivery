@@ -49,7 +49,7 @@ The Pulumi CLI downloads the provider plugin when a program needs it.
 
 Create the pipeline stack, which is the stack of the program that declares the pipeline. In this guide it is `acme/shop-delivery/main`.
 
-Create each target stack before the first run. A target stack must be an ordinary stack in the organization of the pipeline. A pipeline stack or a run stack cannot be a target. A run fails with "The target stack ... does not exist. Create it first." if a stack is missing.
+Create each target stack before the first run. A target stack must be an ordinary stack in the organization of the pipeline. A pipeline stack or a run stack cannot be a target. A run fails with "The target stack ... does not exist. Create it first." if a stack is missing. Write the stack as `project/stack` or `organization/project/stack`. The organization defaults to the organization of the pipeline. `PipelineSource.pipeline` follows the same rule.
 
 ### Config and cloud credentials
 

@@ -208,7 +208,7 @@
         },
         "stack": {
           "type": "string",
-          "description": "Target stack as organization/project/stack. It must exist before the first run, in the organization of the pipeline."
+          "description": "Target stack as project/stack or organization/project/stack. The organization is optional and defaults to the organization of the pipeline, which is the only one allowed. The stack must exist before the first run."
         },
         "timeout": {
           "type": "integer",
@@ -530,7 +530,7 @@
       "inputProperties": {
         "pipeline": {
           "type": "string",
-          "description": "Upstream pipeline as org/project/stack."
+          "description": "Upstream pipeline as project/stack or organization/project/stack. The organization is optional and defaults to the organization of this pipeline, which is the only one allowed."
         },
         "stage": {
           "type": "string",

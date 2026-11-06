@@ -90,7 +90,7 @@ export class PipelineSource extends pulumi.ComponentResource {
  */
 export interface PipelineSourceArgs {
     /**
-     * Upstream pipeline as org/project/stack.
+     * Upstream pipeline as project/stack or organization/project/stack. The organization is optional and defaults to the organization of this pipeline, which is the only one allowed.
      */
     pipeline: pulumi.Input<string>;
     /**

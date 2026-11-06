@@ -267,7 +267,13 @@ func TestStacksValidation(t *testing.T) {
 	require.NoError(t, construct(twoEntries()))
 	require.ErrorContains(t, construct(map[string]property.Value{}), "at least one entry")
 	require.ErrorContains(t, construct(map[string]property.Value{"a#b": stacksEntry("org/p/s", nil)}), "entry name")
-	require.ErrorContains(t, construct(map[string]property.Value{"a": stacksEntry("p/s", nil)}), "org/project/stack")
+	for _, bad := range []string{"s", "a/b/c/d", "/s", "p/", "org//s"} {
+		require.ErrorContains(t, construct(map[string]property.Value{"a": stacksEntry(bad, nil)}), "project/stack or organization/project/stack", bad)
+	}
+	require.NoError(t, construct(map[string]property.Value{"a": stacksEntry("p/s", nil)}))
+	require.ErrorContains(t, construct(map[string]property.Value{
+		"a": stacksEntry("p/s", nil), "b": stacksEntry("org/p/s", nil),
+	}), `entries "a" and "b" both update stack org/p/s`)
 	require.ErrorContains(t, construct(map[string]property.Value{
 		"a": stacksEntry("org/p/s", nil), "b": stacksEntry("org/p/s", nil),
 	}), `entries "a" and "b" both update stack org/p/s`)
@@ -439,4 +445,14 @@ func TestFinishStateKeepsJobOutputsUnknown(t *testing.T) {
 	assert.Equal(t, []resource.URN{resource.URN(child)}, outputs.Dependencies())
 	_, hasChildURN := finished.GetOk("childUrn")
 	assert.False(t, hasChildURN)
+}
+
+func TestTwoPartStackIsQualifiedWithTheOrganization(t *testing.T) {
+	service := newFakeService(t)
+	_, err := newServer(t).Construct(stacksRequest("app", false, map[string]property.Value{"a": stacksEntry("p/s", nil)}))
+	require.NoError(t, err)
+	declarations := service.declared()
+	require.Len(t, declarations, 1)
+	stacks := declarations[0]["inputs"].(map[string]any)["stacks"].(map[string]any)
+	assert.Equal(t, "org/p/s", stacks["a"].(map[string]any)["stack"])
 }
