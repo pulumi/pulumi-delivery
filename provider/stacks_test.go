@@ -569,3 +569,72 @@ func TestImageNeedsAReference(t *testing.T) {
 	_, err = server.Construct(stacksRequest("app", true, map[string]property.Value{"a": stacksEntry("org/p/s", empty)}))
 	require.ErrorContains(t, err, "image.reference")
 }
+
+func plainPassword() map[string]property.Value {
+	settings := runnerSettings()
+	credentials := property.New(property.NewMap(map[string]property.Value{
+		"username": property.New("robot"),
+		"password": property.New("hunter2"),
+	}))
+	settings["image"] = property.New(property.NewMap(map[string]property.Value{
+		"reference":   property.New("pulumi/pulumi-nodejs:3.272.0"),
+		"credentials": credentials,
+	}))
+	return settings
+}
+
+func TestJobPlainRegistryPasswordIsDeclaredSecret(t *testing.T) {
+	service := newFakeService(t)
+	request := jobRequest(false)
+	for k, v := range plainPassword() {
+		request.Inputs = request.Inputs.Set(k, v)
+	}
+	_, err := newServer(t).Construct(request)
+	require.NoError(t, err)
+
+	checkRunnerSettings(t, service.declared()[0], func(m resource.PropertyMap) resource.PropertyMap { return m })
+}
+
+func TestStacksEntryPlainRegistryPasswordIsDeclaredSecret(t *testing.T) {
+	service := newFakeService(t)
+	entries := twoEntries()
+	entries["api"] = stacksEntry("org/shop/api", plainPassword())
+	_, err := newServer(t).Construct(stacksRequest("app", false, entries))
+	require.NoError(t, err)
+
+	checkRunnerSettings(t, service.declared()[0], func(m resource.PropertyMap) resource.PropertyMap {
+		return m["stacks"].ObjectValue()["api"].ObjectValue()
+	})
+}
+
+func TestJobRuntimeMustBeAWorkflowsRuntimeReference(t *testing.T) {
+	newFakeService(t)
+	server := newServer(t)
+	for name, runtime := range map[string]property.Value{
+		"plain string": property.New("pool"),
+		"wrong type":   reference("delivery:index:GitHubSource", "code"),
+	} {
+		t.Run(name, func(t *testing.T) {
+			request := jobRequest(true)
+			request.Inputs = request.Inputs.Set("runtime", runtime)
+			_, err := server.Construct(request)
+			require.ErrorContains(t, err, "runtime")
+		})
+	}
+}
+
+func TestUnknownImageAndReferencePassInPreview(t *testing.T) {
+	newFakeService(t)
+	server := newServer(t)
+	for name, image := range map[string]property.Value{
+		"image":     property.New(property.Computed),
+		"reference": property.New(property.NewMap(map[string]property.Value{"reference": property.New(property.Computed)})),
+	} {
+		t.Run(name, func(t *testing.T) {
+			request := jobRequest(true)
+			request.Inputs = request.Inputs.Set("image", image)
+			_, err := server.Construct(request)
+			require.NoError(t, err)
+		})
+	}
+}

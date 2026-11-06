@@ -59,6 +59,7 @@ func withDeliveryConstruct(inner func(context.Context, p.ConstructRequest) (p.Co
 			return p.ConstructResponse{}, errors.New("Delivery resources do not support error hooks. Use a retry or a new run.")
 		}
 		req.Inputs = qualifyStackNames(typ, req.Inputs, req.Organization)
+		req.Inputs = secretRegistryPassword(typ, req.Inputs)
 		if err := validateInputs(typ, req.Inputs); err != nil {
 			return p.ConstructResponse{}, err
 		}
@@ -327,6 +328,50 @@ func hasSecret(value property.Value) bool {
 		}
 	}
 	return false
+}
+
+// secretRegistryPassword marks image.credentials.password of a Job, or of each Stacks entry, as secret.
+// Most SDKs do not mark a plain string, so the provider does. Unknown and null values stay as they are.
+func secretRegistryPassword(typ string, inputs property.Map) property.Map {
+	switch typ {
+	case typeJob:
+		return withSecretPassword(inputs)
+	case typeStacks:
+		stacks, ok := inputs.GetOk("stacks")
+		if !ok || !stacks.IsMap() {
+			return inputs
+		}
+		entries := map[string]property.Value{}
+		for name, entry := range stacks.AsMap().AsMap() {
+			if entry.IsMap() {
+				entry = property.New(withSecretPassword(entry.AsMap())).WithSecret(entry.Secret()).WithDependencies(entry.Dependencies())
+			}
+			entries[name] = entry
+		}
+		return inputs.Set("stacks", property.New(property.NewMap(entries)).WithSecret(stacks.Secret()).WithDependencies(stacks.Dependencies()))
+	}
+	return inputs
+}
+
+// withSecretPassword marks image.credentials.password of one member as secret.
+func withSecretPassword(member property.Map) property.Map {
+	image, ok := member.GetOk("image")
+	if !ok || !image.IsMap() {
+		return member
+	}
+	credentials, ok := image.AsMap().GetOk("credentials")
+	if !ok || !credentials.IsMap() {
+		return member
+	}
+	password, ok := credentials.AsMap().GetOk("password")
+	if !ok || !password.IsString() {
+		return member
+	}
+	credentials = property.New(credentials.AsMap().Set("password", password.WithSecret(true))).
+		WithSecret(credentials.Secret()).WithDependencies(credentials.Dependencies())
+	image = property.New(image.AsMap().Set("credentials", credentials)).
+		WithSecret(image.Secret()).WithDependencies(image.Dependencies())
+	return member.Set("image", image)
 }
 
 func mapInput(value property.Value) property.Map {
