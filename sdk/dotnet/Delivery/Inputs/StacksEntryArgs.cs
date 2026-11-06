@@ -59,7 +59,7 @@ namespace Pulumi.Delivery.Delivery.Inputs
         public object Source { get; set; } = null!;
 
         /// <summary>
-        /// Target stack as organization/project/stack. It must exist before the first run, in the organization of the pipeline.
+        /// Target stack as project/stack. It must exist before the first run, in the organization of the pipeline.
         /// </summary>
         [Input("stack", required: true)]
         public Input<string> Stack { get; set; } = null!;

@@ -104,14 +104,14 @@ public final class StacksEntryArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * Target stack as organization/project/stack. It must exist before the first run, in the organization of the pipeline.
+     * Target stack as project/stack. It must exist before the first run, in the organization of the pipeline.
      * 
      */
     @Import(name="stack", required=true)
     private Output<String> stack;
 
     /**
-     * @return Target stack as organization/project/stack. It must exist before the first run, in the organization of the pipeline.
+     * @return Target stack as project/stack. It must exist before the first run, in the organization of the pipeline.
      * 
      */
     public Output<String> stack() {
@@ -269,7 +269,7 @@ public final class StacksEntryArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param stack Target stack as organization/project/stack. It must exist before the first run, in the organization of the pipeline.
+         * @param stack Target stack as project/stack. It must exist before the first run, in the organization of the pipeline.
          * 
          * @return builder
          * 
@@ -280,7 +280,7 @@ public final class StacksEntryArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param stack Target stack as organization/project/stack. It must exist before the first run, in the organization of the pipeline.
+         * @param stack Target stack as project/stack. It must exist before the first run, in the organization of the pipeline.
          * 
          * @return builder
          * 

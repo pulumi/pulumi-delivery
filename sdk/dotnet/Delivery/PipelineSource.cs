@@ -70,7 +70,7 @@ namespace Pulumi.Delivery.Delivery
     public sealed class PipelineSourceArgs : global::Pulumi.ResourceArgs
     {
         /// <summary>
-        /// Upstream pipeline as org/project/stack.
+        /// Upstream pipeline as project/stack, in the organization of this pipeline.
         /// </summary>
         [Input("pipeline", required: true)]
         public Input<string> Pipeline { get; set; } = null!;

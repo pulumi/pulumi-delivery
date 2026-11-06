@@ -3,6 +3,7 @@
 package main
 
 import (
+	"fmt"
 	"sync"
 	"testing"
 
@@ -267,7 +268,13 @@ func TestStacksValidation(t *testing.T) {
 	require.NoError(t, construct(twoEntries()))
 	require.ErrorContains(t, construct(map[string]property.Value{}), "at least one entry")
 	require.ErrorContains(t, construct(map[string]property.Value{"a#b": stacksEntry("org/p/s", nil)}), "entry name")
-	require.ErrorContains(t, construct(map[string]property.Value{"a": stacksEntry("p/s", nil)}), "org/project/stack")
+	for _, bad := range []string{"s", "a/b/c/d", "/s", "p/", "org//s"} {
+		require.ErrorContains(t, construct(map[string]property.Value{"a": stacksEntry(bad, nil)}), fmt.Sprintf("stack must be project/stack, not %q", bad), bad)
+	}
+	require.NoError(t, construct(map[string]property.Value{"a": stacksEntry("p/s", nil)}))
+	require.ErrorContains(t, construct(map[string]property.Value{
+		"a": stacksEntry("p/s", nil), "b": stacksEntry("org/p/s", nil),
+	}), `entries "a" and "b" both update stack org/p/s`)
 	require.ErrorContains(t, construct(map[string]property.Value{
 		"a": stacksEntry("org/p/s", nil), "b": stacksEntry("org/p/s", nil),
 	}), `entries "a" and "b" both update stack org/p/s`)
@@ -439,4 +446,55 @@ func TestFinishStateKeepsJobOutputsUnknown(t *testing.T) {
 	assert.Equal(t, []resource.URN{resource.URN(child)}, outputs.Dependencies())
 	_, hasChildURN := finished.GetOk("childUrn")
 	assert.False(t, hasChildURN)
+}
+
+func TestTwoPartStackIsQualifiedWithTheOrganization(t *testing.T) {
+	service := newFakeService(t)
+	var children []property.Map
+	_, err := newServerCapturing(t, &children).Construct(stacksRequest("app", false, map[string]property.Value{"a": stacksEntry("p/s", nil)}))
+	require.NoError(t, err)
+	declarations := service.declared()
+	require.Len(t, declarations, 1)
+	stacks := declarations[0]["inputs"].(map[string]any)["stacks"].(map[string]any)
+	assert.Equal(t, "org/p/s", stacks["a"].(map[string]any)["stack"])
+	// The MemberRun child carries the qualified name too, so switching forms leaves it unchanged.
+	require.Len(t, children, 1)
+	child := children[0].Get("declaration").AsMap().Get("inputs").AsMap().Get("stacks").AsMap().Get("a").AsMap()
+	assert.Equal(t, "org/p/s", child.Get("stack").AsString())
+}
+
+func TestQualifyStackNamesKeepsSecretsAndDependencies(t *testing.T) {
+	dep := urn.URN("urn:pulumi:s::p::t::n")
+	marked := func(s string) property.Value {
+		return property.New(s).WithSecret(true).WithDependencies([]urn.URN{dep})
+	}
+	stacks := property.NewMap(map[string]property.Value{
+		"a": property.New(property.NewMap(map[string]property.Value{"stack": marked("p/s")})).WithSecret(true).WithDependencies([]urn.URN{dep}),
+		"b": property.New(property.Computed),
+		"c": property.New(property.NewMap(map[string]property.Value{"stack": property.New(property.Computed)})),
+	})
+	inputs := qualifyStackNames(typeStacks, property.NewMap(map[string]property.Value{
+		"stacks": property.New(stacks).WithSecret(true).WithDependencies([]urn.URN{dep}),
+	}), "org")
+	assert.True(t, inputs.Get("stacks").Secret())
+	assert.Equal(t, []urn.URN{dep}, inputs.Get("stacks").Dependencies())
+	entries := inputs.Get("stacks").AsMap()
+	a := entries.Get("a")
+	assert.True(t, a.Secret())
+	assert.Equal(t, []urn.URN{dep}, a.Dependencies())
+	assert.Equal(t, marked("org/p/s"), a.AsMap().Get("stack"))
+	assert.True(t, entries.Get("b").IsComputed())
+	assert.True(t, entries.Get("c").AsMap().Get("stack").IsComputed())
+
+	source := qualifyStackNames(typePipelineSource, property.NewMap(map[string]property.Value{"pipeline": marked("platform/main")}), "org")
+	assert.Equal(t, marked("org/platform/main"), source.Get("pipeline"))
+}
+
+func TestQualifyStackNamesLeavesOtherValuesUnchanged(t *testing.T) {
+	for _, name := range []string{"s", "a/b/c", "a/b/c/d", "/s", "p/", ""} {
+		inputs := property.NewMap(map[string]property.Value{"pipeline": property.New(name)})
+		assert.Equal(t, name, qualifyStackNames(typePipelineSource, inputs, "org").Get("pipeline").AsString(), name)
+	}
+	inputs := property.NewMap(map[string]property.Value{"pipeline": property.New("p/s")})
+	assert.Equal(t, "p/s", qualifyStackNames(typePipelineSource, inputs, "").Get("pipeline").AsString())
 }

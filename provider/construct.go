@@ -58,6 +58,7 @@ func withDeliveryConstruct(inner func(context.Context, p.ConstructRequest) (p.Co
 		if (typ == typeJob || typ == typeStacks || typ == typeArtifact) && req.ResourceHooks != nil && len(req.ResourceHooks.OnError) > 0 {
 			return p.ConstructResponse{}, errors.New("Delivery resources do not support error hooks. Use a retry or a new run.")
 		}
+		req.Inputs = qualifyStackNames(typ, req.Inputs, req.Organization)
 		if err := validateInputs(typ, req.Inputs); err != nil {
 			return p.ConstructResponse{}, err
 		}
@@ -240,6 +241,42 @@ func (v *pipelineValue) state(state property.Map) property.Map {
 		Set("artifacts", property.New(v.artifacts).WithSecret(hasSecret(property.New(v.artifacts))))
 }
 
+// qualifyStackNames prefixes the organization of the pipeline to the project/stack names in the inputs
+// (`pipeline` of a PipelineSource, `stack` of each Stacks entry), so that everything after sees org/project/stack.
+// Pulumi Cloud only accepts stacks of the organization of the pipeline. Other values are left for validation.
+func qualifyStackNames(typ string, inputs property.Map, organization string) property.Map {
+	// like gives v the secret mark and the dependencies of old.
+	like := func(old, v property.Value) property.Value {
+		return v.WithSecret(old.Secret()).WithDependencies(old.Dependencies())
+	}
+	qualify := func(value property.Value) property.Value {
+		if !value.IsString() || organization == "" {
+			return value
+		}
+		if project, stack, ok := strings.Cut(value.AsString(), "/"); !ok || project == "" || stack == "" || strings.Contains(stack, "/") {
+			return value
+		}
+		return like(value, property.New(organization+"/"+value.AsString()))
+	}
+	switch typ {
+	case typePipelineSource:
+		if v, ok := inputs.GetOk("pipeline"); ok {
+			inputs = inputs.Set("pipeline", qualify(v))
+		}
+	case typeStacks:
+		if stacks := inputs.Get("stacks"); stacks.IsMap() {
+			entries := stacks.AsMap()
+			for name, entry := range entries.AsMap() {
+				if v, ok := mapInput(entry).GetOk("stack"); ok {
+					entries = entries.Set(name, like(entry, property.New(entry.AsMap().Set("stack", qualify(v)))))
+				}
+			}
+			inputs = inputs.Set("stacks", like(stacks, property.New(entries)))
+		}
+	}
+	return inputs
+}
+
 // readPipelineSource returns the value of a PipelineSource in a run, or nil. The map is secret if any artifact
 // is, and the artifacts keep their own marks inside.
 func readPipelineSource(ctx context.Context, client *cloudclient.Client, req p.ConstructRequest) (*pipelineValue, error) {
@@ -388,7 +425,7 @@ func validateInputs(typ string, inputs property.Map) error {
 	case typePipelineSource:
 		if pipeline := stringInput(inputs, "pipeline"); pipeline != "" {
 			if parts := strings.Split(pipeline, "/"); len(parts) != 3 || slices.Contains(parts, "") {
-				return fmt.Errorf("pipeline must be org/project/stack, not %q", pipeline)
+				return fmt.Errorf("pipeline must be project/stack, not %q", pipeline)
 			}
 		} else if err := requiredUnlessUnknown(inputs, "", "pipeline"); err != nil {
 			return err
@@ -458,7 +495,7 @@ func validateStacks(inputs property.Map) error {
 		}
 		if stackName != "" {
 			if parts := strings.Split(stackName, "/"); len(parts) != 3 || slices.Contains(parts, "") {
-				return fail(fmt.Errorf("stack must be org/project/stack, not %q", stackName))
+				return fail(fmt.Errorf("stack must be project/stack, not %q", stackName))
 			}
 			if other, dup := targets[stackName]; dup {
 				return fmt.Errorf("entries %q and %q both update stack %s; a stack can appear once per Stacks resource", other, name, stackName)

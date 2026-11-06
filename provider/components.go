@@ -102,7 +102,7 @@ type AzureDevOpsSource struct {
 }
 
 type PipelineSourceArgs struct {
-	// Pipeline is the upstream pipeline as org/project/stack.
+	// Pipeline is the upstream pipeline as project/stack.
 	Pipeline string `pulumi:"pipeline"`
 	// Stage is the stage of the upstream pipeline that this source reads.
 	Stage string `pulumi:"stage"`

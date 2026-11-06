@@ -53,7 +53,7 @@ func NewPipelineSource(ctx *pulumi.Context,
 }
 
 type pipelineSourceArgs struct {
-	// Upstream pipeline as org/project/stack.
+	// Upstream pipeline as project/stack, in the organization of this pipeline.
 	Pipeline string `pulumi:"pipeline"`
 	// Stage of the upstream pipeline.
 	Stage string `pulumi:"stage"`
@@ -63,7 +63,7 @@ type pipelineSourceArgs struct {
 
 // The set of arguments for constructing a PipelineSource resource.
 type PipelineSourceArgs struct {
-	// Upstream pipeline as org/project/stack.
+	// Upstream pipeline as project/stack, in the organization of this pipeline.
 	Pipeline pulumi.StringInput
 	// Stage of the upstream pipeline.
 	Stage pulumi.StringInput

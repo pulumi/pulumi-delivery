@@ -18,7 +18,7 @@ func main() {
 			return err
 		}
 		platform, err := delivery.NewPipelineSource(ctx, "platform", &delivery.PipelineSourceArgs{
-			Pipeline: pulumi.String("acme/platform-delivery/main"), Stage: pulumi.String("prod"),
+			Pipeline: pulumi.String("platform-delivery/main"), Stage: pulumi.String("prod"),
 			Trigger: pulumi.Bool(true),
 		})
 		if err != nil {
