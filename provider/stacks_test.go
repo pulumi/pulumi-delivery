@@ -3,6 +3,7 @@
 package main
 
 import (
+	"fmt"
 	"sync"
 	"testing"
 
@@ -268,7 +269,7 @@ func TestStacksValidation(t *testing.T) {
 	require.ErrorContains(t, construct(map[string]property.Value{}), "at least one entry")
 	require.ErrorContains(t, construct(map[string]property.Value{"a#b": stacksEntry("org/p/s", nil)}), "entry name")
 	for _, bad := range []string{"s", "a/b/c/d", "/s", "p/", "org//s"} {
-		require.ErrorContains(t, construct(map[string]property.Value{"a": stacksEntry(bad, nil)}), "project/stack or organization/project/stack", bad)
+		require.ErrorContains(t, construct(map[string]property.Value{"a": stacksEntry(bad, nil)}), fmt.Sprintf("stack must be project/stack, not %q", bad), bad)
 	}
 	require.NoError(t, construct(map[string]property.Value{"a": stacksEntry("p/s", nil)}))
 	require.ErrorContains(t, construct(map[string]property.Value{

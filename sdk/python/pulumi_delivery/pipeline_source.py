@@ -25,7 +25,7 @@ class PipelineSourceArgs:
         """
         The set of arguments for constructing a PipelineSource resource.
 
-        :param pulumi.Input[_builtins.str] pipeline: Upstream pipeline as project/stack or organization/project/stack. The organization is optional and defaults to the organization of this pipeline, which is the only one allowed.
+        :param pulumi.Input[_builtins.str] pipeline: Upstream pipeline as project/stack, in the organization of this pipeline.
         :param pulumi.Input[_builtins.str] stage: Stage of the upstream pipeline.
         :param pulumi.Input[_builtins.bool] trigger: Set true to start a run of this pipeline when the stage deploys a new release. If you omit it, the source is part of the release but never starts a run.
         """
@@ -38,7 +38,7 @@ class PipelineSourceArgs:
     @pulumi.getter
     def pipeline(self) -> pulumi.Input[_builtins.str]:
         """
-        Upstream pipeline as project/stack or organization/project/stack. The organization is optional and defaults to the organization of this pipeline, which is the only one allowed.
+        Upstream pipeline as project/stack, in the organization of this pipeline.
         """
         return pulumi.get(self, "pipeline")
 
@@ -92,7 +92,7 @@ class PipelineSource(pulumi.ComponentResource):
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
-        :param pulumi.Input[_builtins.str] pipeline: Upstream pipeline as project/stack or organization/project/stack. The organization is optional and defaults to the organization of this pipeline, which is the only one allowed.
+        :param pulumi.Input[_builtins.str] pipeline: Upstream pipeline as project/stack, in the organization of this pipeline.
         :param pulumi.Input[_builtins.str] stage: Stage of the upstream pipeline.
         :param pulumi.Input[_builtins.bool] trigger: Set true to start a run of this pipeline when the stage deploys a new release. If you omit it, the source is part of the release but never starts a run.
         """

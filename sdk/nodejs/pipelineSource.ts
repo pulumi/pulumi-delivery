@@ -17,7 +17,7 @@ import * as utilities from "./utilities";
  * import * as delivery from "@pulumi/delivery";
  *
  * const platform = new delivery.PipelineSource("platform", {
- *     pipeline: "acme/platform-delivery/main",
+ *     pipeline: "platform-delivery/main",
  *     stage: "prod",
  *     trigger: true,
  * });
@@ -90,7 +90,7 @@ export class PipelineSource extends pulumi.ComponentResource {
  */
 export interface PipelineSourceArgs {
     /**
-     * Upstream pipeline as project/stack or organization/project/stack. The organization is optional and defaults to the organization of this pipeline, which is the only one allowed.
+     * Upstream pipeline as project/stack, in the organization of this pipeline.
      */
     pipeline: pulumi.Input<string>;
     /**

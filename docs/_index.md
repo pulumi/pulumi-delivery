@@ -49,7 +49,7 @@ The Pulumi CLI downloads the provider plugin when a program needs it.
 
 Create the pipeline stack, which is the stack of the program that declares the pipeline. In this guide it is `acme/shop-delivery/main`.
 
-Create each target stack before the first run. A target stack must be an ordinary stack in the organization of the pipeline. A pipeline stack or a run stack cannot be a target. A run fails with "The target stack ... does not exist. Create it first." if a stack is missing. Write the stack as `project/stack` or `organization/project/stack`. The organization defaults to the organization of the pipeline. `PipelineSource.pipeline` follows the same rule.
+Create each target stack before the first run. A target stack must be an ordinary stack in the organization of the pipeline. A pipeline stack or a run stack cannot be a target. A run fails with "The target stack ... does not exist. Create it first." if a stack is missing.
 
 ### Config and cloud credentials
 
@@ -165,7 +165,7 @@ const devStacks = new delivery.Stacks("dev", {
     stage: dev,
     stacks: {
         app: {
-            stack: "acme/shop-infra/dev",
+            stack: "shop-infra/dev",
             source: app,
             directory: "infra",
             config: { environment: "dev" },
@@ -187,7 +187,7 @@ new delivery.Stacks("prod", {
     stage: prod,
     stacks: {
         app: {
-            stack: "acme/shop-infra/prod",
+            stack: "shop-infra/prod",
             source: app,
             directory: "infra",
             config: { environment: "prod" },
@@ -266,7 +266,7 @@ Set `trigger: true` on a `PipelineSource` to start a run when the named stage of
 
 ```typescript
 const platform = new delivery.PipelineSource("platform", {
-    pipeline: "acme/platform-delivery/main",
+    pipeline: "platform-delivery/main",
     stage: "prod",
     trigger: true,
 });
@@ -286,7 +286,7 @@ Write a function that adds the members of one environment to a stage. Call it on
 function deploy(stage: delivery.Stage, name: string, region: string) {
     const app = new delivery.Stacks(name, {
         stage,
-        stacks: { app: { stack: `acme/shop-app/${name}`, source: repo, directory: "app" } },
+        stacks: { app: { stack: `shop-app/${name}`, source: repo, directory: "app" } },
     });
     new delivery.Job(`smoke-${name}`, {
         stage,
@@ -337,8 +337,8 @@ Put the stacks in one `Stacks` group when they depend on each other and you want
 new delivery.Stacks("platform", {
     stage: dev,
     stacks: {
-        network: { stack: "acme/shop-network/dev", source: repo, directory: "network" },
-        app: { stack: "acme/shop-app/dev", source: repo, directory: "app" },
+        network: { stack: "shop-network/dev", source: repo, directory: "network" },
+        app: { stack: "shop-app/dev", source: repo, directory: "app" },
     },
 });
 ```
@@ -385,7 +385,7 @@ In the downstream pipeline:
 
 ```typescript
 const platform = new delivery.PipelineSource("platform", {
-    pipeline: "acme/platform-delivery/main",
+    pipeline: "platform-delivery/main",
     stage: "prod",
     trigger: true,
 });
@@ -394,7 +394,7 @@ new delivery.Stacks("app", {
     stage: dev,
     stacks: {
         app: {
-            stack: "acme/shop-app/dev",
+            stack: "shop-app/dev",
             source: repo,
             directory: "app",
             config: { clusterEndpoint: platform.artifacts["clusterEndpoint"] },

@@ -661,7 +661,7 @@ type StacksEntry struct {
 	Runtime *WorkflowsRuntime `pulumi:"runtime"`
 	// VCS source to check out. The update uses the commit of the run for this source.
 	Source interface{} `pulumi:"source"`
-	// Target stack as project/stack or organization/project/stack. The organization is optional and defaults to the organization of the pipeline, which is the only one allowed. The stack must exist before the first run.
+	// Target stack as project/stack. It must exist before the first run, in the organization of the pipeline.
 	Stack string `pulumi:"stack"`
 	// Maximum run time of the update in seconds. The default is 7200 (2 hours).
 	Timeout *int `pulumi:"timeout"`
@@ -690,7 +690,7 @@ type StacksEntryArgs struct {
 	Runtime WorkflowsRuntimeInput `pulumi:"runtime"`
 	// VCS source to check out. The update uses the commit of the run for this source.
 	Source pulumi.Input `pulumi:"source"`
-	// Target stack as project/stack or organization/project/stack. The organization is optional and defaults to the organization of the pipeline, which is the only one allowed. The stack must exist before the first run.
+	// Target stack as project/stack. It must exist before the first run, in the organization of the pipeline.
 	Stack pulumi.StringInput `pulumi:"stack"`
 	// Maximum run time of the update in seconds. The default is 7200 (2 hours).
 	Timeout pulumi.IntPtrInput `pulumi:"timeout"`
@@ -773,7 +773,7 @@ func (o StacksEntryOutput) Source() pulumi.AnyOutput {
 	return o.ApplyT(func(v StacksEntry) interface{} { return v.Source }).(pulumi.AnyOutput)
 }
 
-// Target stack as project/stack or organization/project/stack. The organization is optional and defaults to the organization of the pipeline, which is the only one allowed. The stack must exist before the first run.
+// Target stack as project/stack. It must exist before the first run, in the organization of the pipeline.
 func (o StacksEntryOutput) Stack() pulumi.StringOutput {
 	return o.ApplyT(func(v StacksEntry) string { return v.Stack }).(pulumi.StringOutput)
 }

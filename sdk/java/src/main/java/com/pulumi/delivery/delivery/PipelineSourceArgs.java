@@ -18,14 +18,14 @@ public final class PipelineSourceArgs extends com.pulumi.resources.ResourceArgs 
     public static final PipelineSourceArgs Empty = new PipelineSourceArgs();
 
     /**
-     * Upstream pipeline as project/stack or organization/project/stack. The organization is optional and defaults to the organization of this pipeline, which is the only one allowed.
+     * Upstream pipeline as project/stack, in the organization of this pipeline.
      * 
      */
     @Import(name="pipeline", required=true)
     private Output<String> pipeline;
 
     /**
-     * @return Upstream pipeline as project/stack or organization/project/stack. The organization is optional and defaults to the organization of this pipeline, which is the only one allowed.
+     * @return Upstream pipeline as project/stack, in the organization of this pipeline.
      * 
      */
     public Output<String> pipeline() {
@@ -89,7 +89,7 @@ public final class PipelineSourceArgs extends com.pulumi.resources.ResourceArgs 
         }
 
         /**
-         * @param pipeline Upstream pipeline as project/stack or organization/project/stack. The organization is optional and defaults to the organization of this pipeline, which is the only one allowed.
+         * @param pipeline Upstream pipeline as project/stack, in the organization of this pipeline.
          * 
          * @return builder
          * 
@@ -100,7 +100,7 @@ public final class PipelineSourceArgs extends com.pulumi.resources.ResourceArgs 
         }
 
         /**
-         * @param pipeline Upstream pipeline as project/stack or organization/project/stack. The organization is optional and defaults to the organization of this pipeline, which is the only one allowed.
+         * @param pipeline Upstream pipeline as project/stack, in the organization of this pipeline.
          * 
          * @return builder
          * 

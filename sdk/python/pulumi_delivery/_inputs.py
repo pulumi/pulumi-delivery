@@ -717,7 +717,7 @@ class StacksEntryArgsDict(TypedDict):
     """
     stack: pulumi.Input[_builtins.str]
     """
-    Target stack as project/stack or organization/project/stack. The organization is optional and defaults to the organization of the pipeline, which is the only one allowed. The stack must exist before the first run.
+    Target stack as project/stack. It must exist before the first run, in the organization of the pipeline.
     """
     config: NotRequired[pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]]]
     """
@@ -751,7 +751,7 @@ class StacksEntryArgs:
 
         :param pulumi.Input[_builtins.str] directory: Directory of the stack project, relative to the repository root.
         :param pulumi.Input[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource']] source: VCS source to check out. The update uses the commit of the run for this source.
-        :param pulumi.Input[_builtins.str] stack: Target stack as project/stack or organization/project/stack. The organization is optional and defaults to the organization of the pipeline, which is the only one allowed. The stack must exist before the first run.
+        :param pulumi.Input[_builtins.str] stack: Target stack as project/stack. It must exist before the first run, in the organization of the pipeline.
         :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] config: Config values that Delivery sets on the target stack before the update. Values are plain strings. Delivery rejects secret values. Keep secrets in the config file of the target stack or in an ESC environment.
         :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] environment: Environment variables for the update, for example cloud credentials. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
         :param pulumi.Input['WorkflowsRuntime'] runtime: Pool that runs the update. In the private preview, all work runs on the hosted pool, so omit it.
@@ -797,7 +797,7 @@ class StacksEntryArgs:
     @pulumi.getter
     def stack(self) -> pulumi.Input[_builtins.str]:
         """
-        Target stack as project/stack or organization/project/stack. The organization is optional and defaults to the organization of the pipeline, which is the only one allowed. The stack must exist before the first run.
+        Target stack as project/stack. It must exist before the first run, in the organization of the pipeline.
         """
         return pulumi.get(self, "stack")
 

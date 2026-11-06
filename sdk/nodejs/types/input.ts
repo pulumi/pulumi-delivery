@@ -180,7 +180,7 @@ export interface StacksEntryArgs {
      */
     source: pulumi.Input<GitHubSource | GitLabSource | BitbucketSource | AzureDevOpsSource>;
     /**
-     * Target stack as project/stack or organization/project/stack. The organization is optional and defaults to the organization of the pipeline, which is the only one allowed. The stack must exist before the first run.
+     * Target stack as project/stack. It must exist before the first run, in the organization of the pipeline.
      */
     stack: pulumi.Input<string>;
     /**

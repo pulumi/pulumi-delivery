@@ -25,7 +25,7 @@ import {AzureDevOpsSource, BitbucketSource, GitHubSource, GitLabSource, Stage, W
  * new delivery.Stacks("dev", {
  *     stage: dev,
  *     stacks: {
- *         api: { stack: "acme/shop-infra/dev", source: code, directory: "infra", config: { environment: "dev" } },
+ *         api: { stack: "shop-infra/dev", source: code, directory: "infra", config: { environment: "dev" } },
  *     },
  * });
  * ```

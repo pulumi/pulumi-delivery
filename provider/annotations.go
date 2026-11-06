@@ -256,7 +256,7 @@ import * as delivery from "@pulumi/delivery";
 new delivery.Stacks("dev", {
     stage: dev,
     stacks: {
-        api: { stack: "acme/shop-infra/dev", source: code, directory: "infra", config: { environment: "dev" } },
+        api: { stack: "shop-infra/dev", source: code, directory: "infra", config: { environment: "dev" } },
     },
 });
 `+"```")
@@ -271,7 +271,7 @@ func (r *StacksArgs) Annotate(a infer.Annotator) {
 
 func (r *StacksEntry) Annotate(a infer.Annotator) {
 	a.Describe(r, "One target stack that a Stacks resource updates.")
-	a.Describe(&r.Stack, "Target stack as project/stack or organization/project/stack. The organization is optional and defaults to the organization of the pipeline, which is the only one allowed. The stack must exist before the first run.")
+	a.Describe(&r.Stack, "Target stack as project/stack. It must exist before the first run, in the organization of the pipeline.")
 	a.Describe(&r.Source, "VCS source to check out. The update uses the commit of the run for this source.")
 	a.Describe(&r.Directory, "Directory of the stack project, relative to the repository root.")
 	a.Describe(&r.Config, "Config values that Delivery sets on the target stack before the update. Values are plain strings. Delivery rejects secret values. Keep secrets in the config file of the target stack or in an ESC environment.")
@@ -355,7 +355,7 @@ A pipeline source does not start runs unless you set trigger: true. Then each ne
 import * as delivery from "@pulumi/delivery";
 
 const platform = new delivery.PipelineSource("platform", {
-    pipeline: "acme/platform-delivery/main",
+    pipeline: "platform-delivery/main",
     stage: "prod",
     trigger: true,
 });
@@ -368,7 +368,7 @@ const endpoint = platform.artifacts.apply(a => a["clusterEndpoint"]);
 
 func (r *PipelineSourceArgs) Annotate(a infer.Annotator) {
 	a.Describe(r, "Pipeline source settings.")
-	a.Describe(&r.Pipeline, "Upstream pipeline as project/stack or organization/project/stack. The organization is optional and defaults to the organization of this pipeline, which is the only one allowed.")
+	a.Describe(&r.Pipeline, "Upstream pipeline as project/stack, in the organization of this pipeline.")
 	a.Describe(&r.Stage, "Stage of the upstream pipeline.")
 	a.Describe(&r.Trigger, "Set true to start a run of this pipeline when the stage deploys a new release. If you omit it, the source is part of the release but never starts a run.")
 }

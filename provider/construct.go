@@ -425,7 +425,7 @@ func validateInputs(typ string, inputs property.Map) error {
 	case typePipelineSource:
 		if pipeline := stringInput(inputs, "pipeline"); pipeline != "" {
 			if parts := strings.Split(pipeline, "/"); len(parts) != 3 || slices.Contains(parts, "") {
-				return fmt.Errorf("pipeline must be project/stack or organization/project/stack, not %q", pipeline)
+				return fmt.Errorf("pipeline must be project/stack, not %q", pipeline)
 			}
 		} else if err := requiredUnlessUnknown(inputs, "", "pipeline"); err != nil {
 			return err
@@ -495,7 +495,7 @@ func validateStacks(inputs property.Map) error {
 		}
 		if stackName != "" {
 			if parts := strings.Split(stackName, "/"); len(parts) != 3 || slices.Contains(parts, "") {
-				return fail(fmt.Errorf("stack must be project/stack or organization/project/stack, not %q", stackName))
+				return fail(fmt.Errorf("stack must be project/stack, not %q", stackName))
 			}
 			if other, dup := targets[stackName]; dup {
 				return fmt.Errorf("entries %q and %q both update stack %s; a stack can appear once per Stacks resource", other, name, stackName)
