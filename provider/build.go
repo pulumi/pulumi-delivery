@@ -143,6 +143,13 @@ func buildStacks(ctx *pulumi.Context, name string, inputs comProvider.ConstructI
 	if len(d.entries) == 0 {
 		return nil, errors.New("stacks must be a known map with at least one entry")
 	}
+	var args struct {
+		Stacks pulumi.MapMapInput `pulumi:"stacks"`
+	}
+	if err := inputs.CopyTo(&args); err != nil {
+		return nil, err
+	}
+	all := args.Stacks.ToMapMapOutput()
 	var childOutputs []any
 	childUrns := pulumi.StringMap{}
 	for _, entry := range d.entries {
@@ -156,7 +163,12 @@ func buildStacks(ctx *pulumi.Context, name string, inputs comProvider.ConstructI
 		}
 		ownInputs := pulumi.Map{}
 		maps.Copy(ownInputs, inputMap)
-		ownInputs["stacks"] = pulumi.Map{entry: stacksEntryInput(inputMap["stacks"], entry, d.secretEntries[entry])}
+		// Indexing the map loses the secret marks nested in the entry, so an entry that holds a secret is secret as a whole.
+		var stacksEntry pulumi.Input = all.MapIndex(pulumi.String(entry))
+		if d.secretEntries[entry] {
+			stacksEntry = pulumi.ToSecret(stacksEntry)
+		}
+		ownInputs["stacks"] = pulumi.Map{entry: stacksEntry}
 		child := &memberRunResource{}
 		if err := ctx.RegisterResource(typeMemberRun, name+"#"+entry, pulumi.Map{
 			"organization": pulumi.String(organization),
@@ -194,17 +206,4 @@ func groupOutputs(entries []string, childOutputs []any) pulumi.MapMapOutput {
 		}
 		return out.ToMapMapOutput()
 	}).(pulumi.MapMapOutput)
-}
-
-// stacksEntryInput is one entry of the stacks input. A known map keeps the secrets inside the entry. Any other input
-// loses them when it resolves, so an entry that holds a secret is secret as a whole.
-func stacksEntryInput(stacks pulumi.Input, entry string, secret bool) pulumi.Input {
-	if m, ok := stacks.(pulumi.Map); ok {
-		return m[entry]
-	}
-	out := pulumi.ToOutput(stacks).ApplyT(func(v any) any { return v.(map[string]any)[entry] })
-	if secret {
-		return pulumi.ToSecret(out)
-	}
-	return out
 }
