@@ -638,3 +638,38 @@ func TestUnknownImageAndReferencePassInPreview(t *testing.T) {
 		})
 	}
 }
+
+// secretAt reports whether the value at path is a secret, or sits inside one.
+func secretAt(v property.Value, path ...string) bool {
+	for _, key := range path {
+		if v.Secret() {
+			return true
+		}
+		v = v.AsMap().Get(key)
+	}
+	return v.Secret()
+}
+
+func TestStacksEntrySecretsStaySecretInTheChild(t *testing.T) {
+	newFakeService(t)
+	other := urnOf("delivery:index:Job", "other")
+	for name, wrap := range map[string]func(property.Value) property.Value{
+		"known":        func(v property.Value) property.Value { return v },
+		"dependencies": func(v property.Value) property.Value { return v.WithDependencies([]resource.URN{other}) },
+		"secret":       func(v property.Value) property.Value { return v.WithSecret(true) },
+	} {
+		t.Run(name, func(t *testing.T) {
+			environment := property.NewMap(map[string]property.Value{"TOKEN": property.New("s3cret").WithSecret(true)})
+			request := stacksRequest("app", false, map[string]property.Value{
+				"api": stacksEntry("org/shop/api", map[string]property.Value{"environment": property.New(environment)}),
+			})
+			request.Inputs = request.Inputs.Set("stacks", wrap(request.Inputs.Get("stacks")))
+			var children []property.Map
+			_, err := newServerCapturing(t, &children).Construct(request)
+			require.NoError(t, err)
+			require.Len(t, children, 1)
+			declaration := children[0].Get("declaration")
+			assert.True(t, secretAt(declaration, "inputs", "stacks", "api", "environment", "TOKEN"), "%v", declaration)
+		})
+	}
+}
