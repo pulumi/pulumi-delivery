@@ -456,3 +456,23 @@ func TestTwoPartStackIsQualifiedWithTheOrganization(t *testing.T) {
 	stacks := declarations[0]["inputs"].(map[string]any)["stacks"].(map[string]any)
 	assert.Equal(t, "org/p/s", stacks["a"].(map[string]any)["stack"])
 }
+
+func TestQualifyStackNamesKeepsSecretsAndDependencies(t *testing.T) {
+	dep := urn.URN("urn:pulumi:s::p::t::n")
+	marked := func(s string) property.Value {
+		return property.New(s).WithSecret(true).WithDependencies([]urn.URN{dep})
+	}
+	stacks := property.NewMap(map[string]property.Value{
+		"a": property.New(property.NewMap(map[string]property.Value{"stack": marked("p/s")})).WithSecret(true),
+		"b": property.New(property.Computed),
+	})
+	inputs := qualifyStackNames(typeStacks, property.NewMap(map[string]property.Value{"stacks": property.New(stacks)}), "org")
+	entries := inputs.Get("stacks").AsMap()
+	a := entries.Get("a")
+	assert.True(t, a.Secret())
+	assert.Equal(t, marked("org/p/s"), a.AsMap().Get("stack"))
+	assert.True(t, entries.Get("b").IsComputed())
+
+	source := qualifyStackNames(typePipelineSource, property.NewMap(map[string]property.Value{"pipeline": marked("platform/main")}), "org")
+	assert.Equal(t, marked("org/platform/main"), source.Get("pipeline"))
+}
