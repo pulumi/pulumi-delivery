@@ -449,12 +449,17 @@ func TestFinishStateKeepsJobOutputsUnknown(t *testing.T) {
 
 func TestTwoPartStackIsQualifiedWithTheOrganization(t *testing.T) {
 	service := newFakeService(t)
-	_, err := newServer(t).Construct(stacksRequest("app", false, map[string]property.Value{"a": stacksEntry("p/s", nil)}))
+	var children []property.Map
+	_, err := newServerCapturing(t, &children).Construct(stacksRequest("app", false, map[string]property.Value{"a": stacksEntry("p/s", nil)}))
 	require.NoError(t, err)
 	declarations := service.declared()
 	require.Len(t, declarations, 1)
 	stacks := declarations[0]["inputs"].(map[string]any)["stacks"].(map[string]any)
 	assert.Equal(t, "org/p/s", stacks["a"].(map[string]any)["stack"])
+	// The MemberRun child carries the qualified name too, so switching forms leaves it unchanged.
+	require.Len(t, children, 1)
+	child := children[0].Get("declaration").AsMap().Get("inputs").AsMap().Get("stacks").AsMap().Get("a").AsMap()
+	assert.Equal(t, "org/p/s", child.Get("stack").AsString())
 }
 
 func TestQualifyStackNamesKeepsSecretsAndDependencies(t *testing.T) {
@@ -465,6 +470,7 @@ func TestQualifyStackNamesKeepsSecretsAndDependencies(t *testing.T) {
 	stacks := property.NewMap(map[string]property.Value{
 		"a": property.New(property.NewMap(map[string]property.Value{"stack": marked("p/s")})).WithSecret(true).WithDependencies([]urn.URN{dep}),
 		"b": property.New(property.Computed),
+		"c": property.New(property.NewMap(map[string]property.Value{"stack": property.New(property.Computed)})),
 	})
 	inputs := qualifyStackNames(typeStacks, property.NewMap(map[string]property.Value{
 		"stacks": property.New(stacks).WithSecret(true).WithDependencies([]urn.URN{dep}),
@@ -477,6 +483,7 @@ func TestQualifyStackNamesKeepsSecretsAndDependencies(t *testing.T) {
 	assert.Equal(t, []urn.URN{dep}, a.Dependencies())
 	assert.Equal(t, marked("org/p/s"), a.AsMap().Get("stack"))
 	assert.True(t, entries.Get("b").IsComputed())
+	assert.True(t, entries.Get("c").AsMap().Get("stack").IsComputed())
 
 	source := qualifyStackNames(typePipelineSource, property.NewMap(map[string]property.Value{"pipeline": marked("platform/main")}), "org")
 	assert.Equal(t, marked("org/platform/main"), source.Get("pipeline"))
