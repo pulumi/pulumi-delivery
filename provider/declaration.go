@@ -26,12 +26,14 @@ type declaration struct {
 	propertyDependencies map[string][]string
 	// entries are the names of the entries of a Stacks resource.
 	entries []string
+	// secretEntries are the entries that hold a secret.
+	secretEntries map[string]bool
 }
 
 func newDeclaration(req p.ConstructRequest) declaration {
 	d := declaration{
 		urn: string(req.Urn), typ: string(req.Urn.Type()),
-		dependencies: []string{}, propertyDependencies: map[string][]string{},
+		dependencies: []string{}, propertyDependencies: map[string][]string{}, secretEntries: map[string]bool{},
 	}
 	for _, dependency := range req.Dependencies {
 		d.dependencies = append(d.dependencies, string(dependency))
@@ -44,6 +46,7 @@ func newDeclaration(req p.ConstructRequest) declaration {
 			found := map[urn.URN]bool{}
 			for entry, v := range value.AsMap().AsMap() {
 				d.entries = append(d.entries, entry)
+				d.secretEntries[entry] = value.Secret() || hasSecret(v)
 				d.add("stacks."+entry, v, nil)
 				collectDependencies(v, func(dependency urn.URN) { found[dependency] = true })
 			}

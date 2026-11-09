@@ -163,7 +163,12 @@ func buildStacks(ctx *pulumi.Context, name string, inputs comProvider.ConstructI
 		}
 		ownInputs := pulumi.Map{}
 		maps.Copy(ownInputs, inputMap)
-		ownInputs["stacks"] = pulumi.Map{entry: all.MapIndex(pulumi.String(entry))}
+		// Indexing the map loses the secret marks nested in the entry, so an entry that holds a secret is secret as a whole.
+		var stacksEntry pulumi.Input = all.MapIndex(pulumi.String(entry))
+		if d.secretEntries[entry] {
+			stacksEntry = pulumi.ToSecret(stacksEntry)
+		}
+		ownInputs["stacks"] = pulumi.Map{entry: stacksEntry}
 		child := &memberRunResource{}
 		if err := ctx.RegisterResource(typeMemberRun, name+"#"+entry, pulumi.Map{
 			"organization": pulumi.String(organization),
