@@ -40,13 +40,17 @@ export interface ImageCredentialsArgs {
  */
 export interface ProgramSourceArgs {
     /**
-     * Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root.
+     * Branch that tracks the pipeline program. Omit it to use the branch that the service detects.
      */
-    directory: pulumi.Input<string>;
+    branch?: pulumi.Input<string | undefined>;
     /**
-     * VCS source of the pipeline program.
+     * Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to use the directory that the service detects.
      */
-    source: pulumi.Input<GitHubSource | GitLabSource | BitbucketSource | AzureDevOpsSource>;
+    directory?: pulumi.Input<string | undefined>;
+    /**
+     * Clone URL of the repository.
+     */
+    url: pulumi.Input<string>;
 }
 
 /**

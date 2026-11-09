@@ -20,9 +20,7 @@ func main() {
 		if err != nil {
 			return err
 		}
-		pipeline, err := delivery.NewPipeline(ctx, "shop", &delivery.PipelineArgs{
-			Program: &delivery.ProgramSourceArgs{Source: code, Directory: pulumi.String("delivery")},
-		})
+		pipeline, err := delivery.NewPipeline(ctx, "shop", nil)
 		if err != nil {
 			return err
 		}

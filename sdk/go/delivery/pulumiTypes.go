@@ -333,10 +333,12 @@ func (o ImageCredentialsPtrOutput) Username() pulumi.StringPtrOutput {
 
 // Location of the pipeline program in a repository.
 type ProgramSource struct {
-	// Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root.
-	Directory string `pulumi:"directory"`
-	// VCS source of the pipeline program.
-	Source interface{} `pulumi:"source"`
+	// Branch that tracks the pipeline program. Omit it to use the branch that the service detects.
+	Branch *string `pulumi:"branch"`
+	// Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to use the directory that the service detects.
+	Directory *string `pulumi:"directory"`
+	// Clone URL of the repository.
+	Url string `pulumi:"url"`
 }
 
 // ProgramSourceInput is an input type that accepts ProgramSourceArgs and ProgramSourceOutput values.
@@ -352,10 +354,12 @@ type ProgramSourceInput interface {
 
 // Location of the pipeline program in a repository.
 type ProgramSourceArgs struct {
-	// Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root.
-	Directory pulumi.StringInput `pulumi:"directory"`
-	// VCS source of the pipeline program.
-	Source pulumi.Input `pulumi:"source"`
+	// Branch that tracks the pipeline program. Omit it to use the branch that the service detects.
+	Branch pulumi.StringPtrInput `pulumi:"branch"`
+	// Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to use the directory that the service detects.
+	Directory pulumi.StringPtrInput `pulumi:"directory"`
+	// Clone URL of the repository.
+	Url pulumi.StringInput `pulumi:"url"`
 }
 
 func (ProgramSourceArgs) ElementType() reflect.Type {
@@ -368,6 +372,47 @@ func (i ProgramSourceArgs) ToProgramSourceOutput() ProgramSourceOutput {
 
 func (i ProgramSourceArgs) ToProgramSourceOutputWithContext(ctx context.Context) ProgramSourceOutput {
 	return pulumi.ToOutputWithContext(ctx, i).(ProgramSourceOutput)
+}
+
+func (i ProgramSourceArgs) ToProgramSourcePtrOutput() ProgramSourcePtrOutput {
+	return i.ToProgramSourcePtrOutputWithContext(context.Background())
+}
+
+func (i ProgramSourceArgs) ToProgramSourcePtrOutputWithContext(ctx context.Context) ProgramSourcePtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(ProgramSourceOutput).ToProgramSourcePtrOutputWithContext(ctx)
+}
+
+// ProgramSourcePtrInput is an input type that accepts ProgramSourceArgs, ProgramSourcePtr and ProgramSourcePtrOutput values.
+// You can construct a concrete instance of `ProgramSourcePtrInput` via:
+//
+//	        ProgramSourceArgs{...}
+//
+//	or:
+//
+//	        nil
+type ProgramSourcePtrInput interface {
+	pulumi.Input
+
+	ToProgramSourcePtrOutput() ProgramSourcePtrOutput
+	ToProgramSourcePtrOutputWithContext(context.Context) ProgramSourcePtrOutput
+}
+
+type programSourcePtrType ProgramSourceArgs
+
+func ProgramSourcePtr(v *ProgramSourceArgs) ProgramSourcePtrInput {
+	return (*programSourcePtrType)(v)
+}
+
+func (*programSourcePtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**ProgramSource)(nil)).Elem()
+}
+
+func (i *programSourcePtrType) ToProgramSourcePtrOutput() ProgramSourcePtrOutput {
+	return i.ToProgramSourcePtrOutputWithContext(context.Background())
+}
+
+func (i *programSourcePtrType) ToProgramSourcePtrOutputWithContext(ctx context.Context) ProgramSourcePtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(ProgramSourcePtrOutput)
 }
 
 // Location of the pipeline program in a repository.
@@ -385,14 +430,83 @@ func (o ProgramSourceOutput) ToProgramSourceOutputWithContext(ctx context.Contex
 	return o
 }
 
-// Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root.
-func (o ProgramSourceOutput) Directory() pulumi.StringOutput {
-	return o.ApplyT(func(v ProgramSource) string { return v.Directory }).(pulumi.StringOutput)
+func (o ProgramSourceOutput) ToProgramSourcePtrOutput() ProgramSourcePtrOutput {
+	return o.ToProgramSourcePtrOutputWithContext(context.Background())
 }
 
-// VCS source of the pipeline program.
-func (o ProgramSourceOutput) Source() pulumi.AnyOutput {
-	return o.ApplyT(func(v ProgramSource) interface{} { return v.Source }).(pulumi.AnyOutput)
+func (o ProgramSourceOutput) ToProgramSourcePtrOutputWithContext(ctx context.Context) ProgramSourcePtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v ProgramSource) *ProgramSource {
+		return &v
+	}).(ProgramSourcePtrOutput)
+}
+
+// Branch that tracks the pipeline program. Omit it to use the branch that the service detects.
+func (o ProgramSourceOutput) Branch() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v ProgramSource) *string { return v.Branch }).(pulumi.StringPtrOutput)
+}
+
+// Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to use the directory that the service detects.
+func (o ProgramSourceOutput) Directory() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v ProgramSource) *string { return v.Directory }).(pulumi.StringPtrOutput)
+}
+
+// Clone URL of the repository.
+func (o ProgramSourceOutput) Url() pulumi.StringOutput {
+	return o.ApplyT(func(v ProgramSource) string { return v.Url }).(pulumi.StringOutput)
+}
+
+type ProgramSourcePtrOutput struct{ *pulumi.OutputState }
+
+func (ProgramSourcePtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**ProgramSource)(nil)).Elem()
+}
+
+func (o ProgramSourcePtrOutput) ToProgramSourcePtrOutput() ProgramSourcePtrOutput {
+	return o
+}
+
+func (o ProgramSourcePtrOutput) ToProgramSourcePtrOutputWithContext(ctx context.Context) ProgramSourcePtrOutput {
+	return o
+}
+
+func (o ProgramSourcePtrOutput) Elem() ProgramSourceOutput {
+	return o.ApplyT(func(v *ProgramSource) ProgramSource {
+		if v != nil {
+			return *v
+		}
+		var ret ProgramSource
+		return ret
+	}).(ProgramSourceOutput)
+}
+
+// Branch that tracks the pipeline program. Omit it to use the branch that the service detects.
+func (o ProgramSourcePtrOutput) Branch() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *ProgramSource) *string {
+		if v == nil {
+			return nil
+		}
+		return v.Branch
+	}).(pulumi.StringPtrOutput)
+}
+
+// Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to use the directory that the service detects.
+func (o ProgramSourcePtrOutput) Directory() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *ProgramSource) *string {
+		if v == nil {
+			return nil
+		}
+		return v.Directory
+	}).(pulumi.StringPtrOutput)
+}
+
+// Clone URL of the repository.
+func (o ProgramSourcePtrOutput) Url() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *ProgramSource) *string {
+		if v == nil {
+			return nil
+		}
+		return &v.Url
+	}).(pulumi.StringPtrOutput)
 }
 
 // Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.
@@ -1171,6 +1285,7 @@ func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*ImageCredentialsInput)(nil)).Elem(), ImageCredentialsArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*ImageCredentialsPtrInput)(nil)).Elem(), ImageCredentialsArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*ProgramSourceInput)(nil)).Elem(), ProgramSourceArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*ProgramSourcePtrInput)(nil)).Elem(), ProgramSourceArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*RuleInput)(nil)).Elem(), RuleArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*RulePtrInput)(nil)).Elem(), RuleArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*RuleArrayInput)(nil)).Elem(), RuleArray{})
@@ -1183,6 +1298,7 @@ func init() {
 	pulumi.RegisterOutputType(ImageCredentialsOutput{})
 	pulumi.RegisterOutputType(ImageCredentialsPtrOutput{})
 	pulumi.RegisterOutputType(ProgramSourceOutput{})
+	pulumi.RegisterOutputType(ProgramSourcePtrOutput{})
 	pulumi.RegisterOutputType(RuleOutput{})
 	pulumi.RegisterOutputType(RulePtrOutput{})
 	pulumi.RegisterOutputType(RuleArrayOutput{})

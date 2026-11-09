@@ -148,7 +148,7 @@ func (r *CombinedRuleArgs) Annotate(a infer.Annotator) {
 }
 
 func (r *Pipeline) Annotate(a infer.Annotator) {
-	a.Describe(r, `Declares the pipeline. It names the source and directory of the pipeline program itself, and it gives the release number of the run. A program has one Pipeline.
+	a.Describe(r, `Declares the pipeline. It gives the release number of the run. The service detects the repository, branch and directory of the pipeline program from the git metadata that the Pulumi CLI records with each update. A program has one Pipeline.
 
 To register the pipeline, run pulumi up on the pipeline stack. Registration ends with exit code 10, because the members wait for a run.
 
@@ -157,28 +157,25 @@ To register the pipeline, run pulumi up on the pipeline stack. Registration ends
 `+"```"+`typescript
 import * as delivery from "@pulumi/delivery";
 
-const code = new delivery.GitHubSource("code", {
-    repository: "acme/shop",
-    branch: "main",
-    trigger: true,
-});
-const pipeline = new delivery.Pipeline("shop", {
-    program: { source: code, directory: "delivery" },
-});
+const pipeline = new delivery.Pipeline("shop");
 export const release = pipeline.releaseNumber;
 `+"```")
 	a.Describe(&r.ReleaseNumber, "Number of the release of the run. It is unknown during registration and preview.")
 }
 
 func (r *PipelineArgs) Annotate(a infer.Annotator) {
-	a.Describe(r, "Pipeline settings.")
-	a.Describe(&r.Program, "Source and directory of the pipeline program.")
+	a.Describe(r, "Pipeline settings. A Pipeline has no inputs.")
+}
+
+func (r *ProviderConfig) Annotate(a infer.Annotator) {
+	a.Describe(&r.Source, "Location of the pipeline program, for a repository that the service cannot detect, such as a self-hosted forge or an unusual remote.")
 }
 
 func (r *ProgramSource) Annotate(a infer.Annotator) {
 	a.Describe(r, "Location of the pipeline program in a repository.")
-	a.Describe(&r.Source, "VCS source of the pipeline program.")
-	a.Describe(&r.Directory, "Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root.")
+	a.Describe(&r.URL, "Clone URL of the repository.")
+	a.Describe(&r.Branch, "Branch that tracks the pipeline program. Omit it to use the branch that the service detects.")
+	a.Describe(&r.Directory, "Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to use the directory that the service detects.")
 }
 
 func (r *Stage) Annotate(a infer.Annotator) {

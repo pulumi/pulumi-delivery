@@ -48,7 +48,7 @@ func isDeliveryComponent(typ string) bool {
 //   - sends the declaration to the service in a real update, before the component code runs,
 //   - reads the value of a source from the service in a run, and
 //   - makes the outputs of a member depend on its child resource.
-func withDeliveryConstruct(inner func(context.Context, p.ConstructRequest) (p.ConstructResponse, error),
+func withDeliveryConstruct(config *ProviderConfig, inner func(context.Context, p.ConstructRequest) (p.ConstructResponse, error),
 ) func(context.Context, p.ConstructRequest) (p.ConstructResponse, error) {
 	return func(ctx context.Context, req p.ConstructRequest) (p.ConstructResponse, error) {
 		typ := string(req.Urn.Type())
@@ -73,7 +73,11 @@ func withDeliveryConstruct(inner func(context.Context, p.ConstructRequest) (p.Co
 			if err != nil {
 				return p.ConstructResponse{}, err
 			}
-			request, err := decl.request(ctx, req.Inputs)
+			inputs := req.Inputs
+			if typ == typePipeline && config.Source != nil {
+				inputs = inputs.Set("programSource", property.New(config.Source.value()))
+			}
+			request, err := decl.request(ctx, inputs)
 			if err != nil {
 				return p.ConstructResponse{}, err
 			}
@@ -451,15 +455,6 @@ func validateInputs(typ string, inputs property.Map) error {
 		return validateTrigger(inputs, true)
 	}
 	switch typ {
-	case typePipeline:
-		if unknown(inputs, "program") {
-			return nil
-		}
-		program := mapInput(inputs.Get("program"))
-		if err := requireRef(program, "source", sourceTypes...); err != nil {
-			return fmt.Errorf("program.%w", err)
-		}
-		return requiredUnlessUnknown(inputs, stringInput(program, "directory"), "program", "directory")
 	case typeStage:
 		if err := requireRef(inputs, "pipeline", typePipeline); err != nil {
 			return err
@@ -645,4 +640,16 @@ func redactValue(value property.Value) property.Value {
 		return property.New(property.NewArray(items)).WithDependencies(value.Dependencies())
 	}
 	return value
+}
+
+// value is the programSource of the Pipeline declaration. It leaves out the fields that are not set.
+func (s ProgramSource) value() property.Map {
+	m := map[string]property.Value{"url": property.New(s.URL)}
+	if s.Branch != "" {
+		m["branch"] = property.New(s.Branch)
+	}
+	if s.Directory != "" {
+		m["directory"] = property.New(s.Directory)
+	}
+	return property.NewMap(m)
 }

@@ -30,7 +30,9 @@ func main() {
 }
 
 func newProvider() (p.Provider, error) {
+	config := &ProviderConfig{}
 	provider, err := infer.NewProviderBuilder().
+		WithConfig(infer.Config(config)).
 		WithNamespace("delivery").
 		WithDisplayName("Pulumi Delivery").
 		WithDescription("Define Delivery pipelines, stages, jobs and sources in a Pulumi program.").
@@ -76,7 +78,7 @@ func newProvider() (p.Provider, error) {
 		return p.Provider{}, err
 	}
 	provider = unknownOutputsInPreview(provider)
-	provider.Construct = withDeliveryConstruct(provider.Construct)
+	provider.Construct = withDeliveryConstruct(config, provider.Construct)
 	provider.GetSchema = withReferences(provider.GetSchema)
 	return provider, nil
 }

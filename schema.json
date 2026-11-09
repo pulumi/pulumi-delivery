@@ -41,7 +41,14 @@
       "respectSchemaVersion": true
     }
   },
-  "config": {},
+  "config": {
+    "variables": {
+      "source": {
+        "$ref": "#/types/delivery:index:ProgramSource",
+        "description": "Location of the pipeline program, for a repository that the service cannot detect, such as a self-hosted forge or an unusual remote."
+      }
+    }
+  },
   "types": {
     "delivery:index:Image": {
       "description": "Container image that a member runs in.",
@@ -82,32 +89,22 @@
     "delivery:index:ProgramSource": {
       "description": "Location of the pipeline program in a repository.",
       "properties": {
+        "branch": {
+          "type": "string",
+          "description": "Branch that tracks the pipeline program. Omit it to use the branch that the service detects."
+        },
         "directory": {
           "type": "string",
-          "description": "Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root."
+          "description": "Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to use the directory that the service detects."
         },
-        "source": {
-          "oneOf": [
-            {
-              "$ref": "#/resources/delivery:index:GitHubSource"
-            },
-            {
-              "$ref": "#/resources/delivery:index:GitLabSource"
-            },
-            {
-              "$ref": "#/resources/delivery:index:BitbucketSource"
-            },
-            {
-              "$ref": "#/resources/delivery:index:AzureDevOpsSource"
-            }
-          ],
-          "description": "VCS source of the pipeline program."
+        "url": {
+          "type": "string",
+          "description": "Clone URL of the repository."
         }
       },
       "type": "object",
       "required": [
-        "source",
-        "directory"
+        "url"
       ]
     },
     "delivery:index:Rule": {
@@ -282,6 +279,20 @@
       "required": [
         "agentPool"
       ]
+    }
+  },
+  "provider": {
+    "properties": {
+      "source": {
+        "$ref": "#/types/delivery:index:ProgramSource",
+        "description": "Location of the pipeline program, for a repository that the service cannot detect, such as a self-hosted forge or an unusual remote."
+      }
+    },
+    "inputProperties": {
+      "source": {
+        "$ref": "#/types/delivery:index:ProgramSource",
+        "description": "Location of the pipeline program, for a repository that the service cannot detect, such as a self-hosted forge or an unusual remote."
+      }
     }
   },
   "resources": {
@@ -544,7 +555,7 @@
       "isComponent": true
     },
     "delivery:index:Pipeline": {
-      "description": "Declares the pipeline. It names the source and directory of the pipeline program itself, and it gives the release number of the run. A program has one Pipeline.\n\nTo register the pipeline, run pulumi up on the pipeline stack. Registration ends with exit code 10, because the members wait for a run.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nconst code = new delivery.GitHubSource(\"code\", {\n    repository: \"acme/shop\",\n    branch: \"main\",\n    trigger: true,\n});\nconst pipeline = new delivery.Pipeline(\"shop\", {\n    program: { source: code, directory: \"delivery\" },\n});\nexport const release = pipeline.releaseNumber;\n```",
+      "description": "Declares the pipeline. It gives the release number of the run. The service detects the repository, branch and directory of the pipeline program from the git metadata that the Pulumi CLI records with each update. A program has one Pipeline.\n\nTo register the pipeline, run pulumi up on the pipeline stack. Registration ends with exit code 10, because the members wait for a run.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nconst pipeline = new delivery.Pipeline(\"shop\");\nexport const release = pipeline.releaseNumber;\n```",
       "properties": {
         "releaseNumber": {
           "type": "integer",
@@ -553,15 +564,6 @@
       },
       "required": [
         "releaseNumber"
-      ],
-      "inputProperties": {
-        "program": {
-          "$ref": "#/types/delivery:index:ProgramSource",
-          "description": "Source and directory of the pipeline program."
-        }
-      },
-      "requiredInputs": [
-        "program"
       ],
       "isComponent": true
     },

@@ -16,9 +16,57 @@ from . import _utilities
 from . import outputs
 
 __all__ = [
+    'ProgramSource',
     'Rule',
     'WorkflowsRuntimeArgs',
 ]
+
+@pulumi.output_type
+class ProgramSource(dict):
+    """
+    Location of the pipeline program in a repository.
+    """
+    def __init__(__self__, *,
+                 url: _builtins.str,
+                 branch: Optional[_builtins.str] = None,
+                 directory: Optional[_builtins.str] = None):
+        """
+        Location of the pipeline program in a repository.
+
+        :param _builtins.str url: Clone URL of the repository.
+        :param _builtins.str branch: Branch that tracks the pipeline program. Omit it to use the branch that the service detects.
+        :param _builtins.str directory: Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to use the directory that the service detects.
+        """
+        pulumi.set(__self__, "url", url)
+        if branch is not None:
+            pulumi.set(__self__, "branch", branch)
+        if directory is not None:
+            pulumi.set(__self__, "directory", directory)
+
+    @_builtins.property
+    @pulumi.getter
+    def url(self) -> _builtins.str:
+        """
+        Clone URL of the repository.
+        """
+        return pulumi.get(self, "url")
+
+    @_builtins.property
+    @pulumi.getter
+    def branch(self) -> Optional[_builtins.str]:
+        """
+        Branch that tracks the pipeline program. Omit it to use the branch that the service detects.
+        """
+        return pulumi.get(self, "branch")
+
+    @_builtins.property
+    @pulumi.getter
+    def directory(self) -> Optional[_builtins.str]:
+        """
+        Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to use the directory that the service detects.
+        """
+        return pulumi.get(self, "directory")
+
 
 @pulumi.output_type
 class Rule(dict):

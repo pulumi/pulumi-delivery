@@ -145,52 +145,73 @@ class ProgramSourceArgsDict(TypedDict):
     """
     Location of the pipeline program in a repository.
     """
-    directory: pulumi.Input[_builtins.str]
+    url: pulumi.Input[_builtins.str]
     """
-    Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root.
+    Clone URL of the repository.
     """
-    source: pulumi.Input[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource']]
+    branch: NotRequired[pulumi.Input[Optional[_builtins.str]]]
     """
-    VCS source of the pipeline program.
+    Branch that tracks the pipeline program. Omit it to use the branch that the service detects.
+    """
+    directory: NotRequired[pulumi.Input[Optional[_builtins.str]]]
+    """
+    Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to use the directory that the service detects.
     """
 
 @pulumi.input_type
 class ProgramSourceArgs:
     def __init__(__self__, *,
-                 directory: pulumi.Input[_builtins.str],
-                 source: pulumi.Input[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource']]):
+                 url: pulumi.Input[_builtins.str],
+                 branch: pulumi.Input[Optional[_builtins.str]] = None,
+                 directory: pulumi.Input[Optional[_builtins.str]] = None):
         """
         Location of the pipeline program in a repository.
 
-        :param pulumi.Input[_builtins.str] directory: Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root.
-        :param pulumi.Input[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource']] source: VCS source of the pipeline program.
+        :param pulumi.Input[_builtins.str] url: Clone URL of the repository.
+        :param pulumi.Input[_builtins.str] branch: Branch that tracks the pipeline program. Omit it to use the branch that the service detects.
+        :param pulumi.Input[_builtins.str] directory: Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to use the directory that the service detects.
         """
-        pulumi.set(__self__, "directory", directory)
-        pulumi.set(__self__, "source", source)
+        pulumi.set(__self__, "url", url)
+        if branch is not None:
+            pulumi.set(__self__, "branch", branch)
+        if directory is not None:
+            pulumi.set(__self__, "directory", directory)
 
     @_builtins.property
     @pulumi.getter
-    def directory(self) -> pulumi.Input[_builtins.str]:
+    def url(self) -> pulumi.Input[_builtins.str]:
         """
-        Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root.
+        Clone URL of the repository.
+        """
+        return pulumi.get(self, "url")
+
+    @url.setter
+    def url(self, value: pulumi.Input[_builtins.str]):
+        pulumi.set(self, "url", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def branch(self) -> pulumi.Input[Optional[_builtins.str]]:
+        """
+        Branch that tracks the pipeline program. Omit it to use the branch that the service detects.
+        """
+        return pulumi.get(self, "branch")
+
+    @branch.setter
+    def branch(self, value: pulumi.Input[Optional[_builtins.str]]):
+        pulumi.set(self, "branch", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def directory(self) -> pulumi.Input[Optional[_builtins.str]]:
+        """
+        Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to use the directory that the service detects.
         """
         return pulumi.get(self, "directory")
 
     @directory.setter
-    def directory(self, value: pulumi.Input[_builtins.str]):
+    def directory(self, value: pulumi.Input[Optional[_builtins.str]]):
         pulumi.set(self, "directory", value)
-
-    @_builtins.property
-    @pulumi.getter
-    def source(self) -> pulumi.Input[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource']]:
-        """
-        VCS source of the pipeline program.
-        """
-        return pulumi.get(self, "source")
-
-    @source.setter
-    def source(self, value: pulumi.Input[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource']]):
-        pulumi.set(self, "source", value)
 
 
 class RuleDict(TypedDict):

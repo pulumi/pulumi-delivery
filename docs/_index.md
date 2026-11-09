@@ -24,7 +24,7 @@ Set up the Pulumi integration for your forge.
 - [Bitbucket](https://www.pulumi.com/docs/integrations/version-control/bitbucket/)
 - [Azure DevOps](https://www.pulumi.com/docs/integrations/version-control/azure-devops-integration/)
 
-Give the integration access to each repository that a source names, including the repository of the pipeline program. Pulumi Cloud picks the integration of your organization whose account (GitHub), group (GitLab), workspace (Bitbucket) or organization and project (Azure DevOps) holds the repository.
+Give the integration access to each repository that a source names and to the repository of the pipeline program. Pulumi Cloud picks the integration of your organization whose account (GitHub), group (GitLab), workspace (Bitbucket) or organization and project (Azure DevOps) holds the repository.
 
 Write the `repository` of a source like this:
 
@@ -150,9 +150,7 @@ import * as delivery from "@pulumi/delivery";
 
 const app = new delivery.GitHubSource("app", { repository: "acme/shop", branch: "main", trigger: true });
 
-const pipeline = new delivery.Pipeline("shop", {
-    program: { source: app, directory: "delivery" },
-});
+const pipeline = new delivery.Pipeline("shop");
 
 const dev = new delivery.Stage("dev", { pipeline });
 const prod = new delivery.Stage("prod", {
@@ -208,7 +206,7 @@ echo "{\"checked\": \"$ENDPOINT\"}" > "$DELIVERY_OUTPUTS"
 
 ### Register the pipeline
 
-Commit everything and push it. A run checks out the pipeline program from the repository.
+Commit everything and push it to the branch that tracks the pipeline. Delivery detects the repository, the branch and the directory of the pipeline program from the git metadata that the Pulumi CLI records with each update. A run checks out the pipeline program from that repository.
 
 ```sh
 cd delivery
@@ -223,12 +221,25 @@ Register the pipeline:
 pulumi up
 ```
 
-The update ends with exit code 10 and one of these messages.
+The update ends with exit code 10. Delivery rejects the update with an error in these cases.
 
-- "Registered. A run starts for commit abc1234 when this update finishes."
-- "Registered. No run starts because commit abc1234 is not the head of branch main." Push your commit, or pull the latest commit and register again.
-- "Registered. No run starts because the checkout has uncommitted changes. Commit the changes. Push the commit to start a run."
-- "Registered. No run starts because the update has no git commit." Run `pulumi up` from a Git checkout.
+- The checkout has uncommitted changes. Commit the changes.
+- The commit is not on the tracked branch. Commit, push and merge it, then register again.
+- The update has no git commit. Run `pulumi up` from a Git checkout.
+
+If Delivery cannot detect the repository, for example on a self-hosted forge or with an unusual remote, set `delivery:source` in the stack config:
+
+```yaml
+config:
+  delivery:source:
+    url: https://github.com/acme/shop
+    branch: main
+    directory: delivery
+```
+
+`url` is required. `branch` and `directory` are optional and default to the detected values.
+
+A push to the tracked branch updates the pipeline: Delivery runs `pulumi up` on the pipeline stack. A run never changes the pipeline definition.
 
 ### Watch the run
 
@@ -407,7 +418,7 @@ Both pipelines must be in the same organization. With `trigger: true`, each new 
 
 ### One repository, several pipelines
 
-A monorepo can hold the programs of several pipelines. Give each pipeline its own program directory, its own pipeline stack and a source that triggers only on its own paths.
+A monorepo can hold the programs of several pipelines. Give each pipeline its own program directory, its own pipeline stack and a source that triggers only on its own paths. Delivery detects the directory of each pipeline program from the directory where you run `pulumi up`.
 
 ```typescript
 // delivery/shop/index.ts
@@ -416,9 +427,7 @@ const repo = new delivery.GitHubSource("repo", {
     branch: "main",
     trigger: { paths: ["shop/**", "delivery/shop/**"] },
 });
-const pipeline = new delivery.Pipeline("shop", {
-    program: { source: repo, directory: "delivery/shop" },
-});
+const pipeline = new delivery.Pipeline("shop");
 ```
 
 The pipeline in `delivery/search/index.ts` is the same, with `search/**` and `delivery/search/**` as the paths. A push that changes only `search/` then starts only the `search` pipeline. Every pipeline needs its own pipeline stack, for example `acme/shop-delivery/main` and `acme/search-delivery/main`. Register each one with `pulumi up` in its own directory.
@@ -458,7 +467,7 @@ These actions create a new run for one stage. The new run uses the release, the 
 
 ## Writing pipelines
 
-- Each member names `source`, `directory` and `stage`. A program has one `Pipeline`. Stage names are unique.
+- Each member names `source`, `directory` and `stage`. A program has one `Pipeline`, which takes no inputs. Stage names are unique.
 - `config` and `environment` values are plain strings. `config` cannot hold secrets. A secret in `environment` stays secret.
 - Normal code decides which stages and members a run has. You can use `if`, loops and `.apply` on member outputs.
 - A resource that is not a Delivery resource must use a member output to wait for a member. `dependsOn` orders only Delivery members.

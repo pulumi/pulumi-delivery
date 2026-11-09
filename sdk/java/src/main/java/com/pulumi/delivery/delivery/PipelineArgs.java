@@ -3,43 +3,15 @@
 
 package com.pulumi.delivery.delivery;
 
-import com.pulumi.core.Output;
-import com.pulumi.core.annotations.Import;
-import com.pulumi.delivery.delivery.inputs.ProgramSourceArgs;
-import com.pulumi.exceptions.MissingRequiredPropertyException;
-import java.util.Objects;
+
 
 
 public final class PipelineArgs extends com.pulumi.resources.ResourceArgs {
 
     public static final PipelineArgs Empty = new PipelineArgs();
 
-    /**
-     * Source and directory of the pipeline program.
-     * 
-     */
-    @Import(name="program", required=true)
-    private Output<ProgramSourceArgs> program;
-
-    /**
-     * @return Source and directory of the pipeline program.
-     * 
-     */
-    public Output<ProgramSourceArgs> program() {
-        return this.program;
-    }
-
-    private PipelineArgs() {}
-
-    private PipelineArgs(PipelineArgs $) {
-        this.program = $.program;
-    }
-
     public static Builder builder() {
         return new Builder();
-    }
-    public static Builder builder(PipelineArgs defaults) {
-        return new Builder(defaults);
     }
 
     public static final class Builder {
@@ -48,36 +20,7 @@ public final class PipelineArgs extends com.pulumi.resources.ResourceArgs {
         public Builder() {
             $ = new PipelineArgs();
         }
-
-        public Builder(PipelineArgs defaults) {
-            $ = new PipelineArgs(Objects.requireNonNull(defaults));
-        }
-
-        /**
-         * @param program Source and directory of the pipeline program.
-         * 
-         * @return builder
-         * 
-         */
-        public Builder program(Output<ProgramSourceArgs> program) {
-            $.program = program;
-            return this;
-        }
-
-        /**
-         * @param program Source and directory of the pipeline program.
-         * 
-         * @return builder
-         * 
-         */
-        public Builder program(ProgramSourceArgs program) {
-            return program(Output.of(program));
-        }
-
         public PipelineArgs build() {
-            if ($.program == null) {
-                throw new MissingRequiredPropertyException("PipelineArgs", "program");
-            }
             return $;
         }
     }

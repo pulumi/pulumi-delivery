@@ -441,15 +441,32 @@ func TestStageRulesWithSecretsAndUnknowns(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func TestUnknownProgramIsNotChecked(t *testing.T) {
-	newFakeService(t)
-	_, err := newServer(t).Construct(p.ConstructRequest{
-		Urn:          urnOf(typePipeline, "shop"),
-		Organization: "org",
-		DryRun:       true,
-		Inputs:       property.NewMap(map[string]property.Value{"program": property.New(property.Computed)}),
-	})
+// TestProgramSourceConfig checks that delivery:source reaches Construct as the engine passes it (a JSON string)
+// and that only the declaration request carries it.
+func TestProgramSourceConfig(t *testing.T) {
+	service := newFakeService(t)
+	server := newServer(t)
+
+	_, err := server.Construct(pipelineRequest(false))
 	require.NoError(t, err)
+	assert.NotContains(t, service.declared()[0]["inputs"], "programSource")
+
+	// The engine sends the stack config through CheckConfig and passes its result to Configure.
+	checked, err := server.CheckConfig(p.CheckRequest{Inputs: property.NewMap(map[string]property.Value{
+		"source": property.New(`{"url":"https://git.example.com/acme/shop","directory":"delivery"}`),
+	})})
+	require.NoError(t, err)
+	require.NoError(t, server.Configure(p.ConfigureRequest{Args: checked.Inputs}))
+	resp, err := server.Construct(pipelineRequest(false))
+	require.NoError(t, err)
+	assert.NotContains(t, resp.State.AsMap(), "programSource")
+	assert.Equal(t, map[string]any{"url": "https://git.example.com/acme/shop", "directory": "delivery"},
+		service.declared()[1]["inputs"].(map[string]any)["programSource"])
+
+	// Other components do not carry it.
+	_, err = server.Construct(jobRequest(false))
+	require.NoError(t, err)
+	assert.NotContains(t, service.declared()[2]["inputs"], "programSource")
 }
 
 func TestChildCarriesTheFullDeclaration(t *testing.T) {
@@ -593,12 +610,7 @@ func pipelineRequest(dryRun bool) p.ConstructRequest {
 		Urn:          urnOf(typePipeline, "shop"),
 		Organization: "org",
 		DryRun:       dryRun,
-		Inputs: property.NewMap(map[string]property.Value{
-			"program": property.New(property.NewMap(map[string]property.Value{
-				"source":    reference("delivery:index:GitHubSource", "code"),
-				"directory": property.New("delivery"),
-			})),
-		}),
+		Inputs:       property.NewMap(nil),
 	}
 }
 
@@ -654,12 +666,6 @@ func TestComponentsRecordTheirInputs(t *testing.T) {
 		key    string
 		want   property.Value
 	}{
-		{typ: typePipeline, name: "main", key: "program", inputs: property.NewMap(map[string]property.Value{
-			"program": property.New(property.NewMap(map[string]property.Value{
-				"source":    reference("delivery:index:GitHubSource", "code"),
-				"directory": property.New("infra"),
-			})),
-		})},
 		{typ: typeStage, name: "dev", key: "pipeline", inputs: property.NewMap(map[string]property.Value{
 			"pipeline": reference(typePipeline, "main"),
 		})},

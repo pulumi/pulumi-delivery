@@ -11,7 +11,7 @@ using Pulumi;
 namespace Pulumi.Delivery.Delivery
 {
     /// <summary>
-    /// Declares the pipeline. It names the source and directory of the pipeline program itself, and it gives the release number of the run. A program has one Pipeline.
+    /// Declares the pipeline. It gives the release number of the run. The service detects the repository, branch and directory of the pipeline program from the git metadata that the Pulumi CLI records with each update. A program has one Pipeline.
     /// 
     /// To register the pipeline, run pulumi up on the pipeline stack. Registration ends with exit code 10, because the members wait for a run.
     /// 
@@ -34,7 +34,7 @@ namespace Pulumi.Delivery.Delivery
         /// <param name="name">The unique name of the resource</param>
         /// <param name="args">The arguments used to populate this resource's properties</param>
         /// <param name="options">A bag of options that control this resource's behavior</param>
-        public Pipeline(string name, PipelineArgs args, ComponentResourceOptions? options = null)
+        public Pipeline(string name, PipelineArgs? args = null, ComponentResourceOptions? options = null)
             : base("delivery:index:Pipeline", name, args ?? new PipelineArgs(), MakeResourceOptions(options, ""), remote: true)
         {
         }
@@ -55,12 +55,6 @@ namespace Pulumi.Delivery.Delivery
 
     public sealed class PipelineArgs : global::Pulumi.ResourceArgs
     {
-        /// <summary>
-        /// Source and directory of the pipeline program.
-        /// </summary>
-        [Input("program", required: true)]
-        public Input<Inputs.ProgramSourceArgs> Program { get; set; } = null!;
-
         public PipelineArgs()
         {
         }

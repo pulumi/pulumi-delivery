@@ -2,14 +2,10 @@
 // *** Do not edit by hand unless you're certain you know what you are doing! ***
 
 import * as pulumi from "@pulumi/pulumi";
-import * as inputs from "./types/input";
-import * as outputs from "./types/output";
 import * as utilities from "./utilities";
 
-import {AzureDevOpsSource, BitbucketSource, GitHubSource, GitLabSource} from "./index";
-
 /**
- * Declares the pipeline. It names the source and directory of the pipeline program itself, and it gives the release number of the run. A program has one Pipeline.
+ * Declares the pipeline. It gives the release number of the run. The service detects the repository, branch and directory of the pipeline program from the git metadata that the Pulumi CLI records with each update. A program has one Pipeline.
  *
  * To register the pipeline, run pulumi up on the pipeline stack. Registration ends with exit code 10, because the members wait for a run.
  *
@@ -18,14 +14,7 @@ import {AzureDevOpsSource, BitbucketSource, GitHubSource, GitLabSource} from "./
  * ```typescript
  * import * as delivery from "@pulumi/delivery";
  *
- * const code = new delivery.GitHubSource("code", {
- *     repository: "acme/shop",
- *     branch: "main",
- *     trigger: true,
- * });
- * const pipeline = new delivery.Pipeline("shop", {
- *     program: { source: code, directory: "delivery" },
- * });
+ * const pipeline = new delivery.Pipeline("shop");
  * export const release = pipeline.releaseNumber;
  * ```
  */
@@ -56,14 +45,10 @@ export class Pipeline extends pulumi.ComponentResource {
      * @param args The arguments to use to populate this resource's properties.
      * @param opts A bag of options that control this resource's behavior.
      */
-    constructor(name: string, args: PipelineArgs, opts?: pulumi.ComponentResourceOptions) {
+    constructor(name: string, args?: PipelineArgs, opts?: pulumi.ComponentResourceOptions) {
         let resourceInputs: pulumi.Inputs = {};
         opts = opts || {};
         if (!opts.id) {
-            if (args?.program === undefined && !opts.urn) {
-                throw new Error("Missing required property 'program'");
-            }
-            resourceInputs["program"] = args?.program;
             resourceInputs["releaseNumber"] = undefined /*out*/;
         } else {
             resourceInputs["releaseNumber"] = undefined /*out*/;
@@ -77,8 +62,4 @@ export class Pipeline extends pulumi.ComponentResource {
  * The set of arguments for constructing a Pipeline resource.
  */
 export interface PipelineArgs {
-    /**
-     * Source and directory of the pipeline program.
-     */
-    program: pulumi.Input<inputs.ProgramSourceArgs>;
 }

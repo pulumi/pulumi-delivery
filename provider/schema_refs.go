@@ -34,7 +34,6 @@ var referencePatches = []struct {
 	path   []string
 	target func() map[string]any
 }{
-	{[]string{"types", "delivery:index:ProgramSource", "properties", "source"}, sourceRef},
 	{[]string{"resources", typeStage, "inputProperties", "pipeline"}, func() map[string]any { return ref(typePipeline) }},
 	{[]string{"resources", typeStage, "inputProperties", "from"}, func() map[string]any { return array(ref(typeStage)) }},
 	{[]string{"resources", typeJob, "inputProperties", "stage"}, func() map[string]any { return ref(typeStage) }},

@@ -13,36 +13,16 @@ if sys.version_info >= (3, 11):
 else:
     from typing_extensions import NotRequired, TypedDict, TypeAlias
 from . import _utilities
-from ._inputs import *
-from .azure_dev_ops_source import AzureDevOpsSource
-from .bitbucket_source import BitbucketSource
-from .git_hub_source import GitHubSource
-from .git_lab_source import GitLabSource
 
 __all__ = ['PipelineArgs', 'Pipeline']
 
 @pulumi.input_type
 class PipelineArgs:
-    def __init__(__self__, *,
-                 program: pulumi.Input['ProgramSourceArgs']):
+    def __init__(__self__):
         """
         The set of arguments for constructing a Pipeline resource.
-
-        :param pulumi.Input['ProgramSourceArgs'] program: Source and directory of the pipeline program.
         """
-        pulumi.set(__self__, "program", program)
-
-    @_builtins.property
-    @pulumi.getter
-    def program(self) -> pulumi.Input['ProgramSourceArgs']:
-        """
-        Source and directory of the pipeline program.
-        """
-        return pulumi.get(self, "program")
-
-    @program.setter
-    def program(self, value: pulumi.Input['ProgramSourceArgs']):
-        pulumi.set(self, "program", value)
+        pass
 
 
 @pulumi.type_token("delivery:index:Pipeline")
@@ -51,10 +31,9 @@ class Pipeline(pulumi.ComponentResource):
     def __init__(__self__,
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
-                 program: pulumi.Input[Optional[Union['ProgramSourceArgs', 'ProgramSourceArgsDict']]] = None,
                  __props__=None):
         """
-        Declares the pipeline. It names the source and directory of the pipeline program itself, and it gives the release number of the run. A program has one Pipeline.
+        Declares the pipeline. It gives the release number of the run. The service detects the repository, branch and directory of the pipeline program from the git metadata that the Pulumi CLI records with each update. A program has one Pipeline.
 
         To register the pipeline, run pulumi up on the pipeline stack. Registration ends with exit code 10, because the members wait for a run.
 
@@ -62,16 +41,15 @@ class Pipeline(pulumi.ComponentResource):
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
-        :param pulumi.Input[Union['ProgramSourceArgs', 'ProgramSourceArgsDict']] program: Source and directory of the pipeline program.
         """
         ...
     @overload
     def __init__(__self__,
                  resource_name: str,
-                 args: PipelineArgs,
+                 args: Optional[PipelineArgs] = None,
                  opts: Optional[pulumi.ResourceOptions] = None):
         """
-        Declares the pipeline. It names the source and directory of the pipeline program itself, and it gives the release number of the run. A program has one Pipeline.
+        Declares the pipeline. It gives the release number of the run. The service detects the repository, branch and directory of the pipeline program from the git metadata that the Pulumi CLI records with each update. A program has one Pipeline.
 
         To register the pipeline, run pulumi up on the pipeline stack. Registration ends with exit code 10, because the members wait for a run.
 
@@ -92,7 +70,6 @@ class Pipeline(pulumi.ComponentResource):
     def _internal_init(__self__,
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
-                 program: pulumi.Input[Optional[Union['ProgramSourceArgs', 'ProgramSourceArgsDict']]] = None,
                  __props__=None):
         opts = pulumi.ResourceOptions.merge(_utilities.get_resource_opts_defaults(), opts)
         if not isinstance(opts, pulumi.ResourceOptions):
@@ -104,9 +81,6 @@ class Pipeline(pulumi.ComponentResource):
                 raise TypeError('__props__ is only valid when passed in combination with a valid opts.id to get an existing resource')
             __props__ = PipelineArgs.__new__(PipelineArgs)
 
-            if program is None and not opts.urn:
-                raise TypeError("Missing required property 'program'")
-            __props__.__dict__["program"] = program
             __props__.__dict__["release_number"] = None
         super(Pipeline, __self__).__init__(
             'delivery:index:Pipeline',

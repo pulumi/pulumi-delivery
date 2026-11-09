@@ -41,6 +41,12 @@ namespace Pulumi.Delivery.Delivery
 
     public sealed class ProviderArgs : global::Pulumi.ResourceArgs
     {
+        /// <summary>
+        /// Location of the pipeline program, for a repository that the service cannot detect, such as a self-hosted forge or an unusual remote.
+        /// </summary>
+        [Input("source", json: true)]
+        public Input<Inputs.ProgramSourceArgs>? Source { get; set; }
+
         public ProviderArgs()
         {
         }

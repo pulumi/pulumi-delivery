@@ -304,7 +304,6 @@ func TestSchemaOfUpstreams(t *testing.T) {
 	assert.JSONEq(t, `{"type":"boolean"}`, stripDescription(t, schema.Resources[typePipelineSource].Inputs["trigger"]))
 	assert.NotContains(t, string(schema.Resources[typeJob].Inputs["source"]), typePipelineSource)
 	assert.NotContains(t, string(schema.Types["delivery:index:StacksEntry"].Properties["source"]), typePipelineSource)
-	assert.NotContains(t, string(schema.Types["delivery:index:ProgramSource"].Properties["source"]), typePipelineSource)
 	assert.Contains(t, string(schema.Resources[typeArtifact].Inputs["stage"]), typeStage)
 	assert.NotContains(t, schema.Resources[typeArtifact].Props, "childUrn")
 }
