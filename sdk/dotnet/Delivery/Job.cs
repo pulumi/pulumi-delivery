@@ -84,6 +84,30 @@ namespace Pulumi.Delivery.Delivery
         }
 
         /// <summary>
+        /// Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs bash, curl, gzip and the Pulumi CLI on PATH.
+        /// </summary>
+        [Input("image")]
+        public Input<Inputs.ImageArgs>? Image { get; set; }
+
+        [Input("preRunCommands")]
+        private InputList<string>? _preRunCommands;
+
+        /// <summary>
+        /// Bash commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
+        /// </summary>
+        public InputList<string> PreRunCommands
+        {
+            get => _preRunCommands ?? (_preRunCommands = new InputList<string>());
+            set => _preRunCommands = value;
+        }
+
+        /// <summary>
+        /// Pool that runs the job. In the private preview, all work runs on the hosted pool, so omit it.
+        /// </summary>
+        [Input("runtime")]
+        public Input<Pulumi.Delivery.Delivery.WorkflowsRuntime>? Runtime { get; set; }
+
+        /// <summary>
         /// VCS source to check out.
         /// </summary>
         [Input("source", required: true)]

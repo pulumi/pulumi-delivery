@@ -10,9 +10,12 @@ import com.pulumi.delivery.delivery.BitbucketSource;
 import com.pulumi.delivery.delivery.GitHubSource;
 import com.pulumi.delivery.delivery.GitLabSource;
 import com.pulumi.delivery.delivery.Stage;
+import com.pulumi.delivery.delivery.WorkflowsRuntime;
+import com.pulumi.delivery.delivery.inputs.ImageArgs;
 import com.pulumi.exceptions.MissingRequiredPropertyException;
 import java.lang.Object;
 import java.lang.String;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -69,6 +72,51 @@ public final class JobArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
+     * Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs bash, curl, gzip and the Pulumi CLI on PATH.
+     * 
+     */
+    @Import(name="image")
+    private @Nullable Output<ImageArgs> image;
+
+    /**
+     * @return Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs bash, curl, gzip and the Pulumi CLI on PATH.
+     * 
+     */
+    public Optional<Output<ImageArgs>> image() {
+        return Optional.ofNullable(this.image);
+    }
+
+    /**
+     * Bash commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
+     * 
+     */
+    @Import(name="preRunCommands")
+    private @Nullable Output<List<String>> preRunCommands;
+
+    /**
+     * @return Bash commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
+     * 
+     */
+    public Optional<Output<List<String>>> preRunCommands() {
+        return Optional.ofNullable(this.preRunCommands);
+    }
+
+    /**
+     * Pool that runs the job. In the private preview, all work runs on the hosted pool, so omit it.
+     * 
+     */
+    @Import(name="runtime")
+    private @Nullable Output<WorkflowsRuntime> runtime;
+
+    /**
+     * @return Pool that runs the job. In the private preview, all work runs on the hosted pool, so omit it.
+     * 
+     */
+    public Optional<Output<WorkflowsRuntime>> runtime() {
+        return Optional.ofNullable(this.runtime);
+    }
+
+    /**
      * VCS source to check out.
      * 
      */
@@ -119,6 +167,9 @@ public final class JobArgs extends com.pulumi.resources.ResourceArgs {
         this.command = $.command;
         this.directory = $.directory;
         this.environment = $.environment;
+        this.image = $.image;
+        this.preRunCommands = $.preRunCommands;
+        this.runtime = $.runtime;
         this.source = $.source;
         this.stage = $.stage;
         this.timeout = $.timeout;
@@ -203,6 +254,79 @@ public final class JobArgs extends com.pulumi.resources.ResourceArgs {
          */
         public Builder environment(Map<String,String> environment) {
             return environment(Output.of(environment));
+        }
+
+        /**
+         * @param image Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs bash, curl, gzip and the Pulumi CLI on PATH.
+         * 
+         * @return builder
+         * 
+         */
+        public Builder image(@Nullable Output<ImageArgs> image) {
+            $.image = image;
+            return this;
+        }
+
+        /**
+         * @param image Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs bash, curl, gzip and the Pulumi CLI on PATH.
+         * 
+         * @return builder
+         * 
+         */
+        public Builder image(ImageArgs image) {
+            return image(Output.of(image));
+        }
+
+        /**
+         * @param preRunCommands Bash commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
+         * 
+         * @return builder
+         * 
+         */
+        public Builder preRunCommands(@Nullable Output<List<String>> preRunCommands) {
+            $.preRunCommands = preRunCommands;
+            return this;
+        }
+
+        /**
+         * @param preRunCommands Bash commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
+         * 
+         * @return builder
+         * 
+         */
+        public Builder preRunCommands(List<String> preRunCommands) {
+            return preRunCommands(Output.of(preRunCommands));
+        }
+
+        /**
+         * @param preRunCommands Bash commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
+         * 
+         * @return builder
+         * 
+         */
+        public Builder preRunCommands(String... preRunCommands) {
+            return preRunCommands(List.of(preRunCommands));
+        }
+
+        /**
+         * @param runtime Pool that runs the job. In the private preview, all work runs on the hosted pool, so omit it.
+         * 
+         * @return builder
+         * 
+         */
+        public Builder runtime(@Nullable Output<WorkflowsRuntime> runtime) {
+            $.runtime = runtime;
+            return this;
+        }
+
+        /**
+         * @param runtime Pool that runs the job. In the private preview, all work runs on the hosted pool, so omit it.
+         * 
+         * @return builder
+         * 
+         */
+        public Builder runtime(WorkflowsRuntime runtime) {
+            return runtime(Output.of(runtime));
         }
 
         /**

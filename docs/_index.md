@@ -470,6 +470,26 @@ These actions create a new run for one stage. The new run uses the release, the 
 
 A job writes its outputs as a JSON object, at most 1 MiB, to the file that `DELIVERY_OUTPUTS` names. Each key is one output. Write an output as `{"value": ..., "secret": true}` to mark it secret. An output is also secret when it contains the value of a secret environment variable of the job.
 
+### Runner settings
+
+A `Job` and each entry of a `Stacks` member accept two settings for the runner.
+
+- `image` sets the container image the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example `pulumi/pulumi-nodejs:3.272.0`. The image needs `bash`, `curl`, `gzip` and the Pulumi CLI on `PATH`. For a private registry, set `image.credentials` with a `username` and a `password`. The password is a secret.
+- `preRunCommands` is a list of bash commands. They run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over.
+
+```typescript
+new delivery.Job("smoke", {
+    stage: prod,
+    source: code,
+    directory: "delivery",
+    command: "./scripts/smoke.sh",
+    image: { reference: "pulumi/pulumi-nodejs:3.272.0" },
+    preRunCommands: ["npm run build"],
+});
+```
+
+A `Job` also accepts `runtime`, like a `Stacks` entry.
+
 ### Environment variables
 
 Jobs and the `pulumi up` of a `Stacks` member see the identity of the run as environment variables.
