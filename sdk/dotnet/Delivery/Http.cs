@@ -209,7 +209,7 @@ namespace Pulumi.Delivery.Delivery
     public sealed class HttpResult
     {
         /// <summary>
-        /// Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
+        /// Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
         /// </summary>
         public readonly ImmutableArray<string> Approvers;
         /// <summary>

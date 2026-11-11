@@ -118,7 +118,7 @@ public final class DeliveryFunctions {
         return Deployment.getInstance().invokeAsync("delivery:index:anyOf", TypeShape.of(AnyOfResult.class), args, Utilities.withVersion(options));
     }
     /**
-     * Builds an approval rule for the when property of a Stage. The gate waits until the required number of eligible people approve. If you omit count or set it to zero, one approval is required. Anyone eligible can approve, including the person who started the run. If you name no approvers, anyone with the organization update permission can approve. Approving needs the Approvals feature.
+     * Builds an approval rule for the when property of a Stage. The gate waits until the required number of eligible people approve. If you omit count or set it to zero, one approval is required. Anyone eligible can approve, including the person who started the run. If you name no approvers, anyone with the pipeline:approve permission on the pipeline stack can approve. Approving needs the Approvals feature.
      * 
      * ## Example Usage
      * 
@@ -127,7 +127,7 @@ public final class DeliveryFunctions {
         return approval(ApprovalArgs.Empty, InvokeOptions.Empty);
     }
     /**
-     * Builds an approval rule for the when property of a Stage. The gate waits until the required number of eligible people approve. If you omit count or set it to zero, one approval is required. Anyone eligible can approve, including the person who started the run. If you name no approvers, anyone with the organization update permission can approve. Approving needs the Approvals feature.
+     * Builds an approval rule for the when property of a Stage. The gate waits until the required number of eligible people approve. If you omit count or set it to zero, one approval is required. Anyone eligible can approve, including the person who started the run. If you name no approvers, anyone with the pipeline:approve permission on the pipeline stack can approve. Approving needs the Approvals feature.
      * 
      * ## Example Usage
      * 
@@ -136,7 +136,7 @@ public final class DeliveryFunctions {
         return approvalPlain(ApprovalPlainArgs.Empty, InvokeOptions.Empty);
     }
     /**
-     * Builds an approval rule for the when property of a Stage. The gate waits until the required number of eligible people approve. If you omit count or set it to zero, one approval is required. Anyone eligible can approve, including the person who started the run. If you name no approvers, anyone with the organization update permission can approve. Approving needs the Approvals feature.
+     * Builds an approval rule for the when property of a Stage. The gate waits until the required number of eligible people approve. If you omit count or set it to zero, one approval is required. Anyone eligible can approve, including the person who started the run. If you name no approvers, anyone with the pipeline:approve permission on the pipeline stack can approve. Approving needs the Approvals feature.
      * 
      * ## Example Usage
      * 
@@ -145,7 +145,7 @@ public final class DeliveryFunctions {
         return approval(args, InvokeOptions.Empty);
     }
     /**
-     * Builds an approval rule for the when property of a Stage. The gate waits until the required number of eligible people approve. If you omit count or set it to zero, one approval is required. Anyone eligible can approve, including the person who started the run. If you name no approvers, anyone with the organization update permission can approve. Approving needs the Approvals feature.
+     * Builds an approval rule for the when property of a Stage. The gate waits until the required number of eligible people approve. If you omit count or set it to zero, one approval is required. Anyone eligible can approve, including the person who started the run. If you name no approvers, anyone with the pipeline:approve permission on the pipeline stack can approve. Approving needs the Approvals feature.
      * 
      * ## Example Usage
      * 
@@ -154,7 +154,7 @@ public final class DeliveryFunctions {
         return approvalPlain(args, InvokeOptions.Empty);
     }
     /**
-     * Builds an approval rule for the when property of a Stage. The gate waits until the required number of eligible people approve. If you omit count or set it to zero, one approval is required. Anyone eligible can approve, including the person who started the run. If you name no approvers, anyone with the organization update permission can approve. Approving needs the Approvals feature.
+     * Builds an approval rule for the when property of a Stage. The gate waits until the required number of eligible people approve. If you omit count or set it to zero, one approval is required. Anyone eligible can approve, including the person who started the run. If you name no approvers, anyone with the pipeline:approve permission on the pipeline stack can approve. Approving needs the Approvals feature.
      * 
      * ## Example Usage
      * 
@@ -163,7 +163,7 @@ public final class DeliveryFunctions {
         return Deployment.getInstance().invoke("delivery:index:approval", TypeShape.of(ApprovalResult.class), args, Utilities.withVersion(options));
     }
     /**
-     * Builds an approval rule for the when property of a Stage. The gate waits until the required number of eligible people approve. If you omit count or set it to zero, one approval is required. Anyone eligible can approve, including the person who started the run. If you name no approvers, anyone with the organization update permission can approve. Approving needs the Approvals feature.
+     * Builds an approval rule for the when property of a Stage. The gate waits until the required number of eligible people approve. If you omit count or set it to zero, one approval is required. Anyone eligible can approve, including the person who started the run. If you name no approvers, anyone with the pipeline:approve permission on the pipeline stack can approve. Approving needs the Approvals feature.
      * 
      * ## Example Usage
      * 
@@ -172,7 +172,7 @@ public final class DeliveryFunctions {
         return Deployment.getInstance().invoke("delivery:index:approval", TypeShape.of(ApprovalResult.class), args, Utilities.withVersion(options));
     }
     /**
-     * Builds an approval rule for the when property of a Stage. The gate waits until the required number of eligible people approve. If you omit count or set it to zero, one approval is required. Anyone eligible can approve, including the person who started the run. If you name no approvers, anyone with the organization update permission can approve. Approving needs the Approvals feature.
+     * Builds an approval rule for the when property of a Stage. The gate waits until the required number of eligible people approve. If you omit count or set it to zero, one approval is required. Anyone eligible can approve, including the person who started the run. If you name no approvers, anyone with the pipeline:approve permission on the pipeline stack can approve. Approving needs the Approvals feature.
      * 
      * ## Example Usage
      * 

@@ -13,7 +13,7 @@ namespace Pulumi.Delivery.Delivery
     public static class Approval
     {
         /// <summary>
-        /// Builds an approval rule for the when property of a Stage. The gate waits until the required number of eligible people approve. If you omit count or set it to zero, one approval is required. Anyone eligible can approve, including the person who started the run. If you name no approvers, anyone with the organization update permission can approve. Approving needs the Approvals feature.
+        /// Builds an approval rule for the when property of a Stage. The gate waits until the required number of eligible people approve. If you omit count or set it to zero, one approval is required. Anyone eligible can approve, including the person who started the run. If you name no approvers, anyone with the pipeline:approve permission on the pipeline stack can approve. Approving needs the Approvals feature.
         /// 
         /// ## Example Usage
         /// 
@@ -31,7 +31,7 @@ namespace Pulumi.Delivery.Delivery
             => global::Pulumi.Deployment.Instance.InvokeAsync<ApprovalResult>("delivery:index:approval", args ?? new ApprovalArgs(), options.WithDefaults());
 
         /// <summary>
-        /// Builds an approval rule for the when property of a Stage. The gate waits until the required number of eligible people approve. If you omit count or set it to zero, one approval is required. Anyone eligible can approve, including the person who started the run. If you name no approvers, anyone with the organization update permission can approve. Approving needs the Approvals feature.
+        /// Builds an approval rule for the when property of a Stage. The gate waits until the required number of eligible people approve. If you omit count or set it to zero, one approval is required. Anyone eligible can approve, including the person who started the run. If you name no approvers, anyone with the pipeline:approve permission on the pipeline stack can approve. Approving needs the Approvals feature.
         /// 
         /// ## Example Usage
         /// 
@@ -49,7 +49,7 @@ namespace Pulumi.Delivery.Delivery
             => global::Pulumi.Deployment.Instance.Invoke<ApprovalResult>("delivery:index:approval", args ?? new ApprovalInvokeArgs(), options.WithDefaults());
 
         /// <summary>
-        /// Builds an approval rule for the when property of a Stage. The gate waits until the required number of eligible people approve. If you omit count or set it to zero, one approval is required. Anyone eligible can approve, including the person who started the run. If you name no approvers, anyone with the organization update permission can approve. Approving needs the Approvals feature.
+        /// Builds an approval rule for the when property of a Stage. The gate waits until the required number of eligible people approve. If you omit count or set it to zero, one approval is required. Anyone eligible can approve, including the person who started the run. If you name no approvers, anyone with the pipeline:approve permission on the pipeline stack can approve. Approving needs the Approvals feature.
         /// 
         /// ## Example Usage
         /// 
@@ -74,7 +74,7 @@ namespace Pulumi.Delivery.Delivery
         private List<string>? _approvers;
 
         /// <summary>
-        /// Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
+        /// Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
         /// </summary>
         public List<string> Approvers
         {
@@ -106,7 +106,7 @@ namespace Pulumi.Delivery.Delivery
         private InputList<string>? _approvers;
 
         /// <summary>
-        /// Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
+        /// Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
         /// </summary>
         public InputList<string> Approvers
         {
@@ -137,7 +137,7 @@ namespace Pulumi.Delivery.Delivery
     public sealed class ApprovalResult
     {
         /// <summary>
-        /// Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
+        /// Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
         /// </summary>
         public readonly ImmutableArray<string> Approvers;
         /// <summary>
