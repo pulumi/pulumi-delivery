@@ -350,7 +350,7 @@ const network = new pulumi.StackReference("acme/shop-network/dev");
 const subnetId = network.getOutput("subnetId");
 ```
 
-The entries of a group run together, and they read the new outputs of each other. A group is one unit for dependencies and a retry, and each entry uses one concurrency slot. See [Limits](#limits). Keep a group small. Put stacks that need no shared step in separate groups.
+The entries of a group run together, and they read the new outputs of each other. A group is one unit for dependencies and a retry, and each entry uses one concurrency slot. See [Limits](./#limits). Keep a group small. Put stacks that need no shared step in separate groups.
 
 ### Combined gates
 
