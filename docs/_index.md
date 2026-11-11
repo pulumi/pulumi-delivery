@@ -515,7 +515,7 @@ Gates are rules in `when`.
 - `manual()` waits until someone continues the gate. It works on every plan.
 - `allOf()` and `anyOf()` combine rules. You can nest them up to three levels.
 
-`approval()` takes `approvers` (user names or team names) and `count`. Anyone eligible can approve, including the person who started the run or pushed the commit. If you name no approvers, anyone with the `pipeline:approve` permission on the pipeline stack can approve: a Stack Admin of that stack or an organization admin. Only someone the approval accepts can reject it. A name that matches no user or team keeps the gate waiting. An approval gate shows a preview of the stack updates. The preview can be partial, and "Not available" is not the same as "no changes".
+`approval()` takes `approvers` (user names or team names) and `count`. Anyone eligible can approve, including the person who started the run or pushed the commit. If you name no approvers, anyone with the `pipeline:approve` permission on the pipeline stack can approve, which Stack Write and Stack Admin grant. Only someone the approval accepts can reject it. A name that matches no user or team keeps the gate waiting. An approval gate shows a preview of the stack updates. The preview can be partial, and "Not available" is not the same as "no changes".
 
 `manual()` takes an optional `name` and `description`, as the other rules do. The default name is `manual`. Names are unique within a gate. The console shows the description to the person who continues the gate. Use `approval()` when named people must approve or you need several approvals. Otherwise use `manual()`.
 
@@ -548,17 +548,17 @@ Do not write the run number into the environment variables of a Lambda function.
 - The Delivery identity of the organization needs read access to the upstream pipeline stack of a `PipelineSource`. Your own access is not enough.
 - Each action on a pipeline needs its own permission on the pipeline stack. No permission implies another, and `stack:write` grants none of them.
 
-  | Action | Permission | Stack Write | Stack Admin |
-  |---|---|---|---|
-  | Start a run | `pipeline:dispatch` | Yes | Yes |
-  | Cancel a run | `pipeline:cancel` | Yes | Yes |
-  | Retry a run | `pipeline:retry` | Yes | Yes |
-  | Redeploy a stage | `pipeline:redeploy` | Yes | Yes |
-  | Roll back a stage | `pipeline:rollback` | Yes | Yes |
-  | Force-promote a release to a stage | `pipeline:force_promote` | No | Yes |
-  | Continue a manual gate | `pipeline:approve` | No | Yes |
+  | Action | Permission |
+  |---|---|
+  | Start a run | `pipeline:dispatch` |
+  | Cancel a run | `pipeline:cancel` |
+  | Retry a run | `pipeline:retry` |
+  | Redeploy a stage | `pipeline:redeploy` |
+  | Roll back a stage | `pipeline:rollback` |
+  | Force-promote a release to a stage | `pipeline:force_promote` |
+  | Continue a manual gate | `pipeline:approve` |
 
-  An organization admin holds Stack Admin on every stack. A custom role gets these permissions only when you add them to it.
+  Stack Write and Stack Admin grant all seven, and an organization admin holds Stack Admin on every stack. Stack Read grants none. A custom role gets these permissions only when you add them to it.
 - Retry, cancel, pause, resume, promote, rollback and redeploy need a user token. Organization and team tokens cannot do them.
 - Changing the pipeline, including adding or removing a gate, needs `stack:write` on the pipeline stack or push access to the branch of the pipeline program. A gate is only as strong as those grants.
 - Approving needs a user token and read access to the pipeline stack. An approval that names approvers accepts those users and teams. An approval that names nobody accepts anyone with `pipeline:approve` on the pipeline stack.
