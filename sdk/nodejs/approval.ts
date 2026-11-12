@@ -7,7 +7,7 @@ import * as outputs from "./types/output";
 import * as utilities from "./utilities";
 
 /**
- * Builds an approval rule for the when property of a Stage. The gate waits until the required number of eligible people approve. If you omit count or set it to zero, one approval is required. Anyone eligible can approve, including the person who started the run. If you name no approvers, anyone with the organization update permission can approve. Approving needs the Approvals feature.
+ * Builds an approval rule for the when property of a Stage. The gate waits until the required number of eligible people approve. If you omit count or set it to zero, one approval is required. Anyone eligible can approve, including the person who started the run. If you name no approvers, anyone with the pipeline:approve permission on the pipeline stack can approve. Approving needs the Approvals feature.
  *
  * ## Example Usage
  *
@@ -36,7 +36,7 @@ export function approval(args?: ApprovalArgs, opts?: pulumi.InvokeOptions): Prom
  */
 export interface ApprovalArgs {
     /**
-     * Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
+     * Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
      */
     approvers?: string[];
     /**
@@ -54,7 +54,7 @@ export interface ApprovalArgs {
  */
 export interface ApprovalResult {
     /**
-     * Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
+     * Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
      */
     readonly approvers?: string[];
     /**
@@ -111,7 +111,7 @@ export interface ApprovalResult {
     readonly url?: string;
 }
 /**
- * Builds an approval rule for the when property of a Stage. The gate waits until the required number of eligible people approve. If you omit count or set it to zero, one approval is required. Anyone eligible can approve, including the person who started the run. If you name no approvers, anyone with the organization update permission can approve. Approving needs the Approvals feature.
+ * Builds an approval rule for the when property of a Stage. The gate waits until the required number of eligible people approve. If you omit count or set it to zero, one approval is required. Anyone eligible can approve, including the person who started the run. If you name no approvers, anyone with the pipeline:approve permission on the pipeline stack can approve. Approving needs the Approvals feature.
  *
  * ## Example Usage
  *
@@ -140,7 +140,7 @@ export function approvalOutput(args?: ApprovalOutputArgs, opts?: pulumi.InvokeOu
  */
 export interface ApprovalOutputArgs {
     /**
-     * Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
+     * Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
      */
     approvers?: pulumi.Input<pulumi.Input<string>[] | undefined>;
     /**

@@ -17,14 +17,14 @@ public final class ApprovalPlainArgs extends com.pulumi.resources.InvokeArgs {
     public static final ApprovalPlainArgs Empty = new ApprovalPlainArgs();
 
     /**
-     * Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
+     * Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
      * 
      */
     @Import(name="approvers")
     private @Nullable List<String> approvers;
 
     /**
-     * @return Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
+     * @return Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
      * 
      */
     public Optional<List<String>> approvers() {
@@ -88,7 +88,7 @@ public final class ApprovalPlainArgs extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param approvers Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
+         * @param approvers Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
          * 
          * @return builder
          * 
@@ -99,7 +99,7 @@ public final class ApprovalPlainArgs extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param approvers Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
+         * @param approvers Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
          * 
          * @return builder
          * 

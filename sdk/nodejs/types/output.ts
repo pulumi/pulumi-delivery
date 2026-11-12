@@ -12,7 +12,7 @@ import {AzureDevOpsSource, BitbucketSource, GitHubSource, GitLabSource, Workflow
  */
 export interface Rule {
     /**
-     * Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
+     * Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
      */
     approvers?: string[];
     /**

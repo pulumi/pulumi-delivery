@@ -50,7 +50,7 @@ export interface AnyOfArgs {
  */
 export interface AnyOfResult {
     /**
-     * Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
+     * Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
      */
     readonly approvers?: string[];
     /**

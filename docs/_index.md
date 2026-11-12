@@ -515,7 +515,7 @@ Gates are rules in `when`.
 - `manual()` waits until someone continues the gate. It works on every plan.
 - `allOf()` and `anyOf()` combine rules. You can nest them up to three levels.
 
-`approval()` takes `approvers` (user names or team names) and `count`. Anyone eligible can approve, including the person who started the run or pushed the commit. If you name no approvers, anyone with the organization update permission can approve. A name that matches no user or team keeps the gate waiting. An approval gate shows a preview of the stack updates. The preview can be partial, and "Not available" is not the same as "no changes".
+`approval()` takes `approvers` (user names or team names) and `count`. Anyone eligible can approve, including the person who started the run or pushed the commit. If you name no approvers, anyone with the `pipeline:approve` permission on the pipeline stack can approve, which Stack Write and Stack Admin grant. Only someone the approval accepts can reject it. A name that matches no user or team keeps the gate waiting. An approval gate shows a preview of the stack updates. The preview can be partial, and "Not available" is not the same as "no changes".
 
 `manual()` takes an optional `name` and `description`, as the other rules do. The default name is `manual`. Names are unique within a gate. The console shows the description to the person who continues the gate. Use `approval()` when named people must approve or you need several approvals. Otherwise use `manual()`.
 
@@ -546,8 +546,24 @@ Do not write the run number into the environment variables of a Lambda function.
 
 - Write access to the branch of the pipeline program gives deploy access to every stack that the Delivery identity of your organization can reach. Protect that branch.
 - The Delivery identity of the organization needs read access to the upstream pipeline stack of a `PipelineSource`. Your own access is not enough.
-- Any credential with write access to the pipeline stack can dispatch a run or continue a manual gate. Retry, cancel, pause, resume, promote, rollback and redeploy need a user token with that access. Organization and team tokens cannot do them.
-- Approving needs a user token, read access to the pipeline stack, and a place among the approvers of the gate.
+- Each action on a pipeline needs its own permission on the pipeline stack. No permission implies another, and `stack:write` grants none of them.
+
+  | Action | Permission |
+  |---|---|
+  | Start a run | `pipeline:dispatch` |
+  | Cancel a run | `pipeline:cancel` |
+  | Retry a run | `pipeline:retry` |
+  | Redeploy a stage | `pipeline:redeploy` |
+  | Roll back a stage | `pipeline:rollback` |
+  | Force-promote a release to a stage | `pipeline:force_promote` |
+  | Continue a manual gate | `pipeline:approve` |
+  | Pause or resume a stage | `pipeline:pause` |
+
+  Stack Write and Stack Admin grant all eight, and an organization admin holds Stack Admin on every stack. Stack Read grants none. A custom role gets these permissions only when you add them to it.
+- Any token whose role grants the permission can take the action, including organization and team tokens. The token that a member update gets cannot cancel, retry, pause, resume, roll back, redeploy, force-promote or continue a gate.
+- Changing the pipeline, including adding or removing a gate, needs `stack:write` on the pipeline stack or push access to the branch of the pipeline program. A gate is only as strong as those grants.
+- Approving needs a user token and read access to the pipeline stack. Organization and team tokens cannot approve. An approval that names approvers accepts those users and teams. An approval that names nobody accepts anyone with `pipeline:approve` on the pipeline stack.
+- Rejecting an approval, which closes its change request and fails the run, needs the same eligibility as approving it. Anyone else gets a 403 error, and the gate keeps waiting.
 - An approval preview runs with the same credential as an update. Only people with write access to the repository can add code that runs in a preview.
 
 ## Limits
