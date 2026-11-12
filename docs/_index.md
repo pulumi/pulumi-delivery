@@ -451,9 +451,10 @@ You can cancel a run while a gate waits or while a member runs. The run shows "c
 
 These actions create a new run for one stage. The new run uses the release, the recorded values and the outputs of an earlier run. It does not read the latest values. The actions skip the gate of the stage. Use the console, or the API under `preview/stacks/<org>/<project>/<stack>/delivery/stages/<stage>/`.
 
-- Rollback deploys an earlier release that deployed to the stage before.
+- Rollback deploys an earlier release that deployed to the stage before, and pauses the stage. Newer runs wait until you resume the stage.
 - Redeploy deploys the current release of the stage again.
 - Force-promote moves a release to a stage.
+- Pause stops a stage from admitting new runs. A run that holds the stage keeps it. Resume lets the stage admit runs again.
 
 ## Writing pipelines
 
@@ -556,9 +557,10 @@ Do not write the run number into the environment variables of a Lambda function.
   | Roll back a stage | `pipeline:rollback` |
   | Force-promote a release to a stage | `pipeline:force_promote` |
   | Continue a manual gate | `pipeline:approve` |
+  | Pause or resume a stage | `pipeline:pause` |
 
-  Stack Write and Stack Admin grant all seven, and an organization admin holds Stack Admin on every stack. Stack Read grants none. A custom role gets these permissions only when you add them to it.
-- Any token whose role grants the permission can take the action, including organization and team tokens. The token that a member update gets cannot cancel, retry, roll back, redeploy, force-promote or continue a gate.
+  Stack Write and Stack Admin grant all eight, and an organization admin holds Stack Admin on every stack. Stack Read grants none. A custom role gets these permissions only when you add them to it.
+- Any token whose role grants the permission can take the action, including organization and team tokens. The token that a member update gets cannot cancel, retry, pause, resume, roll back, redeploy, force-promote or continue a gate.
 - Changing the pipeline, including adding or removing a gate, needs `stack:write` on the pipeline stack or push access to the branch of the pipeline program. A gate is only as strong as those grants.
 - Approving needs a user token and read access to the pipeline stack. Organization and team tokens cannot approve. An approval that names approvers accepts those users and teams. An approval that names nobody accepts anyone with `pipeline:approve` on the pipeline stack.
 - Rejecting an approval, which closes its change request and fails the run, needs the same eligibility as approving it. Anyone else gets a 403 error, and the gate keeps waiting.
