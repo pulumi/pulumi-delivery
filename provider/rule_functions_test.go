@@ -254,3 +254,88 @@ func TestTheValidatorsSupportExactlyTheRuleKinds(t *testing.T) {
 		}
 	}
 }
+
+func ptr[T any](v T) *T { return &v }
+
+func invokeHTTP(args HTTPArgs) (Rule, error) {
+	args.URL, args.SuccessExpression = "https://example.com", "status == 'ok'"
+	resp, err := HTTP{}.Invoke(context.Background(), infer.FunctionRequest[HTTPArgs]{Input: args})
+	return resp.Output, err
+}
+
+func TestHTTPDefaults(t *testing.T) {
+	rule, err := invokeHTTP(HTTPArgs{})
+	require.NoError(t, err)
+	assert.Equal(t, HTTPMethod("GET"), *rule.Method)
+	assert.Equal(t, "1m", rule.Interval)
+	assert.Equal(t, "10s", rule.Timeout)
+
+	rule, err = invokeHTTP(HTTPArgs{Method: ptr(HTTPMethod("POST")), Interval: "5m", Timeout: "3s"})
+	require.NoError(t, err)
+	assert.Equal(t, HTTPMethod("POST"), *rule.Method)
+	assert.Equal(t, "5m", rule.Interval)
+	assert.Equal(t, "3s", rule.Timeout)
+}
+
+func TestHTTPLimits(t *testing.T) {
+	for _, tc := range []struct {
+		name, interval, timeout, method, wantErr string
+	}{
+		{name: "interval 59s", interval: "59s", wantErr: "at least 60 seconds"},
+		{name: "interval 60s", interval: "60s"},
+		{name: "interval 1h", interval: "1h"},
+		{name: "interval 61m", interval: "61m", wantErr: "at most 1 hour"},
+		{name: "interval 90s.5", interval: "90.5s", wantErr: "whole-second"},
+		{name: "timeout 0", timeout: "0s", wantErr: "positive whole-second"},
+		{name: "timeout 1s", timeout: "1s"},
+		{name: "timeout 20s", timeout: "20s"},
+		{name: "timeout 21s", timeout: "21s", wantErr: "at most 20 seconds"},
+		{name: "method PATCH", method: "PATCH"},
+		{name: "method HEAD", method: "HEAD"},
+		{name: "method DELETE", method: "DELETE", wantErr: "rule.method must be one of"},
+		{name: "method lowercase", method: "get", wantErr: "rule.method must be one of"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			var method *HTTPMethod
+			if tc.method != "" {
+				method = ptr(HTTPMethod(tc.method))
+			}
+			rule := Rule{Kind: "http", URL: "https://example.com", SuccessExpression: "x",
+				Interval: tc.interval, Timeout: tc.timeout, Method: method}
+			fields := map[string]property.Value{
+				"kind":              property.New("http"),
+				"url":               property.New("https://example.com"),
+				"successExpression": property.New("x"),
+			}
+			for k, v := range map[string]string{"interval": tc.interval, "timeout": tc.timeout, "method": tc.method} {
+				if v != "" {
+					fields[k] = property.New(v)
+				}
+			}
+			raw := property.New(property.NewMap(fields))
+			for name, err := range map[string]error{"validateRule": validateRule(rule, 1), "validateRuleValue": validateRuleValue(raw, 1)} {
+				if tc.wantErr == "" {
+					assert.NoError(t, err, name)
+				} else {
+					assert.ErrorContains(t, err, tc.wantErr, name)
+				}
+			}
+			_, err := invokeHTTP(HTTPArgs{Method: method, Interval: tc.interval, Timeout: tc.timeout})
+			if tc.wantErr == "" {
+				assert.NoError(t, err)
+			} else {
+				assert.ErrorContains(t, err, tc.wantErr)
+			}
+		})
+	}
+}
+
+func TestHTTPMethodSkipsUnknown(t *testing.T) {
+	raw := property.New(property.NewMap(map[string]property.Value{
+		"kind":              property.New("http"),
+		"url":               property.New("https://example.com"),
+		"successExpression": property.New("x"),
+		"method":            property.New(property.Computed),
+	}))
+	assert.NoError(t, validateRuleValue(raw, 1))
+}

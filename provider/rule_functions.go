@@ -6,29 +6,52 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"sort"
 	"slices"
+	"sort"
 	"time"
 
 	"github.com/pulumi/pulumi-go-provider/infer"
 	"github.com/pulumi/pulumi/sdk/v3/go/property"
 )
 
+// HTTPMethod is the request method of an http rule.
+type HTTPMethod string
+
+var defaultHTTPMethod HTTPMethod = "GET"
+
+func (HTTPMethod) Values() []infer.EnumValue[HTTPMethod] {
+	return []infer.EnumValue[HTTPMethod]{
+		{Name: "GET", Value: "GET"},
+		{Name: "POST", Value: "POST"},
+		{Name: "PUT", Value: "PUT"},
+		{Name: "PATCH", Value: "PATCH"},
+		{Name: "HEAD", Value: "HEAD"},
+	}
+}
+
+func validateMethod(method string) error {
+	for _, v := range HTTPMethod("").Values() {
+		if method == string(v.Value) {
+			return nil
+		}
+	}
+	return fmt.Errorf("rule.method must be one of GET, POST, PUT, PATCH, HEAD")
+}
+
 type Rule struct {
 	Kind      string   `pulumi:"kind"`
 	Name      string   `pulumi:"name,optional"`
 	Approvers []string `pulumi:"approvers,optional"`
 	// Count is the number of approvals required. Omitted or zero defaults to one.
-	Count              int               `pulumi:"count,optional"`
-	URL                string            `pulumi:"url,optional"`
-	Method             string            `pulumi:"method,optional"`
-	Headers            map[string]string `pulumi:"headers,optional"`
-	HeadersEnvironment string            `pulumi:"headersEnvironment,optional"`
-	Body               string            `pulumi:"body,optional"`
-	SuccessExpression  string            `pulumi:"successExpression,optional"`
-	Interval           string            `pulumi:"interval,optional"`
-	Timeout            string            `pulumi:"timeout,optional"`
-	Rules              []Rule            `pulumi:"rules,optional"`
+	Count             int               `pulumi:"count,optional"`
+	URL               string            `pulumi:"url,optional"`
+	Method            *HTTPMethod       `pulumi:"method,optional"`
+	Headers           map[string]string `pulumi:"headers,optional"`
+	Body              string            `pulumi:"body,optional"`
+	SuccessExpression string            `pulumi:"successExpression,optional"`
+	Interval          string            `pulumi:"interval,optional"`
+	Timeout           string            `pulumi:"timeout,optional"`
+	Rules             []Rule            `pulumi:"rules,optional"`
 	// Description tells the person who continues a manual gate what to check.
 	Description string                      `pulumi:"description,optional"`
 	Questions   map[string]DecisionQuestion `pulumi:"questions,optional"`
@@ -52,6 +75,9 @@ func validateDuration(name, value string) error {
 	}
 	if name == "interval" && duration < time.Minute {
 		return fmt.Errorf("rule.interval must be at least 60 seconds")
+	}
+	if name == "interval" && duration > time.Hour {
+		return fmt.Errorf("rule.interval must be at most 1 hour")
 	}
 	if name == "timeout" && duration > 20*time.Second {
 		return fmt.Errorf("rule.timeout must be at most 20 seconds")
@@ -97,6 +123,11 @@ func validateRuleValue(value property.Value, depth int) error {
 				if err := required("rule."+name, v); err != nil {
 					return err
 				}
+			}
+		}
+		if v, known := text("method"); known && !rule.Get("method").IsNull() {
+			if err := validateMethod(v); err != nil {
+				return err
 			}
 		}
 		for _, name := range []string{"interval", "timeout"} {
@@ -147,6 +178,11 @@ func validateRule(r Rule, d int) error {
 		}
 		if err := required("rule.successExpression", r.SuccessExpression); err != nil {
 			return err
+		}
+		if r.Method != nil {
+			if err := validateMethod(string(*r.Method)); err != nil {
+				return err
+			}
 		}
 		if err := validateDuration("interval", r.Interval); err != nil {
 			return err
@@ -275,30 +311,38 @@ func (Approval) Invoke(ctx context.Context, req infer.FunctionRequest[ApprovalAr
 
 type HTTP struct{}
 type HTTPArgs struct {
-	Name               string            `pulumi:"name,optional"`
-	URL                string            `pulumi:"url"`
-	Method             string            `pulumi:"method,optional"`
-	Headers            map[string]string `pulumi:"headers,optional"`
-	HeadersEnvironment string            `pulumi:"headersEnvironment,optional"`
-	Body               string            `pulumi:"body,optional"`
-	SuccessExpression  string            `pulumi:"successExpression"`
-	Interval           string            `pulumi:"interval,optional"`
-	Timeout            string            `pulumi:"timeout,optional"`
+	Name              string            `pulumi:"name,optional"`
+	URL               string            `pulumi:"url"`
+	Method            *HTTPMethod       `pulumi:"method,optional"`
+	Headers           map[string]string `pulumi:"headers,optional"`
+	Body              string            `pulumi:"body,optional"`
+	SuccessExpression string            `pulumi:"successExpression"`
+	Interval          string            `pulumi:"interval,optional"`
+	Timeout           string            `pulumi:"timeout,optional"`
 }
 
 func (HTTP) Invoke(ctx context.Context, req infer.FunctionRequest[HTTPArgs]) (infer.FunctionResponse[Rule], error) {
 	a := req.Input
+	method, interval, timeout := a.Method, a.Interval, a.Timeout
+	if method == nil {
+		method = &defaultHTTPMethod
+	}
+	if interval == "" {
+		interval = "1m"
+	}
+	if timeout == "" {
+		timeout = "10s"
+	}
 	rule := Rule{
-		Kind:               "http",
-		Name:               a.Name,
-		URL:                a.URL,
-		Method:             a.Method,
-		Headers:            a.Headers,
-		HeadersEnvironment: a.HeadersEnvironment,
-		Body:               a.Body,
-		SuccessExpression:  a.SuccessExpression,
-		Interval:           a.Interval,
-		Timeout:            a.Timeout,
+		Kind:              "http",
+		Name:              a.Name,
+		URL:               a.URL,
+		Method:            method,
+		Headers:           a.Headers,
+		Body:              a.Body,
+		SuccessExpression: a.SuccessExpression,
+		Interval:          interval,
+		Timeout:           timeout,
 	}
 	if err := validateRule(rule, 1); err != nil {
 		return infer.FunctionResponse[Rule]{}, err
