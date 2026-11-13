@@ -691,3 +691,30 @@ func TestNullOptionalInputsAreOmitted(t *testing.T) {
 		})
 	}
 }
+
+func TestDropNulls(t *testing.T) {
+	null := property.New(property.Null)
+	dep := urnOf(typeStage, "dev")
+	obj := func(fields map[string]property.Value) property.Value { return property.New(property.NewMap(fields)) }
+
+	got := dropNulls(property.NewMap(map[string]property.Value{
+		"plain":    null,
+		"secret":   null.WithSecret(true),
+		"depends":  null.WithDependencies([]urn.URN{dep}),
+		"image":    obj(map[string]property.Value{"reference": property.New("r"), "credentials": null}),
+		"flagged":  obj(map[string]property.Value{"a": null}).WithSecret(true).WithDependencies([]urn.URN{dep}),
+		"list":     property.New(property.NewArray([]property.Value{obj(map[string]property.Value{"a": null})})),
+		"stacks":   obj(map[string]property.Value{"gone": null}),
+		"computed": property.New(property.Computed),
+	}))
+
+	assert.Equal(t, property.NewMap(map[string]property.Value{
+		"secret":   null.WithSecret(true),
+		"depends":  null.WithDependencies([]urn.URN{dep}),
+		"image":    obj(map[string]property.Value{"reference": property.New("r")}),
+		"flagged":  obj(map[string]property.Value{}).WithSecret(true).WithDependencies([]urn.URN{dep}),
+		"list":     property.New(property.NewArray([]property.Value{obj(map[string]property.Value{})})),
+		"stacks":   obj(map[string]property.Value{}),
+		"computed": property.New(property.Computed),
+	}), got)
+}

@@ -377,8 +377,8 @@ func withSecretPassword(member property.Map) property.Map {
 	return member.Set("image", image)
 }
 
-// dropNulls removes plain null fields, at any depth, so that a null input is an omitted one. Pulumi HCL sends
-// every unset field of an object as null. A null with dependencies or a secret flag stays.
+// dropNulls removes plain null fields and map entries, at any depth, so that a null input is an omitted one.
+// Pulumi HCL sends every unset field of an object as null. A null with dependencies or a secret flag stays.
 func dropNulls(m property.Map) property.Map {
 	out := map[string]property.Value{}
 	for key, value := range m.AsMap() {
