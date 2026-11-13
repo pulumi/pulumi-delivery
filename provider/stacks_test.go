@@ -704,6 +704,7 @@ func TestDropNulls(t *testing.T) {
 		"image":    obj(map[string]property.Value{"reference": property.New("r"), "credentials": null}),
 		"flagged":  obj(map[string]property.Value{"a": null}).WithSecret(true).WithDependencies([]urn.URN{dep}),
 		"list":     property.New(property.NewArray([]property.Value{obj(map[string]property.Value{"a": null})})),
+		"secrets":  property.New(property.NewArray([]property.Value{obj(map[string]property.Value{"a": null})})).WithSecret(true).WithDependencies([]urn.URN{dep}),
 		"stacks":   obj(map[string]property.Value{"gone": null}),
 		"computed": property.New(property.Computed),
 	}))
@@ -714,6 +715,7 @@ func TestDropNulls(t *testing.T) {
 		"image":    obj(map[string]property.Value{"reference": property.New("r")}),
 		"flagged":  obj(map[string]property.Value{}).WithSecret(true).WithDependencies([]urn.URN{dep}),
 		"list":     property.New(property.NewArray([]property.Value{obj(map[string]property.Value{})})),
+		"secrets":  property.New(property.NewArray([]property.Value{obj(map[string]property.Value{})})).WithSecret(true).WithDependencies([]urn.URN{dep}),
 		"stacks":   obj(map[string]property.Value{}),
 		"computed": property.New(property.Computed),
 	}), got)
