@@ -319,3 +319,13 @@ func TestTwoPartPipelineIsQualifiedWithTheOrganization(t *testing.T) {
 	require.Len(t, service.valueRequests, 1)
 	assert.Equal(t, "org/platform/main", service.valueRequests[0]["identity"].(map[string]any)["pipeline"])
 }
+
+func TestArtifactValueKeepsNulls(t *testing.T) {
+	service := newFakeService(t)
+	value := property.New(property.NewMap(map[string]property.Value{"owner": property.New(property.Null)}))
+	_, err := newServer(t).Construct(artifactRequest(false, value))
+	require.NoError(t, err)
+	require.Len(t, service.declared(), 1)
+	inputs := service.declared()[0]["inputs"].(map[string]any)
+	assert.Equal(t, map[string]any{"owner": nil}, inputs["value"])
+}

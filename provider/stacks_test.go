@@ -673,3 +673,21 @@ func TestStacksEntrySecretsStaySecretInTheChild(t *testing.T) {
 		})
 	}
 }
+
+// Pulumi HCL sends every unset field of an object as null.
+func TestNullOptionalInputsAreOmitted(t *testing.T) {
+	newFakeService(t)
+	server := newServer(t)
+	null := property.New(property.Null)
+	for _, field := range []string{"runtime", "image", "environment", "timeout", "preRunCommands", "config"} {
+		t.Run(field, func(t *testing.T) {
+			entries := map[string]property.Value{"a": stacksEntry("org/p/s", map[string]property.Value{field: null})}
+			_, err := server.Construct(stacksRequest("app", true, entries))
+			require.NoError(t, err)
+			job := jobRequest(true)
+			job.Inputs = job.Inputs.Set(field, null)
+			_, err = server.Construct(job)
+			require.NoError(t, err)
+		})
+	}
+}
