@@ -21,14 +21,14 @@ public final class ProgramSourceArgs extends com.pulumi.resources.ResourceArgs {
     public static final ProgramSourceArgs Empty = new ProgramSourceArgs();
 
     /**
-     * Branch that tracks the pipeline program. Omit it to use the branch that the service detects.
+     * Branch that tracks the pipeline program. Omit it to let the service choose the branch.
      * 
      */
     @Import(name="branch")
     private @Nullable Output<String> branch;
 
     /**
-     * @return Branch that tracks the pipeline program. Omit it to use the branch that the service detects.
+     * @return Branch that tracks the pipeline program. Omit it to let the service choose the branch.
      * 
      */
     public Optional<Output<String>> branch() {
@@ -36,14 +36,14 @@ public final class ProgramSourceArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to use the directory that the service detects.
+     * Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to let the service choose the directory.
      * 
      */
     @Import(name="directory")
     private @Nullable Output<String> directory;
 
     /**
-     * @return Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to use the directory that the service detects.
+     * @return Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to let the service choose the directory.
      * 
      */
     public Optional<Output<String>> directory() {
@@ -92,7 +92,7 @@ public final class ProgramSourceArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param branch Branch that tracks the pipeline program. Omit it to use the branch that the service detects.
+         * @param branch Branch that tracks the pipeline program. Omit it to let the service choose the branch.
          * 
          * @return builder
          * 
@@ -103,7 +103,7 @@ public final class ProgramSourceArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param branch Branch that tracks the pipeline program. Omit it to use the branch that the service detects.
+         * @param branch Branch that tracks the pipeline program. Omit it to let the service choose the branch.
          * 
          * @return builder
          * 
@@ -113,7 +113,7 @@ public final class ProgramSourceArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param directory Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to use the directory that the service detects.
+         * @param directory Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to let the service choose the directory.
          * 
          * @return builder
          * 
@@ -124,7 +124,7 @@ public final class ProgramSourceArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param directory Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to use the directory that the service detects.
+         * @param directory Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to let the service choose the directory.
          * 
          * @return builder
          * 

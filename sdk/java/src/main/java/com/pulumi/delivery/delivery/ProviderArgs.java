@@ -16,14 +16,14 @@ public final class ProviderArgs extends com.pulumi.resources.ResourceArgs {
     public static final ProviderArgs Empty = new ProviderArgs();
 
     /**
-     * Location of the pipeline program, for a repository that the service cannot detect, such as a self-hosted forge or an unusual remote.
+     * Location of the pipeline program, the recommended way to tell Delivery where the program lives.
      * 
      */
     @Import(name="source", json=true)
     private @Nullable Output<ProgramSourceArgs> source;
 
     /**
-     * @return Location of the pipeline program, for a repository that the service cannot detect, such as a self-hosted forge or an unusual remote.
+     * @return Location of the pipeline program, the recommended way to tell Delivery where the program lives.
      * 
      */
     public Optional<Output<ProgramSourceArgs>> source() {
@@ -55,7 +55,7 @@ public final class ProviderArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param source Location of the pipeline program, for a repository that the service cannot detect, such as a self-hosted forge or an unusual remote.
+         * @param source Location of the pipeline program, the recommended way to tell Delivery where the program lives.
          * 
          * @return builder
          * 
@@ -66,7 +66,7 @@ public final class ProviderArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param source Location of the pipeline program, for a repository that the service cannot detect, such as a self-hosted forge or an unusual remote.
+         * @param source Location of the pipeline program, the recommended way to tell Delivery where the program lives.
          * 
          * @return builder
          * 

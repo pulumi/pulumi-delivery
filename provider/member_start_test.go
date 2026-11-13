@@ -86,11 +86,11 @@ func TestMemberStartBodyForAJobAndAStacksEntry(t *testing.T) {
 
 	require.Len(t, service.memberStarts, 2)
 	assert.Equal(t, map[string]any{
-		"protocolVersion": float64(1), "urn": string(urnOf(typeJob, "build")), "entry": "",
+		"protocolVersion": float64(2), "urn": string(urnOf(typeJob, "build")), "entry": "",
 		"childUrn": string(urnOf(typeJob+"$"+typeMemberRun, "build")),
 	}, service.memberStarts[0])
 	assert.Equal(t, map[string]any{
-		"protocolVersion": float64(1), "urn": string(urnOf(typeStacks, "app")), "entry": "api",
+		"protocolVersion": float64(2), "urn": string(urnOf(typeStacks, "app")), "entry": "api",
 		"childUrn": string(request.Urn),
 	}, service.memberStarts[1])
 }

@@ -17,6 +17,6 @@ from .. import outputs as _root_outputs
 
 source: Optional[str]
 """
-Location of the pipeline program, for a repository that the service cannot detect, such as a self-hosted forge or an unusual remote.
+Location of the pipeline program, the recommended way to tell Delivery where the program lives.
 """
 

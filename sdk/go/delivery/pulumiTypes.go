@@ -333,9 +333,9 @@ func (o ImageCredentialsPtrOutput) Username() pulumi.StringPtrOutput {
 
 // Location of the pipeline program in a repository.
 type ProgramSource struct {
-	// Branch that tracks the pipeline program. Omit it to use the branch that the service detects.
+	// Branch that tracks the pipeline program. Omit it to let the service choose the branch.
 	Branch *string `pulumi:"branch"`
-	// Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to use the directory that the service detects.
+	// Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to let the service choose the directory.
 	Directory *string `pulumi:"directory"`
 	// Clone URL of the repository.
 	Url string `pulumi:"url"`
@@ -354,9 +354,9 @@ type ProgramSourceInput interface {
 
 // Location of the pipeline program in a repository.
 type ProgramSourceArgs struct {
-	// Branch that tracks the pipeline program. Omit it to use the branch that the service detects.
+	// Branch that tracks the pipeline program. Omit it to let the service choose the branch.
 	Branch pulumi.StringPtrInput `pulumi:"branch"`
-	// Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to use the directory that the service detects.
+	// Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to let the service choose the directory.
 	Directory pulumi.StringPtrInput `pulumi:"directory"`
 	// Clone URL of the repository.
 	Url pulumi.StringInput `pulumi:"url"`
@@ -440,12 +440,12 @@ func (o ProgramSourceOutput) ToProgramSourcePtrOutputWithContext(ctx context.Con
 	}).(ProgramSourcePtrOutput)
 }
 
-// Branch that tracks the pipeline program. Omit it to use the branch that the service detects.
+// Branch that tracks the pipeline program. Omit it to let the service choose the branch.
 func (o ProgramSourceOutput) Branch() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v ProgramSource) *string { return v.Branch }).(pulumi.StringPtrOutput)
 }
 
-// Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to use the directory that the service detects.
+// Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to let the service choose the directory.
 func (o ProgramSourceOutput) Directory() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v ProgramSource) *string { return v.Directory }).(pulumi.StringPtrOutput)
 }
@@ -479,7 +479,7 @@ func (o ProgramSourcePtrOutput) Elem() ProgramSourceOutput {
 	}).(ProgramSourceOutput)
 }
 
-// Branch that tracks the pipeline program. Omit it to use the branch that the service detects.
+// Branch that tracks the pipeline program. Omit it to let the service choose the branch.
 func (o ProgramSourcePtrOutput) Branch() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *ProgramSource) *string {
 		if v == nil {
@@ -489,7 +489,7 @@ func (o ProgramSourcePtrOutput) Branch() pulumi.StringPtrOutput {
 	}).(pulumi.StringPtrOutput)
 }
 
-// Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to use the directory that the service detects.
+// Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to let the service choose the directory.
 func (o ProgramSourcePtrOutput) Directory() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *ProgramSource) *string {
 		if v == nil {

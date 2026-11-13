@@ -151,11 +151,11 @@ class ProgramSourceArgsDict(TypedDict):
     """
     branch: NotRequired[pulumi.Input[Optional[_builtins.str]]]
     """
-    Branch that tracks the pipeline program. Omit it to use the branch that the service detects.
+    Branch that tracks the pipeline program. Omit it to let the service choose the branch.
     """
     directory: NotRequired[pulumi.Input[Optional[_builtins.str]]]
     """
-    Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to use the directory that the service detects.
+    Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to let the service choose the directory.
     """
 
 @pulumi.input_type
@@ -168,8 +168,8 @@ class ProgramSourceArgs:
         Location of the pipeline program in a repository.
 
         :param pulumi.Input[_builtins.str] url: Clone URL of the repository.
-        :param pulumi.Input[_builtins.str] branch: Branch that tracks the pipeline program. Omit it to use the branch that the service detects.
-        :param pulumi.Input[_builtins.str] directory: Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to use the directory that the service detects.
+        :param pulumi.Input[_builtins.str] branch: Branch that tracks the pipeline program. Omit it to let the service choose the branch.
+        :param pulumi.Input[_builtins.str] directory: Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to let the service choose the directory.
         """
         pulumi.set(__self__, "url", url)
         if branch is not None:
@@ -193,7 +193,7 @@ class ProgramSourceArgs:
     @pulumi.getter
     def branch(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        Branch that tracks the pipeline program. Omit it to use the branch that the service detects.
+        Branch that tracks the pipeline program. Omit it to let the service choose the branch.
         """
         return pulumi.get(self, "branch")
 
@@ -205,7 +205,7 @@ class ProgramSourceArgs:
     @pulumi.getter
     def directory(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to use the directory that the service detects.
+        Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to let the service choose the directory.
         """
         return pulumi.get(self, "directory")
 

@@ -182,7 +182,7 @@ func TestOneDeclarationForEachComponentInAnUpdate(t *testing.T) {
 	declarations := service.declared()
 	require.Len(t, declarations, 1)
 	d := declarations[0]
-	assert.EqualValues(t, 1, d["protocolVersion"])
+	assert.EqualValues(t, 2, d["protocolVersion"])
 	assert.Equal(t, string(urnOf(typeJob, "build")), d["urn"])
 	assert.Equal(t, typeJob, d["type"])
 	assert.Equal(t, []any{string(urnOf("delivery:index:Job", "other"))}, d["dependencies"])
@@ -477,7 +477,7 @@ func TestChildCarriesTheFullDeclaration(t *testing.T) {
 
 	require.Len(t, children, 1)
 	declaration := children[0].Get("declaration").AsMap()
-	assert.EqualValues(t, 1, declaration.Get("protocolVersion").AsNumber())
+	assert.EqualValues(t, 2, declaration.Get("protocolVersion").AsNumber())
 	assert.Equal(t, typeJob, declaration.Get("type").AsString())
 	assert.Equal(t, string(urnOf(typeJob, "build")), declaration.Get("urn").AsString())
 	assert.Equal(t, 1, declaration.Get("dependencies").AsArray().Len())

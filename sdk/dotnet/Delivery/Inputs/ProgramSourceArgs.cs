@@ -17,13 +17,13 @@ namespace Pulumi.Delivery.Delivery.Inputs
     public sealed class ProgramSourceArgs : global::Pulumi.ResourceArgs
     {
         /// <summary>
-        /// Branch that tracks the pipeline program. Omit it to use the branch that the service detects.
+        /// Branch that tracks the pipeline program. Omit it to let the service choose the branch.
         /// </summary>
         [Input("branch")]
         public Input<string>? Branch { get; set; }
 
         /// <summary>
-        /// Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to use the directory that the service detects.
+        /// Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to let the service choose the directory.
         /// </summary>
         [Input("directory")]
         public Input<string>? Directory { get; set; }

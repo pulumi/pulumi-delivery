@@ -69,7 +69,7 @@ A member update runs with a short-lived token that has the default deployment ro
 
 ## Concepts
 
-- **Pipeline program and pipeline stack.** The pipeline is a Pulumi program in a repository. You register it with `pulumi up` on the pipeline stack. Registration ends with exit code 10 because the members wait for a run. This is the expected result.
+- **Pipeline program and pipeline stack.** The pipeline is a Pulumi program in a repository. You register it with `PULUMI_DELIVERY_REGISTER=true pulumi up` on the pipeline stack. Registration ends with exit code 10 because the members wait for a run. This is the expected result.
 - **Run.** A run takes one release through the stages. Each run has its own run stack, named `<pipeline stack>-r<run number>`. Run stacks do not appear in stack lists or search. Open one from the page of its run. Do not run `pulumi up` on a run stack.
 - **Stage.** A stage is a step of the pipeline. It waits for other stages with `from` and for a gate with `when`. A stage deploys one run at a time. A newer run replaces a run that waits for the stage or a gate, but not a run that the stage already admitted.
 - **Member.** A member is a resource that does work in a stage. `Stacks` updates one or more existing stacks. `Job` runs a command. `Artifact` publishes a value for other pipelines.
@@ -206,7 +206,7 @@ echo "{\"checked\": \"$ENDPOINT\"}" > "$DELIVERY_OUTPUTS"
 
 ### Register the pipeline
 
-Commit everything and push it to the branch that tracks the pipeline. Delivery detects the repository, the branch and the directory of the pipeline program from the git metadata that the Pulumi CLI records with each update. A run checks out the pipeline program from that repository.
+Commit everything and push it to the branch that tracks the pipeline. A run checks out the pipeline program from that repository. Tell Delivery where the program lives with `delivery:source` in the stack config.
 
 ```sh
 cd delivery
@@ -215,19 +215,7 @@ pulumi stack init acme/shop-delivery/main
 git add -A && git commit -m "Add the delivery pipeline" && git push
 ```
 
-Register the pipeline:
-
-```sh
-pulumi up
-```
-
-The update ends with exit code 10. Delivery rejects the update with an error in these cases.
-
-- The checkout has uncommitted changes. Commit the changes.
-- The commit is not on the tracked branch. Commit, push and merge it, then register again.
-- The update has no git commit. Run `pulumi up` from a Git checkout.
-
-If Delivery cannot detect the repository, for example on a self-hosted forge or with an unusual remote, set `delivery:source` in the stack config:
+Set `delivery:source` in `Pulumi.main.yaml`:
 
 ```yaml
 config:
@@ -237,7 +225,21 @@ config:
     directory: delivery
 ```
 
-`url` is required. `branch` and `directory` are optional and default to the detected values.
+Register the pipeline:
+
+```sh
+PULUMI_DELIVERY_REGISTER=true pulumi up
+```
+
+Registering is explicit. A plain `pulumi up` on the pipeline stack is refused with a message that tells you to set `PULUMI_DELIVERY_REGISTER=true`. `pulumi preview`, `pulumi destroy` and `pulumi refresh` are not affected. Changing `delivery:source` updates the provider in place and does not replace any resource.
+
+The update ends with exit code 10. Delivery rejects the update with an error in these cases.
+
+- The checkout has uncommitted changes. Commit the changes.
+- The commit is not on the tracked branch. Commit, push and merge it, then register again.
+- The update has no git commit. Run `pulumi up` from a Git checkout.
+
+`delivery:source` is the recommended, explicit way to say where the program lives. `url` is the clone URL and is required. `branch` and `directory` are optional. `directory` is relative to the repository root. If you omit a value, the service chooses it.
 
 A push to the tracked branch updates the pipeline: Delivery runs `pulumi up` on the pipeline stack. A run never changes the pipeline definition.
 
@@ -418,7 +420,7 @@ Both pipelines must be in the same organization. With `trigger: true`, each new 
 
 ### One repository, several pipelines
 
-A monorepo can hold the programs of several pipelines. Give each pipeline its own program directory, its own pipeline stack and a source that triggers only on its own paths. Delivery detects the directory of each pipeline program from the directory where you run `pulumi up`.
+A monorepo can hold the programs of several pipelines. Give each pipeline its own program directory, its own pipeline stack and a source that triggers only on its own paths. Set `directory` in `delivery:source` of each pipeline stack to the directory of its program.
 
 ```typescript
 // delivery/shop/index.ts
@@ -430,7 +432,7 @@ const repo = new delivery.GitHubSource("repo", {
 const pipeline = new delivery.Pipeline("shop");
 ```
 
-The pipeline in `delivery/search/index.ts` is the same, with `search/**` and `delivery/search/**` as the paths. A push that changes only `search/` then starts only the `search` pipeline. Every pipeline needs its own pipeline stack, for example `acme/shop-delivery/main` and `acme/search-delivery/main`. Register each one with `pulumi up` in its own directory.
+The pipeline in `delivery/search/index.ts` is the same, with `search/**` and `delivery/search/**` as the paths. A push that changes only `search/` then starts only the `search` pipeline. Every pipeline needs its own pipeline stack, for example `acme/shop-delivery/main` and `acme/search-delivery/main`. Register each one with `PULUMI_DELIVERY_REGISTER=true pulumi up` in its own directory.
 
 ## Recover a run
 
@@ -584,7 +586,7 @@ Each entry of a `Stacks` group uses one concurrency slot of your organization. A
 - The `artifacts` map of a `PipelineSource` is secret as a whole when one artifact is secret.
 - A `timeout` on a `Job` has no effect yet. A job stops after 2 hours.
 - Delivery deletes a run stack without a destroy. Resources in the pipeline program that are not Delivery resources stay in the cloud without state. A run that waits keeps its stack.
-- You cannot delete a pipeline stack while runs are in progress. Deleting a pipeline stack stops the pipeline and deletes its run stacks. After you restore the stack, run `pulumi up` on it to register the pipeline again.
+- You cannot delete a pipeline stack while runs are in progress. Deleting a pipeline stack stops the pipeline and deletes its run stacks. After you restore the stack, run `PULUMI_DELIVERY_REGISTER=true pulumi up` on it to register the pipeline again.
 - You cannot move a pipeline stack to another organization. You cannot rename or move a run stack.
 - The `http()` rule is not available in the preview. Registration rejects a stage with an `http()` rule.
 - The preview has no time-based triggers, no ESC triggers, no dispatch inputs and no `pulumi delivery` command.

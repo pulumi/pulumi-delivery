@@ -13,12 +13,12 @@ import javax.annotation.Nullable;
 @CustomType
 public final class ProgramSource {
     /**
-     * @return Branch that tracks the pipeline program. Omit it to use the branch that the service detects.
+     * @return Branch that tracks the pipeline program. Omit it to let the service choose the branch.
      * 
      */
     private @Nullable String branch;
     /**
-     * @return Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to use the directory that the service detects.
+     * @return Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to let the service choose the directory.
      * 
      */
     private @Nullable String directory;
@@ -30,14 +30,14 @@ public final class ProgramSource {
 
     private ProgramSource() {}
     /**
-     * @return Branch that tracks the pipeline program. Omit it to use the branch that the service detects.
+     * @return Branch that tracks the pipeline program. Omit it to let the service choose the branch.
      * 
      */
     public Optional<String> branch() {
         return Optional.ofNullable(this.branch);
     }
     /**
-     * @return Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to use the directory that the service detects.
+     * @return Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to let the service choose the directory.
      * 
      */
     public Optional<String> directory() {

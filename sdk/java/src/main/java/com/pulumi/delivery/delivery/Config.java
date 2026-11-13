@@ -11,7 +11,7 @@ public final class Config {
 
     private static final com.pulumi.Config config = com.pulumi.Config.of("delivery");
 /**
- * Location of the pipeline program, for a repository that the service cannot detect, such as a self-hosted forge or an unusual remote.
+ * Location of the pipeline program, the recommended way to tell Delivery where the program lives.
  * 
  */
     public Optional<ProgramSource> source() {

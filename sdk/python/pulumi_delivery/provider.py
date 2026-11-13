@@ -25,7 +25,7 @@ class ProviderArgs:
         """
         The set of arguments for constructing a Provider resource.
 
-        :param pulumi.Input['ProgramSourceArgs'] source: Location of the pipeline program, for a repository that the service cannot detect, such as a self-hosted forge or an unusual remote.
+        :param pulumi.Input['ProgramSourceArgs'] source: Location of the pipeline program, the recommended way to tell Delivery where the program lives.
         """
         if source is not None:
             pulumi.set(__self__, "source", source)
@@ -34,7 +34,7 @@ class ProviderArgs:
     @pulumi.getter
     def source(self) -> pulumi.Input[Optional['ProgramSourceArgs']]:
         """
-        Location of the pipeline program, for a repository that the service cannot detect, such as a self-hosted forge or an unusual remote.
+        Location of the pipeline program, the recommended way to tell Delivery where the program lives.
         """
         return pulumi.get(self, "source")
 
@@ -56,7 +56,7 @@ class Provider(pulumi.ProviderResource):
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
-        :param pulumi.Input[Union['ProgramSourceArgs', 'ProgramSourceArgsDict', 'outputs.ProgramSource']] source: Location of the pipeline program, for a repository that the service cannot detect, such as a self-hosted forge or an unusual remote.
+        :param pulumi.Input[Union['ProgramSourceArgs', 'ProgramSourceArgsDict', 'outputs.ProgramSource']] source: Location of the pipeline program, the recommended way to tell Delivery where the program lives.
         """
         ...
     @overload

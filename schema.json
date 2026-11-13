@@ -45,7 +45,7 @@
     "variables": {
       "source": {
         "$ref": "#/types/delivery:index:ProgramSource",
-        "description": "Location of the pipeline program, for a repository that the service cannot detect, such as a self-hosted forge or an unusual remote."
+        "description": "Location of the pipeline program, the recommended way to tell Delivery where the program lives."
       }
     }
   },
@@ -91,11 +91,11 @@
       "properties": {
         "branch": {
           "type": "string",
-          "description": "Branch that tracks the pipeline program. Omit it to use the branch that the service detects."
+          "description": "Branch that tracks the pipeline program. Omit it to let the service choose the branch."
         },
         "directory": {
           "type": "string",
-          "description": "Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to use the directory that the service detects."
+          "description": "Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to let the service choose the directory."
         },
         "url": {
           "type": "string",
@@ -285,13 +285,13 @@
     "properties": {
       "source": {
         "$ref": "#/types/delivery:index:ProgramSource",
-        "description": "Location of the pipeline program, for a repository that the service cannot detect, such as a self-hosted forge or an unusual remote."
+        "description": "Location of the pipeline program, the recommended way to tell Delivery where the program lives."
       }
     },
     "inputProperties": {
       "source": {
         "$ref": "#/types/delivery:index:ProgramSource",
-        "description": "Location of the pipeline program, for a repository that the service cannot detect, such as a self-hosted forge or an unusual remote."
+        "description": "Location of the pipeline program, the recommended way to tell Delivery where the program lives."
       }
     }
   },
@@ -555,7 +555,7 @@
       "isComponent": true
     },
     "delivery:index:Pipeline": {
-      "description": "Declares the pipeline. It gives the release number of the run. The service detects the repository, branch and directory of the pipeline program from the git metadata that the Pulumi CLI records with each update. A program has one Pipeline.\n\nTo register the pipeline, run pulumi up on the pipeline stack. Registration ends with exit code 10, because the members wait for a run.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nconst pipeline = new delivery.Pipeline(\"shop\");\nexport const release = pipeline.releaseNumber;\n```",
+      "description": "Declares the pipeline. It gives the release number of the run. Set delivery:source in the stack config to tell Delivery where the program lives. A program has one Pipeline.\n\nTo register the pipeline, run PULUMI_DELIVERY_REGISTER=true pulumi up on the pipeline stack. Registration ends with exit code 10, because the members wait for a run.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nconst pipeline = new delivery.Pipeline(\"shop\");\nexport const release = pipeline.releaseNumber;\n```",
       "properties": {
         "releaseNumber": {
           "type": "integer",

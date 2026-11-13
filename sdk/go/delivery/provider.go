@@ -32,13 +32,13 @@ func NewProvider(ctx *pulumi.Context,
 }
 
 type providerArgs struct {
-	// Location of the pipeline program, for a repository that the service cannot detect, such as a self-hosted forge or an unusual remote.
+	// Location of the pipeline program, the recommended way to tell Delivery where the program lives.
 	Source *ProgramSource `pulumi:"source"`
 }
 
 // The set of arguments for constructing a Provider resource.
 type ProviderArgs struct {
-	// Location of the pipeline program, for a repository that the service cannot detect, such as a self-hosted forge or an unusual remote.
+	// Location of the pipeline program, the recommended way to tell Delivery where the program lives.
 	Source ProgramSourcePtrInput
 }
 

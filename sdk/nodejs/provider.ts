@@ -45,7 +45,7 @@ export class Provider extends pulumi.ProviderResource {
  */
 export interface ProviderArgs {
     /**
-     * Location of the pipeline program, for a repository that the service cannot detect, such as a self-hosted forge or an unusual remote.
+     * Location of the pipeline program, the recommended way to tell Delivery where the program lives.
      */
     source?: pulumi.Input<inputs.ProgramSourceArgs | undefined>;
 }

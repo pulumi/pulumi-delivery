@@ -34,7 +34,7 @@ namespace Pulumi.Delivery.Delivery
 
         private static readonly __Value<Types.ProgramSource?> _source = new __Value<Types.ProgramSource?>(() => __config.GetObject<Types.ProgramSource>("source"));
         /// <summary>
-        /// Location of the pipeline program, for a repository that the service cannot detect, such as a self-hosted forge or an unusual remote.
+        /// Location of the pipeline program, the recommended way to tell Delivery where the program lives.
         /// </summary>
         public static Types.ProgramSource? Source
         {
@@ -48,11 +48,11 @@ namespace Pulumi.Delivery.Delivery
              public class ProgramSource
              {
             /// <summary>
-            /// Branch that tracks the pipeline program. Omit it to use the branch that the service detects.
+            /// Branch that tracks the pipeline program. Omit it to let the service choose the branch.
             /// </summary>
                 public string? Branch { get; set; } = null!;
             /// <summary>
-            /// Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to use the directory that the service detects.
+            /// Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to let the service choose the directory.
             /// </summary>
                 public string? Directory { get; set; } = null!;
             /// <summary>

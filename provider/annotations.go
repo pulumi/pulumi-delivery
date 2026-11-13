@@ -148,9 +148,9 @@ func (r *CombinedRuleArgs) Annotate(a infer.Annotator) {
 }
 
 func (r *Pipeline) Annotate(a infer.Annotator) {
-	a.Describe(r, `Declares the pipeline. It gives the release number of the run. The service detects the repository, branch and directory of the pipeline program from the git metadata that the Pulumi CLI records with each update. A program has one Pipeline.
+	a.Describe(r, `Declares the pipeline. It gives the release number of the run. Set delivery:source in the stack config to tell Delivery where the program lives. A program has one Pipeline.
 
-To register the pipeline, run pulumi up on the pipeline stack. Registration ends with exit code 10, because the members wait for a run.
+To register the pipeline, run PULUMI_DELIVERY_REGISTER=true pulumi up on the pipeline stack. Registration ends with exit code 10, because the members wait for a run.
 
 ## Example Usage
 
@@ -168,14 +168,14 @@ func (r *PipelineArgs) Annotate(a infer.Annotator) {
 }
 
 func (r *ProviderConfig) Annotate(a infer.Annotator) {
-	a.Describe(&r.Source, "Location of the pipeline program, for a repository that the service cannot detect, such as a self-hosted forge or an unusual remote.")
+	a.Describe(&r.Source, "Location of the pipeline program, the recommended way to tell Delivery where the program lives.")
 }
 
 func (r *ProgramSource) Annotate(a infer.Annotator) {
 	a.Describe(r, "Location of the pipeline program in a repository.")
 	a.Describe(&r.URL, "Clone URL of the repository.")
-	a.Describe(&r.Branch, "Branch that tracks the pipeline program. Omit it to use the branch that the service detects.")
-	a.Describe(&r.Directory, "Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to use the directory that the service detects.")
+	a.Describe(&r.Branch, "Branch that tracks the pipeline program. Omit it to let the service choose the branch.")
+	a.Describe(&r.Directory, "Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to let the service choose the directory.")
 }
 
 func (r *Stage) Annotate(a infer.Annotator) {

@@ -5,7 +5,9 @@ package main
 import (
 	"context"
 	"fmt"
+	"os"
 	"slices"
+	"strconv"
 
 	p "github.com/pulumi/pulumi-go-provider"
 	"github.com/pulumi/pulumi/pkg/v3/resource/stack"
@@ -17,6 +19,16 @@ import (
 
 	"github.com/pulumi/pulumi-delivery/provider/cloudclient"
 )
+
+// declarationMode is "register" when PULUMI_DELIVERY_REGISTER is true. It is read once per provider process.
+var declarationMode = registerModeFromEnvironment()
+
+func registerModeFromEnvironment() string {
+	if register, err := strconv.ParseBool(os.Getenv("PULUMI_DELIVERY_REGISTER")); err == nil && register {
+		return "register"
+	}
+	return ""
+}
 
 // declaration is what a component tells the service. It has one shape in two places: the request to the
 // service and the inputs of the child resource, which the preview shows.
@@ -105,7 +117,7 @@ func (d declaration) request(ctx context.Context, inputs property.Map) (cloudcli
 		return cloudclient.Declaration{}, fmt.Errorf("encoding the inputs of %s: %w", d.urn, err)
 	}
 	return cloudclient.Declaration{
-		ProtocolVersion: cloudclient.ProtocolVersion, URN: d.urn, Type: d.typ, Inputs: encoded,
+		ProtocolVersion: cloudclient.ProtocolVersion, Mode: declarationMode, URN: d.urn, Type: d.typ, Inputs: encoded,
 		Dependencies: d.dependencies, PropertyDependencies: d.propertyDependencies,
 	}, nil
 }

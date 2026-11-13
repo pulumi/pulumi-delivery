@@ -10,7 +10,7 @@ declare var exports: any;
 const __config = new pulumi.Config("delivery");
 
 /**
- * Location of the pipeline program, for a repository that the service cannot detect, such as a self-hosted forge or an unusual remote.
+ * Location of the pipeline program, the recommended way to tell Delivery where the program lives.
  */
 export declare const source: outputs.ProgramSource | undefined;
 Object.defineProperty(exports, "source", {

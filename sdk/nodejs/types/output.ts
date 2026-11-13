@@ -12,11 +12,11 @@ import {AzureDevOpsSource, BitbucketSource, GitHubSource, GitLabSource, Workflow
  */
 export interface ProgramSource {
     /**
-     * Branch that tracks the pipeline program. Omit it to use the branch that the service detects.
+     * Branch that tracks the pipeline program. Omit it to let the service choose the branch.
      */
     branch?: string;
     /**
-     * Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to use the directory that the service detects.
+     * Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to let the service choose the directory.
      */
     directory?: string;
     /**
