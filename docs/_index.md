@@ -231,7 +231,7 @@ Register the pipeline:
 PULUMI_DELIVERY_REGISTER=true pulumi up
 ```
 
-Registering is explicit. A plain `pulumi up` on the pipeline stack is refused with a message that tells you to set `PULUMI_DELIVERY_REGISTER=true`. `pulumi preview`, `pulumi destroy` and `pulumi refresh` are not affected. Changing `delivery:source` updates the provider in place and does not replace any resource.
+Registering is explicit. A plain `pulumi up` on the pipeline stack is refused with a message that tells you to set `PULUMI_DELIVERY_REGISTER=true`. Only `true` or `1` counts as set. With any other value the command is a plain `pulumi up`. `pulumi preview`, `pulumi destroy` and `pulumi refresh` are not affected. Changing `delivery:source` updates the provider in place and does not replace any resource.
 
 The update ends with exit code 10. Delivery rejects the update with an error in these cases.
 

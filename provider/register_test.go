@@ -15,6 +15,7 @@ func TestDeclarationsCarryTheRegisterMode(t *testing.T) {
 	service := newFakeService(t)
 	server := newServer(t)
 
+	t.Cleanup(func() { declarationMode = "" })
 	for _, mode := range []string{"register", ""} {
 		declarationMode = mode
 		_, err := server.Construct(jobRequest(false))
@@ -22,7 +23,6 @@ func TestDeclarationsCarryTheRegisterMode(t *testing.T) {
 		_, err = server.Construct(pipelineRequest(false))
 		require.NoError(t, err)
 	}
-	declarationMode = ""
 
 	declared := service.declared()
 	require.Len(t, declared, 4)
@@ -67,6 +67,10 @@ func TestConfigChangeUpdatesInPlace(t *testing.T) {
 	resp, err := server.DiffConfig(p.DiffRequest{State: a, OldInputs: a, Inputs: a})
 	require.NoError(t, err)
 	assert.False(t, resp.HasChanges)
+
+	resp, err = server.DiffConfig(p.DiffRequest{State: a, OldInputs: a, Inputs: a.Set("version", property.New("1.2.3"))})
+	require.NoError(t, err)
+	assert.Equal(t, p.Update, resp.DetailedDiff["version"].Kind)
 }
 
 // The engine checks the new config, diffs it against the old state, and configures, all on one provider process.
