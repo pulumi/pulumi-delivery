@@ -80,5 +80,20 @@ func newProvider() (p.Provider, error) {
 	provider = unknownOutputsInPreview(provider)
 	provider.Construct = withDeliveryConstruct(config, provider.Construct)
 	provider.GetSchema = withReferences(provider.GetSchema)
+	provider.DiffConfig = diffConfig
 	return provider, nil
+}
+
+// diffConfig reports every change of the configuration as an update in place, so that a change of delivery:source never
+// replaces the provider and the resources under it. It compares the property values: the typed configuration is one
+// shared object, and reading the old state into it would leave the old source behind.
+func diffConfig(_ context.Context, req p.DiffRequest) (p.DiffResponse, error) {
+	resp := p.DiffResponse{DetailedDiff: map[string]p.PropertyDiff{}}
+	for _, key := range []string{"source", "version"} {
+		if !req.State.Get(key).Equals(req.Inputs.Get(key)) {
+			resp.DetailedDiff[key] = p.PropertyDiff{Kind: p.Update, InputDiff: true}
+			resp.HasChanges = true
+		}
+	}
+	return resp, nil
 }

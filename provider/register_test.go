@@ -69,6 +69,47 @@ func TestConfigChangeUpdatesInPlace(t *testing.T) {
 	assert.False(t, resp.HasChanges)
 }
 
+// The engine checks the new config, diffs it against the old state, and configures, all on one provider process.
+func TestSourceAddedAndRemovedThroughDiff(t *testing.T) {
+	const source = `{"url":"https://git.example.com/acme/shop","directory":"delivery"}`
+	inputs := func(source string) property.Map {
+		if source == "" {
+			return property.NewMap(map[string]property.Value{})
+		}
+		return property.NewMap(map[string]property.Value{"source": property.New(source)})
+	}
+	for _, c := range []struct {
+		name     string
+		old, new string
+		want     any
+	}{
+		{"added", "", source, map[string]any{"url": "https://git.example.com/acme/shop", "directory": "delivery"}},
+		{"removed", source, "", nil},
+	} {
+		t.Run(c.name, func(t *testing.T) {
+			service := newFakeService(t)
+			old, err := newServer(t).CheckConfig(p.CheckRequest{Inputs: inputs(c.old)})
+			require.NoError(t, err)
+
+			server := newServer(t)
+			checked, err := server.CheckConfig(p.CheckRequest{Inputs: inputs(c.new)})
+			require.NoError(t, err)
+			diff, err := server.DiffConfig(p.DiffRequest{State: old.Inputs, OldInputs: old.Inputs, Inputs: checked.Inputs})
+			require.NoError(t, err)
+			assert.True(t, diff.HasChanges)
+			assert.Equal(t, p.Update, diff.DetailedDiff["source"].Kind)
+			require.NoError(t, server.Configure(p.ConfigureRequest{Args: checked.Inputs}))
+			_, err = server.Construct(pipelineRequest(false))
+			require.NoError(t, err)
+
+			declared := service.declared()
+			require.NotEmpty(t, declared)
+			got := declared[len(declared)-1]["inputs"].(map[string]any)["programSource"]
+			assert.Equal(t, c.want, got)
+		})
+	}
+}
+
 func TestPipelineDeclaresItsServicePrincipal(t *testing.T) {
 	service := newFakeService(t)
 	server := newServer(t)

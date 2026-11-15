@@ -3,12 +3,8 @@
 package main
 
 import (
-	"context"
 	"errors"
-	"reflect"
 
-	p "github.com/pulumi/pulumi-go-provider"
-	"github.com/pulumi/pulumi-go-provider/infer"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
@@ -26,17 +22,6 @@ type PipelineArgs struct {
 // the service where the pipeline program lives.
 type ProviderConfig struct {
 	Source *ProgramSource `pulumi:"source,optional"`
-}
-
-// Diff reports every change of the configuration as an update in place, so that it never replaces the provider.
-func (c *ProviderConfig) Diff(_ context.Context, req infer.DiffRequest[*ProviderConfig, *ProviderConfig]) (infer.DiffResponse, error) {
-	if reflect.DeepEqual(req.State, req.Inputs) {
-		return infer.DiffResponse{}, nil
-	}
-	return infer.DiffResponse{
-		HasChanges:   true,
-		DetailedDiff: map[string]p.PropertyDiff{"source": {Kind: p.Update, InputDiff: true}},
-	}, nil
 }
 
 type ProgramSource struct {
