@@ -555,8 +555,10 @@ Do not write the run number into the environment variables of a Lambda function.
 
 ## Permissions
 
-- Write access to the branch of the pipeline program gives deploy access to every stack that the Delivery identity of your organization can reach. Protect that branch.
-- The Delivery identity of the organization needs read access to the upstream pipeline stack of a `PipelineSource`. Your own access is not enough.
+- A pipeline runs as a service principal. Without `servicePrincipal` on the `Pipeline`, Delivery generates one for the pipeline. When you register, Delivery gives the generated principal write access to the target stacks that you can grant access to, and warns about the others.
+- To run as a service principal of your own, set `servicePrincipal` on the `Pipeline` to its ID or login, and give that principal access to the target stacks yourself. Only a registration by a person (`PULUMI_DELIVERY_REGISTER=true pulumi up`) can set or change the principal. A push that changes it fails to register, and the pipeline keeps its definition.
+- Write access to the branch of the pipeline program gives deploy access to every stack that the principal of the pipeline can reach. Protect that branch.
+- The principal of the pipeline needs read access to the upstream pipeline stack of a `PipelineSource`, and to the ESC environments that the pipeline stack and the target stacks import. Your own access is not enough.
 - Any credential with write access to the pipeline stack can dispatch a run or continue a manual gate. Retry, cancel, pause, resume, promote, rollback and redeploy need a user token with that access. Organization and team tokens cannot do them.
 - Approving needs a user token, read access to the pipeline stack, and a place among the approvers of the gate.
 - An approval preview runs with the same credential as an update. Only people with write access to the repository can add code that runs in a preview.
