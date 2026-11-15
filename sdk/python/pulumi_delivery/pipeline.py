@@ -18,11 +18,27 @@ __all__ = ['PipelineArgs', 'Pipeline']
 
 @pulumi.input_type
 class PipelineArgs:
-    def __init__(__self__):
+    def __init__(__self__, *,
+                 service_principal: pulumi.Input[Optional[_builtins.str]] = None):
         """
         The set of arguments for constructing a Pipeline resource.
+
+        :param pulumi.Input[_builtins.str] service_principal: ID or login of the service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
         """
-        pass
+        if service_principal is not None:
+            pulumi.set(__self__, "service_principal", service_principal)
+
+    @_builtins.property
+    @pulumi.getter(name="servicePrincipal")
+    def service_principal(self) -> pulumi.Input[Optional[_builtins.str]]:
+        """
+        ID or login of the service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
+        """
+        return pulumi.get(self, "service_principal")
+
+    @service_principal.setter
+    def service_principal(self, value: pulumi.Input[Optional[_builtins.str]]):
+        pulumi.set(self, "service_principal", value)
 
 
 @pulumi.type_token("delivery:index:Pipeline")
@@ -31,6 +47,7 @@ class Pipeline(pulumi.ComponentResource):
     def __init__(__self__,
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
+                 service_principal: pulumi.Input[Optional[_builtins.str]] = None,
                  __props__=None):
         """
         Declares the pipeline. It gives the release number of the run. Set delivery:source in the stack config to tell Delivery where the program lives. A program has one Pipeline.
@@ -41,6 +58,7 @@ class Pipeline(pulumi.ComponentResource):
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
+        :param pulumi.Input[_builtins.str] service_principal: ID or login of the service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
         """
         ...
     @overload
@@ -70,6 +88,7 @@ class Pipeline(pulumi.ComponentResource):
     def _internal_init(__self__,
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
+                 service_principal: pulumi.Input[Optional[_builtins.str]] = None,
                  __props__=None):
         opts = pulumi.ResourceOptions.merge(_utilities.get_resource_opts_defaults(), opts)
         if not isinstance(opts, pulumi.ResourceOptions):
@@ -81,6 +100,7 @@ class Pipeline(pulumi.ComponentResource):
                 raise TypeError('__props__ is only valid when passed in combination with a valid opts.id to get an existing resource')
             __props__ = PipelineArgs.__new__(PipelineArgs)
 
+            __props__.__dict__["service_principal"] = service_principal
             __props__.__dict__["release_number"] = None
         super(Pipeline, __self__).__init__(
             'delivery:index:Pipeline',

@@ -18,7 +18,9 @@ import (
 // The inputs that refer to other resources have the type any. The Go SDK decodes a reference into it,
 // and patchReferences replaces the schema type of each such input with a reference to the resource.
 
-type PipelineArgs struct{}
+type PipelineArgs struct {
+	ServicePrincipal *string `pulumi:"servicePrincipal,optional"`
+}
 
 // ProviderConfig is the configuration of the provider, set in the stack config as delivery:source. It tells
 // the service where the pipeline program lives.

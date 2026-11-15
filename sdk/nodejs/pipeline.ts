@@ -49,6 +49,7 @@ export class Pipeline extends pulumi.ComponentResource {
         let resourceInputs: pulumi.Inputs = {};
         opts = opts || {};
         if (!opts.id) {
+            resourceInputs["servicePrincipal"] = args?.servicePrincipal;
             resourceInputs["releaseNumber"] = undefined /*out*/;
         } else {
             resourceInputs["releaseNumber"] = undefined /*out*/;
@@ -62,4 +63,8 @@ export class Pipeline extends pulumi.ComponentResource {
  * The set of arguments for constructing a Pipeline resource.
  */
 export interface PipelineArgs {
+    /**
+     * ID or login of the service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
+     */
+    servicePrincipal?: pulumi.Input<string | undefined>;
 }

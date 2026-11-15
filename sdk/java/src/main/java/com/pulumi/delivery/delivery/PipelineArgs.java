@@ -3,15 +3,44 @@
 
 package com.pulumi.delivery.delivery;
 
-
+import com.pulumi.core.Output;
+import com.pulumi.core.annotations.Import;
+import java.lang.String;
+import java.util.Objects;
+import java.util.Optional;
+import javax.annotation.Nullable;
 
 
 public final class PipelineArgs extends com.pulumi.resources.ResourceArgs {
 
     public static final PipelineArgs Empty = new PipelineArgs();
 
+    /**
+     * ID or login of the service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
+     * 
+     */
+    @Import(name="servicePrincipal")
+    private @Nullable Output<String> servicePrincipal;
+
+    /**
+     * @return ID or login of the service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
+     * 
+     */
+    public Optional<Output<String>> servicePrincipal() {
+        return Optional.ofNullable(this.servicePrincipal);
+    }
+
+    private PipelineArgs() {}
+
+    private PipelineArgs(PipelineArgs $) {
+        this.servicePrincipal = $.servicePrincipal;
+    }
+
     public static Builder builder() {
         return new Builder();
+    }
+    public static Builder builder(PipelineArgs defaults) {
+        return new Builder(defaults);
     }
 
     public static final class Builder {
@@ -20,6 +49,32 @@ public final class PipelineArgs extends com.pulumi.resources.ResourceArgs {
         public Builder() {
             $ = new PipelineArgs();
         }
+
+        public Builder(PipelineArgs defaults) {
+            $ = new PipelineArgs(Objects.requireNonNull(defaults));
+        }
+
+        /**
+         * @param servicePrincipal ID or login of the service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
+         * 
+         * @return builder
+         * 
+         */
+        public Builder servicePrincipal(@Nullable Output<String> servicePrincipal) {
+            $.servicePrincipal = servicePrincipal;
+            return this;
+        }
+
+        /**
+         * @param servicePrincipal ID or login of the service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
+         * 
+         * @return builder
+         * 
+         */
+        public Builder servicePrincipal(String servicePrincipal) {
+            return servicePrincipal(Output.of(servicePrincipal));
+        }
+
         public PipelineArgs build() {
             return $;
         }

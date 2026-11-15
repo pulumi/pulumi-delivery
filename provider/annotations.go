@@ -164,7 +164,8 @@ export const release = pipeline.releaseNumber;
 }
 
 func (r *PipelineArgs) Annotate(a infer.Annotator) {
-	a.Describe(r, "Pipeline settings. A Pipeline has no inputs.")
+	a.Describe(r, "Pipeline settings.")
+	a.Describe(&r.ServicePrincipal, "ID or login of the service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.")
 }
 
 func (r *ProviderConfig) Annotate(a infer.Annotator) {

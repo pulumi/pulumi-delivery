@@ -40,10 +40,14 @@ func NewPipeline(ctx *pulumi.Context,
 }
 
 type pipelineArgs struct {
+	// ID or login of the service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
+	ServicePrincipal *string `pulumi:"servicePrincipal"`
 }
 
 // The set of arguments for constructing a Pipeline resource.
 type PipelineArgs struct {
+	// ID or login of the service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
+	ServicePrincipal pulumi.StringPtrInput
 }
 
 func (PipelineArgs) ElementType() reflect.Type {

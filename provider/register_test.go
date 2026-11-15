@@ -68,3 +68,20 @@ func TestConfigChangeUpdatesInPlace(t *testing.T) {
 	require.NoError(t, err)
 	assert.False(t, resp.HasChanges)
 }
+
+func TestPipelineDeclaresItsServicePrincipal(t *testing.T) {
+	service := newFakeService(t)
+	server := newServer(t)
+
+	_, err := server.Construct(pipelineRequest(false))
+	require.NoError(t, err)
+	req := pipelineRequest(false)
+	req.Inputs = property.NewMap(map[string]property.Value{"servicePrincipal": property.New("deployer")})
+	_, err = server.Construct(req)
+	require.NoError(t, err)
+
+	declared := service.declared()
+	require.Len(t, declared, 2)
+	assert.NotContains(t, declared[0]["inputs"], "servicePrincipal")
+	assert.Equal(t, "deployer", declared[1]["inputs"].(map[string]any)["servicePrincipal"])
+}

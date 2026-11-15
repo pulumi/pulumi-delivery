@@ -565,6 +565,12 @@
       "required": [
         "releaseNumber"
       ],
+      "inputProperties": {
+        "servicePrincipal": {
+          "type": "string",
+          "description": "ID or login of the service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline."
+        }
+      },
       "isComponent": true
     },
     "delivery:index:PipelineSource": {
