@@ -469,7 +469,7 @@ These actions create a new run for one stage. The new run uses the release, the 
 
 ## Writing pipelines
 
-- Each member names `source`, `directory` and `stage`. A program has one `Pipeline`, which takes only the optional `servicePrincipal`. Stage names are unique.
+- Each member names `source`, `directory` and `stage`. A program has one `Pipeline`. Stage names are unique.
 - `config` and `environment` values are plain strings. `config` cannot hold secrets. A secret in `environment` stays secret.
 - Normal code decides which stages and members a run has. You can use `if`, loops and `.apply` on member outputs.
 - A resource that is not a Delivery resource must use a member output to wait for a member. `dependsOn` orders only Delivery members.
