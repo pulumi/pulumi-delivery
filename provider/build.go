@@ -22,6 +22,8 @@ func buildComponent(ctx *pulumi.Context, typ, name string, inputs comProvider.Co
 		return register(ctx, typ, name, inputs, &Pipeline{}, opts, pulumi.Map{})
 	case typeStage:
 		return register(ctx, typ, name, inputs, &Stage{}, opts, pulumi.Map{})
+	case typeAgent:
+		return buildAgent(ctx, name, inputs, opts, d, organization)
 	case typeJob:
 		return buildJob(ctx, name, inputs, opts, d, organization)
 	case typeStacks:
@@ -36,6 +38,41 @@ func buildComponent(ctx *pulumi.Context, typ, name string, inputs comProvider.Co
 	source := &GitHubSource{}
 	source.Commit = pulumi.String(commit).ToStringOutput()
 	return register(ctx, typ, name, inputs, source, opts, pulumi.Map{"commit": source.Commit})
+}
+
+// buildAgent registers Agent as a declarative Delivery member. Its child is the same MemberRun
+// used by Jobs and Stacks, so the service starts the agent once per Delivery run rather than while
+// the pipeline declaration is being evaluated.
+func buildAgent(ctx *pulumi.Context, name string, inputs comProvider.ConstructInputs,
+	opts pulumi.ResourceOption, d declaration, organization string,
+) (*comProvider.ConstructResult, error) {
+	agent := &Agent{}
+	inputMap, err := inputs.Map()
+	if err != nil {
+		return nil, err
+	}
+	if err := ctx.RegisterComponentResourceV2(typeAgent, name, inputMap, agent, opts); err != nil {
+		return nil, err
+	}
+	child := &memberRunResource{}
+	if err := ctx.RegisterResource(typeMemberRun, name, pulumi.Map{
+		"organization": pulumi.String(organization),
+		"member":       pulumi.String(d.urn),
+		"declaration":  d.forChild(inputMap),
+	}, child, pulumi.Parent(agent)); err != nil {
+		return nil, err
+	}
+	agent.Response = child.Outputs.ApplyT(func(outputs map[string]any) any {
+		return outputs["response"]
+	}).(pulumi.AnyOutput)
+	agent.ChildUrn = child.URN().ApplyT(func(u pulumi.URN) string { return string(u) }).(pulumi.StringOutput)
+	if err := ctx.RegisterResourceOutputs(agent, pulumi.Map{
+		"response": agent.Response,
+		"childUrn": agent.ChildUrn,
+	}); err != nil {
+		return nil, err
+	}
+	return comProvider.NewConstructResult(agent)
 }
 
 // register records the inputs of the component in the state, so that a change of an input shows in a preview.

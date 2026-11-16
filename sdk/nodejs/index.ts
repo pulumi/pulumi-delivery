@@ -5,6 +5,11 @@ import * as pulumi from "@pulumi/pulumi";
 import * as utilities from "./utilities";
 
 // Export members:
+export { AgentArgs } from "./agent";
+export type Agent = import("./agent").Agent;
+export const Agent: typeof import("./agent").Agent = null as any;
+utilities.lazyLoad(exports, ["Agent"], () => require("./agent"));
+
 export { AllOfArgs, AllOfResult, AllOfOutputArgs } from "./allOf";
 export const allOf: typeof import("./allOf").allOf = null as any;
 export const allOfOutput: typeof import("./allOf").allOfOutput = null as any;
@@ -102,6 +107,8 @@ const _module = {
     version: utilities.getVersion(),
     construct: (name: string, type: string, urn: string): pulumi.Resource => {
         switch (type) {
+            case "delivery:index:Agent":
+                return new Agent(name, <any>undefined, { urn })
             case "delivery:index:Artifact":
                 return new Artifact(name, <any>undefined, { urn })
             case "delivery:index:AzureDevOpsSource":

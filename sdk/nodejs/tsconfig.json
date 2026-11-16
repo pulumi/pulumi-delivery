@@ -19,6 +19,7 @@
         "skipLibCheck": true
     },
     "files": [
+        "agent.ts",
         "allOf.ts",
         "anyOf.ts",
         "approval.ts",

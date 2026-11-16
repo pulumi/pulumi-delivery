@@ -172,6 +172,22 @@ func jobRequest(dryRun bool) p.ConstructRequest {
 	}
 }
 
+func agentRequest(dryRun bool) p.ConstructRequest {
+	return p.ConstructRequest{
+		Urn:          urnOf(typeAgent, "risk-review"),
+		Organization: "org",
+		DryRun:       dryRun,
+		Inputs: property.NewMap(map[string]property.Value{
+			"stage":             reference(typeStage, "dev"),
+			"agentDefinitionId": property.New("risk-reviewer"),
+			"prompt":            property.New("Summarize the release risk."),
+			"responseSchema": property.New(property.NewMap(map[string]property.Value{
+				"type": property.New("object"),
+			})),
+		}),
+	}
+}
+
 func TestOneDeclarationForEachComponentInAnUpdate(t *testing.T) {
 	service := newFakeService(t)
 	server := newServer(t)
@@ -219,6 +235,19 @@ func TestOutputsOfAMemberDependOnItsChild(t *testing.T) {
 	_, hasChildURN := resp.State.GetOk("childUrn")
 	assert.False(t, hasChildURN, "the child URN is not a public output")
 	assert.Contains(t, resp.State.Get("outputs").Dependencies(), child)
+}
+
+func TestAgentResponseDependsOnItsChild(t *testing.T) {
+	newFakeService(t)
+	server := newServer(t)
+
+	resp, err := server.Construct(agentRequest(false))
+	require.NoError(t, err)
+
+	child := urnOf(typeAgent+"$"+typeMemberRun, "risk-review")
+	_, hasChildURN := resp.State.GetOk("childUrn")
+	assert.False(t, hasChildURN, "the child URN is not a public output")
+	assert.Contains(t, resp.State.Get("response").Dependencies(), child)
 }
 
 func TestMissingCredentials(t *testing.T) {
@@ -672,6 +701,7 @@ func TestComponentsRecordTheirInputs(t *testing.T) {
 			"branch":     property.New("main"),
 		})},
 		{typ: typeJob, name: "build", key: "command", inputs: jobRequest(true).Inputs},
+		{typ: typeAgent, name: "risk-review", key: "agentDefinitionId", inputs: agentRequest(true).Inputs},
 		{typ: typeArtifact, name: "version", key: "value", inputs: property.NewMap(map[string]property.Value{
 			"stage": reference(typeStage, "dev"),
 			"value": property.New("v1").WithSecret(true),

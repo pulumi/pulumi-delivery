@@ -54,6 +54,7 @@ func newProvider() (p.Provider, error) {
 		).
 		WithComponents(
 			infer.ComponentF(notInferred[PipelineArgs, *Pipeline]),
+			infer.ComponentF(notInferred[AgentArgs, *Agent]),
 			infer.ComponentF(notInferred[StageArgs, *Stage]),
 			infer.ComponentF(notInferred[JobArgs, *Job]),
 			infer.ComponentF(notInferred[StacksArgs, *Stacks]),

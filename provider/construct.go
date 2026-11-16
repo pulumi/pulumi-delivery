@@ -39,7 +39,7 @@ func clientFor(organization string, resourceURN urn.URN) (*cloudclient.Client, e
 
 func isDeliveryComponent(typ string) bool {
 	_, source := sourceKinds[typ]
-	return source || typ == typePipeline || typ == typeStage || typ == typeJob || typ == typeStacks ||
+	return source || typ == typePipeline || typ == typeAgent || typ == typeStage || typ == typeJob || typ == typeStacks ||
 		typ == typeArtifact || typ == typePipelineSource
 }
 
@@ -55,7 +55,8 @@ func withDeliveryConstruct(inner func(context.Context, p.ConstructRequest) (p.Co
 		if !isDeliveryComponent(typ) {
 			return inner(ctx, req)
 		}
-		if (typ == typeJob || typ == typeStacks || typ == typeArtifact) && req.ResourceHooks != nil && len(req.ResourceHooks.OnError) > 0 {
+		if (typ == typeAgent || typ == typeJob || typ == typeStacks || typ == typeArtifact) &&
+			req.ResourceHooks != nil && len(req.ResourceHooks.OnError) > 0 {
 			return p.ConstructResponse{}, errors.New("Delivery resources do not support error hooks. Use a retry or a new run.")
 		}
 		if typ != typeArtifact {
@@ -146,6 +147,8 @@ func finishState(typ string, state property.Map, commit string, release *int64, 
 	key := "outputs"
 	if typ == typeArtifact {
 		key = "value"
+	} else if typ == typeAgent {
+		key = "response"
 	}
 	if _, ok := out[key]; !ok {
 		out[key] = property.New(property.Computed).WithDependencies([]urn.URN{childURN})
