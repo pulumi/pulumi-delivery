@@ -2,6 +2,8 @@
 // *** Do not edit by hand unless you're certain you know what you are doing! ***
 
 import * as pulumi from "@pulumi/pulumi";
+import * as inputs from "./types/input";
+import * as outputs from "./types/output";
 import * as utilities from "./utilities";
 
 /**
@@ -64,7 +66,7 @@ export class Pipeline extends pulumi.ComponentResource {
  */
 export interface PipelineArgs {
     /**
-     * ID or login of the service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
+     * Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
      */
-    servicePrincipal?: pulumi.Input<string | undefined>;
+    servicePrincipal?: pulumi.Input<inputs.PipelineServicePrincipalArgs | undefined>;
 }

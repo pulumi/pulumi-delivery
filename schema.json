@@ -86,6 +86,20 @@
         "password"
       ]
     },
+    "delivery:index:PipelineServicePrincipal": {
+      "description": "Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.",
+      "properties": {
+        "teamName": {
+          "type": "string",
+          "description": "Name of a team. The pipeline runs as the service principal of the team, with the roles of the team. Cannot be set together with userId."
+        },
+        "userId": {
+          "type": "string",
+          "description": "ID or login of a user-defined service principal. Cannot be set together with teamName."
+        }
+      },
+      "type": "object"
+    },
     "delivery:index:ProgramSource": {
       "description": "Location of the pipeline program in a repository.",
       "properties": {
@@ -567,8 +581,8 @@
       ],
       "inputProperties": {
         "servicePrincipal": {
-          "type": "string",
-          "description": "ID or login of the service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline."
+          "$ref": "#/types/delivery:index:PipelineServicePrincipal",
+          "description": "Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline."
         }
       },
       "isComponent": true

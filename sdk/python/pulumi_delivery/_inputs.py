@@ -24,6 +24,8 @@ __all__ = [
     'ImageArgsDict',
     'ImageCredentialsArgs',
     'ImageCredentialsArgsDict',
+    'PipelineServicePrincipalArgs',
+    'PipelineServicePrincipalArgsDict',
     'ProgramSourceArgs',
     'ProgramSourceArgsDict',
     'Rule',
@@ -139,6 +141,60 @@ class ImageCredentialsArgs:
     @username.setter
     def username(self, value: pulumi.Input[_builtins.str]):
         pulumi.set(self, "username", value)
+
+
+class PipelineServicePrincipalArgsDict(TypedDict):
+    """
+    Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
+    """
+    team_name: NotRequired[pulumi.Input[Optional[_builtins.str]]]
+    """
+    Name of a team. The pipeline runs as the service principal of the team, with the roles of the team. Cannot be set together with userId.
+    """
+    user_id: NotRequired[pulumi.Input[Optional[_builtins.str]]]
+    """
+    ID or login of a user-defined service principal. Cannot be set together with teamName.
+    """
+
+@pulumi.input_type
+class PipelineServicePrincipalArgs:
+    def __init__(__self__, *,
+                 team_name: pulumi.Input[Optional[_builtins.str]] = None,
+                 user_id: pulumi.Input[Optional[_builtins.str]] = None):
+        """
+        Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
+
+        :param pulumi.Input[_builtins.str] team_name: Name of a team. The pipeline runs as the service principal of the team, with the roles of the team. Cannot be set together with userId.
+        :param pulumi.Input[_builtins.str] user_id: ID or login of a user-defined service principal. Cannot be set together with teamName.
+        """
+        if team_name is not None:
+            pulumi.set(__self__, "team_name", team_name)
+        if user_id is not None:
+            pulumi.set(__self__, "user_id", user_id)
+
+    @_builtins.property
+    @pulumi.getter(name="teamName")
+    def team_name(self) -> pulumi.Input[Optional[_builtins.str]]:
+        """
+        Name of a team. The pipeline runs as the service principal of the team, with the roles of the team. Cannot be set together with userId.
+        """
+        return pulumi.get(self, "team_name")
+
+    @team_name.setter
+    def team_name(self, value: pulumi.Input[Optional[_builtins.str]]):
+        pulumi.set(self, "team_name", value)
+
+    @_builtins.property
+    @pulumi.getter(name="userId")
+    def user_id(self) -> pulumi.Input[Optional[_builtins.str]]:
+        """
+        ID or login of a user-defined service principal. Cannot be set together with teamName.
+        """
+        return pulumi.get(self, "user_id")
+
+    @user_id.setter
+    def user_id(self, value: pulumi.Input[Optional[_builtins.str]]):
+        pulumi.set(self, "user_id", value)
 
 
 class ProgramSourceArgsDict(TypedDict):

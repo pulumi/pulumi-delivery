@@ -115,18 +115,51 @@ func TestSourceAddedAndRemovedThroughDiff(t *testing.T) {
 }
 
 func TestPipelineDeclaresItsServicePrincipal(t *testing.T) {
-	service := newFakeService(t)
-	server := newServer(t)
-
-	_, err := server.Construct(pipelineRequest(false))
-	require.NoError(t, err)
-	req := pipelineRequest(false)
-	req.Inputs = property.NewMap(map[string]property.Value{"servicePrincipal": property.New("deployer")})
-	_, err = server.Construct(req)
-	require.NoError(t, err)
-
-	declared := service.declared()
-	require.Len(t, declared, 2)
-	assert.NotContains(t, declared[0]["inputs"], "servicePrincipal")
-	assert.Equal(t, "deployer", declared[1]["inputs"].(map[string]any)["servicePrincipal"])
+	principal := func(fields map[string]property.Value) property.Map {
+		return property.NewMap(map[string]property.Value{"servicePrincipal": property.New(property.NewMap(fields))})
+	}
+	cases := []struct {
+		name    string
+		inputs  property.Map
+		want    any
+		wantErr string
+	}{
+		{name: "absent"},
+		{name: "userId", inputs: principal(map[string]property.Value{"userId": property.New("service-principal:1")}),
+			want: map[string]any{"userId": "service-principal:1"}},
+		{name: "teamName", inputs: principal(map[string]property.Value{"teamName": property.New("platform")}),
+			want: map[string]any{"teamName": "platform"}},
+		{name: "both", inputs: principal(map[string]property.Value{"userId": property.New("a"), "teamName": property.New("b")}),
+			wantErr: "servicePrincipal takes userId or teamName, not both"},
+		{name: "empty", inputs: principal(map[string]property.Value{}),
+			wantErr: "servicePrincipal needs userId or teamName"},
+		{name: "unknown", inputs: principal(map[string]property.Value{"userId": property.New(property.Computed), "teamName": property.New("b")}),
+			want: "skip"},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			service := newFakeService(t)
+			server := newServer(t)
+			req := pipelineRequest(false)
+			if c.inputs.Len() > 0 {
+				req.Inputs = c.inputs
+			}
+			_, err := server.Construct(req)
+			if c.wantErr != "" {
+				require.ErrorContains(t, err, c.wantErr)
+				return
+			}
+			require.NoError(t, err)
+			declared := service.declared()
+			require.Len(t, declared, 1)
+			if c.want == "skip" {
+				return
+			}
+			if c.want == nil {
+				assert.NotContains(t, declared[0]["inputs"], "servicePrincipal")
+			} else {
+				assert.Equal(t, c.want, declared[0]["inputs"].(map[string]any)["servicePrincipal"])
+			}
+		})
+	}
 }

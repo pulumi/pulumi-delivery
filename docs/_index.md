@@ -556,7 +556,9 @@ Do not write the run number into the environment variables of a Lambda function.
 ## Permissions
 
 - A pipeline runs as a service principal. Without `servicePrincipal` on the `Pipeline`, Delivery generates one for the pipeline. When you register, Delivery gives the generated principal write access to the target stacks that you can grant access to, and warns about the others.
-- To run as a service principal of your own, set `servicePrincipal` on the `Pipeline` to its ID or login, and give that principal access to the target stacks yourself. Only a registration by a person (`PULUMI_DELIVERY_REGISTER=true pulumi up`) can set or change the principal. A push that changes it fails to register, and the pipeline keeps its definition.
+- To run as a service principal of your own, set `servicePrincipal: { userId }` on the `Pipeline` to its ID or login, and give that principal access to the target stacks yourself.
+- To run as a team, set `servicePrincipal: { teamName }`. The pipeline then runs as the service principal of the team. The team needs access to the target stacks. Set `userId` or `teamName`, not both.
+- Only a registration by a person (`PULUMI_DELIVERY_REGISTER=true pulumi up`) can set or change the principal. A push that changes it fails to register, and the pipeline keeps its definition.
 - Write access to the branch of the pipeline program gives deploy access to every stack that the principal of the pipeline can reach. Protect that branch.
 - The principal of the pipeline needs read access to the upstream pipeline stack of a `PipelineSource`, and to the ESC environments that the pipeline stack and the target stacks import. Your own access is not enough.
 - Any credential with write access to the pipeline stack can dispatch a run or continue a manual gate. Retry, cancel, pause, resume, promote, rollback and redeploy need a user token with that access. Organization and team tokens cannot do them.

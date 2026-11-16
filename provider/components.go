@@ -15,7 +15,12 @@ import (
 // and patchReferences replaces the schema type of each such input with a reference to the resource.
 
 type PipelineArgs struct {
-	ServicePrincipal *string `pulumi:"servicePrincipal,optional"`
+	ServicePrincipal *PipelineServicePrincipal `pulumi:"servicePrincipal,optional"`
+}
+
+type PipelineServicePrincipal struct {
+	UserID   *string `pulumi:"userId,optional"`
+	TeamName *string `pulumi:"teamName,optional"`
 }
 
 // ProviderConfig is the configuration of the provider, set in the stack config as delivery:source. It tells

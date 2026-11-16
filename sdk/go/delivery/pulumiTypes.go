@@ -331,6 +331,165 @@ func (o ImageCredentialsPtrOutput) Username() pulumi.StringPtrOutput {
 	}).(pulumi.StringPtrOutput)
 }
 
+// Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
+type PipelineServicePrincipal struct {
+	// Name of a team. The pipeline runs as the service principal of the team, with the roles of the team. Cannot be set together with userId.
+	TeamName *string `pulumi:"teamName"`
+	// ID or login of a user-defined service principal. Cannot be set together with teamName.
+	UserId *string `pulumi:"userId"`
+}
+
+// PipelineServicePrincipalInput is an input type that accepts PipelineServicePrincipalArgs and PipelineServicePrincipalOutput values.
+// You can construct a concrete instance of `PipelineServicePrincipalInput` via:
+//
+//	PipelineServicePrincipalArgs{...}
+type PipelineServicePrincipalInput interface {
+	pulumi.Input
+
+	ToPipelineServicePrincipalOutput() PipelineServicePrincipalOutput
+	ToPipelineServicePrincipalOutputWithContext(context.Context) PipelineServicePrincipalOutput
+}
+
+// Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
+type PipelineServicePrincipalArgs struct {
+	// Name of a team. The pipeline runs as the service principal of the team, with the roles of the team. Cannot be set together with userId.
+	TeamName pulumi.StringPtrInput `pulumi:"teamName"`
+	// ID or login of a user-defined service principal. Cannot be set together with teamName.
+	UserId pulumi.StringPtrInput `pulumi:"userId"`
+}
+
+func (PipelineServicePrincipalArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*PipelineServicePrincipal)(nil)).Elem()
+}
+
+func (i PipelineServicePrincipalArgs) ToPipelineServicePrincipalOutput() PipelineServicePrincipalOutput {
+	return i.ToPipelineServicePrincipalOutputWithContext(context.Background())
+}
+
+func (i PipelineServicePrincipalArgs) ToPipelineServicePrincipalOutputWithContext(ctx context.Context) PipelineServicePrincipalOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(PipelineServicePrincipalOutput)
+}
+
+func (i PipelineServicePrincipalArgs) ToPipelineServicePrincipalPtrOutput() PipelineServicePrincipalPtrOutput {
+	return i.ToPipelineServicePrincipalPtrOutputWithContext(context.Background())
+}
+
+func (i PipelineServicePrincipalArgs) ToPipelineServicePrincipalPtrOutputWithContext(ctx context.Context) PipelineServicePrincipalPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(PipelineServicePrincipalOutput).ToPipelineServicePrincipalPtrOutputWithContext(ctx)
+}
+
+// PipelineServicePrincipalPtrInput is an input type that accepts PipelineServicePrincipalArgs, PipelineServicePrincipalPtr and PipelineServicePrincipalPtrOutput values.
+// You can construct a concrete instance of `PipelineServicePrincipalPtrInput` via:
+//
+//	        PipelineServicePrincipalArgs{...}
+//
+//	or:
+//
+//	        nil
+type PipelineServicePrincipalPtrInput interface {
+	pulumi.Input
+
+	ToPipelineServicePrincipalPtrOutput() PipelineServicePrincipalPtrOutput
+	ToPipelineServicePrincipalPtrOutputWithContext(context.Context) PipelineServicePrincipalPtrOutput
+}
+
+type pipelineServicePrincipalPtrType PipelineServicePrincipalArgs
+
+func PipelineServicePrincipalPtr(v *PipelineServicePrincipalArgs) PipelineServicePrincipalPtrInput {
+	return (*pipelineServicePrincipalPtrType)(v)
+}
+
+func (*pipelineServicePrincipalPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**PipelineServicePrincipal)(nil)).Elem()
+}
+
+func (i *pipelineServicePrincipalPtrType) ToPipelineServicePrincipalPtrOutput() PipelineServicePrincipalPtrOutput {
+	return i.ToPipelineServicePrincipalPtrOutputWithContext(context.Background())
+}
+
+func (i *pipelineServicePrincipalPtrType) ToPipelineServicePrincipalPtrOutputWithContext(ctx context.Context) PipelineServicePrincipalPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(PipelineServicePrincipalPtrOutput)
+}
+
+// Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
+type PipelineServicePrincipalOutput struct{ *pulumi.OutputState }
+
+func (PipelineServicePrincipalOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*PipelineServicePrincipal)(nil)).Elem()
+}
+
+func (o PipelineServicePrincipalOutput) ToPipelineServicePrincipalOutput() PipelineServicePrincipalOutput {
+	return o
+}
+
+func (o PipelineServicePrincipalOutput) ToPipelineServicePrincipalOutputWithContext(ctx context.Context) PipelineServicePrincipalOutput {
+	return o
+}
+
+func (o PipelineServicePrincipalOutput) ToPipelineServicePrincipalPtrOutput() PipelineServicePrincipalPtrOutput {
+	return o.ToPipelineServicePrincipalPtrOutputWithContext(context.Background())
+}
+
+func (o PipelineServicePrincipalOutput) ToPipelineServicePrincipalPtrOutputWithContext(ctx context.Context) PipelineServicePrincipalPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v PipelineServicePrincipal) *PipelineServicePrincipal {
+		return &v
+	}).(PipelineServicePrincipalPtrOutput)
+}
+
+// Name of a team. The pipeline runs as the service principal of the team, with the roles of the team. Cannot be set together with userId.
+func (o PipelineServicePrincipalOutput) TeamName() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v PipelineServicePrincipal) *string { return v.TeamName }).(pulumi.StringPtrOutput)
+}
+
+// ID or login of a user-defined service principal. Cannot be set together with teamName.
+func (o PipelineServicePrincipalOutput) UserId() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v PipelineServicePrincipal) *string { return v.UserId }).(pulumi.StringPtrOutput)
+}
+
+type PipelineServicePrincipalPtrOutput struct{ *pulumi.OutputState }
+
+func (PipelineServicePrincipalPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**PipelineServicePrincipal)(nil)).Elem()
+}
+
+func (o PipelineServicePrincipalPtrOutput) ToPipelineServicePrincipalPtrOutput() PipelineServicePrincipalPtrOutput {
+	return o
+}
+
+func (o PipelineServicePrincipalPtrOutput) ToPipelineServicePrincipalPtrOutputWithContext(ctx context.Context) PipelineServicePrincipalPtrOutput {
+	return o
+}
+
+func (o PipelineServicePrincipalPtrOutput) Elem() PipelineServicePrincipalOutput {
+	return o.ApplyT(func(v *PipelineServicePrincipal) PipelineServicePrincipal {
+		if v != nil {
+			return *v
+		}
+		var ret PipelineServicePrincipal
+		return ret
+	}).(PipelineServicePrincipalOutput)
+}
+
+// Name of a team. The pipeline runs as the service principal of the team, with the roles of the team. Cannot be set together with userId.
+func (o PipelineServicePrincipalPtrOutput) TeamName() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *PipelineServicePrincipal) *string {
+		if v == nil {
+			return nil
+		}
+		return v.TeamName
+	}).(pulumi.StringPtrOutput)
+}
+
+// ID or login of a user-defined service principal. Cannot be set together with teamName.
+func (o PipelineServicePrincipalPtrOutput) UserId() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *PipelineServicePrincipal) *string {
+		if v == nil {
+			return nil
+		}
+		return v.UserId
+	}).(pulumi.StringPtrOutput)
+}
+
 // Location of the pipeline program in a repository.
 type ProgramSource struct {
 	// Branch that tracks the pipeline program. Omit it to let the service choose the branch.
@@ -1284,6 +1443,8 @@ func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*ImagePtrInput)(nil)).Elem(), ImageArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*ImageCredentialsInput)(nil)).Elem(), ImageCredentialsArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*ImageCredentialsPtrInput)(nil)).Elem(), ImageCredentialsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*PipelineServicePrincipalInput)(nil)).Elem(), PipelineServicePrincipalArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*PipelineServicePrincipalPtrInput)(nil)).Elem(), PipelineServicePrincipalArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*ProgramSourceInput)(nil)).Elem(), ProgramSourceArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*ProgramSourcePtrInput)(nil)).Elem(), ProgramSourceArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*RuleInput)(nil)).Elem(), RuleArgs{})
@@ -1297,6 +1458,8 @@ func init() {
 	pulumi.RegisterOutputType(ImagePtrOutput{})
 	pulumi.RegisterOutputType(ImageCredentialsOutput{})
 	pulumi.RegisterOutputType(ImageCredentialsPtrOutput{})
+	pulumi.RegisterOutputType(PipelineServicePrincipalOutput{})
+	pulumi.RegisterOutputType(PipelineServicePrincipalPtrOutput{})
 	pulumi.RegisterOutputType(ProgramSourceOutput{})
 	pulumi.RegisterOutputType(ProgramSourcePtrOutput{})
 	pulumi.RegisterOutputType(RuleOutput{})

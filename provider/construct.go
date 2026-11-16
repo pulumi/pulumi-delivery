@@ -455,6 +455,8 @@ func validateInputs(typ string, inputs property.Map) error {
 		return validateTrigger(inputs, true)
 	}
 	switch typ {
+	case typePipeline:
+		return validateServicePrincipal(inputs)
 	case typeStage:
 		if err := requireRef(inputs, "pipeline", typePipeline); err != nil {
 			return err
@@ -501,6 +503,22 @@ func validateInputs(typ string, inputs property.Map) error {
 			return err
 		}
 		return checkEnvironment(inputs)
+	}
+	return nil
+}
+
+func validateServicePrincipal(inputs property.Map) error {
+	if _, ok := inputs.GetOk("servicePrincipal"); !ok || unknown(inputs, "servicePrincipal") ||
+		unknown(inputs, "servicePrincipal", "userId") || unknown(inputs, "servicePrincipal", "teamName") {
+		return nil
+	}
+	principal := mapInput(inputs.Get("servicePrincipal"))
+	user, team := stringInput(principal, "userId") != "", stringInput(principal, "teamName") != ""
+	switch {
+	case user && team:
+		return errors.New("servicePrincipal takes userId or teamName, not both")
+	case !user && !team:
+		return errors.New("servicePrincipal needs userId or teamName")
 	}
 	return nil
 }

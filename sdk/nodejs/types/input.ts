@@ -36,6 +36,20 @@ export interface ImageCredentialsArgs {
 }
 
 /**
+ * Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
+ */
+export interface PipelineServicePrincipalArgs {
+    /**
+     * Name of a team. The pipeline runs as the service principal of the team, with the roles of the team. Cannot be set together with userId.
+     */
+    teamName?: pulumi.Input<string | undefined>;
+    /**
+     * ID or login of a user-defined service principal. Cannot be set together with teamName.
+     */
+    userId?: pulumi.Input<string | undefined>;
+}
+
+/**
  * Location of the pipeline program in a repository.
  */
 export interface ProgramSourceArgs {

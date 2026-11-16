@@ -56,10 +56,10 @@ namespace Pulumi.Delivery.Delivery
     public sealed class PipelineArgs : global::Pulumi.ResourceArgs
     {
         /// <summary>
-        /// ID or login of the service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
+        /// Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
         /// </summary>
         [Input("servicePrincipal")]
-        public Input<string>? ServicePrincipal { get; set; }
+        public Input<Inputs.PipelineServicePrincipalArgs>? ServicePrincipal { get; set; }
 
         public PipelineArgs()
         {

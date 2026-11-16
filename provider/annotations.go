@@ -165,7 +165,13 @@ export const release = pipeline.releaseNumber;
 
 func (r *PipelineArgs) Annotate(a infer.Annotator) {
 	a.Describe(r, "Pipeline settings.")
-	a.Describe(&r.ServicePrincipal, "ID or login of the service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.")
+	a.Describe(&r.ServicePrincipal, "Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.")
+}
+
+func (r *PipelineServicePrincipal) Annotate(a infer.Annotator) {
+	a.Describe(r, "Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.")
+	a.Describe(&r.UserID, "ID or login of a user-defined service principal. Cannot be set together with teamName.")
+	a.Describe(&r.TeamName, "Name of a team. The pipeline runs as the service principal of the team, with the roles of the team. Cannot be set together with userId.")
 }
 
 func (r *ProviderConfig) Annotate(a infer.Annotator) {

@@ -13,31 +13,32 @@ if sys.version_info >= (3, 11):
 else:
     from typing_extensions import NotRequired, TypedDict, TypeAlias
 from . import _utilities
+from ._inputs import *
 
 __all__ = ['PipelineArgs', 'Pipeline']
 
 @pulumi.input_type
 class PipelineArgs:
     def __init__(__self__, *,
-                 service_principal: pulumi.Input[Optional[_builtins.str]] = None):
+                 service_principal: pulumi.Input[Optional['PipelineServicePrincipalArgs']] = None):
         """
         The set of arguments for constructing a Pipeline resource.
 
-        :param pulumi.Input[_builtins.str] service_principal: ID or login of the service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
+        :param pulumi.Input['PipelineServicePrincipalArgs'] service_principal: Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
         """
         if service_principal is not None:
             pulumi.set(__self__, "service_principal", service_principal)
 
     @_builtins.property
     @pulumi.getter(name="servicePrincipal")
-    def service_principal(self) -> pulumi.Input[Optional[_builtins.str]]:
+    def service_principal(self) -> pulumi.Input[Optional['PipelineServicePrincipalArgs']]:
         """
-        ID or login of the service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
+        Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
         """
         return pulumi.get(self, "service_principal")
 
     @service_principal.setter
-    def service_principal(self, value: pulumi.Input[Optional[_builtins.str]]):
+    def service_principal(self, value: pulumi.Input[Optional['PipelineServicePrincipalArgs']]):
         pulumi.set(self, "service_principal", value)
 
 
@@ -47,7 +48,7 @@ class Pipeline(pulumi.ComponentResource):
     def __init__(__self__,
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
-                 service_principal: pulumi.Input[Optional[_builtins.str]] = None,
+                 service_principal: pulumi.Input[Optional[Union['PipelineServicePrincipalArgs', 'PipelineServicePrincipalArgsDict']]] = None,
                  __props__=None):
         """
         Declares the pipeline. It gives the release number of the run. Set delivery:source in the stack config to tell Delivery where the program lives. A program has one Pipeline.
@@ -58,7 +59,7 @@ class Pipeline(pulumi.ComponentResource):
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
-        :param pulumi.Input[_builtins.str] service_principal: ID or login of the service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
+        :param pulumi.Input[Union['PipelineServicePrincipalArgs', 'PipelineServicePrincipalArgsDict']] service_principal: Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
         """
         ...
     @overload
@@ -88,7 +89,7 @@ class Pipeline(pulumi.ComponentResource):
     def _internal_init(__self__,
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
-                 service_principal: pulumi.Input[Optional[_builtins.str]] = None,
+                 service_principal: pulumi.Input[Optional[Union['PipelineServicePrincipalArgs', 'PipelineServicePrincipalArgsDict']]] = None,
                  __props__=None):
         opts = pulumi.ResourceOptions.merge(_utilities.get_resource_opts_defaults(), opts)
         if not isinstance(opts, pulumi.ResourceOptions):
