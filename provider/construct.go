@@ -540,19 +540,30 @@ func validateInputs(typ string, inputs property.Map) error {
 }
 
 func validateServicePrincipal(inputs property.Map) error {
-	if _, ok := inputs.GetOk("servicePrincipal"); !ok || unknown(inputs, "servicePrincipal") ||
-		unknown(inputs, "servicePrincipal", "userId") || unknown(inputs, "servicePrincipal", "teamName") {
+	value, ok := inputs.GetOk("servicePrincipal")
+	if !ok || value.IsNull() || value.IsComputed() {
 		return nil
 	}
-	principal := mapInput(inputs.Get("servicePrincipal"))
-	user, team := stringInput(principal, "userId") != "", stringInput(principal, "teamName") != ""
+	if !value.IsMap() {
+		return errors.New("servicePrincipal must be an object with userId or teamName")
+	}
+	principal := value.AsMap()
+	present := func(name string) bool {
+		v, ok := principal.GetOk(name)
+		return ok && !v.IsNull()
+	}
+	userID, _ := principal.GetOk("userId")
+	user := present("userId") && (userID.IsComputed() || !userID.IsString() || userID.AsString() != "")
+	team := present("teamName")
 	switch {
-	case user && team:
+	case present("userId") && team:
 		return errors.New("servicePrincipal takes userId or teamName, not both")
-	case !user && !team:
-		return errors.New("servicePrincipal needs userId or teamName")
 	case team:
 		return errors.New("servicePrincipal.teamName is not supported yet: Delivery cannot run a pipeline as a team. Use servicePrincipal.userId with a user-defined service principal.")
+	case !user:
+		return errors.New("servicePrincipal needs userId or teamName")
+	case !userID.IsComputed() && !userID.IsString():
+		return errors.New("servicePrincipal.userId must be a string")
 	}
 	return nil
 }
