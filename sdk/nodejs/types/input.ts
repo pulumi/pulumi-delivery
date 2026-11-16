@@ -72,7 +72,7 @@ export interface ProgramSourceArgs {
  */
 export interface Rule {
     /**
-     * Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
+     * Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
      */
     approvers?: string[];
     /**
@@ -134,7 +134,7 @@ export interface Rule {
  */
 export interface RuleArgs {
     /**
-     * Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
+     * Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
      */
     approvers?: pulumi.Input<pulumi.Input<string>[] | undefined>;
     /**

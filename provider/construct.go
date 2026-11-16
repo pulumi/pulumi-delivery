@@ -58,6 +58,9 @@ func withDeliveryConstruct(config *ProviderConfig, inner func(context.Context, p
 		if (typ == typeJob || typ == typeStacks || typ == typeArtifact) && req.ResourceHooks != nil && len(req.ResourceHooks.OnError) > 0 {
 			return p.ConstructResponse{}, errors.New("Delivery resources do not support error hooks. Use a retry or a new run.")
 		}
+		if typ != typeArtifact {
+			req.Inputs = dropNulls(req.Inputs)
+		}
 		req.Inputs = qualifyStackNames(typ, req.Inputs, req.Organization)
 		req.Inputs = secretRegistryPassword(typ, req.Inputs)
 		if err := validateInputs(typ, req.Inputs); err != nil {
@@ -379,6 +382,32 @@ func withSecretPassword(member property.Map) property.Map {
 	image = property.New(image.AsMap().Set("credentials", credentials)).
 		WithSecret(image.Secret()).WithDependencies(image.Dependencies())
 	return member.Set("image", image)
+}
+
+// dropNulls removes plain null fields and map entries, at any depth, so that a null input is an omitted one.
+// Pulumi HCL sends every unset field of an object as null. A null with dependencies or a secret flag stays.
+func dropNulls(m property.Map) property.Map {
+	out := map[string]property.Value{}
+	for key, value := range m.AsMap() {
+		if !value.IsNull() || value.Secret() || len(value.Dependencies()) > 0 {
+			out[key] = dropNullsIn(value)
+		}
+	}
+	return property.NewMap(out)
+}
+
+func dropNullsIn(value property.Value) property.Value {
+	switch {
+	case value.IsMap():
+		return property.New(dropNulls(value.AsMap())).WithSecret(value.Secret()).WithDependencies(value.Dependencies())
+	case value.IsArray():
+		items := value.AsArray().AsSlice()
+		for i, item := range items {
+			items[i] = dropNullsIn(item)
+		}
+		return property.New(property.NewArray(items)).WithSecret(value.Secret()).WithDependencies(value.Dependencies())
+	}
+	return value
 }
 
 func mapInput(value property.Value) property.Map {

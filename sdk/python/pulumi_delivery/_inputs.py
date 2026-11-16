@@ -280,7 +280,7 @@ class RuleDict(TypedDict):
     """
     approvers: NotRequired[Sequence[_builtins.str]]
     """
-    Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
+    Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
     """
     body: NotRequired[_builtins.str]
     """
@@ -352,7 +352,7 @@ class Rule:
         Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.
 
         :param _builtins.str kind: Kind of the rule. Valid values are approval, http, manual, all, and any.
-        :param Sequence[_builtins.str] approvers: Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
+        :param Sequence[_builtins.str] approvers: Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
         :param _builtins.str body: HTTP request body. Secret values stay secret.
         :param _builtins.int count: Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
         :param _builtins.str description: Text for the person who continues a manual gate, for example what to check first.
@@ -410,7 +410,7 @@ class Rule:
     @pulumi.getter
     def approvers(self) -> Optional[Sequence[_builtins.str]]:
         """
-        Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
+        Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
         """
         return pulumi.get(self, "approvers")
 
@@ -573,7 +573,7 @@ class RuleArgsDict(TypedDict):
     """
     approvers: NotRequired[pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]]]
     """
-    Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
+    Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
     """
     body: NotRequired[pulumi.Input[Optional[_builtins.str]]]
     """
@@ -645,7 +645,7 @@ class RuleArgs:
         Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.
 
         :param pulumi.Input[_builtins.str] kind: Kind of the rule. Valid values are approval, http, manual, all, and any.
-        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] approvers: Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
+        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] approvers: Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
         :param pulumi.Input[_builtins.str] body: HTTP request body. Secret values stay secret.
         :param pulumi.Input[_builtins.int] count: Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
         :param pulumi.Input[_builtins.str] description: Text for the person who continues a manual gate, for example what to check first.
@@ -703,7 +703,7 @@ class RuleArgs:
     @pulumi.getter
     def approvers(self) -> pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]]:
         """
-        Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
+        Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
         """
         return pulumi.get(self, "approvers")
 

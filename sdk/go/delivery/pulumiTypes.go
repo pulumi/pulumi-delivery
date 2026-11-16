@@ -670,7 +670,7 @@ func (o ProgramSourcePtrOutput) Url() pulumi.StringPtrOutput {
 
 // Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.
 type Rule struct {
-	// Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
+	// Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
 	Approvers []string `pulumi:"approvers"`
 	// HTTP request body. Secret values stay secret.
 	Body *string `pulumi:"body"`
@@ -713,7 +713,7 @@ type RuleInput interface {
 
 // Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.
 type RuleArgs struct {
-	// Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
+	// Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
 	Approvers pulumi.StringArrayInput `pulumi:"approvers"`
 	// HTTP request body. Secret values stay secret.
 	Body pulumi.StringPtrInput `pulumi:"body"`
@@ -846,7 +846,7 @@ func (o RuleOutput) ToRulePtrOutputWithContext(ctx context.Context) RulePtrOutpu
 	}).(RulePtrOutput)
 }
 
-// Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
+// Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
 func (o RuleOutput) Approvers() pulumi.StringArrayOutput {
 	return o.ApplyT(func(v Rule) []string { return v.Approvers }).(pulumi.StringArrayOutput)
 }
@@ -940,7 +940,7 @@ func (o RulePtrOutput) Elem() RuleOutput {
 	}).(RuleOutput)
 }
 
-// Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
+// Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
 func (o RulePtrOutput) Approvers() pulumi.StringArrayOutput {
 	return o.ApplyT(func(v *Rule) []string {
 		if v == nil {

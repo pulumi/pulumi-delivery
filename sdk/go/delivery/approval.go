@@ -11,7 +11,7 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-// Builds an approval rule for the when property of a Stage. The gate waits until the required number of eligible people approve. If you omit count or set it to zero, one approval is required. Anyone eligible can approve, including the person who started the run. If you name no approvers, anyone with the organization update permission can approve. Approving needs the Approvals feature.
+// Builds an approval rule for the when property of a Stage. The gate waits until the required number of eligible people approve. If you omit count or set it to zero, one approval is required. Anyone eligible can approve, including the person who started the run. If you name no approvers, anyone with the pipeline:approve permission on the pipeline stack can approve. Approving needs the Approvals feature.
 //
 // ## Example Usage
 func Approval(ctx *pulumi.Context, args *ApprovalArgs, opts ...pulumi.InvokeOption) (*ApprovalResult, error) {
@@ -26,7 +26,7 @@ func Approval(ctx *pulumi.Context, args *ApprovalArgs, opts ...pulumi.InvokeOpti
 
 // Approval rule settings.
 type ApprovalArgs struct {
-	// Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
+	// Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
 	Approvers []string `pulumi:"approvers"`
 	// Number of approvals required. If you omit it or set it to zero, one approval is required.
 	Count *int `pulumi:"count"`
@@ -36,7 +36,7 @@ type ApprovalArgs struct {
 
 // Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.
 type ApprovalResult struct {
-	// Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
+	// Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
 	Approvers []string `pulumi:"approvers"`
 	// HTTP request body. Secret values stay secret.
 	Body *string `pulumi:"body"`
@@ -73,7 +73,7 @@ func ApprovalOutput(ctx *pulumi.Context, args ApprovalOutputArgs, opts ...pulumi
 
 // Approval rule settings.
 type ApprovalOutputArgs struct {
-	// Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
+	// Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
 	Approvers pulumi.StringArrayInput `pulumi:"approvers"`
 	// Number of approvals required. If you omit it or set it to zero, one approval is required.
 	Count pulumi.IntPtrInput `pulumi:"count"`
@@ -100,7 +100,7 @@ func (o ApprovalResultOutput) ToApprovalResultOutputWithContext(ctx context.Cont
 	return o
 }
 
-// Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
+// Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
 func (o ApprovalResultOutput) Approvers() pulumi.StringArrayOutput {
 	return o.ApplyT(func(v ApprovalResult) []string { return v.Approvers }).(pulumi.StringArrayOutput)
 }

@@ -17,7 +17,7 @@ import javax.annotation.Nullable;
 @CustomType
 public final class HttpResult {
     /**
-     * @return Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
+     * @return Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
      * 
      */
     private @Nullable List<String> approvers;
@@ -89,7 +89,7 @@ public final class HttpResult {
 
     private HttpResult() {}
     /**
-     * @return Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.
+     * @return Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
      * 
      */
     public List<String> approvers() {

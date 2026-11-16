@@ -17,7 +17,7 @@ func (r *Rule) Annotate(a infer.Annotator) {
 	a.Describe(r, "Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.")
 	a.Describe(&r.Kind, "Kind of the rule. Valid values are approval, http, manual, all, and any.")
 	a.Describe(&r.Name, "Rule name. Omit it to let Delivery assign one.")
-	a.Describe(&r.Approvers, "Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.")
+	a.Describe(&r.Approvers, "Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.")
 	a.Describe(&r.Count, "Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.")
 	a.Describe(&r.URL, "URL to call. Required for http rules.")
 	a.Describe(&r.Method, "HTTP request method. The default is GET.")
@@ -32,7 +32,7 @@ func (r *Rule) Annotate(a infer.Annotator) {
 }
 
 func (r *Approval) Annotate(a infer.Annotator) {
-	a.Describe(r, `Builds an approval rule for the when property of a Stage. The gate waits until the required number of eligible people approve. If you omit count or set it to zero, one approval is required. Anyone eligible can approve, including the person who started the run. If you name no approvers, anyone with the organization update permission can approve. Approving needs the Approvals feature.
+	a.Describe(r, `Builds an approval rule for the when property of a Stage. The gate waits until the required number of eligible people approve. If you omit count or set it to zero, one approval is required. Anyone eligible can approve, including the person who started the run. If you name no approvers, anyone with the pipeline:approve permission on the pipeline stack can approve. Approving needs the Approvals feature.
 
 ## Example Usage
 
@@ -50,7 +50,7 @@ const prod = new delivery.Stage("prod", {
 func (r *ApprovalArgs) Annotate(a infer.Annotator) {
 	a.Describe(r, "Approval rule settings.")
 	a.Describe(&r.Name, "Rule name. Omit it to let Delivery assign one.")
-	a.Describe(&r.Approvers, "Pulumi usernames or team names in the organization. If the list is empty, anyone with the organization update permission can approve.")
+	a.Describe(&r.Approvers, "Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.")
 	a.Describe(&r.Count, "Number of approvals required. If you omit it or set it to zero, one approval is required.")
 }
 

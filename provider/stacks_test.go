@@ -673,3 +673,50 @@ func TestStacksEntrySecretsStaySecretInTheChild(t *testing.T) {
 		})
 	}
 }
+
+// Pulumi HCL sends every unset field of an object as null.
+func TestNullOptionalInputsAreOmitted(t *testing.T) {
+	newFakeService(t)
+	server := newServer(t)
+	null := property.New(property.Null)
+	for _, field := range []string{"runtime", "image", "environment", "timeout", "preRunCommands", "config"} {
+		t.Run(field, func(t *testing.T) {
+			entries := map[string]property.Value{"a": stacksEntry("org/p/s", map[string]property.Value{field: null})}
+			_, err := server.Construct(stacksRequest("app", true, entries))
+			require.NoError(t, err)
+			job := jobRequest(true)
+			job.Inputs = job.Inputs.Set(field, null)
+			_, err = server.Construct(job)
+			require.NoError(t, err)
+		})
+	}
+}
+
+func TestDropNulls(t *testing.T) {
+	null := property.New(property.Null)
+	dep := urnOf(typeStage, "dev")
+	obj := func(fields map[string]property.Value) property.Value { return property.New(property.NewMap(fields)) }
+
+	got := dropNulls(property.NewMap(map[string]property.Value{
+		"plain":    null,
+		"secret":   null.WithSecret(true),
+		"depends":  null.WithDependencies([]urn.URN{dep}),
+		"image":    obj(map[string]property.Value{"reference": property.New("r"), "credentials": null}),
+		"flagged":  obj(map[string]property.Value{"a": null}).WithSecret(true).WithDependencies([]urn.URN{dep}),
+		"list":     property.New(property.NewArray([]property.Value{obj(map[string]property.Value{"a": null})})),
+		"secrets":  property.New(property.NewArray([]property.Value{obj(map[string]property.Value{"a": null})})).WithSecret(true).WithDependencies([]urn.URN{dep}),
+		"stacks":   obj(map[string]property.Value{"gone": null}),
+		"computed": property.New(property.Computed),
+	}))
+
+	assert.Equal(t, property.NewMap(map[string]property.Value{
+		"secret":   null.WithSecret(true),
+		"depends":  null.WithDependencies([]urn.URN{dep}),
+		"image":    obj(map[string]property.Value{"reference": property.New("r")}),
+		"flagged":  obj(map[string]property.Value{}).WithSecret(true).WithDependencies([]urn.URN{dep}),
+		"list":     property.New(property.NewArray([]property.Value{obj(map[string]property.Value{})})),
+		"secrets":  property.New(property.NewArray([]property.Value{obj(map[string]property.Value{})})).WithSecret(true).WithDependencies([]urn.URN{dep}),
+		"stacks":   obj(map[string]property.Value{}),
+		"computed": property.New(property.Computed),
+	}), got)
+}
