@@ -4,8 +4,11 @@
 package com.pulumi.delivery.delivery.inputs;
 
 import com.pulumi.core.annotations.Import;
+import com.pulumi.delivery.delivery.inputs.DecisionEvidence;
+import com.pulumi.delivery.delivery.inputs.DecisionQuestion;
 import com.pulumi.exceptions.MissingRequiredPropertyException;
 import java.lang.Integer;
+import java.lang.Object;
 import java.lang.String;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +56,21 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
     }
 
     /**
+     * Bounded, non-secret context supplied with a decision rule.
+     * 
+     */
+    @Import(name="context")
+    private @Nullable Map<String,Object> context;
+
+    /**
+     * @return Bounded, non-secret context supplied with a decision rule.
+     * 
+     */
+    public Optional<Map<String,Object>> context() {
+        return Optional.ofNullable(this.context);
+    }
+
+    /**
      * Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
      * 
      */
@@ -80,6 +98,21 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
      */
     public Optional<String> description() {
         return Optional.ofNullable(this.description);
+    }
+
+    /**
+     * Selectors for service-owned evidence for a decision rule.
+     * 
+     */
+    @Import(name="evidence")
+    private @Nullable List<DecisionEvidence> evidence;
+
+    /**
+     * @return Selectors for service-owned evidence for a decision rule.
+     * 
+     */
+    public Optional<List<DecisionEvidence>> evidence() {
+        return Optional.ofNullable(this.evidence);
     }
 
     /**
@@ -128,14 +161,14 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
     }
 
     /**
-     * Kind of the rule. Valid values are approval, http, manual, all, and any.
+     * Kind of the rule. Valid values are approval, decision, http, manual, all, and any.
      * 
      */
     @Import(name="kind", required=true)
     private String kind;
 
     /**
-     * @return Kind of the rule. Valid values are approval, http, manual, all, and any.
+     * @return Kind of the rule. Valid values are approval, decision, http, manual, all, and any.
      * 
      */
     public String kind() {
@@ -170,6 +203,21 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
      */
     public Optional<String> name() {
         return Optional.ofNullable(this.name);
+    }
+
+    /**
+     * Named judgments and their deterministic risk thresholds for a decision rule.
+     * 
+     */
+    @Import(name="questions")
+    private @Nullable Map<String,DecisionQuestion> questions;
+
+    /**
+     * @return Named judgments and their deterministic risk thresholds for a decision rule.
+     * 
+     */
+    public Optional<Map<String,DecisionQuestion>> questions() {
+        return Optional.ofNullable(this.questions);
     }
 
     /**
@@ -237,14 +285,17 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
     private Rule(Rule $) {
         this.approvers = $.approvers;
         this.body = $.body;
+        this.context = $.context;
         this.count = $.count;
         this.description = $.description;
+        this.evidence = $.evidence;
         this.headers = $.headers;
         this.headersEnvironment = $.headersEnvironment;
         this.interval = $.interval;
         this.kind = $.kind;
         this.method = $.method;
         this.name = $.name;
+        this.questions = $.questions;
         this.rules = $.rules;
         this.successExpression = $.successExpression;
         this.timeout = $.timeout;
@@ -302,6 +353,17 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
+         * @param context Bounded, non-secret context supplied with a decision rule.
+         * 
+         * @return builder
+         * 
+         */
+        public Builder context(@Nullable Map<String,Object> context) {
+            $.context = context;
+            return this;
+        }
+
+        /**
          * @param count Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
          * 
          * @return builder
@@ -321,6 +383,27 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
         public Builder description(@Nullable String description) {
             $.description = description;
             return this;
+        }
+
+        /**
+         * @param evidence Selectors for service-owned evidence for a decision rule.
+         * 
+         * @return builder
+         * 
+         */
+        public Builder evidence(@Nullable List<DecisionEvidence> evidence) {
+            $.evidence = evidence;
+            return this;
+        }
+
+        /**
+         * @param evidence Selectors for service-owned evidence for a decision rule.
+         * 
+         * @return builder
+         * 
+         */
+        public Builder evidence(DecisionEvidence... evidence) {
+            return evidence(List.of(evidence));
         }
 
         /**
@@ -357,7 +440,7 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param kind Kind of the rule. Valid values are approval, http, manual, all, and any.
+         * @param kind Kind of the rule. Valid values are approval, decision, http, manual, all, and any.
          * 
          * @return builder
          * 
@@ -386,6 +469,17 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
          */
         public Builder name(@Nullable String name) {
             $.name = name;
+            return this;
+        }
+
+        /**
+         * @param questions Named judgments and their deterministic risk thresholds for a decision rule.
+         * 
+         * @return builder
+         * 
+         */
+        public Builder questions(@Nullable Map<String,DecisionQuestion> questions) {
+            $.questions = questions;
             return this;
         }
 

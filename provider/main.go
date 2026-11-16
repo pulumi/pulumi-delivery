@@ -70,6 +70,7 @@ func newProvider() (p.Provider, error) {
 		).
 		WithFunctions(
 			infer.Function(Approval{}),
+			infer.Function(Decision{}),
 			infer.Function(HTTP{}),
 			infer.Function(Manual{}),
 			infer.Function(AllOf{}),

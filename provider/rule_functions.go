@@ -4,6 +4,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -27,7 +28,22 @@ type Rule struct {
 	Timeout            string            `pulumi:"timeout,optional"`
 	Rules              []Rule            `pulumi:"rules,optional"`
 	// Description tells the person who continues a manual gate what to check.
-	Description string `pulumi:"description,optional"`
+	Description string                      `pulumi:"description,optional"`
+	Questions   map[string]DecisionQuestion `pulumi:"questions,optional"`
+	Evidence    []DecisionEvidence          `pulumi:"evidence,optional"`
+	Context     map[string]any              `pulumi:"context,optional"`
+}
+
+// DecisionQuestion is a narrow judgment. MaximumRisk maps its probability to a deterministic gate outcome.
+type DecisionQuestion struct {
+	Instructions string  `pulumi:"instructions"`
+	MaximumRisk  float64 `pulumi:"maximumRisk"`
+}
+
+// DecisionEvidence selects the current Delivery preview evidence for a decision.
+type DecisionEvidence struct {
+	Source string `pulumi:"source"`
+	ID     string `pulumi:"id,optional"`
 }
 
 // validateDuration checks an optional whole-second duration of an http rule.
@@ -92,7 +108,7 @@ func validateRuleValue(value property.Value, depth int) error {
 				}
 			}
 		}
-	case "manual":
+	case "manual", "decision":
 	case "all", "any":
 		rules := rule.Get("rules")
 		if rules.IsComputed() {
@@ -138,6 +154,8 @@ func validateRule(r Rule, d int) error {
 		return nil
 	case "manual":
 		return nil
+	case "decision":
+		return validateDecision(r)
 	case "all", "any":
 		if len(r.Rules) == 0 {
 			return fmt.Errorf("%s rule must contain at least one rule", r.Kind)
@@ -151,6 +169,34 @@ func validateRule(r Rule, d int) error {
 	default:
 		return fmt.Errorf("unsupported rule kind %q", r.Kind)
 	}
+}
+
+func validateDecision(r Rule) error {
+	if len(r.Questions) == 0 {
+		return errors.New("decision needs at least one question")
+	}
+	for name, question := range r.Questions {
+		if name == "" || question.Instructions == "" {
+			return errors.New("decision questions need names and instructions")
+		}
+		if question.MaximumRisk < 0 || question.MaximumRisk > 1 {
+			return fmt.Errorf("decision question %q maximumRisk must be between 0 and 1", name)
+		}
+	}
+	if len(r.Evidence) == 0 {
+		return errors.New("decision needs at least one evidence selector")
+	}
+	for _, evidence := range r.Evidence {
+		switch evidence.Source {
+		case "deliveryPreview":
+			if evidence.ID != "" {
+				return fmt.Errorf("decision evidence source %q does not accept id", evidence.Source)
+			}
+		default:
+			return fmt.Errorf("unsupported decision evidence source %q", evidence.Source)
+		}
+	}
+	return nil
 }
 
 // Each rule-builder function below returns a Rule (kind plus the rest of its fields), so its
@@ -214,6 +260,24 @@ type Manual struct{}
 type ManualArgs struct {
 	Name        string `pulumi:"name,optional"`
 	Description string `pulumi:"description,optional"`
+}
+
+type Decision struct{}
+type DecisionArgs struct {
+	Name        string                      `pulumi:"name,optional"`
+	Description string                      `pulumi:"description,optional"`
+	Questions   map[string]DecisionQuestion `pulumi:"questions"`
+	Evidence    []DecisionEvidence          `pulumi:"evidence"`
+	Context     map[string]any              `pulumi:"context,optional"`
+}
+
+func (Decision) Invoke(ctx context.Context, req infer.FunctionRequest[DecisionArgs]) (infer.FunctionResponse[Rule], error) {
+	a := req.Input
+	rule := Rule{Kind: "decision", Name: a.Name, Description: a.Description, Questions: a.Questions, Evidence: a.Evidence, Context: a.Context}
+	if err := validateRule(rule, 1); err != nil {
+		return infer.FunctionResponse[Rule]{}, err
+	}
+	return infer.FunctionResponse[Rule]{Output: rule}, nil
 }
 
 func (Manual) Invoke(ctx context.Context, req infer.FunctionRequest[ManualArgs]) (infer.FunctionResponse[Rule], error) {

@@ -34,6 +34,18 @@ namespace Pulumi.Delivery.Delivery.Inputs
         [Input("body")]
         public string? Body { get; set; }
 
+        [Input("context")]
+        private Dictionary<string, object>? _context;
+
+        /// <summary>
+        /// Bounded, non-secret context supplied with a decision rule.
+        /// </summary>
+        public Dictionary<string, object> Context
+        {
+            get => _context ?? (_context = new Dictionary<string, object>());
+            set => _context = value;
+        }
+
         /// <summary>
         /// Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
         /// </summary>
@@ -45,6 +57,18 @@ namespace Pulumi.Delivery.Delivery.Inputs
         /// </summary>
         [Input("description")]
         public string? Description { get; set; }
+
+        [Input("evidence")]
+        private List<Inputs.DecisionEvidence>? _evidence;
+
+        /// <summary>
+        /// Selectors for service-owned evidence for a decision rule.
+        /// </summary>
+        public List<Inputs.DecisionEvidence> Evidence
+        {
+            get => _evidence ?? (_evidence = new List<Inputs.DecisionEvidence>());
+            set => _evidence = value;
+        }
 
         [Input("headers")]
         private Dictionary<string, string>? _headers;
@@ -71,7 +95,7 @@ namespace Pulumi.Delivery.Delivery.Inputs
         public string? Interval { get; set; }
 
         /// <summary>
-        /// Kind of the rule. Valid values are approval, http, manual, all, and any.
+        /// Kind of the rule. Valid values are approval, decision, http, manual, all, and any.
         /// </summary>
         [Input("kind", required: true)]
         public string Kind { get; set; } = null!;
@@ -87,6 +111,18 @@ namespace Pulumi.Delivery.Delivery.Inputs
         /// </summary>
         [Input("name")]
         public string? Name { get; set; }
+
+        [Input("questions")]
+        private Dictionary<string, Inputs.DecisionQuestion>? _questions;
+
+        /// <summary>
+        /// Named judgments and their deterministic risk thresholds for a decision rule.
+        /// </summary>
+        public Dictionary<string, Inputs.DecisionQuestion> Questions
+        {
+            get => _questions ?? (_questions = new Dictionary<string, Inputs.DecisionQuestion>());
+            set => _questions = value;
+        }
 
         [Input("rules")]
         private List<Inputs.Rule>? _rules;

@@ -8,6 +8,62 @@ import * as outputs from "../types/output";
 import {AzureDevOpsSource, BitbucketSource, GitHubSource, GitLabSource, WorkflowsRuntime} from "..";
 
 /**
+ * A selector for current Delivery preview evidence.
+ */
+export interface DecisionEvidence {
+    /**
+     * Not supported for deliveryPreview.
+     */
+    id?: string;
+    /**
+     * Evidence source: deliveryPreview.
+     */
+    source: string;
+}
+
+/**
+ * A selector for current Delivery preview evidence.
+ */
+export interface DecisionEvidenceArgs {
+    /**
+     * Not supported for deliveryPreview.
+     */
+    id?: pulumi.Input<string | undefined>;
+    /**
+     * Evidence source: deliveryPreview.
+     */
+    source: pulumi.Input<string>;
+}
+
+/**
+ * One narrow judgment in a decision rule.
+ */
+export interface DecisionQuestion {
+    /**
+     * Question instructions for Delivery's configured decision engine.
+     */
+    instructions: string;
+    /**
+     * Largest permitted probability that the judgment is true, from zero to one.
+     */
+    maximumRisk: number;
+}
+
+/**
+ * One narrow judgment in a decision rule.
+ */
+export interface DecisionQuestionArgs {
+    /**
+     * Question instructions for Delivery's configured decision engine.
+     */
+    instructions: pulumi.Input<string>;
+    /**
+     * Largest permitted probability that the judgment is true, from zero to one.
+     */
+    maximumRisk: pulumi.Input<number>;
+}
+
+/**
  * Container image that a member runs in.
  */
 export interface ImageArgs {
@@ -80,6 +136,10 @@ export interface Rule {
      */
     body?: string;
     /**
+     * Bounded, non-secret context supplied with a decision rule.
+     */
+    context?: {[key: string]: any};
+    /**
      * Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
      */
     count?: number;
@@ -87,6 +147,10 @@ export interface Rule {
      * Text for the person who continues a manual gate, for example what to check first.
      */
     description?: string;
+    /**
+     * Selectors for service-owned evidence for a decision rule.
+     */
+    evidence?: inputs.DecisionEvidence[];
     /**
      * HTTP request headers. Secret values stay secret.
      */
@@ -100,7 +164,7 @@ export interface Rule {
      */
     interval?: string;
     /**
-     * Kind of the rule. Valid values are approval, http, manual, all, and any.
+     * Kind of the rule. Valid values are approval, decision, http, manual, all, and any.
      */
     kind: string;
     /**
@@ -111,6 +175,10 @@ export interface Rule {
      * Rule name. Omit it to let Delivery assign one.
      */
     name?: string;
+    /**
+     * Named judgments and their deterministic risk thresholds for a decision rule.
+     */
+    questions?: {[key: string]: inputs.DecisionQuestion};
     /**
      * Child rules for all and any rules. At least one is required.
      */
@@ -142,6 +210,10 @@ export interface RuleArgs {
      */
     body?: pulumi.Input<string | undefined>;
     /**
+     * Bounded, non-secret context supplied with a decision rule.
+     */
+    context?: pulumi.Input<{[key: string]: any} | undefined>;
+    /**
      * Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
      */
     count?: pulumi.Input<number | undefined>;
@@ -149,6 +221,10 @@ export interface RuleArgs {
      * Text for the person who continues a manual gate, for example what to check first.
      */
     description?: pulumi.Input<string | undefined>;
+    /**
+     * Selectors for service-owned evidence for a decision rule.
+     */
+    evidence?: pulumi.Input<pulumi.Input<inputs.DecisionEvidenceArgs>[] | undefined>;
     /**
      * HTTP request headers. Secret values stay secret.
      */
@@ -162,7 +238,7 @@ export interface RuleArgs {
      */
     interval?: pulumi.Input<string | undefined>;
     /**
-     * Kind of the rule. Valid values are approval, http, manual, all, and any.
+     * Kind of the rule. Valid values are approval, decision, http, manual, all, and any.
      */
     kind: pulumi.Input<string>;
     /**
@@ -173,6 +249,10 @@ export interface RuleArgs {
      * Rule name. Omit it to let Delivery assign one.
      */
     name?: pulumi.Input<string | undefined>;
+    /**
+     * Named judgments and their deterministic risk thresholds for a decision rule.
+     */
+    questions?: pulumi.Input<{[key: string]: pulumi.Input<inputs.DecisionQuestionArgs>} | undefined>;
     /**
      * Child rules for all and any rules. At least one is required.
      */

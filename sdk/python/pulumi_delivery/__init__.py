@@ -13,6 +13,7 @@ from .approval import *
 from .artifact import *
 from .azure_dev_ops_source import *
 from .bitbucket_source import *
+from .decision import *
 from .git_hub_source import *
 from .git_lab_source import *
 from .http import *

@@ -62,6 +62,10 @@ export interface ApprovalResult {
      */
     readonly body?: string;
     /**
+     * Bounded, non-secret context supplied with a decision rule.
+     */
+    readonly context?: {[key: string]: any};
+    /**
      * Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
      */
     readonly count?: number;
@@ -69,6 +73,10 @@ export interface ApprovalResult {
      * Text for the person who continues a manual gate, for example what to check first.
      */
     readonly description?: string;
+    /**
+     * Selectors for service-owned evidence for a decision rule.
+     */
+    readonly evidence?: outputs.DecisionEvidence[];
     /**
      * HTTP request headers. Secret values stay secret.
      */
@@ -82,7 +90,7 @@ export interface ApprovalResult {
      */
     readonly interval?: string;
     /**
-     * Kind of the rule. Valid values are approval, http, manual, all, and any.
+     * Kind of the rule. Valid values are approval, decision, http, manual, all, and any.
      */
     readonly kind: string;
     /**
@@ -93,6 +101,10 @@ export interface ApprovalResult {
      * Rule name. Omit it to let Delivery assign one.
      */
     readonly name?: string;
+    /**
+     * Named judgments and their deterministic risk thresholds for a decision rule.
+     */
+    readonly questions?: {[key: string]: outputs.DecisionQuestion};
     /**
      * Child rules for all and any rules. At least one is required.
      */

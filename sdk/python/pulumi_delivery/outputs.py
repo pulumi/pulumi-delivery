@@ -16,10 +16,81 @@ from . import _utilities
 from . import outputs
 
 __all__ = [
+    'DecisionEvidence',
+    'DecisionQuestion',
     'ProgramSource',
     'Rule',
     'WorkflowsRuntimeArgs',
 ]
+
+@pulumi.output_type
+class DecisionEvidence(dict):
+    """
+    A selector for current Delivery preview evidence.
+    """
+    def __init__(__self__, *,
+                 source: _builtins.str,
+                 id: Optional[_builtins.str] = None):
+        """
+        A selector for current Delivery preview evidence.
+
+        :param _builtins.str source: Evidence source: deliveryPreview.
+        :param _builtins.str id: Not supported for deliveryPreview.
+        """
+        pulumi.set(__self__, "source", source)
+        if id is not None:
+            pulumi.set(__self__, "id", id)
+
+    @_builtins.property
+    @pulumi.getter
+    def source(self) -> _builtins.str:
+        """
+        Evidence source: deliveryPreview.
+        """
+        return pulumi.get(self, "source")
+
+    @_builtins.property
+    @pulumi.getter
+    def id(self) -> Optional[_builtins.str]:
+        """
+        Not supported for deliveryPreview.
+        """
+        return pulumi.get(self, "id")
+
+
+@pulumi.output_type
+class DecisionQuestion(dict):
+    """
+    One narrow judgment in a decision rule.
+    """
+    def __init__(__self__, *,
+                 instructions: _builtins.str,
+                 maximum_risk: _builtins.float):
+        """
+        One narrow judgment in a decision rule.
+
+        :param _builtins.str instructions: Question instructions for Delivery's configured decision engine.
+        :param _builtins.float maximum_risk: Largest permitted probability that the judgment is true, from zero to one.
+        """
+        pulumi.set(__self__, "instructions", instructions)
+        pulumi.set(__self__, "maximum_risk", maximum_risk)
+
+    @_builtins.property
+    @pulumi.getter
+    def instructions(self) -> _builtins.str:
+        """
+        Question instructions for Delivery's configured decision engine.
+        """
+        return pulumi.get(self, "instructions")
+
+    @_builtins.property
+    @pulumi.getter(name="maximumRisk")
+    def maximum_risk(self) -> _builtins.float:
+        """
+        Largest permitted probability that the judgment is true, from zero to one.
+        """
+        return pulumi.get(self, "maximum_risk")
+
 
 @pulumi.output_type
 class ProgramSource(dict):
@@ -77,13 +148,16 @@ class Rule(dict):
                  kind: _builtins.str,
                  approvers: Optional[Sequence[_builtins.str]] = None,
                  body: Optional[_builtins.str] = None,
+                 context: Optional[Mapping[str, Any]] = None,
                  count: Optional[_builtins.int] = None,
                  description: Optional[_builtins.str] = None,
+                 evidence: Optional[Sequence['outputs.DecisionEvidence']] = None,
                  headers: Optional[Mapping[str, _builtins.str]] = None,
                  headers_environment: Optional[_builtins.str] = None,
                  interval: Optional[_builtins.str] = None,
                  method: Optional[_builtins.str] = None,
                  name: Optional[_builtins.str] = None,
+                 questions: Optional[Mapping[str, 'outputs.DecisionQuestion']] = None,
                  rules: Optional[Sequence['outputs.Rule']] = None,
                  success_expression: Optional[_builtins.str] = None,
                  timeout: Optional[_builtins.str] = None,
@@ -91,16 +165,19 @@ class Rule(dict):
         """
         Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.
 
-        :param _builtins.str kind: Kind of the rule. Valid values are approval, http, manual, all, and any.
+        :param _builtins.str kind: Kind of the rule. Valid values are approval, decision, http, manual, all, and any.
         :param Sequence[_builtins.str] approvers: Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
         :param _builtins.str body: HTTP request body. Secret values stay secret.
+        :param Mapping[str, Any] context: Bounded, non-secret context supplied with a decision rule.
         :param _builtins.int count: Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
         :param _builtins.str description: Text for the person who continues a manual gate, for example what to check first.
+        :param Sequence['DecisionEvidence'] evidence: Selectors for service-owned evidence for a decision rule.
         :param Mapping[str, _builtins.str] headers: HTTP request headers. Secret values stay secret.
         :param _builtins.str headers_environment: Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
         :param _builtins.str interval: Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
         :param _builtins.str method: HTTP request method. The default is GET.
         :param _builtins.str name: Rule name. Omit it to let Delivery assign one.
+        :param Mapping[str, 'DecisionQuestion'] questions: Named judgments and their deterministic risk thresholds for a decision rule.
         :param Sequence['Rule'] rules: Child rules for all and any rules. At least one is required.
         :param _builtins.str success_expression: JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
         :param _builtins.str timeout: Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
@@ -111,10 +188,14 @@ class Rule(dict):
             pulumi.set(__self__, "approvers", approvers)
         if body is not None:
             pulumi.set(__self__, "body", body)
+        if context is not None:
+            pulumi.set(__self__, "context", context)
         if count is not None:
             pulumi.set(__self__, "count", count)
         if description is not None:
             pulumi.set(__self__, "description", description)
+        if evidence is not None:
+            pulumi.set(__self__, "evidence", evidence)
         if headers is not None:
             pulumi.set(__self__, "headers", headers)
         if headers_environment is not None:
@@ -125,6 +206,8 @@ class Rule(dict):
             pulumi.set(__self__, "method", method)
         if name is not None:
             pulumi.set(__self__, "name", name)
+        if questions is not None:
+            pulumi.set(__self__, "questions", questions)
         if rules is not None:
             pulumi.set(__self__, "rules", rules)
         if success_expression is not None:
@@ -138,7 +221,7 @@ class Rule(dict):
     @pulumi.getter
     def kind(self) -> _builtins.str:
         """
-        Kind of the rule. Valid values are approval, http, manual, all, and any.
+        Kind of the rule. Valid values are approval, decision, http, manual, all, and any.
         """
         return pulumi.get(self, "kind")
 
@@ -160,6 +243,14 @@ class Rule(dict):
 
     @_builtins.property
     @pulumi.getter
+    def context(self) -> Optional[Mapping[str, Any]]:
+        """
+        Bounded, non-secret context supplied with a decision rule.
+        """
+        return pulumi.get(self, "context")
+
+    @_builtins.property
+    @pulumi.getter
     def count(self) -> Optional[_builtins.int]:
         """
         Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
@@ -173,6 +264,14 @@ class Rule(dict):
         Text for the person who continues a manual gate, for example what to check first.
         """
         return pulumi.get(self, "description")
+
+    @_builtins.property
+    @pulumi.getter
+    def evidence(self) -> Optional[Sequence['outputs.DecisionEvidence']]:
+        """
+        Selectors for service-owned evidence for a decision rule.
+        """
+        return pulumi.get(self, "evidence")
 
     @_builtins.property
     @pulumi.getter
@@ -213,6 +312,14 @@ class Rule(dict):
         Rule name. Omit it to let Delivery assign one.
         """
         return pulumi.get(self, "name")
+
+    @_builtins.property
+    @pulumi.getter
+    def questions(self) -> Optional[Mapping[str, 'outputs.DecisionQuestion']]:
+        """
+        Named judgments and their deterministic risk thresholds for a decision rule.
+        """
+        return pulumi.get(self, "questions")
 
     @_builtins.property
     @pulumi.getter

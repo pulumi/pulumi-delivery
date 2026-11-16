@@ -38,22 +38,28 @@ type ManualResult struct {
 	Approvers []string `pulumi:"approvers"`
 	// HTTP request body. Secret values stay secret.
 	Body *string `pulumi:"body"`
+	// Bounded, non-secret context supplied with a decision rule.
+	Context map[string]interface{} `pulumi:"context"`
 	// Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
 	Count *int `pulumi:"count"`
 	// Text for the person who continues a manual gate, for example what to check first.
 	Description *string `pulumi:"description"`
+	// Selectors for service-owned evidence for a decision rule.
+	Evidence []DecisionEvidence `pulumi:"evidence"`
 	// HTTP request headers. Secret values stay secret.
 	Headers map[string]string `pulumi:"headers"`
 	// Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
 	HeadersEnvironment *string `pulumi:"headersEnvironment"`
 	// Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
 	Interval *string `pulumi:"interval"`
-	// Kind of the rule. Valid values are approval, http, manual, all, and any.
+	// Kind of the rule. Valid values are approval, decision, http, manual, all, and any.
 	Kind string `pulumi:"kind"`
 	// HTTP request method. The default is GET.
 	Method *string `pulumi:"method"`
 	// Rule name. Omit it to let Delivery assign one.
 	Name *string `pulumi:"name"`
+	// Named judgments and their deterministic risk thresholds for a decision rule.
+	Questions map[string]DecisionQuestion `pulumi:"questions"`
 	// Child rules for all and any rules. At least one is required.
 	Rules []Rule `pulumi:"rules"`
 	// JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
@@ -106,6 +112,11 @@ func (o ManualResultOutput) Body() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v ManualResult) *string { return v.Body }).(pulumi.StringPtrOutput)
 }
 
+// Bounded, non-secret context supplied with a decision rule.
+func (o ManualResultOutput) Context() pulumi.MapOutput {
+	return o.ApplyT(func(v ManualResult) map[string]interface{} { return v.Context }).(pulumi.MapOutput)
+}
+
 // Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
 func (o ManualResultOutput) Count() pulumi.IntPtrOutput {
 	return o.ApplyT(func(v ManualResult) *int { return v.Count }).(pulumi.IntPtrOutput)
@@ -114,6 +125,11 @@ func (o ManualResultOutput) Count() pulumi.IntPtrOutput {
 // Text for the person who continues a manual gate, for example what to check first.
 func (o ManualResultOutput) Description() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v ManualResult) *string { return v.Description }).(pulumi.StringPtrOutput)
+}
+
+// Selectors for service-owned evidence for a decision rule.
+func (o ManualResultOutput) Evidence() DecisionEvidenceArrayOutput {
+	return o.ApplyT(func(v ManualResult) []DecisionEvidence { return v.Evidence }).(DecisionEvidenceArrayOutput)
 }
 
 // HTTP request headers. Secret values stay secret.
@@ -131,7 +147,7 @@ func (o ManualResultOutput) Interval() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v ManualResult) *string { return v.Interval }).(pulumi.StringPtrOutput)
 }
 
-// Kind of the rule. Valid values are approval, http, manual, all, and any.
+// Kind of the rule. Valid values are approval, decision, http, manual, all, and any.
 func (o ManualResultOutput) Kind() pulumi.StringOutput {
 	return o.ApplyT(func(v ManualResult) string { return v.Kind }).(pulumi.StringOutput)
 }
@@ -144,6 +160,11 @@ func (o ManualResultOutput) Method() pulumi.StringPtrOutput {
 // Rule name. Omit it to let Delivery assign one.
 func (o ManualResultOutput) Name() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v ManualResult) *string { return v.Name }).(pulumi.StringPtrOutput)
+}
+
+// Named judgments and their deterministic risk thresholds for a decision rule.
+func (o ManualResultOutput) Questions() DecisionQuestionMapOutput {
+	return o.ApplyT(func(v ManualResult) map[string]DecisionQuestion { return v.Questions }).(DecisionQuestionMapOutput)
 }
 
 // Child rules for all and any rules. At least one is required.

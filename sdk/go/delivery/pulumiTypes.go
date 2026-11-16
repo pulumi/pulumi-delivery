@@ -13,6 +13,224 @@ import (
 
 var _ = internal.GetEnvOrDefault
 
+// A selector for current Delivery preview evidence.
+type DecisionEvidence struct {
+	// Not supported for deliveryPreview.
+	Id *string `pulumi:"id"`
+	// Evidence source: deliveryPreview.
+	Source string `pulumi:"source"`
+}
+
+// DecisionEvidenceInput is an input type that accepts DecisionEvidenceArgs and DecisionEvidenceOutput values.
+// You can construct a concrete instance of `DecisionEvidenceInput` via:
+//
+//	DecisionEvidenceArgs{...}
+type DecisionEvidenceInput interface {
+	pulumi.Input
+
+	ToDecisionEvidenceOutput() DecisionEvidenceOutput
+	ToDecisionEvidenceOutputWithContext(context.Context) DecisionEvidenceOutput
+}
+
+// A selector for current Delivery preview evidence.
+type DecisionEvidenceArgs struct {
+	// Not supported for deliveryPreview.
+	Id pulumi.StringPtrInput `pulumi:"id"`
+	// Evidence source: deliveryPreview.
+	Source pulumi.StringInput `pulumi:"source"`
+}
+
+func (DecisionEvidenceArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*DecisionEvidence)(nil)).Elem()
+}
+
+func (i DecisionEvidenceArgs) ToDecisionEvidenceOutput() DecisionEvidenceOutput {
+	return i.ToDecisionEvidenceOutputWithContext(context.Background())
+}
+
+func (i DecisionEvidenceArgs) ToDecisionEvidenceOutputWithContext(ctx context.Context) DecisionEvidenceOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DecisionEvidenceOutput)
+}
+
+// DecisionEvidenceArrayInput is an input type that accepts DecisionEvidenceArray and DecisionEvidenceArrayOutput values.
+// You can construct a concrete instance of `DecisionEvidenceArrayInput` via:
+//
+//	DecisionEvidenceArray{ DecisionEvidenceArgs{...} }
+type DecisionEvidenceArrayInput interface {
+	pulumi.Input
+
+	ToDecisionEvidenceArrayOutput() DecisionEvidenceArrayOutput
+	ToDecisionEvidenceArrayOutputWithContext(context.Context) DecisionEvidenceArrayOutput
+}
+
+type DecisionEvidenceArray []DecisionEvidenceInput
+
+func (DecisionEvidenceArray) ElementType() reflect.Type {
+	return reflect.TypeOf((*[]DecisionEvidence)(nil)).Elem()
+}
+
+func (i DecisionEvidenceArray) ToDecisionEvidenceArrayOutput() DecisionEvidenceArrayOutput {
+	return i.ToDecisionEvidenceArrayOutputWithContext(context.Background())
+}
+
+func (i DecisionEvidenceArray) ToDecisionEvidenceArrayOutputWithContext(ctx context.Context) DecisionEvidenceArrayOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DecisionEvidenceArrayOutput)
+}
+
+// A selector for current Delivery preview evidence.
+type DecisionEvidenceOutput struct{ *pulumi.OutputState }
+
+func (DecisionEvidenceOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*DecisionEvidence)(nil)).Elem()
+}
+
+func (o DecisionEvidenceOutput) ToDecisionEvidenceOutput() DecisionEvidenceOutput {
+	return o
+}
+
+func (o DecisionEvidenceOutput) ToDecisionEvidenceOutputWithContext(ctx context.Context) DecisionEvidenceOutput {
+	return o
+}
+
+// Not supported for deliveryPreview.
+func (o DecisionEvidenceOutput) Id() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v DecisionEvidence) *string { return v.Id }).(pulumi.StringPtrOutput)
+}
+
+// Evidence source: deliveryPreview.
+func (o DecisionEvidenceOutput) Source() pulumi.StringOutput {
+	return o.ApplyT(func(v DecisionEvidence) string { return v.Source }).(pulumi.StringOutput)
+}
+
+type DecisionEvidenceArrayOutput struct{ *pulumi.OutputState }
+
+func (DecisionEvidenceArrayOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*[]DecisionEvidence)(nil)).Elem()
+}
+
+func (o DecisionEvidenceArrayOutput) ToDecisionEvidenceArrayOutput() DecisionEvidenceArrayOutput {
+	return o
+}
+
+func (o DecisionEvidenceArrayOutput) ToDecisionEvidenceArrayOutputWithContext(ctx context.Context) DecisionEvidenceArrayOutput {
+	return o
+}
+
+func (o DecisionEvidenceArrayOutput) Index(i pulumi.IntInput) DecisionEvidenceOutput {
+	return pulumi.All(o, i).ApplyT(func(vs []interface{}) DecisionEvidence {
+		return vs[0].([]DecisionEvidence)[vs[1].(int)]
+	}).(DecisionEvidenceOutput)
+}
+
+// One narrow judgment in a decision rule.
+type DecisionQuestion struct {
+	// Question instructions for Delivery's configured decision engine.
+	Instructions string `pulumi:"instructions"`
+	// Largest permitted probability that the judgment is true, from zero to one.
+	MaximumRisk float64 `pulumi:"maximumRisk"`
+}
+
+// DecisionQuestionInput is an input type that accepts DecisionQuestionArgs and DecisionQuestionOutput values.
+// You can construct a concrete instance of `DecisionQuestionInput` via:
+//
+//	DecisionQuestionArgs{...}
+type DecisionQuestionInput interface {
+	pulumi.Input
+
+	ToDecisionQuestionOutput() DecisionQuestionOutput
+	ToDecisionQuestionOutputWithContext(context.Context) DecisionQuestionOutput
+}
+
+// One narrow judgment in a decision rule.
+type DecisionQuestionArgs struct {
+	// Question instructions for Delivery's configured decision engine.
+	Instructions pulumi.StringInput `pulumi:"instructions"`
+	// Largest permitted probability that the judgment is true, from zero to one.
+	MaximumRisk pulumi.Float64Input `pulumi:"maximumRisk"`
+}
+
+func (DecisionQuestionArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*DecisionQuestion)(nil)).Elem()
+}
+
+func (i DecisionQuestionArgs) ToDecisionQuestionOutput() DecisionQuestionOutput {
+	return i.ToDecisionQuestionOutputWithContext(context.Background())
+}
+
+func (i DecisionQuestionArgs) ToDecisionQuestionOutputWithContext(ctx context.Context) DecisionQuestionOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DecisionQuestionOutput)
+}
+
+// DecisionQuestionMapInput is an input type that accepts DecisionQuestionMap and DecisionQuestionMapOutput values.
+// You can construct a concrete instance of `DecisionQuestionMapInput` via:
+//
+//	DecisionQuestionMap{ "key": DecisionQuestionArgs{...} }
+type DecisionQuestionMapInput interface {
+	pulumi.Input
+
+	ToDecisionQuestionMapOutput() DecisionQuestionMapOutput
+	ToDecisionQuestionMapOutputWithContext(context.Context) DecisionQuestionMapOutput
+}
+
+type DecisionQuestionMap map[string]DecisionQuestionInput
+
+func (DecisionQuestionMap) ElementType() reflect.Type {
+	return reflect.TypeOf((*map[string]DecisionQuestion)(nil)).Elem()
+}
+
+func (i DecisionQuestionMap) ToDecisionQuestionMapOutput() DecisionQuestionMapOutput {
+	return i.ToDecisionQuestionMapOutputWithContext(context.Background())
+}
+
+func (i DecisionQuestionMap) ToDecisionQuestionMapOutputWithContext(ctx context.Context) DecisionQuestionMapOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DecisionQuestionMapOutput)
+}
+
+// One narrow judgment in a decision rule.
+type DecisionQuestionOutput struct{ *pulumi.OutputState }
+
+func (DecisionQuestionOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*DecisionQuestion)(nil)).Elem()
+}
+
+func (o DecisionQuestionOutput) ToDecisionQuestionOutput() DecisionQuestionOutput {
+	return o
+}
+
+func (o DecisionQuestionOutput) ToDecisionQuestionOutputWithContext(ctx context.Context) DecisionQuestionOutput {
+	return o
+}
+
+// Question instructions for Delivery's configured decision engine.
+func (o DecisionQuestionOutput) Instructions() pulumi.StringOutput {
+	return o.ApplyT(func(v DecisionQuestion) string { return v.Instructions }).(pulumi.StringOutput)
+}
+
+// Largest permitted probability that the judgment is true, from zero to one.
+func (o DecisionQuestionOutput) MaximumRisk() pulumi.Float64Output {
+	return o.ApplyT(func(v DecisionQuestion) float64 { return v.MaximumRisk }).(pulumi.Float64Output)
+}
+
+type DecisionQuestionMapOutput struct{ *pulumi.OutputState }
+
+func (DecisionQuestionMapOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*map[string]DecisionQuestion)(nil)).Elem()
+}
+
+func (o DecisionQuestionMapOutput) ToDecisionQuestionMapOutput() DecisionQuestionMapOutput {
+	return o
+}
+
+func (o DecisionQuestionMapOutput) ToDecisionQuestionMapOutputWithContext(ctx context.Context) DecisionQuestionMapOutput {
+	return o
+}
+
+func (o DecisionQuestionMapOutput) MapIndex(k pulumi.StringInput) DecisionQuestionOutput {
+	return pulumi.All(o, k).ApplyT(func(vs []interface{}) DecisionQuestion {
+		return vs[0].(map[string]DecisionQuestion)[vs[1].(string)]
+	}).(DecisionQuestionOutput)
+}
+
 // Container image that a member runs in.
 type Image struct {
 	// Credentials for a private registry.
@@ -674,22 +892,28 @@ type Rule struct {
 	Approvers []string `pulumi:"approvers"`
 	// HTTP request body. Secret values stay secret.
 	Body *string `pulumi:"body"`
+	// Bounded, non-secret context supplied with a decision rule.
+	Context map[string]interface{} `pulumi:"context"`
 	// Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
 	Count *int `pulumi:"count"`
 	// Text for the person who continues a manual gate, for example what to check first.
 	Description *string `pulumi:"description"`
+	// Selectors for service-owned evidence for a decision rule.
+	Evidence []DecisionEvidence `pulumi:"evidence"`
 	// HTTP request headers. Secret values stay secret.
 	Headers map[string]string `pulumi:"headers"`
 	// Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
 	HeadersEnvironment *string `pulumi:"headersEnvironment"`
 	// Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
 	Interval *string `pulumi:"interval"`
-	// Kind of the rule. Valid values are approval, http, manual, all, and any.
+	// Kind of the rule. Valid values are approval, decision, http, manual, all, and any.
 	Kind string `pulumi:"kind"`
 	// HTTP request method. The default is GET.
 	Method *string `pulumi:"method"`
 	// Rule name. Omit it to let Delivery assign one.
 	Name *string `pulumi:"name"`
+	// Named judgments and their deterministic risk thresholds for a decision rule.
+	Questions map[string]DecisionQuestion `pulumi:"questions"`
 	// Child rules for all and any rules. At least one is required.
 	Rules []Rule `pulumi:"rules"`
 	// JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
@@ -717,22 +941,28 @@ type RuleArgs struct {
 	Approvers pulumi.StringArrayInput `pulumi:"approvers"`
 	// HTTP request body. Secret values stay secret.
 	Body pulumi.StringPtrInput `pulumi:"body"`
+	// Bounded, non-secret context supplied with a decision rule.
+	Context pulumi.MapInput `pulumi:"context"`
 	// Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
 	Count pulumi.IntPtrInput `pulumi:"count"`
 	// Text for the person who continues a manual gate, for example what to check first.
 	Description pulumi.StringPtrInput `pulumi:"description"`
+	// Selectors for service-owned evidence for a decision rule.
+	Evidence DecisionEvidenceArrayInput `pulumi:"evidence"`
 	// HTTP request headers. Secret values stay secret.
 	Headers pulumi.StringMapInput `pulumi:"headers"`
 	// Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
 	HeadersEnvironment pulumi.StringPtrInput `pulumi:"headersEnvironment"`
 	// Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
 	Interval pulumi.StringPtrInput `pulumi:"interval"`
-	// Kind of the rule. Valid values are approval, http, manual, all, and any.
+	// Kind of the rule. Valid values are approval, decision, http, manual, all, and any.
 	Kind pulumi.StringInput `pulumi:"kind"`
 	// HTTP request method. The default is GET.
 	Method pulumi.StringPtrInput `pulumi:"method"`
 	// Rule name. Omit it to let Delivery assign one.
 	Name pulumi.StringPtrInput `pulumi:"name"`
+	// Named judgments and their deterministic risk thresholds for a decision rule.
+	Questions DecisionQuestionMapInput `pulumi:"questions"`
 	// Child rules for all and any rules. At least one is required.
 	Rules RuleArrayInput `pulumi:"rules"`
 	// JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
@@ -856,6 +1086,11 @@ func (o RuleOutput) Body() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v Rule) *string { return v.Body }).(pulumi.StringPtrOutput)
 }
 
+// Bounded, non-secret context supplied with a decision rule.
+func (o RuleOutput) Context() pulumi.MapOutput {
+	return o.ApplyT(func(v Rule) map[string]interface{} { return v.Context }).(pulumi.MapOutput)
+}
+
 // Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
 func (o RuleOutput) Count() pulumi.IntPtrOutput {
 	return o.ApplyT(func(v Rule) *int { return v.Count }).(pulumi.IntPtrOutput)
@@ -864,6 +1099,11 @@ func (o RuleOutput) Count() pulumi.IntPtrOutput {
 // Text for the person who continues a manual gate, for example what to check first.
 func (o RuleOutput) Description() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v Rule) *string { return v.Description }).(pulumi.StringPtrOutput)
+}
+
+// Selectors for service-owned evidence for a decision rule.
+func (o RuleOutput) Evidence() DecisionEvidenceArrayOutput {
+	return o.ApplyT(func(v Rule) []DecisionEvidence { return v.Evidence }).(DecisionEvidenceArrayOutput)
 }
 
 // HTTP request headers. Secret values stay secret.
@@ -881,7 +1121,7 @@ func (o RuleOutput) Interval() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v Rule) *string { return v.Interval }).(pulumi.StringPtrOutput)
 }
 
-// Kind of the rule. Valid values are approval, http, manual, all, and any.
+// Kind of the rule. Valid values are approval, decision, http, manual, all, and any.
 func (o RuleOutput) Kind() pulumi.StringOutput {
 	return o.ApplyT(func(v Rule) string { return v.Kind }).(pulumi.StringOutput)
 }
@@ -894,6 +1134,11 @@ func (o RuleOutput) Method() pulumi.StringPtrOutput {
 // Rule name. Omit it to let Delivery assign one.
 func (o RuleOutput) Name() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v Rule) *string { return v.Name }).(pulumi.StringPtrOutput)
+}
+
+// Named judgments and their deterministic risk thresholds for a decision rule.
+func (o RuleOutput) Questions() DecisionQuestionMapOutput {
+	return o.ApplyT(func(v Rule) map[string]DecisionQuestion { return v.Questions }).(DecisionQuestionMapOutput)
 }
 
 // Child rules for all and any rules. At least one is required.
@@ -960,6 +1205,16 @@ func (o RulePtrOutput) Body() pulumi.StringPtrOutput {
 	}).(pulumi.StringPtrOutput)
 }
 
+// Bounded, non-secret context supplied with a decision rule.
+func (o RulePtrOutput) Context() pulumi.MapOutput {
+	return o.ApplyT(func(v *Rule) map[string]interface{} {
+		if v == nil {
+			return nil
+		}
+		return v.Context
+	}).(pulumi.MapOutput)
+}
+
 // Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
 func (o RulePtrOutput) Count() pulumi.IntPtrOutput {
 	return o.ApplyT(func(v *Rule) *int {
@@ -978,6 +1233,16 @@ func (o RulePtrOutput) Description() pulumi.StringPtrOutput {
 		}
 		return v.Description
 	}).(pulumi.StringPtrOutput)
+}
+
+// Selectors for service-owned evidence for a decision rule.
+func (o RulePtrOutput) Evidence() DecisionEvidenceArrayOutput {
+	return o.ApplyT(func(v *Rule) []DecisionEvidence {
+		if v == nil {
+			return nil
+		}
+		return v.Evidence
+	}).(DecisionEvidenceArrayOutput)
 }
 
 // HTTP request headers. Secret values stay secret.
@@ -1010,7 +1275,7 @@ func (o RulePtrOutput) Interval() pulumi.StringPtrOutput {
 	}).(pulumi.StringPtrOutput)
 }
 
-// Kind of the rule. Valid values are approval, http, manual, all, and any.
+// Kind of the rule. Valid values are approval, decision, http, manual, all, and any.
 func (o RulePtrOutput) Kind() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Rule) *string {
 		if v == nil {
@@ -1038,6 +1303,16 @@ func (o RulePtrOutput) Name() pulumi.StringPtrOutput {
 		}
 		return v.Name
 	}).(pulumi.StringPtrOutput)
+}
+
+// Named judgments and their deterministic risk thresholds for a decision rule.
+func (o RulePtrOutput) Questions() DecisionQuestionMapOutput {
+	return o.ApplyT(func(v *Rule) map[string]DecisionQuestion {
+		if v == nil {
+			return nil
+		}
+		return v.Questions
+	}).(DecisionQuestionMapOutput)
 }
 
 // Child rules for all and any rules. At least one is required.
@@ -1439,6 +1714,10 @@ func (o WorkflowsRuntimeArgsTypeOutput) AgentPool() pulumi.StringOutput {
 }
 
 func init() {
+	pulumi.RegisterInputType(reflect.TypeOf((*DecisionEvidenceInput)(nil)).Elem(), DecisionEvidenceArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*DecisionEvidenceArrayInput)(nil)).Elem(), DecisionEvidenceArray{})
+	pulumi.RegisterInputType(reflect.TypeOf((*DecisionQuestionInput)(nil)).Elem(), DecisionQuestionArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*DecisionQuestionMapInput)(nil)).Elem(), DecisionQuestionMap{})
 	pulumi.RegisterInputType(reflect.TypeOf((*ImageInput)(nil)).Elem(), ImageArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*ImagePtrInput)(nil)).Elem(), ImageArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*ImageCredentialsInput)(nil)).Elem(), ImageCredentialsArgs{})
@@ -1454,6 +1733,10 @@ func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*SourceTriggerPtrInput)(nil)).Elem(), SourceTriggerArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*StacksEntryInput)(nil)).Elem(), StacksEntryArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*StacksEntryMapInput)(nil)).Elem(), StacksEntryMap{})
+	pulumi.RegisterOutputType(DecisionEvidenceOutput{})
+	pulumi.RegisterOutputType(DecisionEvidenceArrayOutput{})
+	pulumi.RegisterOutputType(DecisionQuestionOutput{})
+	pulumi.RegisterOutputType(DecisionQuestionMapOutput{})
 	pulumi.RegisterOutputType(ImageOutput{})
 	pulumi.RegisterOutputType(ImagePtrOutput{})
 	pulumi.RegisterOutputType(ImageCredentialsOutput{})

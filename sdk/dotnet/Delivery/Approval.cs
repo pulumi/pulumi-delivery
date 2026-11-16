@@ -145,6 +145,10 @@ namespace Pulumi.Delivery.Delivery
         /// </summary>
         public readonly string? Body;
         /// <summary>
+        /// Bounded, non-secret context supplied with a decision rule.
+        /// </summary>
+        public readonly ImmutableDictionary<string, object>? Context;
+        /// <summary>
         /// Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
         /// </summary>
         public readonly int? Count;
@@ -152,6 +156,10 @@ namespace Pulumi.Delivery.Delivery
         /// Text for the person who continues a manual gate, for example what to check first.
         /// </summary>
         public readonly string? Description;
+        /// <summary>
+        /// Selectors for service-owned evidence for a decision rule.
+        /// </summary>
+        public readonly ImmutableArray<Outputs.DecisionEvidence> Evidence;
         /// <summary>
         /// HTTP request headers. Secret values stay secret.
         /// </summary>
@@ -165,7 +173,7 @@ namespace Pulumi.Delivery.Delivery
         /// </summary>
         public readonly string? Interval;
         /// <summary>
-        /// Kind of the rule. Valid values are approval, http, manual, all, and any.
+        /// Kind of the rule. Valid values are approval, decision, http, manual, all, and any.
         /// </summary>
         public readonly string Kind;
         /// <summary>
@@ -176,6 +184,10 @@ namespace Pulumi.Delivery.Delivery
         /// Rule name. Omit it to let Delivery assign one.
         /// </summary>
         public readonly string? Name;
+        /// <summary>
+        /// Named judgments and their deterministic risk thresholds for a decision rule.
+        /// </summary>
+        public readonly ImmutableDictionary<string, Outputs.DecisionQuestion>? Questions;
         /// <summary>
         /// Child rules for all and any rules. At least one is required.
         /// </summary>
@@ -199,9 +211,13 @@ namespace Pulumi.Delivery.Delivery
 
             string? body,
 
+            ImmutableDictionary<string, object>? context,
+
             int? count,
 
             string? description,
+
+            ImmutableArray<Outputs.DecisionEvidence> evidence,
 
             ImmutableDictionary<string, string>? headers,
 
@@ -215,6 +231,8 @@ namespace Pulumi.Delivery.Delivery
 
             string? name,
 
+            ImmutableDictionary<string, Outputs.DecisionQuestion>? questions,
+
             ImmutableArray<Outputs.Rule> rules,
 
             string? successExpression,
@@ -225,14 +243,17 @@ namespace Pulumi.Delivery.Delivery
         {
             Approvers = approvers;
             Body = body;
+            Context = context;
             Count = count;
             Description = description;
+            Evidence = evidence;
             Headers = headers;
             HeadersEnvironment = headersEnvironment;
             Interval = interval;
             Kind = kind;
             Method = method;
             Name = name;
+            Questions = questions;
             Rules = rules;
             SuccessExpression = successExpression;
             Timeout = timeout;

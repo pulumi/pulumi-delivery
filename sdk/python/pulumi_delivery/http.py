@@ -27,19 +27,25 @@ class HttpResult:
     """
     Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.
     """
-    def __init__(__self__, approvers=None, body=None, count=None, description=None, headers=None, headers_environment=None, interval=None, kind=None, method=None, name=None, rules=None, success_expression=None, timeout=None, url=None):
+    def __init__(__self__, approvers=None, body=None, context=None, count=None, description=None, evidence=None, headers=None, headers_environment=None, interval=None, kind=None, method=None, name=None, questions=None, rules=None, success_expression=None, timeout=None, url=None):
         if approvers and not isinstance(approvers, list):
             raise TypeError("Expected argument 'approvers' to be a list")
         pulumi.set(__self__, "approvers", approvers)
         if body and not isinstance(body, str):
             raise TypeError("Expected argument 'body' to be a str")
         pulumi.set(__self__, "body", body)
+        if context and not isinstance(context, dict):
+            raise TypeError("Expected argument 'context' to be a dict")
+        pulumi.set(__self__, "context", context)
         if count and not isinstance(count, int):
             raise TypeError("Expected argument 'count' to be a int")
         pulumi.set(__self__, "count", count)
         if description and not isinstance(description, str):
             raise TypeError("Expected argument 'description' to be a str")
         pulumi.set(__self__, "description", description)
+        if evidence and not isinstance(evidence, list):
+            raise TypeError("Expected argument 'evidence' to be a list")
+        pulumi.set(__self__, "evidence", evidence)
         if headers and not isinstance(headers, dict):
             raise TypeError("Expected argument 'headers' to be a dict")
         pulumi.set(__self__, "headers", headers)
@@ -58,6 +64,9 @@ class HttpResult:
         if name and not isinstance(name, str):
             raise TypeError("Expected argument 'name' to be a str")
         pulumi.set(__self__, "name", name)
+        if questions and not isinstance(questions, dict):
+            raise TypeError("Expected argument 'questions' to be a dict")
+        pulumi.set(__self__, "questions", questions)
         if rules and not isinstance(rules, list):
             raise TypeError("Expected argument 'rules' to be a list")
         pulumi.set(__self__, "rules", rules)
@@ -89,6 +98,14 @@ class HttpResult:
 
     @_builtins.property
     @pulumi.getter
+    def context(self) -> Optional[Mapping[str, Any]]:
+        """
+        Bounded, non-secret context supplied with a decision rule.
+        """
+        return pulumi.get(self, "context")
+
+    @_builtins.property
+    @pulumi.getter
     def count(self) -> Optional[_builtins.int]:
         """
         Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
@@ -102,6 +119,14 @@ class HttpResult:
         Text for the person who continues a manual gate, for example what to check first.
         """
         return pulumi.get(self, "description")
+
+    @_builtins.property
+    @pulumi.getter
+    def evidence(self) -> Optional[Sequence['outputs.DecisionEvidence']]:
+        """
+        Selectors for service-owned evidence for a decision rule.
+        """
+        return pulumi.get(self, "evidence")
 
     @_builtins.property
     @pulumi.getter
@@ -131,7 +156,7 @@ class HttpResult:
     @pulumi.getter
     def kind(self) -> _builtins.str:
         """
-        Kind of the rule. Valid values are approval, http, manual, all, and any.
+        Kind of the rule. Valid values are approval, decision, http, manual, all, and any.
         """
         return pulumi.get(self, "kind")
 
@@ -150,6 +175,14 @@ class HttpResult:
         Rule name. Omit it to let Delivery assign one.
         """
         return pulumi.get(self, "name")
+
+    @_builtins.property
+    @pulumi.getter
+    def questions(self) -> Optional[Mapping[str, 'outputs.DecisionQuestion']]:
+        """
+        Named judgments and their deterministic risk thresholds for a decision rule.
+        """
+        return pulumi.get(self, "questions")
 
     @_builtins.property
     @pulumi.getter
@@ -192,14 +225,17 @@ class AwaitableHttpResult(HttpResult):
         return HttpResult(
             approvers=self.approvers,
             body=self.body,
+            context=self.context,
             count=self.count,
             description=self.description,
+            evidence=self.evidence,
             headers=self.headers,
             headers_environment=self.headers_environment,
             interval=self.interval,
             kind=self.kind,
             method=self.method,
             name=self.name,
+            questions=self.questions,
             rules=self.rules,
             success_expression=self.success_expression,
             timeout=self.timeout,
@@ -247,14 +283,17 @@ def http(body: Optional[_builtins.str] = None,
     return AwaitableHttpResult(
         approvers=pulumi.get(__ret__, 'approvers'),
         body=pulumi.get(__ret__, 'body'),
+        context=pulumi.get(__ret__, 'context'),
         count=pulumi.get(__ret__, 'count'),
         description=pulumi.get(__ret__, 'description'),
+        evidence=pulumi.get(__ret__, 'evidence'),
         headers=pulumi.get(__ret__, 'headers'),
         headers_environment=pulumi.get(__ret__, 'headers_environment'),
         interval=pulumi.get(__ret__, 'interval'),
         kind=pulumi.get(__ret__, 'kind'),
         method=pulumi.get(__ret__, 'method'),
         name=pulumi.get(__ret__, 'name'),
+        questions=pulumi.get(__ret__, 'questions'),
         rules=pulumi.get(__ret__, 'rules'),
         success_expression=pulumi.get(__ret__, 'success_expression'),
         timeout=pulumi.get(__ret__, 'timeout'),
@@ -299,14 +338,17 @@ def http_output(body: pulumi.Input[Optional[Optional[_builtins.str]]] = None,
     return __ret__.apply(lambda __response__: HttpResult(
         approvers=pulumi.get(__response__, 'approvers'),
         body=pulumi.get(__response__, 'body'),
+        context=pulumi.get(__response__, 'context'),
         count=pulumi.get(__response__, 'count'),
         description=pulumi.get(__response__, 'description'),
+        evidence=pulumi.get(__response__, 'evidence'),
         headers=pulumi.get(__response__, 'headers'),
         headers_environment=pulumi.get(__response__, 'headers_environment'),
         interval=pulumi.get(__response__, 'interval'),
         kind=pulumi.get(__response__, 'kind'),
         method=pulumi.get(__response__, 'method'),
         name=pulumi.get(__response__, 'name'),
+        questions=pulumi.get(__response__, 'questions'),
         rules=pulumi.get(__response__, 'rules'),
         success_expression=pulumi.get(__response__, 'success_expression'),
         timeout=pulumi.get(__response__, 'timeout'),
