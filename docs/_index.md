@@ -231,7 +231,7 @@ Register the pipeline:
 PULUMI_DELIVERY_REGISTER=true pulumi up
 ```
 
-Registering is explicit. A plain `pulumi up` on the pipeline stack is refused with a message that tells you to set `PULUMI_DELIVERY_REGISTER=true`. The variable is read as a boolean: `true` and `1` set it, in any case of the word. With any other value the command is a plain `pulumi up`. `pulumi preview`, `pulumi destroy` and `pulumi refresh` are not affected. Changing `delivery:source` updates the provider in place and does not replace any resource.
+Registering is explicit. A plain `pulumi up` on the pipeline stack does not register the pipeline. It runs the pipeline from your checkout, see [Run from your checkout](#run-from-your-checkout). The variable is read as a boolean: `true` and `1` set it, in any case of the word. `pulumi preview`, `pulumi destroy` and `pulumi refresh` are not affected. Changing `delivery:source` updates the provider in place and does not replace any resource.
 
 A successful registration ends with exit code 10. In the following cases the update fails instead, with an error message of its own, and nothing registers.
 
@@ -242,6 +242,18 @@ A successful registration ends with exit code 10. In the following cases the upd
 `delivery:source` is the recommended, explicit way to say where the program lives. `url` is the clone URL and is required. `branch` and `directory` are optional. `directory` is relative to the repository root. If you omit a value, the service chooses it. The URL must not contain credentials, because the config is stored with the stack in plain text.
 
 A push to the tracked branch updates the pipeline: Delivery runs `pulumi up` on the pipeline stack. A run never changes the pipeline definition.
+
+### Run from your checkout
+
+A plain `pulumi up` on the pipeline stack starts a run and waits until it ends. The command prints the link of the run once. The members run in Pulumi Cloud as you, so you need write access to the pipeline stack and to the target stacks.
+
+The run uses the stages, gates and approvals of the pipeline. When a stage waits for a gate, the command prints what it waits for and keeps waiting. When a newer release replaces the run at a stage, the command fails and names that release.
+
+A member does not run again when its inputs and the commits of its sources are the same as in your last `pulumi up`. The command then reports the member as unchanged. A member runs when one of its inputs changes, when its source has a new commit, or when a member that it depends on ran. All entries of a `Stacks` member run together.
+
+When a member fails, the command fails with the reason and a link to the log of the member. Press Ctrl-C to stop the run. Members that are already running finish, and no new member starts.
+
+A pipeline that you did not register has no triggers and cannot be dispatched. Register it to get both.
 
 ### Watch the run
 
