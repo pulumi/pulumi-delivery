@@ -87,6 +87,8 @@ func newProvider() (p.Provider, error) {
 // diffConfig reports every change of the configuration as an update in place, so that a change of delivery:source never
 // replaces the provider and the resources under it. It compares the property values: the typed configuration is one
 // shared object, and reading the old state into it would leave the old source behind.
+// A Configure only overwrites the fields that are present, which is safe because the engine configures a provider
+// process once per update.
 func diffConfig(_ context.Context, req p.DiffRequest) (p.DiffResponse, error) {
 	resp := p.DiffResponse{DetailedDiff: map[string]p.PropertyDiff{}}
 	for _, key := range []string{"source", "version"} {

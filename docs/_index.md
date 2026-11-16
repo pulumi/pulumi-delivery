@@ -231,15 +231,15 @@ Register the pipeline:
 PULUMI_DELIVERY_REGISTER=true pulumi up
 ```
 
-Registering is explicit. A plain `pulumi up` on the pipeline stack is refused with a message that tells you to set `PULUMI_DELIVERY_REGISTER=true`. Only `true` or `1` counts as set. With any other value the command is a plain `pulumi up`. `pulumi preview`, `pulumi destroy` and `pulumi refresh` are not affected. Changing `delivery:source` updates the provider in place and does not replace any resource.
+Registering is explicit. A plain `pulumi up` on the pipeline stack is refused with a message that tells you to set `PULUMI_DELIVERY_REGISTER=true`. The variable is read as a boolean: `true` and `1` set it, in any case of the word. With any other value the command is a plain `pulumi up`. `pulumi preview`, `pulumi destroy` and `pulumi refresh` are not affected. Changing `delivery:source` updates the provider in place and does not replace any resource.
 
-The update ends with exit code 10. Delivery rejects the update with an error in these cases.
+A successful registration ends with exit code 10. In the following cases the update fails instead, with an error message of its own, and nothing registers.
 
 - The checkout has uncommitted changes. Commit the changes.
 - The commit is not on the tracked branch. Commit, push and merge it, then register again.
 - The update has no git commit. Run `pulumi up` from a Git checkout.
 
-`delivery:source` is the recommended, explicit way to say where the program lives. `url` is the clone URL and is required. `branch` and `directory` are optional. `directory` is relative to the repository root. If you omit a value, the service chooses it.
+`delivery:source` is the recommended, explicit way to say where the program lives. `url` is the clone URL and is required. `branch` and `directory` are optional. `directory` is relative to the repository root. If you omit a value, the service chooses it. The URL must not contain credentials, because the config is stored with the stack in plain text.
 
 A push to the tracked branch updates the pipeline: Delivery runs `pulumi up` on the pipeline stack. A run never changes the pipeline definition.
 
@@ -469,7 +469,7 @@ These actions create a new run for one stage. The new run uses the release, the 
 
 ## Writing pipelines
 
-- Each member names `source`, `directory` and `stage`. A program has one `Pipeline`, which takes no inputs. Stage names are unique.
+- Each member names `source`, `directory` and `stage`. A program has one `Pipeline`, which takes only the optional `servicePrincipal`. Stage names are unique.
 - `config` and `environment` values are plain strings. `config` cannot hold secrets. A secret in `environment` stays secret.
 - Normal code decides which stages and members a run has. You can use `if`, loops and `.apply` on member outputs.
 - A resource that is not a Delivery resource must use a member output to wait for a member. `dependsOn` orders only Delivery members.

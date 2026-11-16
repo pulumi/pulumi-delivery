@@ -89,6 +89,8 @@ func TestSourceAddedAndRemovedThroughDiff(t *testing.T) {
 	}{
 		{"added", "", source, map[string]any{"url": "https://git.example.com/acme/shop", "directory": "delivery"}},
 		{"removed", source, "", nil},
+		{"branch", "", `{"url":"https://git.example.com/acme/shop","branch":"release"}`,
+			map[string]any{"url": "https://git.example.com/acme/shop", "branch": "release"}},
 	} {
 		t.Run(c.name, func(t *testing.T) {
 			service := newFakeService(t)
@@ -144,6 +146,9 @@ func TestPipelineDeclaresItsServicePrincipal(t *testing.T) {
 		{name: "number userId", inputs: object(map[string]property.Value{"userId": property.New(5.0)}),
 			wantErr: "servicePrincipal.userId must be a string"},
 		{name: "secret", inputs: object(map[string]property.Value{"userId": str("service-principal:2").WithSecret(true)}),
+			want: map[string]any{"4dabf18193072939515e22adb298388d": "1b47061264138c4ac30d75fd1eb44270", "plaintext": `"service-principal:2"`}},
+		{name: "secret object", inputs: property.NewMap(map[string]property.Value{"servicePrincipal": property.New(property.NewMap(
+			map[string]property.Value{"userId": str("service-principal:2")})).WithSecret(true)}),
 			want: map[string]any{"4dabf18193072939515e22adb298388d": "1b47061264138c4ac30d75fd1eb44270", "plaintext": `"service-principal:2"`}},
 		{name: "unknown userId", inputs: object(map[string]property.Value{"userId": unk}), want: unknownMarker},
 		{name: "unknown object", inputs: property.NewMap(map[string]property.Value{"servicePrincipal": unk}), want: unknownMarker},
