@@ -48,7 +48,7 @@ func isDeliveryComponent(typ string) bool {
 //   - sends the declaration to the service in a real update, before the component code runs,
 //   - reads the value of a source from the service in a run, and
 //   - makes the outputs of a member depend on its child resource.
-func withDeliveryConstruct(config *ProviderConfig, inner func(context.Context, p.ConstructRequest) (p.ConstructResponse, error),
+func withDeliveryConstruct(config *ProviderConfig, sess *session, inner func(context.Context, p.ConstructRequest) (p.ConstructResponse, error),
 ) func(context.Context, p.ConstructRequest) (p.ConstructResponse, error) {
 	return func(ctx context.Context, req p.ConstructRequest) (p.ConstructResponse, error) {
 		typ := string(req.Urn.Type())
@@ -71,11 +71,9 @@ func withDeliveryConstruct(config *ProviderConfig, inner func(context.Context, p
 		commit := ""
 		var release *int64
 		var upstream *pipelineValue
+		extras := newMemberExtras(ctx, sess, req.Organization)
+		local := false
 		if !req.DryRun {
-			client, err := clientFor(req.Organization, req.Urn)
-			if err != nil {
-				return p.ConstructResponse{}, err
-			}
 			inputs := req.Inputs
 			if typ == typePipeline && config.Source != nil {
 				inputs = inputs.Set("programSource", property.New(config.Source.value()))
@@ -87,28 +85,56 @@ func withDeliveryConstruct(config *ProviderConfig, inner func(context.Context, p
 			if err != nil {
 				return p.ConstructResponse{}, err
 			}
-			response, err := client.Declare(ctx, request)
+			response, err := sess.declare(ctx, req.Organization, req.Urn, request)
 			if err != nil {
 				return p.ConstructResponse{}, err
 			}
-			reportDeclaration(p.GetLogger(ctx), response)
-			if commit, err = sourceCommit(ctx, client, req); err != nil {
+			client, err := sess.client(req.Organization, req.Urn)
+			if err != nil {
 				return p.ConstructResponse{}, err
 			}
-			if release, err = runRelease(ctx, client, req); err != nil {
+			local = sess.local()
+			log := p.GetLogger(ctx)
+			sess.announce(log)
+			reportDeclaration(log, response)
+			if local && typ == typeStage {
+				if err := sess.admit(ctx, client, log, req.Urn); err != nil {
+					return p.ConstructResponse{}, err
+				}
+			}
+			if commit, err = sourceCommit(ctx, client, local, req); err != nil {
 				return p.ConstructResponse{}, err
 			}
-			if upstream, err = readPipelineSource(ctx, client, req); err != nil {
+			if local {
+				sess.setCommit(req.Urn, commit)
+				extras.commits = sess.commitsOf(sourceURNs(typ, req.Inputs))
+				extras.ran = sess.ranAmong(decl.dependencies)
+			}
+			if release, err = runRelease(ctx, sess, client, local, req); err != nil {
 				return p.ConstructResponse{}, err
 			}
+			if upstream, err = readPipelineSource(ctx, client, local, req); err != nil {
+				return p.ConstructResponse{}, err
+			}
+		}
+
+		if typ == typeStacks && local {
+			digest, err := decl.digest(ctx, req.Inputs)
+			if err != nil {
+				return p.ConstructResponse{}, err
+			}
+			extras.digest = digest
 		}
 
 		resp, err := p.ProgramConstruct(ctx, req, func(pctx *pulumi.Context, typ, name string,
 			inputs comProvider.ConstructInputs, opts pulumi.ResourceOption,
 		) (*comProvider.ConstructResult, error) {
-			return buildComponent(pctx, typ, name, inputs, opts, decl, req.Organization, commit)
+			return buildComponent(pctx, typ, name, inputs, opts, decl, req.Organization, commit, extras)
 		})
 		if err != nil {
+			return resp, err
+		}
+		if err := extras.wait(); err != nil {
 			return resp, err
 		}
 		resp.State = finishState(typ, resp.State, commit, release, upstream, req.Inputs)
@@ -196,9 +222,12 @@ func finishStacks(state, children property.Map) property.Map {
 
 // runRelease returns the release number of the run for a Pipeline. It is nil in a registration, and for a run
 // without a release.
-func runRelease(ctx context.Context, client *cloudclient.Client, req p.ConstructRequest) (*int64, error) {
+func runRelease(ctx context.Context, sess *session, client *cloudclient.Client, local bool, req p.ConstructRequest) (*int64, error) {
 	if req.Urn.Type() != typePipeline {
 		return nil, nil
+	}
+	if local {
+		return sess.releaseNumber(), nil
 	}
 	run, err := client.GetRun(ctx)
 	if err != nil || run == nil {
@@ -209,14 +238,16 @@ func runRelease(ctx context.Context, client *cloudclient.Client, req p.Construct
 
 // sourceCommit returns the commit that the run recorded for a source. It is empty in a registration and
 // for a component that is not a source.
-func sourceCommit(ctx context.Context, client *cloudclient.Client, req p.ConstructRequest) (string, error) {
+func sourceCommit(ctx context.Context, client *cloudclient.Client, local bool, req p.ConstructRequest) (string, error) {
 	kind, ok := sourceKinds[string(req.Urn.Type())]
 	if !ok {
 		return "", nil
 	}
-	run, err := client.GetRun(ctx)
-	if err != nil || run == nil {
-		return "", err
+	if !local {
+		run, err := client.GetRun(ctx)
+		if err != nil || run == nil {
+			return "", err
+		}
 	}
 	repository, branch := stringInput(req.Inputs, "repository"), stringInput(req.Inputs, "branch")
 	if repository == "" || branch == "" {
@@ -290,7 +321,7 @@ func qualifyStackNames(typ string, inputs property.Map, organization string) pro
 
 // readPipelineSource returns the value of a PipelineSource in a run, or nil. The map is secret if any artifact
 // is, and the artifacts keep their own marks inside.
-func readPipelineSource(ctx context.Context, client *cloudclient.Client, req p.ConstructRequest) (*pipelineValue, error) {
+func readPipelineSource(ctx context.Context, client *cloudclient.Client, local bool, req p.ConstructRequest) (*pipelineValue, error) {
 	if req.Urn.Type() != typePipelineSource {
 		return nil, nil
 	}
@@ -298,9 +329,11 @@ func readPipelineSource(ctx context.Context, client *cloudclient.Client, req p.C
 	if pipeline == "" || stage == "" {
 		return nil, nil
 	}
-	run, err := client.GetRun(ctx)
-	if err != nil || run == nil {
-		return nil, err
+	if !local {
+		run, err := client.GetRun(ctx)
+		if err != nil || run == nil {
+			return nil, err
+		}
 	}
 	value, err := client.RunValue(ctx, "pipeline", cloudclient.PipelineIdentity{Pipeline: pipeline, Stage: stage})
 	if err != nil {

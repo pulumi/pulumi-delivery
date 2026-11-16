@@ -15,7 +15,7 @@ import (
 // buildComponent is the component code. A Job registers its internal child; the other components only
 // declare themselves.
 func buildComponent(ctx *pulumi.Context, typ, name string, inputs comProvider.ConstructInputs,
-	opts pulumi.ResourceOption, d declaration, organization, commit string,
+	opts pulumi.ResourceOption, d declaration, organization, commit string, extras *memberExtras,
 ) (*comProvider.ConstructResult, error) {
 	switch typ {
 	case typePipeline:
@@ -23,11 +23,11 @@ func buildComponent(ctx *pulumi.Context, typ, name string, inputs comProvider.Co
 	case typeStage:
 		return register(ctx, typ, name, inputs, &Stage{}, opts, pulumi.Map{})
 	case typeJob:
-		return buildJob(ctx, name, inputs, opts, d, organization)
+		return buildJob(ctx, name, inputs, opts, d, organization, extras)
 	case typeStacks:
-		return buildStacks(ctx, name, inputs, opts, d, organization)
+		return buildStacks(ctx, name, inputs, opts, d, organization, extras)
 	case typeArtifact:
-		return buildArtifact(ctx, name, inputs, opts, d, organization)
+		return buildArtifact(ctx, name, inputs, opts, d, organization, extras)
 	case typePipelineSource:
 		// The wrapper sets the outputs.
 		return register(ctx, typ, name, inputs, &PipelineSource{}, opts, pulumi.Map{})
@@ -56,7 +56,7 @@ func register(ctx *pulumi.Context, typ, name string, inputs comProvider.Construc
 }
 
 func buildJob(ctx *pulumi.Context, name string, inputs comProvider.ConstructInputs,
-	opts pulumi.ResourceOption, d declaration, organization string,
+	opts pulumi.ResourceOption, d declaration, organization string, extras *memberExtras,
 ) (*comProvider.ConstructResult, error) {
 	job := &Job{}
 	inputMap, err := inputs.Map()
@@ -67,13 +67,14 @@ func buildJob(ctx *pulumi.Context, name string, inputs comProvider.ConstructInpu
 		return nil, err
 	}
 	child := &memberRunResource{}
-	if err := ctx.RegisterResource(typeMemberRun, name, pulumi.Map{
+	if err := ctx.RegisterResource(typeMemberRun, name, extras.apply(pulumi.Map{
 		"organization": pulumi.String(organization),
 		"member":       pulumi.String(d.urn),
 		"declaration":  d.forChild(inputMap),
-	}, child, pulumi.Parent(job)); err != nil {
+	}), child, pulumi.Parent(job)); err != nil {
 		return nil, err
 	}
+	extras.watch(child, d.urn, "")
 	// The Job output type is map<string, string>, so a structured value is encoded as JSON.
 	job.Outputs = child.Outputs.ApplyT(func(outputs map[string]any) map[string]string {
 		out := make(map[string]string, len(outputs))
@@ -97,7 +98,7 @@ func buildJob(ctx *pulumi.Context, name string, inputs comProvider.ConstructInpu
 // so that it is never a secret without a value, which the engine rejects. The wrapper marks a known value
 // secret when the input is.
 func buildArtifact(ctx *pulumi.Context, name string, inputs comProvider.ConstructInputs,
-	opts pulumi.ResourceOption, d declaration, organization string,
+	opts pulumi.ResourceOption, d declaration, organization string, extras *memberExtras,
 ) (*comProvider.ConstructResult, error) {
 	artifact := &Artifact{}
 	inputMap, err := inputs.Map()
@@ -108,13 +109,14 @@ func buildArtifact(ctx *pulumi.Context, name string, inputs comProvider.Construc
 		return nil, err
 	}
 	child := &memberRunResource{}
-	if err := ctx.RegisterResource(typeMemberRun, name, pulumi.Map{
+	if err := ctx.RegisterResource(typeMemberRun, name, extras.apply(pulumi.Map{
 		"organization": pulumi.String(organization),
 		"member":       pulumi.String(d.urn),
 		"declaration":  d.forChild(inputMap),
-	}, child, pulumi.Parent(artifact)); err != nil {
+	}), child, pulumi.Parent(artifact)); err != nil {
 		return nil, err
 	}
+	extras.watch(child, d.urn, "")
 	artifact.Value = pulumi.Unsecret(child.Outputs).ApplyT(func(outputs map[string]any) any {
 		return outputs["value"]
 	}).(pulumi.AnyOutput)
@@ -128,7 +130,7 @@ func buildArtifact(ctx *pulumi.Context, name string, inputs comProvider.Construc
 // buildStacks registers one child for each entry. The name of a child is <component>#<entry>: an entry
 // name cannot contain '#', so two components never produce the same child name.
 func buildStacks(ctx *pulumi.Context, name string, inputs comProvider.ConstructInputs,
-	opts pulumi.ResourceOption, d declaration, organization string,
+	opts pulumi.ResourceOption, d declaration, organization string, extras *memberExtras,
 ) (*comProvider.ConstructResult, error) {
 	stacks := &Stacks{}
 	inputMap, err := inputs.Map()
@@ -170,14 +172,15 @@ func buildStacks(ctx *pulumi.Context, name string, inputs comProvider.ConstructI
 		}
 		ownInputs["stacks"] = pulumi.Map{entry: stacksEntry}
 		child := &memberRunResource{}
-		if err := ctx.RegisterResource(typeMemberRun, name+"#"+entry, pulumi.Map{
+		if err := ctx.RegisterResource(typeMemberRun, name+"#"+entry, extras.apply(pulumi.Map{
 			"organization": pulumi.String(organization),
 			"member":       pulumi.String(d.urn),
 			"entry":        pulumi.String(entry),
 			"declaration":  own.forChild(ownInputs),
-		}, child, pulumi.Parent(stacks)); err != nil {
+		}), child, pulumi.Parent(stacks)); err != nil {
 			return nil, err
 		}
+		extras.watch(child, d.urn, entry)
 		childOutputs = append(childOutputs, child.Outputs)
 		childUrns[entry] = child.URN().ApplyT(func(u pulumi.URN) string { return string(u) }).(pulumi.StringOutput)
 	}
