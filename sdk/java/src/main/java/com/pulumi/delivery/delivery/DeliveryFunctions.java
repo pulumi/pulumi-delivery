@@ -12,8 +12,6 @@ import com.pulumi.delivery.delivery.inputs.AnyOfArgs;
 import com.pulumi.delivery.delivery.inputs.AnyOfPlainArgs;
 import com.pulumi.delivery.delivery.inputs.ApprovalArgs;
 import com.pulumi.delivery.delivery.inputs.ApprovalPlainArgs;
-import com.pulumi.delivery.delivery.inputs.DecisionArgs;
-import com.pulumi.delivery.delivery.inputs.DecisionPlainArgs;
 import com.pulumi.delivery.delivery.inputs.HttpArgs;
 import com.pulumi.delivery.delivery.inputs.HttpPlainArgs;
 import com.pulumi.delivery.delivery.inputs.ManualArgs;
@@ -21,7 +19,6 @@ import com.pulumi.delivery.delivery.inputs.ManualPlainArgs;
 import com.pulumi.delivery.delivery.outputs.AllOfResult;
 import com.pulumi.delivery.delivery.outputs.AnyOfResult;
 import com.pulumi.delivery.delivery.outputs.ApprovalResult;
-import com.pulumi.delivery.delivery.outputs.DecisionResult;
 import com.pulumi.delivery.delivery.outputs.HttpResult;
 import com.pulumi.delivery.delivery.outputs.ManualResult;
 import com.pulumi.deployment.Deployment;
@@ -31,7 +28,7 @@ import java.util.concurrent.CompletableFuture;
 
 public final class DeliveryFunctions {
     /**
-     * Builds an all rule for a Stage&#39;s when: passes once every child rule passes.
+     * Builds an all rule for the when property of a Stage. The rule passes when every child rule passes.
      * 
      * ## Example Usage
      * 
@@ -40,7 +37,7 @@ public final class DeliveryFunctions {
         return allOf(args, InvokeOptions.Empty);
     }
     /**
-     * Builds an all rule for a Stage&#39;s when: passes once every child rule passes.
+     * Builds an all rule for the when property of a Stage. The rule passes when every child rule passes.
      * 
      * ## Example Usage
      * 
@@ -49,7 +46,7 @@ public final class DeliveryFunctions {
         return allOfPlain(args, InvokeOptions.Empty);
     }
     /**
-     * Builds an all rule for a Stage&#39;s when: passes once every child rule passes.
+     * Builds an all rule for the when property of a Stage. The rule passes when every child rule passes.
      * 
      * ## Example Usage
      * 
@@ -58,7 +55,7 @@ public final class DeliveryFunctions {
         return Deployment.getInstance().invoke("delivery:index:allOf", TypeShape.of(AllOfResult.class), args, Utilities.withVersion(options));
     }
     /**
-     * Builds an all rule for a Stage&#39;s when: passes once every child rule passes.
+     * Builds an all rule for the when property of a Stage. The rule passes when every child rule passes.
      * 
      * ## Example Usage
      * 
@@ -67,7 +64,7 @@ public final class DeliveryFunctions {
         return Deployment.getInstance().invoke("delivery:index:allOf", TypeShape.of(AllOfResult.class), args, Utilities.withVersion(options));
     }
     /**
-     * Builds an all rule for a Stage&#39;s when: passes once every child rule passes.
+     * Builds an all rule for the when property of a Stage. The rule passes when every child rule passes.
      * 
      * ## Example Usage
      * 
@@ -76,7 +73,7 @@ public final class DeliveryFunctions {
         return Deployment.getInstance().invokeAsync("delivery:index:allOf", TypeShape.of(AllOfResult.class), args, Utilities.withVersion(options));
     }
     /**
-     * Builds an any rule for a Stage&#39;s when: passes once one child rule passes.
+     * Builds an any rule for the when property of a Stage. The rule passes when one child rule passes.
      * 
      * ## Example Usage
      * 
@@ -85,7 +82,7 @@ public final class DeliveryFunctions {
         return anyOf(args, InvokeOptions.Empty);
     }
     /**
-     * Builds an any rule for a Stage&#39;s when: passes once one child rule passes.
+     * Builds an any rule for the when property of a Stage. The rule passes when one child rule passes.
      * 
      * ## Example Usage
      * 
@@ -94,7 +91,7 @@ public final class DeliveryFunctions {
         return anyOfPlain(args, InvokeOptions.Empty);
     }
     /**
-     * Builds an any rule for a Stage&#39;s when: passes once one child rule passes.
+     * Builds an any rule for the when property of a Stage. The rule passes when one child rule passes.
      * 
      * ## Example Usage
      * 
@@ -103,7 +100,7 @@ public final class DeliveryFunctions {
         return Deployment.getInstance().invoke("delivery:index:anyOf", TypeShape.of(AnyOfResult.class), args, Utilities.withVersion(options));
     }
     /**
-     * Builds an any rule for a Stage&#39;s when: passes once one child rule passes.
+     * Builds an any rule for the when property of a Stage. The rule passes when one child rule passes.
      * 
      * ## Example Usage
      * 
@@ -112,7 +109,7 @@ public final class DeliveryFunctions {
         return Deployment.getInstance().invoke("delivery:index:anyOf", TypeShape.of(AnyOfResult.class), args, Utilities.withVersion(options));
     }
     /**
-     * Builds an any rule for a Stage&#39;s when: passes once one child rule passes.
+     * Builds an any rule for the when property of a Stage. The rule passes when one child rule passes.
      * 
      * ## Example Usage
      * 
@@ -121,7 +118,7 @@ public final class DeliveryFunctions {
         return Deployment.getInstance().invokeAsync("delivery:index:anyOf", TypeShape.of(AnyOfResult.class), args, Utilities.withVersion(options));
     }
     /**
-     * Builds an approval rule for a Stage&#39;s when. The gate waits until the required number of eligible people approve. Omitted or zero count means one approval. The person who started the run cannot approve it. Without named approvers, anyone with the organization update permission can approve. Approving needs the Approvals feature.
+     * Builds an approval rule for the when property of a Stage. The gate waits until the required number of eligible people approve. If you omit count or set it to zero, one approval is required. Anyone eligible can approve, including the person who started the run. If you name no approvers, anyone with the pipeline:approve permission on the pipeline stack can approve. Approving needs the Approvals feature.
      * 
      * ## Example Usage
      * 
@@ -130,7 +127,7 @@ public final class DeliveryFunctions {
         return approval(ApprovalArgs.Empty, InvokeOptions.Empty);
     }
     /**
-     * Builds an approval rule for a Stage&#39;s when. The gate waits until the required number of eligible people approve. Omitted or zero count means one approval. The person who started the run cannot approve it. Without named approvers, anyone with the organization update permission can approve. Approving needs the Approvals feature.
+     * Builds an approval rule for the when property of a Stage. The gate waits until the required number of eligible people approve. If you omit count or set it to zero, one approval is required. Anyone eligible can approve, including the person who started the run. If you name no approvers, anyone with the pipeline:approve permission on the pipeline stack can approve. Approving needs the Approvals feature.
      * 
      * ## Example Usage
      * 
@@ -139,7 +136,7 @@ public final class DeliveryFunctions {
         return approvalPlain(ApprovalPlainArgs.Empty, InvokeOptions.Empty);
     }
     /**
-     * Builds an approval rule for a Stage&#39;s when. The gate waits until the required number of eligible people approve. Omitted or zero count means one approval. The person who started the run cannot approve it. Without named approvers, anyone with the organization update permission can approve. Approving needs the Approvals feature.
+     * Builds an approval rule for the when property of a Stage. The gate waits until the required number of eligible people approve. If you omit count or set it to zero, one approval is required. Anyone eligible can approve, including the person who started the run. If you name no approvers, anyone with the pipeline:approve permission on the pipeline stack can approve. Approving needs the Approvals feature.
      * 
      * ## Example Usage
      * 
@@ -148,7 +145,7 @@ public final class DeliveryFunctions {
         return approval(args, InvokeOptions.Empty);
     }
     /**
-     * Builds an approval rule for a Stage&#39;s when. The gate waits until the required number of eligible people approve. Omitted or zero count means one approval. The person who started the run cannot approve it. Without named approvers, anyone with the organization update permission can approve. Approving needs the Approvals feature.
+     * Builds an approval rule for the when property of a Stage. The gate waits until the required number of eligible people approve. If you omit count or set it to zero, one approval is required. Anyone eligible can approve, including the person who started the run. If you name no approvers, anyone with the pipeline:approve permission on the pipeline stack can approve. Approving needs the Approvals feature.
      * 
      * ## Example Usage
      * 
@@ -157,7 +154,7 @@ public final class DeliveryFunctions {
         return approvalPlain(args, InvokeOptions.Empty);
     }
     /**
-     * Builds an approval rule for a Stage&#39;s when. The gate waits until the required number of eligible people approve. Omitted or zero count means one approval. The person who started the run cannot approve it. Without named approvers, anyone with the organization update permission can approve. Approving needs the Approvals feature.
+     * Builds an approval rule for the when property of a Stage. The gate waits until the required number of eligible people approve. If you omit count or set it to zero, one approval is required. Anyone eligible can approve, including the person who started the run. If you name no approvers, anyone with the pipeline:approve permission on the pipeline stack can approve. Approving needs the Approvals feature.
      * 
      * ## Example Usage
      * 
@@ -166,7 +163,7 @@ public final class DeliveryFunctions {
         return Deployment.getInstance().invoke("delivery:index:approval", TypeShape.of(ApprovalResult.class), args, Utilities.withVersion(options));
     }
     /**
-     * Builds an approval rule for a Stage&#39;s when. The gate waits until the required number of eligible people approve. Omitted or zero count means one approval. The person who started the run cannot approve it. Without named approvers, anyone with the organization update permission can approve. Approving needs the Approvals feature.
+     * Builds an approval rule for the when property of a Stage. The gate waits until the required number of eligible people approve. If you omit count or set it to zero, one approval is required. Anyone eligible can approve, including the person who started the run. If you name no approvers, anyone with the pipeline:approve permission on the pipeline stack can approve. Approving needs the Approvals feature.
      * 
      * ## Example Usage
      * 
@@ -175,7 +172,7 @@ public final class DeliveryFunctions {
         return Deployment.getInstance().invoke("delivery:index:approval", TypeShape.of(ApprovalResult.class), args, Utilities.withVersion(options));
     }
     /**
-     * Builds an approval rule for a Stage&#39;s when. The gate waits until the required number of eligible people approve. Omitted or zero count means one approval. The person who started the run cannot approve it. Without named approvers, anyone with the organization update permission can approve. Approving needs the Approvals feature.
+     * Builds an approval rule for the when property of a Stage. The gate waits until the required number of eligible people approve. If you omit count or set it to zero, one approval is required. Anyone eligible can approve, including the person who started the run. If you name no approvers, anyone with the pipeline:approve permission on the pipeline stack can approve. Approving needs the Approvals feature.
      * 
      * ## Example Usage
      * 
@@ -184,52 +181,7 @@ public final class DeliveryFunctions {
         return Deployment.getInstance().invokeAsync("delivery:index:approval", TypeShape.of(ApprovalResult.class), args, Utilities.withVersion(options));
     }
     /**
-     * Builds a decision rule for a Stage&#39;s when. The gate asks a Decision Agent of the organization, with the inputs as the fields of its prompt, and passes when the agent decides to continue. The inputs are usually built from the outputs of members of earlier stages, so the pass that declares the rule can be a later pass of the run.
-     * 
-     * ## Example Usage
-     * 
-     */
-    public static Output<DecisionResult> decision(DecisionArgs args) {
-        return decision(args, InvokeOptions.Empty);
-    }
-    /**
-     * Builds a decision rule for a Stage&#39;s when. The gate asks a Decision Agent of the organization, with the inputs as the fields of its prompt, and passes when the agent decides to continue. The inputs are usually built from the outputs of members of earlier stages, so the pass that declares the rule can be a later pass of the run.
-     * 
-     * ## Example Usage
-     * 
-     */
-    public static CompletableFuture<DecisionResult> decisionPlain(DecisionPlainArgs args) {
-        return decisionPlain(args, InvokeOptions.Empty);
-    }
-    /**
-     * Builds a decision rule for a Stage&#39;s when. The gate asks a Decision Agent of the organization, with the inputs as the fields of its prompt, and passes when the agent decides to continue. The inputs are usually built from the outputs of members of earlier stages, so the pass that declares the rule can be a later pass of the run.
-     * 
-     * ## Example Usage
-     * 
-     */
-    public static Output<DecisionResult> decision(DecisionArgs args, InvokeOptions options) {
-        return Deployment.getInstance().invoke("delivery:index:decision", TypeShape.of(DecisionResult.class), args, Utilities.withVersion(options));
-    }
-    /**
-     * Builds a decision rule for a Stage&#39;s when. The gate asks a Decision Agent of the organization, with the inputs as the fields of its prompt, and passes when the agent decides to continue. The inputs are usually built from the outputs of members of earlier stages, so the pass that declares the rule can be a later pass of the run.
-     * 
-     * ## Example Usage
-     * 
-     */
-    public static Output<DecisionResult> decision(DecisionArgs args, InvokeOutputOptions options) {
-        return Deployment.getInstance().invoke("delivery:index:decision", TypeShape.of(DecisionResult.class), args, Utilities.withVersion(options));
-    }
-    /**
-     * Builds a decision rule for a Stage&#39;s when. The gate asks a Decision Agent of the organization, with the inputs as the fields of its prompt, and passes when the agent decides to continue. The inputs are usually built from the outputs of members of earlier stages, so the pass that declares the rule can be a later pass of the run.
-     * 
-     * ## Example Usage
-     * 
-     */
-    public static CompletableFuture<DecisionResult> decisionPlain(DecisionPlainArgs args, InvokeOptions options) {
-        return Deployment.getInstance().invokeAsync("delivery:index:decision", TypeShape.of(DecisionResult.class), args, Utilities.withVersion(options));
-    }
-    /**
-     * Builds an http rule for a Stage&#39;s when.
+     * Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true. Delivery does not support this rule in the private preview. Registration rejects a stage that uses it.
      * 
      * ## Example Usage
      * 
@@ -238,7 +190,7 @@ public final class DeliveryFunctions {
         return http(args, InvokeOptions.Empty);
     }
     /**
-     * Builds an http rule for a Stage&#39;s when.
+     * Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true. Delivery does not support this rule in the private preview. Registration rejects a stage that uses it.
      * 
      * ## Example Usage
      * 
@@ -247,7 +199,7 @@ public final class DeliveryFunctions {
         return httpPlain(args, InvokeOptions.Empty);
     }
     /**
-     * Builds an http rule for a Stage&#39;s when.
+     * Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true. Delivery does not support this rule in the private preview. Registration rejects a stage that uses it.
      * 
      * ## Example Usage
      * 
@@ -256,7 +208,7 @@ public final class DeliveryFunctions {
         return Deployment.getInstance().invoke("delivery:index:http", TypeShape.of(HttpResult.class), args, Utilities.withVersion(options));
     }
     /**
-     * Builds an http rule for a Stage&#39;s when.
+     * Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true. Delivery does not support this rule in the private preview. Registration rejects a stage that uses it.
      * 
      * ## Example Usage
      * 
@@ -265,7 +217,7 @@ public final class DeliveryFunctions {
         return Deployment.getInstance().invoke("delivery:index:http", TypeShape.of(HttpResult.class), args, Utilities.withVersion(options));
     }
     /**
-     * Builds an http rule for a Stage&#39;s when.
+     * Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true. Delivery does not support this rule in the private preview. Registration rejects a stage that uses it.
      * 
      * ## Example Usage
      * 
@@ -274,7 +226,7 @@ public final class DeliveryFunctions {
         return Deployment.getInstance().invokeAsync("delivery:index:http", TypeShape.of(HttpResult.class), args, Utilities.withVersion(options));
     }
     /**
-     * Builds a manual rule for a Stage&#39;s when. A manual gate waits until someone continues it, from the console or with a POST to the continue route of the gate. It works on every plan. Use approval() when you need named approvers and the Approvals feature.
+     * Builds a manual rule for the when property of a Stage. A manual gate waits until someone continues it. Continue it in the console or with a POST to the continue route of the gate. It works on every plan. To require named approvers, use approval(), which needs the Approvals feature.
      * 
      * ## Example Usage
      * 
@@ -283,7 +235,7 @@ public final class DeliveryFunctions {
         return manual(ManualArgs.Empty, InvokeOptions.Empty);
     }
     /**
-     * Builds a manual rule for a Stage&#39;s when. A manual gate waits until someone continues it, from the console or with a POST to the continue route of the gate. It works on every plan. Use approval() when you need named approvers and the Approvals feature.
+     * Builds a manual rule for the when property of a Stage. A manual gate waits until someone continues it. Continue it in the console or with a POST to the continue route of the gate. It works on every plan. To require named approvers, use approval(), which needs the Approvals feature.
      * 
      * ## Example Usage
      * 
@@ -292,7 +244,7 @@ public final class DeliveryFunctions {
         return manualPlain(ManualPlainArgs.Empty, InvokeOptions.Empty);
     }
     /**
-     * Builds a manual rule for a Stage&#39;s when. A manual gate waits until someone continues it, from the console or with a POST to the continue route of the gate. It works on every plan. Use approval() when you need named approvers and the Approvals feature.
+     * Builds a manual rule for the when property of a Stage. A manual gate waits until someone continues it. Continue it in the console or with a POST to the continue route of the gate. It works on every plan. To require named approvers, use approval(), which needs the Approvals feature.
      * 
      * ## Example Usage
      * 
@@ -301,7 +253,7 @@ public final class DeliveryFunctions {
         return manual(args, InvokeOptions.Empty);
     }
     /**
-     * Builds a manual rule for a Stage&#39;s when. A manual gate waits until someone continues it, from the console or with a POST to the continue route of the gate. It works on every plan. Use approval() when you need named approvers and the Approvals feature.
+     * Builds a manual rule for the when property of a Stage. A manual gate waits until someone continues it. Continue it in the console or with a POST to the continue route of the gate. It works on every plan. To require named approvers, use approval(), which needs the Approvals feature.
      * 
      * ## Example Usage
      * 
@@ -310,7 +262,7 @@ public final class DeliveryFunctions {
         return manualPlain(args, InvokeOptions.Empty);
     }
     /**
-     * Builds a manual rule for a Stage&#39;s when. A manual gate waits until someone continues it, from the console or with a POST to the continue route of the gate. It works on every plan. Use approval() when you need named approvers and the Approvals feature.
+     * Builds a manual rule for the when property of a Stage. A manual gate waits until someone continues it. Continue it in the console or with a POST to the continue route of the gate. It works on every plan. To require named approvers, use approval(), which needs the Approvals feature.
      * 
      * ## Example Usage
      * 
@@ -319,7 +271,7 @@ public final class DeliveryFunctions {
         return Deployment.getInstance().invoke("delivery:index:manual", TypeShape.of(ManualResult.class), args, Utilities.withVersion(options));
     }
     /**
-     * Builds a manual rule for a Stage&#39;s when. A manual gate waits until someone continues it, from the console or with a POST to the continue route of the gate. It works on every plan. Use approval() when you need named approvers and the Approvals feature.
+     * Builds a manual rule for the when property of a Stage. A manual gate waits until someone continues it. Continue it in the console or with a POST to the continue route of the gate. It works on every plan. To require named approvers, use approval(), which needs the Approvals feature.
      * 
      * ## Example Usage
      * 
@@ -328,7 +280,7 @@ public final class DeliveryFunctions {
         return Deployment.getInstance().invoke("delivery:index:manual", TypeShape.of(ManualResult.class), args, Utilities.withVersion(options));
     }
     /**
-     * Builds a manual rule for a Stage&#39;s when. A manual gate waits until someone continues it, from the console or with a POST to the continue route of the gate. It works on every plan. Use approval() when you need named approvers and the Approvals feature.
+     * Builds a manual rule for the when property of a Stage. A manual gate waits until someone continues it. Continue it in the console or with a POST to the continue route of the gate. It works on every plan. To require named approvers, use approval(), which needs the Approvals feature.
      * 
      * ## Example Usage
      * 

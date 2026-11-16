@@ -17,14 +17,14 @@ public final class ApprovalPlainArgs extends com.pulumi.resources.InvokeArgs {
     public static final ApprovalPlainArgs Empty = new ApprovalPlainArgs();
 
     /**
-     * Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
+     * Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
      * 
      */
     @Import(name="approvers")
     private @Nullable List<String> approvers;
 
     /**
-     * @return Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
+     * @return Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
      * 
      */
     public Optional<List<String>> approvers() {
@@ -32,14 +32,14 @@ public final class ApprovalPlainArgs extends com.pulumi.resources.InvokeArgs {
     }
 
     /**
-     * Number of approvals required. Omitted or zero means one.
+     * Number of approvals required. If you omit it or set it to zero, one approval is required.
      * 
      */
     @Import(name="count")
     private @Nullable Integer count;
 
     /**
-     * @return Number of approvals required. Omitted or zero means one.
+     * @return Number of approvals required. If you omit it or set it to zero, one approval is required.
      * 
      */
     public Optional<Integer> count() {
@@ -88,7 +88,7 @@ public final class ApprovalPlainArgs extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param approvers Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
+         * @param approvers Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
          * 
          * @return builder
          * 
@@ -99,7 +99,7 @@ public final class ApprovalPlainArgs extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param approvers Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
+         * @param approvers Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
          * 
          * @return builder
          * 
@@ -109,7 +109,7 @@ public final class ApprovalPlainArgs extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param count Number of approvals required. Omitted or zero means one.
+         * @param count Number of approvals required. If you omit it or set it to zero, one approval is required.
          * 
          * @return builder
          * 

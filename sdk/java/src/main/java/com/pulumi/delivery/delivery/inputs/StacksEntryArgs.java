@@ -10,10 +10,12 @@ import com.pulumi.delivery.delivery.BitbucketSource;
 import com.pulumi.delivery.delivery.GitHubSource;
 import com.pulumi.delivery.delivery.GitLabSource;
 import com.pulumi.delivery.delivery.WorkflowsRuntime;
+import com.pulumi.delivery.delivery.inputs.ImageArgs;
 import com.pulumi.exceptions.MissingRequiredPropertyException;
 import java.lang.Integer;
 import java.lang.Object;
 import java.lang.String;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -29,14 +31,14 @@ public final class StacksEntryArgs extends com.pulumi.resources.ResourceArgs {
     public static final StacksEntryArgs Empty = new StacksEntryArgs();
 
     /**
-     * Config values that Delivery sets on the target stack before the update. Values are plain strings, and Delivery rejects secret values. Keep secrets in the config file of the target stack or in an ESC environment.
+     * Config values that Delivery sets on the target stack before the update. Values are plain strings. Delivery rejects secret values. Keep secrets in the config file of the target stack or in an ESC environment.
      * 
      */
     @Import(name="config")
     private @Nullable Output<Map<String,String>> config;
 
     /**
-     * @return Config values that Delivery sets on the target stack before the update. Values are plain strings, and Delivery rejects secret values. Keep secrets in the config file of the target stack or in an ESC environment.
+     * @return Config values that Delivery sets on the target stack before the update. Values are plain strings. Delivery rejects secret values. Keep secrets in the config file of the target stack or in an ESC environment.
      * 
      */
     public Optional<Output<Map<String,String>>> config() {
@@ -59,14 +61,14 @@ public final class StacksEntryArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * Environment variables for the update, for example cloud credentials. A secret value stays secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
+     * Environment variables for the update, for example cloud credentials. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
      * 
      */
     @Import(name="environment")
     private @Nullable Output<Map<String,String>> environment;
 
     /**
-     * @return Environment variables for the update, for example cloud credentials. A secret value stays secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
+     * @return Environment variables for the update, for example cloud credentials. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
      * 
      */
     public Optional<Output<Map<String,String>>> environment() {
@@ -74,14 +76,44 @@ public final class StacksEntryArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * Pool that runs the update. The preview runs on the hosted pool only, so omit it.
+     * Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs bash, curl, gzip and the Pulumi CLI on PATH.
+     * 
+     */
+    @Import(name="image")
+    private @Nullable Output<ImageArgs> image;
+
+    /**
+     * @return Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs bash, curl, gzip and the Pulumi CLI on PATH.
+     * 
+     */
+    public Optional<Output<ImageArgs>> image() {
+        return Optional.ofNullable(this.image);
+    }
+
+    /**
+     * Bash commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
+     * 
+     */
+    @Import(name="preRunCommands")
+    private @Nullable Output<List<String>> preRunCommands;
+
+    /**
+     * @return Bash commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
+     * 
+     */
+    public Optional<Output<List<String>>> preRunCommands() {
+        return Optional.ofNullable(this.preRunCommands);
+    }
+
+    /**
+     * Pool that runs the update. In the private preview, all work runs on the hosted pool, so omit it.
      * 
      */
     @Import(name="runtime")
     private @Nullable Output<WorkflowsRuntime> runtime;
 
     /**
-     * @return Pool that runs the update. The preview runs on the hosted pool only, so omit it.
+     * @return Pool that runs the update. In the private preview, all work runs on the hosted pool, so omit it.
      * 
      */
     public Optional<Output<WorkflowsRuntime>> runtime() {
@@ -104,14 +136,14 @@ public final class StacksEntryArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * Target stack as organization/project/stack. It must exist before the first run, in the organization of the pipeline.
+     * Target stack as project/stack. It must exist before the first run, in the organization of the pipeline.
      * 
      */
     @Import(name="stack", required=true)
     private Output<String> stack;
 
     /**
-     * @return Target stack as organization/project/stack. It must exist before the first run, in the organization of the pipeline.
+     * @return Target stack as project/stack. It must exist before the first run, in the organization of the pipeline.
      * 
      */
     public Output<String> stack() {
@@ -139,6 +171,8 @@ public final class StacksEntryArgs extends com.pulumi.resources.ResourceArgs {
         this.config = $.config;
         this.directory = $.directory;
         this.environment = $.environment;
+        this.image = $.image;
+        this.preRunCommands = $.preRunCommands;
         this.runtime = $.runtime;
         this.source = $.source;
         this.stack = $.stack;
@@ -164,7 +198,7 @@ public final class StacksEntryArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param config Config values that Delivery sets on the target stack before the update. Values are plain strings, and Delivery rejects secret values. Keep secrets in the config file of the target stack or in an ESC environment.
+         * @param config Config values that Delivery sets on the target stack before the update. Values are plain strings. Delivery rejects secret values. Keep secrets in the config file of the target stack or in an ESC environment.
          * 
          * @return builder
          * 
@@ -175,7 +209,7 @@ public final class StacksEntryArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param config Config values that Delivery sets on the target stack before the update. Values are plain strings, and Delivery rejects secret values. Keep secrets in the config file of the target stack or in an ESC environment.
+         * @param config Config values that Delivery sets on the target stack before the update. Values are plain strings. Delivery rejects secret values. Keep secrets in the config file of the target stack or in an ESC environment.
          * 
          * @return builder
          * 
@@ -206,7 +240,7 @@ public final class StacksEntryArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param environment Environment variables for the update, for example cloud credentials. A secret value stays secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
+         * @param environment Environment variables for the update, for example cloud credentials. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
          * 
          * @return builder
          * 
@@ -217,7 +251,7 @@ public final class StacksEntryArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param environment Environment variables for the update, for example cloud credentials. A secret value stays secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
+         * @param environment Environment variables for the update, for example cloud credentials. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
          * 
          * @return builder
          * 
@@ -227,7 +261,59 @@ public final class StacksEntryArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param runtime Pool that runs the update. The preview runs on the hosted pool only, so omit it.
+         * @param image Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs bash, curl, gzip and the Pulumi CLI on PATH.
+         * 
+         * @return builder
+         * 
+         */
+        public Builder image(@Nullable Output<ImageArgs> image) {
+            $.image = image;
+            return this;
+        }
+
+        /**
+         * @param image Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs bash, curl, gzip and the Pulumi CLI on PATH.
+         * 
+         * @return builder
+         * 
+         */
+        public Builder image(ImageArgs image) {
+            return image(Output.of(image));
+        }
+
+        /**
+         * @param preRunCommands Bash commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
+         * 
+         * @return builder
+         * 
+         */
+        public Builder preRunCommands(@Nullable Output<List<String>> preRunCommands) {
+            $.preRunCommands = preRunCommands;
+            return this;
+        }
+
+        /**
+         * @param preRunCommands Bash commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
+         * 
+         * @return builder
+         * 
+         */
+        public Builder preRunCommands(List<String> preRunCommands) {
+            return preRunCommands(Output.of(preRunCommands));
+        }
+
+        /**
+         * @param preRunCommands Bash commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
+         * 
+         * @return builder
+         * 
+         */
+        public Builder preRunCommands(String... preRunCommands) {
+            return preRunCommands(List.of(preRunCommands));
+        }
+
+        /**
+         * @param runtime Pool that runs the update. In the private preview, all work runs on the hosted pool, so omit it.
          * 
          * @return builder
          * 
@@ -238,7 +324,7 @@ public final class StacksEntryArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param runtime Pool that runs the update. The preview runs on the hosted pool only, so omit it.
+         * @param runtime Pool that runs the update. In the private preview, all work runs on the hosted pool, so omit it.
          * 
          * @return builder
          * 
@@ -269,7 +355,7 @@ public final class StacksEntryArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param stack Target stack as organization/project/stack. It must exist before the first run, in the organization of the pipeline.
+         * @param stack Target stack as project/stack. It must exist before the first run, in the organization of the pipeline.
          * 
          * @return builder
          * 
@@ -280,7 +366,7 @@ public final class StacksEntryArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param stack Target stack as organization/project/stack. It must exist before the first run, in the organization of the pipeline.
+         * @param stack Target stack as project/stack. It must exist before the first run, in the organization of the pipeline.
          * 
          * @return builder
          * 

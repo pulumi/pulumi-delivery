@@ -31,14 +31,14 @@ public final class ManualArgs extends com.pulumi.resources.InvokeArgs {
     }
 
     /**
-     * Rule name. Omit it to let Delivery use the kind, manual. Names are unique within a gate.
+     * Rule name. If you omit it, Delivery uses manual. Names must be unique within a gate.
      * 
      */
     @Import(name="name")
     private @Nullable Output<String> name;
 
     /**
-     * @return Rule name. Omit it to let Delivery use the kind, manual. Names are unique within a gate.
+     * @return Rule name. If you omit it, Delivery uses manual. Names must be unique within a gate.
      * 
      */
     public Optional<Output<String>> name() {
@@ -92,7 +92,7 @@ public final class ManualArgs extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param name Rule name. Omit it to let Delivery use the kind, manual. Names are unique within a gate.
+         * @param name Rule name. If you omit it, Delivery uses manual. Names must be unique within a gate.
          * 
          * @return builder
          * 
@@ -103,7 +103,7 @@ public final class ManualArgs extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param name Rule name. Omit it to let Delivery use the kind, manual. Names are unique within a gate.
+         * @param name Rule name. If you omit it, Delivery uses manual. Names must be unique within a gate.
          * 
          * @return builder
          * 

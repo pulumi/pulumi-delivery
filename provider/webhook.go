@@ -113,8 +113,10 @@ type webhookSourceResource struct {
 }
 
 // buildWebhookSource registers a WebhookSource. The wrapper sets the outputs.
-func buildWebhookSource(ctx *pulumi.Context, name string, opts pulumi.ResourceOption) (*comProvider.ConstructResult, error) {
-	return register(ctx, typeWebhookSource, name, &WebhookSource{}, opts, pulumi.Map{})
+func buildWebhookSource(ctx *pulumi.Context, name string, inputs comProvider.ConstructInputs,
+	opts pulumi.ResourceOption,
+) (*comProvider.ConstructResult, error) {
+	return register(ctx, typeWebhookSource, name, inputs, &WebhookSource{}, opts, pulumi.Map{})
 }
 
 // buildLinearIssueSource registers a LinearIssueSource and its WebhookSource child, named like the component. The
@@ -124,12 +126,12 @@ func buildLinearIssueSource(ctx *pulumi.Context, name string, inputs comProvider
 	opts pulumi.ResourceOption,
 ) (*comProvider.ConstructResult, error) {
 	source := &LinearIssueSource{}
-	if err := ctx.RegisterComponentResource(typeLinearIssueSource, name, source, opts); err != nil {
-		return nil, err
-	}
 	// The raw inputs, not a typed copy: the Go SDK cannot copy an unknown list into a typed input in a preview.
 	inputMap, err := inputs.Map()
 	if err != nil {
+		return nil, err
+	}
+	if err := ctx.RegisterComponentResourceV2(typeLinearIssueSource, name, inputMap, source, opts); err != nil {
 		return nil, err
 	}
 	ignoreBots := pulumi.Input(pulumi.Bool(true))

@@ -13,7 +13,7 @@ namespace Pulumi.Delivery.Delivery
     public static class Http
     {
         /// <summary>
-        /// Builds an http rule for a Stage's when.
+        /// Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true. Delivery does not support this rule in the private preview. Registration rejects a stage that uses it.
         /// 
         /// ## Example Usage
         /// 
@@ -31,7 +31,7 @@ namespace Pulumi.Delivery.Delivery
             => global::Pulumi.Deployment.Instance.InvokeAsync<HttpResult>("delivery:index:http", args ?? new HttpArgs(), options.WithDefaults());
 
         /// <summary>
-        /// Builds an http rule for a Stage's when.
+        /// Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true. Delivery does not support this rule in the private preview. Registration rejects a stage that uses it.
         /// 
         /// ## Example Usage
         /// 
@@ -49,7 +49,7 @@ namespace Pulumi.Delivery.Delivery
             => global::Pulumi.Deployment.Instance.Invoke<HttpResult>("delivery:index:http", args ?? new HttpInvokeArgs(), options.WithDefaults());
 
         /// <summary>
-        /// Builds an http rule for a Stage's when.
+        /// Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true. Delivery does not support this rule in the private preview. Registration rejects a stage that uses it.
         /// 
         /// ## Example Usage
         /// 
@@ -71,7 +71,7 @@ namespace Pulumi.Delivery.Delivery
     public sealed class HttpArgs : global::Pulumi.InvokeArgs
     {
         /// <summary>
-        /// HTTP request body. Pulumi secret values remain secret.
+        /// HTTP request body. Secret values stay secret.
         /// </summary>
         [Input("body")]
         public string? Body { get; set; }
@@ -80,7 +80,7 @@ namespace Pulumi.Delivery.Delivery
         private Dictionary<string, string>? _headers;
 
         /// <summary>
-        /// HTTP request headers. Pulumi secret values remain secret.
+        /// HTTP request headers. Secret values stay secret.
         /// </summary>
         public Dictionary<string, string> Headers
         {
@@ -89,13 +89,13 @@ namespace Pulumi.Delivery.Delivery
         }
 
         /// <summary>
-        /// Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule.
+        /// Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
         /// </summary>
         [Input("headersEnvironment")]
         public string? HeadersEnvironment { get; set; }
 
         /// <summary>
-        /// HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
+        /// Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
         /// </summary>
         [Input("interval")]
         public string? Interval { get; set; }
@@ -113,13 +113,13 @@ namespace Pulumi.Delivery.Delivery
         public string? Name { get; set; }
 
         /// <summary>
-        /// JMESPath expression that the service evaluates over the status, headers and body of the HTTP response. The rule passes when it is true. Required.
+        /// JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required.
         /// </summary>
         [Input("successExpression", required: true)]
         public string SuccessExpression { get; set; } = null!;
 
         /// <summary>
-        /// HTTP request timeout as a Go duration, such as 10s. Must be a positive whole number of seconds, at most 20 seconds.
+        /// Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
         /// </summary>
         [Input("timeout")]
         public string? Timeout { get; set; }
@@ -139,7 +139,7 @@ namespace Pulumi.Delivery.Delivery
     public sealed class HttpInvokeArgs : global::Pulumi.InvokeArgs
     {
         /// <summary>
-        /// HTTP request body. Pulumi secret values remain secret.
+        /// HTTP request body. Secret values stay secret.
         /// </summary>
         [Input("body")]
         public Input<string>? Body { get; set; }
@@ -148,7 +148,7 @@ namespace Pulumi.Delivery.Delivery
         private InputMap<string>? _headers;
 
         /// <summary>
-        /// HTTP request headers. Pulumi secret values remain secret.
+        /// HTTP request headers. Secret values stay secret.
         /// </summary>
         public InputMap<string> Headers
         {
@@ -157,13 +157,13 @@ namespace Pulumi.Delivery.Delivery
         }
 
         /// <summary>
-        /// Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule.
+        /// Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
         /// </summary>
         [Input("headersEnvironment")]
         public Input<string>? HeadersEnvironment { get; set; }
 
         /// <summary>
-        /// HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
+        /// Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
         /// </summary>
         [Input("interval")]
         public Input<string>? Interval { get; set; }
@@ -181,13 +181,13 @@ namespace Pulumi.Delivery.Delivery
         public Input<string>? Name { get; set; }
 
         /// <summary>
-        /// JMESPath expression that the service evaluates over the status, headers and body of the HTTP response. The rule passes when it is true. Required.
+        /// JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required.
         /// </summary>
         [Input("successExpression", required: true)]
         public Input<string> SuccessExpression { get; set; } = null!;
 
         /// <summary>
-        /// HTTP request timeout as a Go duration, such as 10s. Must be a positive whole number of seconds, at most 20 seconds.
+        /// Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
         /// </summary>
         [Input("timeout")]
         public Input<string>? Timeout { get; set; }
@@ -209,19 +209,15 @@ namespace Pulumi.Delivery.Delivery
     public sealed class HttpResult
     {
         /// <summary>
-        /// Name of the Decision Agent definition that a decision rule asks. Required for that kind.
-        /// </summary>
-        public readonly string? Agent;
-        /// <summary>
-        /// Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
+        /// Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
         /// </summary>
         public readonly ImmutableArray<string> Approvers;
         /// <summary>
-        /// HTTP request body. Pulumi secret values remain secret.
+        /// HTTP request body. Secret values stay secret.
         /// </summary>
         public readonly string? Body;
         /// <summary>
-        /// Number of approvals required. For approval rules, omitted or zero means one.
+        /// Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
         /// </summary>
         public readonly int? Count;
         /// <summary>
@@ -229,23 +225,19 @@ namespace Pulumi.Delivery.Delivery
         /// </summary>
         public readonly string? Description;
         /// <summary>
-        /// HTTP request headers. Pulumi secret values remain secret.
+        /// HTTP request headers. Secret values stay secret.
         /// </summary>
         public readonly ImmutableDictionary<string, string>? Headers;
         /// <summary>
-        /// Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule.
+        /// Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
         /// </summary>
         public readonly string? HeadersEnvironment;
         /// <summary>
-        /// Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.
-        /// </summary>
-        public readonly ImmutableDictionary<string, object>? Inputs;
-        /// <summary>
-        /// HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
+        /// Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
         /// </summary>
         public readonly string? Interval;
         /// <summary>
-        /// Rule kind: approval, http, manual, decision, all, or any.
+        /// Kind of the rule. Valid values are approval, http, manual, all, and any.
         /// </summary>
         public readonly string Kind;
         /// <summary>
@@ -257,26 +249,24 @@ namespace Pulumi.Delivery.Delivery
         /// </summary>
         public readonly string? Name;
         /// <summary>
-        /// Child rules for all or any. At least one child is required.
+        /// Child rules for all and any rules. At least one is required.
         /// </summary>
         public readonly ImmutableArray<Outputs.Rule> Rules;
         /// <summary>
-        /// JMESPath expression that the service evaluates over the status, headers and body of the HTTP response. The rule passes when it is true. Required for http rules.
+        /// JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
         /// </summary>
         public readonly string? SuccessExpression;
         /// <summary>
-        /// HTTP request timeout as a Go duration, such as 10s. Must be a positive whole number of seconds, at most 20 seconds.
+        /// Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
         /// </summary>
         public readonly string? Timeout;
         /// <summary>
-        /// URL to call for an http rule. Required for that kind.
+        /// URL to call. Required for http rules.
         /// </summary>
         public readonly string? Url;
 
         [OutputConstructor]
         private HttpResult(
-            string? agent,
-
             ImmutableArray<string> approvers,
 
             string? body,
@@ -288,8 +278,6 @@ namespace Pulumi.Delivery.Delivery
             ImmutableDictionary<string, string>? headers,
 
             string? headersEnvironment,
-
-            ImmutableDictionary<string, object>? inputs,
 
             string? interval,
 
@@ -307,14 +295,12 @@ namespace Pulumi.Delivery.Delivery
 
             string? url)
         {
-            Agent = agent;
             Approvers = approvers;
             Body = body;
             Count = count;
             Description = description;
             Headers = headers;
             HeadersEnvironment = headersEnvironment;
-            Inputs = inputs;
             Interval = interval;
             Kind = kind;
             Method = method;

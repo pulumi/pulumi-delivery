@@ -3,6 +3,7 @@
 package main
 
 import (
+	"fmt"
 	"sync"
 	"testing"
 
@@ -12,7 +13,9 @@ import (
 
 	p "github.com/pulumi/pulumi-go-provider"
 	"github.com/pulumi/pulumi-go-provider/integration"
+	"github.com/pulumi/pulumi/pkg/v3/resource/stack"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/resource"
+	"github.com/pulumi/pulumi/sdk/v3/go/common/resource/config"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/resource/urn"
 	"github.com/pulumi/pulumi/sdk/v3/go/property"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
@@ -267,7 +270,13 @@ func TestStacksValidation(t *testing.T) {
 	require.NoError(t, construct(twoEntries()))
 	require.ErrorContains(t, construct(map[string]property.Value{}), "at least one entry")
 	require.ErrorContains(t, construct(map[string]property.Value{"a#b": stacksEntry("org/p/s", nil)}), "entry name")
-	require.ErrorContains(t, construct(map[string]property.Value{"a": stacksEntry("p/s", nil)}), "org/project/stack")
+	for _, bad := range []string{"s", "a/b/c/d", "/s", "p/", "org//s"} {
+		require.ErrorContains(t, construct(map[string]property.Value{"a": stacksEntry(bad, nil)}), fmt.Sprintf("stack must be project/stack, not %q", bad), bad)
+	}
+	require.NoError(t, construct(map[string]property.Value{"a": stacksEntry("p/s", nil)}))
+	require.ErrorContains(t, construct(map[string]property.Value{
+		"a": stacksEntry("p/s", nil), "b": stacksEntry("org/p/s", nil),
+	}), `entries "a" and "b" both update stack org/p/s`)
 	require.ErrorContains(t, construct(map[string]property.Value{
 		"a": stacksEntry("org/p/s", nil), "b": stacksEntry("org/p/s", nil),
 	}), `entries "a" and "b" both update stack org/p/s`)
@@ -439,4 +448,275 @@ func TestFinishStateKeepsJobOutputsUnknown(t *testing.T) {
 	assert.Equal(t, []resource.URN{resource.URN(child)}, outputs.Dependencies())
 	_, hasChildURN := finished.GetOk("childUrn")
 	assert.False(t, hasChildURN)
+}
+
+func TestTwoPartStackIsQualifiedWithTheOrganization(t *testing.T) {
+	service := newFakeService(t)
+	var children []property.Map
+	_, err := newServerCapturing(t, &children).Construct(stacksRequest("app", false, map[string]property.Value{"a": stacksEntry("p/s", nil)}))
+	require.NoError(t, err)
+	declarations := service.declared()
+	require.Len(t, declarations, 1)
+	stacks := declarations[0]["inputs"].(map[string]any)["stacks"].(map[string]any)
+	assert.Equal(t, "org/p/s", stacks["a"].(map[string]any)["stack"])
+	// The MemberRun child carries the qualified name too, so switching forms leaves it unchanged.
+	require.Len(t, children, 1)
+	child := children[0].Get("declaration").AsMap().Get("inputs").AsMap().Get("stacks").AsMap().Get("a").AsMap()
+	assert.Equal(t, "org/p/s", child.Get("stack").AsString())
+}
+
+func TestQualifyStackNamesKeepsSecretsAndDependencies(t *testing.T) {
+	dep := urn.URN("urn:pulumi:s::p::t::n")
+	marked := func(s string) property.Value {
+		return property.New(s).WithSecret(true).WithDependencies([]urn.URN{dep})
+	}
+	stacks := property.NewMap(map[string]property.Value{
+		"a": property.New(property.NewMap(map[string]property.Value{"stack": marked("p/s")})).WithSecret(true).WithDependencies([]urn.URN{dep}),
+		"b": property.New(property.Computed),
+		"c": property.New(property.NewMap(map[string]property.Value{"stack": property.New(property.Computed)})),
+	})
+	inputs := qualifyStackNames(typeStacks, property.NewMap(map[string]property.Value{
+		"stacks": property.New(stacks).WithSecret(true).WithDependencies([]urn.URN{dep}),
+	}), "org")
+	assert.True(t, inputs.Get("stacks").Secret())
+	assert.Equal(t, []urn.URN{dep}, inputs.Get("stacks").Dependencies())
+	entries := inputs.Get("stacks").AsMap()
+	a := entries.Get("a")
+	assert.True(t, a.Secret())
+	assert.Equal(t, []urn.URN{dep}, a.Dependencies())
+	assert.Equal(t, marked("org/p/s"), a.AsMap().Get("stack"))
+	assert.True(t, entries.Get("b").IsComputed())
+	assert.True(t, entries.Get("c").AsMap().Get("stack").IsComputed())
+
+	source := qualifyStackNames(typePipelineSource, property.NewMap(map[string]property.Value{"pipeline": marked("platform/main")}), "org")
+	assert.Equal(t, marked("org/platform/main"), source.Get("pipeline"))
+}
+
+func TestQualifyStackNamesLeavesOtherValuesUnchanged(t *testing.T) {
+	for _, name := range []string{"s", "a/b/c", "a/b/c/d", "/s", "p/", ""} {
+		inputs := property.NewMap(map[string]property.Value{"pipeline": property.New(name)})
+		assert.Equal(t, name, qualifyStackNames(typePipelineSource, inputs, "org").Get("pipeline").AsString(), name)
+	}
+	inputs := property.NewMap(map[string]property.Value{"pipeline": property.New("p/s")})
+	assert.Equal(t, "p/s", qualifyStackNames(typePipelineSource, inputs, "").Get("pipeline").AsString())
+}
+
+func runnerSettings() map[string]property.Value {
+	return map[string]property.Value{
+		"image": property.New(property.NewMap(map[string]property.Value{
+			"reference": property.New("pulumi/pulumi-nodejs:3.272.0"),
+			"credentials": property.New(property.NewMap(map[string]property.Value{
+				"username": property.New("robot"),
+				"password": property.New("hunter2").WithSecret(true),
+			})),
+		})),
+		"preRunCommands": property.New(property.NewArray([]property.Value{property.New("npm ci"), property.New("make gen")})),
+	}
+}
+
+func checkRunnerSettings(t *testing.T, d map[string]any, inputsOf func(resource.PropertyMap) resource.PropertyMap) {
+	decoded, err := stack.DeserializeProperties(d["inputs"].(map[string]any), config.NewErrorCrypter("no ciphertext"))
+	require.NoError(t, err)
+	in := inputsOf(decoded)
+	image := in["image"].ObjectValue()
+	assert.Equal(t, "pulumi/pulumi-nodejs:3.272.0", image["reference"].StringValue())
+	credentials := image["credentials"].ObjectValue()
+	assert.Equal(t, "robot", credentials["username"].StringValue())
+	assert.True(t, credentials["password"].IsSecret())
+	assert.Equal(t, "hunter2", credentials["password"].SecretValue().Element.StringValue())
+	assert.Equal(t, []resource.PropertyValue{resource.NewProperty("npm ci"), resource.NewProperty("make gen")}, in["preRunCommands"].ArrayValue())
+}
+
+func TestJobRunnerSettingsAreDeclared(t *testing.T) {
+	service := newFakeService(t)
+	request := jobRequest(false)
+	for k, v := range runnerSettings() {
+		request.Inputs = request.Inputs.Set(k, v)
+	}
+	request.Inputs = request.Inputs.Set("runtime", reference("delivery:index:WorkflowsRuntime", "pool"))
+	_, err := newServer(t).Construct(request)
+	require.NoError(t, err)
+
+	d := service.declared()[0]
+	checkRunnerSettings(t, d, func(m resource.PropertyMap) resource.PropertyMap { return m })
+	decoded, err := stack.DeserializeProperties(d["inputs"].(map[string]any), config.NewErrorCrypter("no ciphertext"))
+	require.NoError(t, err)
+	assert.True(t, decoded["runtime"].IsResourceReference())
+}
+
+func TestStacksEntryRunnerSettingsAreDeclared(t *testing.T) {
+	service := newFakeService(t)
+	entries := twoEntries()
+	entries["api"] = stacksEntry("org/shop/api", runnerSettings())
+	_, err := newServer(t).Construct(stacksRequest("app", false, entries))
+	require.NoError(t, err)
+
+	checkRunnerSettings(t, service.declared()[0], func(m resource.PropertyMap) resource.PropertyMap {
+		return m["stacks"].ObjectValue()["api"].ObjectValue()
+	})
+}
+
+func TestImageNeedsAReference(t *testing.T) {
+	newFakeService(t)
+	server := newServer(t)
+	empty := map[string]property.Value{"image": property.New(property.NewMap(map[string]property.Value{"reference": property.New("")}))}
+
+	request := jobRequest(true)
+	request.Inputs = request.Inputs.Set("image", empty["image"])
+	_, err := server.Construct(request)
+	require.ErrorContains(t, err, "image.reference")
+
+	_, err = server.Construct(stacksRequest("app", true, map[string]property.Value{"a": stacksEntry("org/p/s", empty)}))
+	require.ErrorContains(t, err, "image.reference")
+}
+
+func plainPassword() map[string]property.Value {
+	settings := runnerSettings()
+	credentials := property.New(property.NewMap(map[string]property.Value{
+		"username": property.New("robot"),
+		"password": property.New("hunter2"),
+	}))
+	settings["image"] = property.New(property.NewMap(map[string]property.Value{
+		"reference":   property.New("pulumi/pulumi-nodejs:3.272.0"),
+		"credentials": credentials,
+	}))
+	return settings
+}
+
+func TestJobPlainRegistryPasswordIsDeclaredSecret(t *testing.T) {
+	service := newFakeService(t)
+	request := jobRequest(false)
+	for k, v := range plainPassword() {
+		request.Inputs = request.Inputs.Set(k, v)
+	}
+	_, err := newServer(t).Construct(request)
+	require.NoError(t, err)
+
+	checkRunnerSettings(t, service.declared()[0], func(m resource.PropertyMap) resource.PropertyMap { return m })
+}
+
+func TestStacksEntryPlainRegistryPasswordIsDeclaredSecret(t *testing.T) {
+	service := newFakeService(t)
+	entries := twoEntries()
+	entries["api"] = stacksEntry("org/shop/api", plainPassword())
+	_, err := newServer(t).Construct(stacksRequest("app", false, entries))
+	require.NoError(t, err)
+
+	checkRunnerSettings(t, service.declared()[0], func(m resource.PropertyMap) resource.PropertyMap {
+		return m["stacks"].ObjectValue()["api"].ObjectValue()
+	})
+}
+
+func TestJobRuntimeMustBeAWorkflowsRuntimeReference(t *testing.T) {
+	newFakeService(t)
+	server := newServer(t)
+	for name, runtime := range map[string]property.Value{
+		"plain string": property.New("pool"),
+		"wrong type":   reference("delivery:index:GitHubSource", "code"),
+	} {
+		t.Run(name, func(t *testing.T) {
+			request := jobRequest(true)
+			request.Inputs = request.Inputs.Set("runtime", runtime)
+			_, err := server.Construct(request)
+			require.ErrorContains(t, err, "runtime")
+		})
+	}
+}
+
+func TestUnknownImageAndReferencePassInPreview(t *testing.T) {
+	newFakeService(t)
+	server := newServer(t)
+	for name, image := range map[string]property.Value{
+		"image":     property.New(property.Computed),
+		"reference": property.New(property.NewMap(map[string]property.Value{"reference": property.New(property.Computed)})),
+	} {
+		t.Run(name, func(t *testing.T) {
+			request := jobRequest(true)
+			request.Inputs = request.Inputs.Set("image", image)
+			_, err := server.Construct(request)
+			require.NoError(t, err)
+		})
+	}
+}
+
+// secretAt reports whether the value at path is a secret, or sits inside one.
+func secretAt(v property.Value, path ...string) bool {
+	for _, key := range path {
+		if v.Secret() {
+			return true
+		}
+		v = v.AsMap().Get(key)
+	}
+	return v.Secret()
+}
+
+func TestStacksEntrySecretsStaySecretInTheChild(t *testing.T) {
+	newFakeService(t)
+	other := urnOf("delivery:index:Job", "other")
+	for name, wrap := range map[string]func(property.Value) property.Value{
+		"known":        func(v property.Value) property.Value { return v },
+		"dependencies": func(v property.Value) property.Value { return v.WithDependencies([]resource.URN{other}) },
+		"secret":       func(v property.Value) property.Value { return v.WithSecret(true) },
+	} {
+		t.Run(name, func(t *testing.T) {
+			environment := property.NewMap(map[string]property.Value{"TOKEN": property.New("s3cret").WithSecret(true)})
+			request := stacksRequest("app", false, map[string]property.Value{
+				"api": stacksEntry("org/shop/api", map[string]property.Value{"environment": property.New(environment)}),
+			})
+			request.Inputs = request.Inputs.Set("stacks", wrap(request.Inputs.Get("stacks")))
+			var children []property.Map
+			_, err := newServerCapturing(t, &children).Construct(request)
+			require.NoError(t, err)
+			require.Len(t, children, 1)
+			declaration := children[0].Get("declaration")
+			assert.True(t, secretAt(declaration, "inputs", "stacks", "api", "environment", "TOKEN"), "%v", declaration)
+		})
+	}
+}
+
+// Pulumi HCL sends every unset field of an object as null.
+func TestNullOptionalInputsAreOmitted(t *testing.T) {
+	newFakeService(t)
+	server := newServer(t)
+	null := property.New(property.Null)
+	for _, field := range []string{"runtime", "image", "environment", "timeout", "preRunCommands", "config"} {
+		t.Run(field, func(t *testing.T) {
+			entries := map[string]property.Value{"a": stacksEntry("org/p/s", map[string]property.Value{field: null})}
+			_, err := server.Construct(stacksRequest("app", true, entries))
+			require.NoError(t, err)
+			job := jobRequest(true)
+			job.Inputs = job.Inputs.Set(field, null)
+			_, err = server.Construct(job)
+			require.NoError(t, err)
+		})
+	}
+}
+
+func TestDropNulls(t *testing.T) {
+	null := property.New(property.Null)
+	dep := urnOf(typeStage, "dev")
+	obj := func(fields map[string]property.Value) property.Value { return property.New(property.NewMap(fields)) }
+
+	got := dropNulls(property.NewMap(map[string]property.Value{
+		"plain":    null,
+		"secret":   null.WithSecret(true),
+		"depends":  null.WithDependencies([]urn.URN{dep}),
+		"image":    obj(map[string]property.Value{"reference": property.New("r"), "credentials": null}),
+		"flagged":  obj(map[string]property.Value{"a": null}).WithSecret(true).WithDependencies([]urn.URN{dep}),
+		"list":     property.New(property.NewArray([]property.Value{obj(map[string]property.Value{"a": null})})),
+		"secrets":  property.New(property.NewArray([]property.Value{obj(map[string]property.Value{"a": null})})).WithSecret(true).WithDependencies([]urn.URN{dep}),
+		"stacks":   obj(map[string]property.Value{"gone": null}),
+		"computed": property.New(property.Computed),
+	}))
+
+	assert.Equal(t, property.NewMap(map[string]property.Value{
+		"secret":   null.WithSecret(true),
+		"depends":  null.WithDependencies([]urn.URN{dep}),
+		"image":    obj(map[string]property.Value{"reference": property.New("r")}),
+		"flagged":  obj(map[string]property.Value{}).WithSecret(true).WithDependencies([]urn.URN{dep}),
+		"list":     property.New(property.NewArray([]property.Value{obj(map[string]property.Value{})})),
+		"secrets":  property.New(property.NewArray([]property.Value{obj(map[string]property.Value{})})).WithSecret(true).WithDependencies([]urn.URN{dep}),
+		"stacks":   obj(map[string]property.Value{}),
+		"computed": property.New(property.Computed),
+	}), got)
 }

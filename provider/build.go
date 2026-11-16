@@ -19,9 +19,9 @@ func buildComponent(ctx *pulumi.Context, typ, name string, inputs comProvider.Co
 ) (*comProvider.ConstructResult, error) {
 	switch typ {
 	case typePipeline:
-		return register(ctx, typ, name, &Pipeline{}, opts, pulumi.Map{})
+		return register(ctx, typ, name, inputs, &Pipeline{}, opts, pulumi.Map{})
 	case typeStage:
-		return register(ctx, typ, name, &Stage{}, opts, pulumi.Map{})
+		return register(ctx, typ, name, inputs, &Stage{}, opts, pulumi.Map{})
 	case typeJob:
 		return buildJob(ctx, name, inputs, opts, d, organization)
 	case typeStacks:
@@ -32,7 +32,7 @@ func buildComponent(ctx *pulumi.Context, typ, name string, inputs comProvider.Co
 		return buildAgent(ctx, name, inputs, opts, d, organization)
 	case typePipelineSource:
 		// The wrapper sets the outputs.
-		return register(ctx, typ, name, &PipelineSource{}, opts, pulumi.Map{})
+		return register(ctx, typ, name, inputs, &PipelineSource{}, opts, pulumi.Map{})
 	case typeWebhookSource:
 		return buildWebhookSource(ctx, name, opts)
 	case typeLinearIssueSource:
@@ -41,13 +41,18 @@ func buildComponent(ctx *pulumi.Context, typ, name string, inputs comProvider.Co
 	// A source. Its commit output is replaced by the wrapper when the commit is unknown.
 	source := &GitHubSource{}
 	source.Commit = pulumi.String(commit).ToStringOutput()
-	return register(ctx, typ, name, source, opts, pulumi.Map{"commit": source.Commit})
+	return register(ctx, typ, name, inputs, source, opts, pulumi.Map{"commit": source.Commit})
 }
 
-func register(ctx *pulumi.Context, typ, name string, component pulumi.ComponentResource,
-	opts pulumi.ResourceOption, outputs pulumi.Map,
+// register records the inputs of the component in the state, so that a change of an input shows in a preview.
+func register(ctx *pulumi.Context, typ, name string, inputs comProvider.ConstructInputs,
+	component pulumi.ComponentResource, opts pulumi.ResourceOption, outputs pulumi.Map,
 ) (*comProvider.ConstructResult, error) {
-	if err := ctx.RegisterComponentResource(typ, name, component, opts); err != nil {
+	inputMap, err := inputs.Map()
+	if err != nil {
+		return nil, err
+	}
+	if err := ctx.RegisterComponentResourceV2(typ, name, inputMap, component, opts); err != nil {
 		return nil, err
 	}
 	if err := ctx.RegisterResourceOutputs(component, outputs); err != nil {
@@ -60,11 +65,11 @@ func buildJob(ctx *pulumi.Context, name string, inputs comProvider.ConstructInpu
 	opts pulumi.ResourceOption, d declaration, organization string,
 ) (*comProvider.ConstructResult, error) {
 	job := &Job{}
-	if err := ctx.RegisterComponentResource(typeJob, name, job, opts); err != nil {
-		return nil, err
-	}
 	inputMap, err := inputs.Map()
 	if err != nil {
+		return nil, err
+	}
+	if err := ctx.RegisterComponentResourceV2(typeJob, name, inputMap, job, opts); err != nil {
 		return nil, err
 	}
 	child := &memberRunResource{}
@@ -139,11 +144,11 @@ func buildArtifact(ctx *pulumi.Context, name string, inputs comProvider.Construc
 	opts pulumi.ResourceOption, d declaration, organization string,
 ) (*comProvider.ConstructResult, error) {
 	artifact := &Artifact{}
-	if err := ctx.RegisterComponentResource(typeArtifact, name, artifact, opts); err != nil {
-		return nil, err
-	}
 	inputMap, err := inputs.Map()
 	if err != nil {
+		return nil, err
+	}
+	if err := ctx.RegisterComponentResourceV2(typeArtifact, name, inputMap, artifact, opts); err != nil {
 		return nil, err
 	}
 	child := &memberRunResource{}
@@ -170,7 +175,11 @@ func buildStacks(ctx *pulumi.Context, name string, inputs comProvider.ConstructI
 	opts pulumi.ResourceOption, d declaration, organization string,
 ) (*comProvider.ConstructResult, error) {
 	stacks := &Stacks{}
-	if err := ctx.RegisterComponentResource(typeStacks, name, stacks, opts); err != nil {
+	inputMap, err := inputs.Map()
+	if err != nil {
+		return nil, err
+	}
+	if err := ctx.RegisterComponentResourceV2(typeStacks, name, inputMap, stacks, opts); err != nil {
 		return nil, err
 	}
 	// The entry names come from the request: the type of the decoded input depends on its dependencies and
@@ -182,10 +191,6 @@ func buildStacks(ctx *pulumi.Context, name string, inputs comProvider.ConstructI
 		Stacks pulumi.MapMapInput `pulumi:"stacks"`
 	}
 	if err := inputs.CopyTo(&args); err != nil {
-		return nil, err
-	}
-	inputMap, err := inputs.Map()
-	if err != nil {
 		return nil, err
 	}
 	all := args.Stacks.ToMapMapOutput()
@@ -202,7 +207,12 @@ func buildStacks(ctx *pulumi.Context, name string, inputs comProvider.ConstructI
 		}
 		ownInputs := pulumi.Map{}
 		maps.Copy(ownInputs, inputMap)
-		ownInputs["stacks"] = pulumi.Map{entry: all.MapIndex(pulumi.String(entry))}
+		// Indexing the map loses the secret marks nested in the entry, so an entry that holds a secret is secret as a whole.
+		var stacksEntry pulumi.Input = all.MapIndex(pulumi.String(entry))
+		if d.secretEntries[entry] {
+			stacksEntry = pulumi.ToSecret(stacksEntry)
+		}
+		ownInputs["stacks"] = pulumi.Map{entry: stacksEntry}
 		child := &memberRunResource{}
 		if err := ctx.RegisterResource(typeMemberRun, name+"#"+entry, pulumi.Map{
 			"organization": pulumi.String(organization),

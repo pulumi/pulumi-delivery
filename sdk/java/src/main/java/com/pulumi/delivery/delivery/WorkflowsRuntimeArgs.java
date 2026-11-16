@@ -15,14 +15,14 @@ public final class WorkflowsRuntimeArgs extends com.pulumi.resources.ResourceArg
     public static final WorkflowsRuntimeArgs Empty = new WorkflowsRuntimeArgs();
 
     /**
-     * Pool identifier. Returned unchanged as the ref of the resource.
+     * Pool identifier. The resource returns it unchanged as ref.
      * 
      */
     @Import(name="agentPool", required=true)
     private Output<String> agentPool;
 
     /**
-     * @return Pool identifier. Returned unchanged as the ref of the resource.
+     * @return Pool identifier. The resource returns it unchanged as ref.
      * 
      */
     public Output<String> agentPool() {
@@ -54,7 +54,7 @@ public final class WorkflowsRuntimeArgs extends com.pulumi.resources.ResourceArg
         }
 
         /**
-         * @param agentPool Pool identifier. Returned unchanged as the ref of the resource.
+         * @param agentPool Pool identifier. The resource returns it unchanged as ref.
          * 
          * @return builder
          * 
@@ -65,7 +65,7 @@ public final class WorkflowsRuntimeArgs extends com.pulumi.resources.ResourceArg
         }
 
         /**
-         * @param agentPool Pool identifier. Returned unchanged as the ref of the resource.
+         * @param agentPool Pool identifier. The resource returns it unchanged as ref.
          * 
          * @return builder
          * 

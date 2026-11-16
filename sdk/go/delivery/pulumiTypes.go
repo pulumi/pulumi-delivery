@@ -13,9 +13,327 @@ import (
 
 var _ = internal.GetEnvOrDefault
 
-// Checkout location of the pipeline program.
+// Container image that a member runs in.
+type Image struct {
+	// Credentials for a private registry.
+	Credentials *ImageCredentials `pulumi:"credentials"`
+	// Image reference, for example pulumi/pulumi-nodejs:3.272.0.
+	Reference string `pulumi:"reference"`
+}
+
+// ImageInput is an input type that accepts ImageArgs and ImageOutput values.
+// You can construct a concrete instance of `ImageInput` via:
+//
+//	ImageArgs{...}
+type ImageInput interface {
+	pulumi.Input
+
+	ToImageOutput() ImageOutput
+	ToImageOutputWithContext(context.Context) ImageOutput
+}
+
+// Container image that a member runs in.
+type ImageArgs struct {
+	// Credentials for a private registry.
+	Credentials ImageCredentialsPtrInput `pulumi:"credentials"`
+	// Image reference, for example pulumi/pulumi-nodejs:3.272.0.
+	Reference pulumi.StringInput `pulumi:"reference"`
+}
+
+func (ImageArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*Image)(nil)).Elem()
+}
+
+func (i ImageArgs) ToImageOutput() ImageOutput {
+	return i.ToImageOutputWithContext(context.Background())
+}
+
+func (i ImageArgs) ToImageOutputWithContext(ctx context.Context) ImageOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(ImageOutput)
+}
+
+func (i ImageArgs) ToImagePtrOutput() ImagePtrOutput {
+	return i.ToImagePtrOutputWithContext(context.Background())
+}
+
+func (i ImageArgs) ToImagePtrOutputWithContext(ctx context.Context) ImagePtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(ImageOutput).ToImagePtrOutputWithContext(ctx)
+}
+
+// ImagePtrInput is an input type that accepts ImageArgs, ImagePtr and ImagePtrOutput values.
+// You can construct a concrete instance of `ImagePtrInput` via:
+//
+//	        ImageArgs{...}
+//
+//	or:
+//
+//	        nil
+type ImagePtrInput interface {
+	pulumi.Input
+
+	ToImagePtrOutput() ImagePtrOutput
+	ToImagePtrOutputWithContext(context.Context) ImagePtrOutput
+}
+
+type imagePtrType ImageArgs
+
+func ImagePtr(v *ImageArgs) ImagePtrInput {
+	return (*imagePtrType)(v)
+}
+
+func (*imagePtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**Image)(nil)).Elem()
+}
+
+func (i *imagePtrType) ToImagePtrOutput() ImagePtrOutput {
+	return i.ToImagePtrOutputWithContext(context.Background())
+}
+
+func (i *imagePtrType) ToImagePtrOutputWithContext(ctx context.Context) ImagePtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(ImagePtrOutput)
+}
+
+// Container image that a member runs in.
+type ImageOutput struct{ *pulumi.OutputState }
+
+func (ImageOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*Image)(nil)).Elem()
+}
+
+func (o ImageOutput) ToImageOutput() ImageOutput {
+	return o
+}
+
+func (o ImageOutput) ToImageOutputWithContext(ctx context.Context) ImageOutput {
+	return o
+}
+
+func (o ImageOutput) ToImagePtrOutput() ImagePtrOutput {
+	return o.ToImagePtrOutputWithContext(context.Background())
+}
+
+func (o ImageOutput) ToImagePtrOutputWithContext(ctx context.Context) ImagePtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v Image) *Image {
+		return &v
+	}).(ImagePtrOutput)
+}
+
+// Credentials for a private registry.
+func (o ImageOutput) Credentials() ImageCredentialsPtrOutput {
+	return o.ApplyT(func(v Image) *ImageCredentials { return v.Credentials }).(ImageCredentialsPtrOutput)
+}
+
+// Image reference, for example pulumi/pulumi-nodejs:3.272.0.
+func (o ImageOutput) Reference() pulumi.StringOutput {
+	return o.ApplyT(func(v Image) string { return v.Reference }).(pulumi.StringOutput)
+}
+
+type ImagePtrOutput struct{ *pulumi.OutputState }
+
+func (ImagePtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**Image)(nil)).Elem()
+}
+
+func (o ImagePtrOutput) ToImagePtrOutput() ImagePtrOutput {
+	return o
+}
+
+func (o ImagePtrOutput) ToImagePtrOutputWithContext(ctx context.Context) ImagePtrOutput {
+	return o
+}
+
+func (o ImagePtrOutput) Elem() ImageOutput {
+	return o.ApplyT(func(v *Image) Image {
+		if v != nil {
+			return *v
+		}
+		var ret Image
+		return ret
+	}).(ImageOutput)
+}
+
+// Credentials for a private registry.
+func (o ImagePtrOutput) Credentials() ImageCredentialsPtrOutput {
+	return o.ApplyT(func(v *Image) *ImageCredentials {
+		if v == nil {
+			return nil
+		}
+		return v.Credentials
+	}).(ImageCredentialsPtrOutput)
+}
+
+// Image reference, for example pulumi/pulumi-nodejs:3.272.0.
+func (o ImagePtrOutput) Reference() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *Image) *string {
+		if v == nil {
+			return nil
+		}
+		return &v.Reference
+	}).(pulumi.StringPtrOutput)
+}
+
+// Credentials for a private registry.
+type ImageCredentials struct {
+	// Registry password or token. It is a secret.
+	Password string `pulumi:"password"`
+	// Registry user name.
+	Username string `pulumi:"username"`
+}
+
+// ImageCredentialsInput is an input type that accepts ImageCredentialsArgs and ImageCredentialsOutput values.
+// You can construct a concrete instance of `ImageCredentialsInput` via:
+//
+//	ImageCredentialsArgs{...}
+type ImageCredentialsInput interface {
+	pulumi.Input
+
+	ToImageCredentialsOutput() ImageCredentialsOutput
+	ToImageCredentialsOutputWithContext(context.Context) ImageCredentialsOutput
+}
+
+// Credentials for a private registry.
+type ImageCredentialsArgs struct {
+	// Registry password or token. It is a secret.
+	Password pulumi.StringInput `pulumi:"password"`
+	// Registry user name.
+	Username pulumi.StringInput `pulumi:"username"`
+}
+
+func (ImageCredentialsArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*ImageCredentials)(nil)).Elem()
+}
+
+func (i ImageCredentialsArgs) ToImageCredentialsOutput() ImageCredentialsOutput {
+	return i.ToImageCredentialsOutputWithContext(context.Background())
+}
+
+func (i ImageCredentialsArgs) ToImageCredentialsOutputWithContext(ctx context.Context) ImageCredentialsOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(ImageCredentialsOutput)
+}
+
+func (i ImageCredentialsArgs) ToImageCredentialsPtrOutput() ImageCredentialsPtrOutput {
+	return i.ToImageCredentialsPtrOutputWithContext(context.Background())
+}
+
+func (i ImageCredentialsArgs) ToImageCredentialsPtrOutputWithContext(ctx context.Context) ImageCredentialsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(ImageCredentialsOutput).ToImageCredentialsPtrOutputWithContext(ctx)
+}
+
+// ImageCredentialsPtrInput is an input type that accepts ImageCredentialsArgs, ImageCredentialsPtr and ImageCredentialsPtrOutput values.
+// You can construct a concrete instance of `ImageCredentialsPtrInput` via:
+//
+//	        ImageCredentialsArgs{...}
+//
+//	or:
+//
+//	        nil
+type ImageCredentialsPtrInput interface {
+	pulumi.Input
+
+	ToImageCredentialsPtrOutput() ImageCredentialsPtrOutput
+	ToImageCredentialsPtrOutputWithContext(context.Context) ImageCredentialsPtrOutput
+}
+
+type imageCredentialsPtrType ImageCredentialsArgs
+
+func ImageCredentialsPtr(v *ImageCredentialsArgs) ImageCredentialsPtrInput {
+	return (*imageCredentialsPtrType)(v)
+}
+
+func (*imageCredentialsPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**ImageCredentials)(nil)).Elem()
+}
+
+func (i *imageCredentialsPtrType) ToImageCredentialsPtrOutput() ImageCredentialsPtrOutput {
+	return i.ToImageCredentialsPtrOutputWithContext(context.Background())
+}
+
+func (i *imageCredentialsPtrType) ToImageCredentialsPtrOutputWithContext(ctx context.Context) ImageCredentialsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(ImageCredentialsPtrOutput)
+}
+
+// Credentials for a private registry.
+type ImageCredentialsOutput struct{ *pulumi.OutputState }
+
+func (ImageCredentialsOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*ImageCredentials)(nil)).Elem()
+}
+
+func (o ImageCredentialsOutput) ToImageCredentialsOutput() ImageCredentialsOutput {
+	return o
+}
+
+func (o ImageCredentialsOutput) ToImageCredentialsOutputWithContext(ctx context.Context) ImageCredentialsOutput {
+	return o
+}
+
+func (o ImageCredentialsOutput) ToImageCredentialsPtrOutput() ImageCredentialsPtrOutput {
+	return o.ToImageCredentialsPtrOutputWithContext(context.Background())
+}
+
+func (o ImageCredentialsOutput) ToImageCredentialsPtrOutputWithContext(ctx context.Context) ImageCredentialsPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v ImageCredentials) *ImageCredentials {
+		return &v
+	}).(ImageCredentialsPtrOutput)
+}
+
+// Registry password or token. It is a secret.
+func (o ImageCredentialsOutput) Password() pulumi.StringOutput {
+	return o.ApplyT(func(v ImageCredentials) string { return v.Password }).(pulumi.StringOutput)
+}
+
+// Registry user name.
+func (o ImageCredentialsOutput) Username() pulumi.StringOutput {
+	return o.ApplyT(func(v ImageCredentials) string { return v.Username }).(pulumi.StringOutput)
+}
+
+type ImageCredentialsPtrOutput struct{ *pulumi.OutputState }
+
+func (ImageCredentialsPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**ImageCredentials)(nil)).Elem()
+}
+
+func (o ImageCredentialsPtrOutput) ToImageCredentialsPtrOutput() ImageCredentialsPtrOutput {
+	return o
+}
+
+func (o ImageCredentialsPtrOutput) ToImageCredentialsPtrOutputWithContext(ctx context.Context) ImageCredentialsPtrOutput {
+	return o
+}
+
+func (o ImageCredentialsPtrOutput) Elem() ImageCredentialsOutput {
+	return o.ApplyT(func(v *ImageCredentials) ImageCredentials {
+		if v != nil {
+			return *v
+		}
+		var ret ImageCredentials
+		return ret
+	}).(ImageCredentialsOutput)
+}
+
+// Registry password or token. It is a secret.
+func (o ImageCredentialsPtrOutput) Password() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *ImageCredentials) *string {
+		if v == nil {
+			return nil
+		}
+		return &v.Password
+	}).(pulumi.StringPtrOutput)
+}
+
+// Registry user name.
+func (o ImageCredentialsPtrOutput) Username() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *ImageCredentials) *string {
+		if v == nil {
+			return nil
+		}
+		return &v.Username
+	}).(pulumi.StringPtrOutput)
+}
+
+// Location of the pipeline program in a repository.
 type ProgramSource struct {
-	// Directory containing the pipeline Pulumi.yaml, relative to the repository root.
+	// Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root.
 	Directory string `pulumi:"directory"`
 	// VCS source of the pipeline program.
 	Source interface{} `pulumi:"source"`
@@ -32,9 +350,9 @@ type ProgramSourceInput interface {
 	ToProgramSourceOutputWithContext(context.Context) ProgramSourceOutput
 }
 
-// Checkout location of the pipeline program.
+// Location of the pipeline program in a repository.
 type ProgramSourceArgs struct {
-	// Directory containing the pipeline Pulumi.yaml, relative to the repository root.
+	// Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root.
 	Directory pulumi.StringInput `pulumi:"directory"`
 	// VCS source of the pipeline program.
 	Source pulumi.Input `pulumi:"source"`
@@ -52,7 +370,7 @@ func (i ProgramSourceArgs) ToProgramSourceOutputWithContext(ctx context.Context)
 	return pulumi.ToOutputWithContext(ctx, i).(ProgramSourceOutput)
 }
 
-// Checkout location of the pipeline program.
+// Location of the pipeline program in a repository.
 type ProgramSourceOutput struct{ *pulumi.OutputState }
 
 func (ProgramSourceOutput) ElementType() reflect.Type {
@@ -67,7 +385,7 @@ func (o ProgramSourceOutput) ToProgramSourceOutputWithContext(ctx context.Contex
 	return o
 }
 
-// Directory containing the pipeline Pulumi.yaml, relative to the repository root.
+// Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root.
 func (o ProgramSourceOutput) Directory() pulumi.StringOutput {
 	return o.ApplyT(func(v ProgramSource) string { return v.Directory }).(pulumi.StringOutput)
 }
@@ -77,39 +395,35 @@ func (o ProgramSourceOutput) Source() pulumi.AnyOutput {
 	return o.ApplyT(func(v ProgramSource) interface{} { return v.Source }).(pulumi.AnyOutput)
 }
 
-// Stage entry rule. Rules may nest at most three levels.
+// Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.
 type Rule struct {
-	// Name of the Decision Agent definition that a decision rule asks. Required for that kind.
-	Agent *string `pulumi:"agent"`
-	// Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
+	// Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
 	Approvers []string `pulumi:"approvers"`
-	// HTTP request body. Pulumi secret values remain secret.
+	// HTTP request body. Secret values stay secret.
 	Body *string `pulumi:"body"`
-	// Number of approvals required. For approval rules, omitted or zero means one.
+	// Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
 	Count *int `pulumi:"count"`
 	// Text for the person who continues a manual gate, for example what to check first.
 	Description *string `pulumi:"description"`
-	// HTTP request headers. Pulumi secret values remain secret.
+	// HTTP request headers. Secret values stay secret.
 	Headers map[string]string `pulumi:"headers"`
-	// Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule.
+	// Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
 	HeadersEnvironment *string `pulumi:"headersEnvironment"`
-	// Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.
-	Inputs map[string]interface{} `pulumi:"inputs"`
-	// HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
+	// Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
 	Interval *string `pulumi:"interval"`
-	// Rule kind: approval, http, manual, decision, all, or any.
+	// Kind of the rule. Valid values are approval, http, manual, all, and any.
 	Kind string `pulumi:"kind"`
 	// HTTP request method. The default is GET.
 	Method *string `pulumi:"method"`
 	// Rule name. Omit it to let Delivery assign one.
 	Name *string `pulumi:"name"`
-	// Child rules for all or any. At least one child is required.
+	// Child rules for all and any rules. At least one is required.
 	Rules []Rule `pulumi:"rules"`
-	// JMESPath expression that the service evaluates over the status, headers and body of the HTTP response. The rule passes when it is true. Required for http rules.
+	// JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
 	SuccessExpression *string `pulumi:"successExpression"`
-	// HTTP request timeout as a Go duration, such as 10s. Must be a positive whole number of seconds, at most 20 seconds.
+	// Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
 	Timeout *string `pulumi:"timeout"`
-	// URL to call for an http rule. Required for that kind.
+	// URL to call. Required for http rules.
 	Url *string `pulumi:"url"`
 }
 
@@ -124,39 +438,35 @@ type RuleInput interface {
 	ToRuleOutputWithContext(context.Context) RuleOutput
 }
 
-// Stage entry rule. Rules may nest at most three levels.
+// Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.
 type RuleArgs struct {
-	// Name of the Decision Agent definition that a decision rule asks. Required for that kind.
-	Agent pulumi.StringPtrInput `pulumi:"agent"`
-	// Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
+	// Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
 	Approvers pulumi.StringArrayInput `pulumi:"approvers"`
-	// HTTP request body. Pulumi secret values remain secret.
+	// HTTP request body. Secret values stay secret.
 	Body pulumi.StringPtrInput `pulumi:"body"`
-	// Number of approvals required. For approval rules, omitted or zero means one.
+	// Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
 	Count pulumi.IntPtrInput `pulumi:"count"`
 	// Text for the person who continues a manual gate, for example what to check first.
 	Description pulumi.StringPtrInput `pulumi:"description"`
-	// HTTP request headers. Pulumi secret values remain secret.
+	// HTTP request headers. Secret values stay secret.
 	Headers pulumi.StringMapInput `pulumi:"headers"`
-	// Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule.
+	// Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
 	HeadersEnvironment pulumi.StringPtrInput `pulumi:"headersEnvironment"`
-	// Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.
-	Inputs pulumi.MapInput `pulumi:"inputs"`
-	// HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
+	// Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
 	Interval pulumi.StringPtrInput `pulumi:"interval"`
-	// Rule kind: approval, http, manual, decision, all, or any.
+	// Kind of the rule. Valid values are approval, http, manual, all, and any.
 	Kind pulumi.StringInput `pulumi:"kind"`
 	// HTTP request method. The default is GET.
 	Method pulumi.StringPtrInput `pulumi:"method"`
 	// Rule name. Omit it to let Delivery assign one.
 	Name pulumi.StringPtrInput `pulumi:"name"`
-	// Child rules for all or any. At least one child is required.
+	// Child rules for all and any rules. At least one is required.
 	Rules RuleArrayInput `pulumi:"rules"`
-	// JMESPath expression that the service evaluates over the status, headers and body of the HTTP response. The rule passes when it is true. Required for http rules.
+	// JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
 	SuccessExpression pulumi.StringPtrInput `pulumi:"successExpression"`
-	// HTTP request timeout as a Go duration, such as 10s. Must be a positive whole number of seconds, at most 20 seconds.
+	// Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
 	Timeout pulumi.StringPtrInput `pulumi:"timeout"`
-	// URL to call for an http rule. Required for that kind.
+	// URL to call. Required for http rules.
 	Url pulumi.StringPtrInput `pulumi:"url"`
 }
 
@@ -238,7 +548,7 @@ func (i RuleArray) ToRuleArrayOutputWithContext(ctx context.Context) RuleArrayOu
 	return pulumi.ToOutputWithContext(ctx, i).(RuleArrayOutput)
 }
 
-// Stage entry rule. Rules may nest at most three levels.
+// Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.
 type RuleOutput struct{ *pulumi.OutputState }
 
 func (RuleOutput) ElementType() reflect.Type {
@@ -263,22 +573,17 @@ func (o RuleOutput) ToRulePtrOutputWithContext(ctx context.Context) RulePtrOutpu
 	}).(RulePtrOutput)
 }
 
-// Name of the Decision Agent definition that a decision rule asks. Required for that kind.
-func (o RuleOutput) Agent() pulumi.StringPtrOutput {
-	return o.ApplyT(func(v Rule) *string { return v.Agent }).(pulumi.StringPtrOutput)
-}
-
-// Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
+// Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
 func (o RuleOutput) Approvers() pulumi.StringArrayOutput {
 	return o.ApplyT(func(v Rule) []string { return v.Approvers }).(pulumi.StringArrayOutput)
 }
 
-// HTTP request body. Pulumi secret values remain secret.
+// HTTP request body. Secret values stay secret.
 func (o RuleOutput) Body() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v Rule) *string { return v.Body }).(pulumi.StringPtrOutput)
 }
 
-// Number of approvals required. For approval rules, omitted or zero means one.
+// Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
 func (o RuleOutput) Count() pulumi.IntPtrOutput {
 	return o.ApplyT(func(v Rule) *int { return v.Count }).(pulumi.IntPtrOutput)
 }
@@ -288,27 +593,22 @@ func (o RuleOutput) Description() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v Rule) *string { return v.Description }).(pulumi.StringPtrOutput)
 }
 
-// HTTP request headers. Pulumi secret values remain secret.
+// HTTP request headers. Secret values stay secret.
 func (o RuleOutput) Headers() pulumi.StringMapOutput {
 	return o.ApplyT(func(v Rule) map[string]string { return v.Headers }).(pulumi.StringMapOutput)
 }
 
-// Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule.
+// Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
 func (o RuleOutput) HeadersEnvironment() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v Rule) *string { return v.HeadersEnvironment }).(pulumi.StringPtrOutput)
 }
 
-// Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.
-func (o RuleOutput) Inputs() pulumi.MapOutput {
-	return o.ApplyT(func(v Rule) map[string]interface{} { return v.Inputs }).(pulumi.MapOutput)
-}
-
-// HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
+// Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
 func (o RuleOutput) Interval() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v Rule) *string { return v.Interval }).(pulumi.StringPtrOutput)
 }
 
-// Rule kind: approval, http, manual, decision, all, or any.
+// Kind of the rule. Valid values are approval, http, manual, all, and any.
 func (o RuleOutput) Kind() pulumi.StringOutput {
 	return o.ApplyT(func(v Rule) string { return v.Kind }).(pulumi.StringOutput)
 }
@@ -323,22 +623,22 @@ func (o RuleOutput) Name() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v Rule) *string { return v.Name }).(pulumi.StringPtrOutput)
 }
 
-// Child rules for all or any. At least one child is required.
+// Child rules for all and any rules. At least one is required.
 func (o RuleOutput) Rules() RuleArrayOutput {
 	return o.ApplyT(func(v Rule) []Rule { return v.Rules }).(RuleArrayOutput)
 }
 
-// JMESPath expression that the service evaluates over the status, headers and body of the HTTP response. The rule passes when it is true. Required for http rules.
+// JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
 func (o RuleOutput) SuccessExpression() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v Rule) *string { return v.SuccessExpression }).(pulumi.StringPtrOutput)
 }
 
-// HTTP request timeout as a Go duration, such as 10s. Must be a positive whole number of seconds, at most 20 seconds.
+// Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
 func (o RuleOutput) Timeout() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v Rule) *string { return v.Timeout }).(pulumi.StringPtrOutput)
 }
 
-// URL to call for an http rule. Required for that kind.
+// URL to call. Required for http rules.
 func (o RuleOutput) Url() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v Rule) *string { return v.Url }).(pulumi.StringPtrOutput)
 }
@@ -367,17 +667,7 @@ func (o RulePtrOutput) Elem() RuleOutput {
 	}).(RuleOutput)
 }
 
-// Name of the Decision Agent definition that a decision rule asks. Required for that kind.
-func (o RulePtrOutput) Agent() pulumi.StringPtrOutput {
-	return o.ApplyT(func(v *Rule) *string {
-		if v == nil {
-			return nil
-		}
-		return v.Agent
-	}).(pulumi.StringPtrOutput)
-}
-
-// Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
+// Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
 func (o RulePtrOutput) Approvers() pulumi.StringArrayOutput {
 	return o.ApplyT(func(v *Rule) []string {
 		if v == nil {
@@ -387,7 +677,7 @@ func (o RulePtrOutput) Approvers() pulumi.StringArrayOutput {
 	}).(pulumi.StringArrayOutput)
 }
 
-// HTTP request body. Pulumi secret values remain secret.
+// HTTP request body. Secret values stay secret.
 func (o RulePtrOutput) Body() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Rule) *string {
 		if v == nil {
@@ -397,7 +687,7 @@ func (o RulePtrOutput) Body() pulumi.StringPtrOutput {
 	}).(pulumi.StringPtrOutput)
 }
 
-// Number of approvals required. For approval rules, omitted or zero means one.
+// Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
 func (o RulePtrOutput) Count() pulumi.IntPtrOutput {
 	return o.ApplyT(func(v *Rule) *int {
 		if v == nil {
@@ -417,7 +707,7 @@ func (o RulePtrOutput) Description() pulumi.StringPtrOutput {
 	}).(pulumi.StringPtrOutput)
 }
 
-// HTTP request headers. Pulumi secret values remain secret.
+// HTTP request headers. Secret values stay secret.
 func (o RulePtrOutput) Headers() pulumi.StringMapOutput {
 	return o.ApplyT(func(v *Rule) map[string]string {
 		if v == nil {
@@ -427,7 +717,7 @@ func (o RulePtrOutput) Headers() pulumi.StringMapOutput {
 	}).(pulumi.StringMapOutput)
 }
 
-// Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule.
+// Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
 func (o RulePtrOutput) HeadersEnvironment() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Rule) *string {
 		if v == nil {
@@ -437,17 +727,7 @@ func (o RulePtrOutput) HeadersEnvironment() pulumi.StringPtrOutput {
 	}).(pulumi.StringPtrOutput)
 }
 
-// Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.
-func (o RulePtrOutput) Inputs() pulumi.MapOutput {
-	return o.ApplyT(func(v *Rule) map[string]interface{} {
-		if v == nil {
-			return nil
-		}
-		return v.Inputs
-	}).(pulumi.MapOutput)
-}
-
-// HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
+// Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
 func (o RulePtrOutput) Interval() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Rule) *string {
 		if v == nil {
@@ -457,7 +737,7 @@ func (o RulePtrOutput) Interval() pulumi.StringPtrOutput {
 	}).(pulumi.StringPtrOutput)
 }
 
-// Rule kind: approval, http, manual, decision, all, or any.
+// Kind of the rule. Valid values are approval, http, manual, all, and any.
 func (o RulePtrOutput) Kind() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Rule) *string {
 		if v == nil {
@@ -487,7 +767,7 @@ func (o RulePtrOutput) Name() pulumi.StringPtrOutput {
 	}).(pulumi.StringPtrOutput)
 }
 
-// Child rules for all or any. At least one child is required.
+// Child rules for all and any rules. At least one is required.
 func (o RulePtrOutput) Rules() RuleArrayOutput {
 	return o.ApplyT(func(v *Rule) []Rule {
 		if v == nil {
@@ -497,7 +777,7 @@ func (o RulePtrOutput) Rules() RuleArrayOutput {
 	}).(RuleArrayOutput)
 }
 
-// JMESPath expression that the service evaluates over the status, headers and body of the HTTP response. The rule passes when it is true. Required for http rules.
+// JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
 func (o RulePtrOutput) SuccessExpression() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Rule) *string {
 		if v == nil {
@@ -507,7 +787,7 @@ func (o RulePtrOutput) SuccessExpression() pulumi.StringPtrOutput {
 	}).(pulumi.StringPtrOutput)
 }
 
-// HTTP request timeout as a Go duration, such as 10s. Must be a positive whole number of seconds, at most 20 seconds.
+// Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
 func (o RulePtrOutput) Timeout() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Rule) *string {
 		if v == nil {
@@ -517,7 +797,7 @@ func (o RulePtrOutput) Timeout() pulumi.StringPtrOutput {
 	}).(pulumi.StringPtrOutput)
 }
 
-// URL to call for an http rule. Required for that kind.
+// URL to call. Required for http rules.
 func (o RulePtrOutput) Url() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Rule) *string {
 		if v == nil {
@@ -549,7 +829,7 @@ func (o RuleArrayOutput) Index(i pulumi.IntInput) RuleOutput {
 
 // Limits the pushes that start a run.
 type SourceTrigger struct {
-	// Glob patterns of changed files. A push starts a run only when it changes a file that matches.
+	// Glob patterns of changed files. A push starts a run only when it changes a file that matches one of them.
 	Paths []string `pulumi:"paths"`
 }
 
@@ -566,7 +846,7 @@ type SourceTriggerInput interface {
 
 // Limits the pushes that start a run.
 type SourceTriggerArgs struct {
-	// Glob patterns of changed files. A push starts a run only when it changes a file that matches.
+	// Glob patterns of changed files. A push starts a run only when it changes a file that matches one of them.
 	Paths pulumi.StringArrayInput `pulumi:"paths"`
 }
 
@@ -648,7 +928,7 @@ func (o SourceTriggerOutput) ToSourceTriggerPtrOutputWithContext(ctx context.Con
 	}).(SourceTriggerPtrOutput)
 }
 
-// Glob patterns of changed files. A push starts a run only when it changes a file that matches.
+// Glob patterns of changed files. A push starts a run only when it changes a file that matches one of them.
 func (o SourceTriggerOutput) Paths() pulumi.StringArrayOutput {
 	return o.ApplyT(func(v SourceTrigger) []string { return v.Paths }).(pulumi.StringArrayOutput)
 }
@@ -677,7 +957,7 @@ func (o SourceTriggerPtrOutput) Elem() SourceTriggerOutput {
 	}).(SourceTriggerOutput)
 }
 
-// Glob patterns of changed files. A push starts a run only when it changes a file that matches.
+// Glob patterns of changed files. A push starts a run only when it changes a file that matches one of them.
 func (o SourceTriggerPtrOutput) Paths() pulumi.StringArrayOutput {
 	return o.ApplyT(func(v *SourceTrigger) []string {
 		if v == nil {
@@ -689,17 +969,21 @@ func (o SourceTriggerPtrOutput) Paths() pulumi.StringArrayOutput {
 
 // One target stack that a Stacks resource updates.
 type StacksEntry struct {
-	// Config values that Delivery sets on the target stack before the update. Values are plain strings, and Delivery rejects secret values. Keep secrets in the config file of the target stack or in an ESC environment.
+	// Config values that Delivery sets on the target stack before the update. Values are plain strings. Delivery rejects secret values. Keep secrets in the config file of the target stack or in an ESC environment.
 	Config map[string]string `pulumi:"config"`
 	// Directory of the stack project, relative to the repository root.
 	Directory string `pulumi:"directory"`
-	// Environment variables for the update, for example cloud credentials. A secret value stays secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
+	// Environment variables for the update, for example cloud credentials. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
 	Environment map[string]string `pulumi:"environment"`
-	// Pool that runs the update. The preview runs on the hosted pool only, so omit it.
+	// Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs bash, curl, gzip and the Pulumi CLI on PATH.
+	Image *Image `pulumi:"image"`
+	// Bash commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
+	PreRunCommands []string `pulumi:"preRunCommands"`
+	// Pool that runs the update. In the private preview, all work runs on the hosted pool, so omit it.
 	Runtime *WorkflowsRuntime `pulumi:"runtime"`
 	// VCS source to check out. The update uses the commit of the run for this source.
 	Source interface{} `pulumi:"source"`
-	// Target stack as organization/project/stack. It must exist before the first run, in the organization of the pipeline.
+	// Target stack as project/stack. It must exist before the first run, in the organization of the pipeline.
 	Stack string `pulumi:"stack"`
 	// Maximum run time of the update in seconds. The default is 7200 (2 hours).
 	Timeout *int `pulumi:"timeout"`
@@ -718,17 +1002,21 @@ type StacksEntryInput interface {
 
 // One target stack that a Stacks resource updates.
 type StacksEntryArgs struct {
-	// Config values that Delivery sets on the target stack before the update. Values are plain strings, and Delivery rejects secret values. Keep secrets in the config file of the target stack or in an ESC environment.
+	// Config values that Delivery sets on the target stack before the update. Values are plain strings. Delivery rejects secret values. Keep secrets in the config file of the target stack or in an ESC environment.
 	Config pulumi.StringMapInput `pulumi:"config"`
 	// Directory of the stack project, relative to the repository root.
 	Directory pulumi.StringInput `pulumi:"directory"`
-	// Environment variables for the update, for example cloud credentials. A secret value stays secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
+	// Environment variables for the update, for example cloud credentials. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
 	Environment pulumi.StringMapInput `pulumi:"environment"`
-	// Pool that runs the update. The preview runs on the hosted pool only, so omit it.
+	// Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs bash, curl, gzip and the Pulumi CLI on PATH.
+	Image ImagePtrInput `pulumi:"image"`
+	// Bash commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
+	PreRunCommands pulumi.StringArrayInput `pulumi:"preRunCommands"`
+	// Pool that runs the update. In the private preview, all work runs on the hosted pool, so omit it.
 	Runtime WorkflowsRuntimeInput `pulumi:"runtime"`
 	// VCS source to check out. The update uses the commit of the run for this source.
 	Source pulumi.Input `pulumi:"source"`
-	// Target stack as organization/project/stack. It must exist before the first run, in the organization of the pipeline.
+	// Target stack as project/stack. It must exist before the first run, in the organization of the pipeline.
 	Stack pulumi.StringInput `pulumi:"stack"`
 	// Maximum run time of the update in seconds. The default is 7200 (2 hours).
 	Timeout pulumi.IntPtrInput `pulumi:"timeout"`
@@ -786,7 +1074,7 @@ func (o StacksEntryOutput) ToStacksEntryOutputWithContext(ctx context.Context) S
 	return o
 }
 
-// Config values that Delivery sets on the target stack before the update. Values are plain strings, and Delivery rejects secret values. Keep secrets in the config file of the target stack or in an ESC environment.
+// Config values that Delivery sets on the target stack before the update. Values are plain strings. Delivery rejects secret values. Keep secrets in the config file of the target stack or in an ESC environment.
 func (o StacksEntryOutput) Config() pulumi.StringMapOutput {
 	return o.ApplyT(func(v StacksEntry) map[string]string { return v.Config }).(pulumi.StringMapOutput)
 }
@@ -796,12 +1084,22 @@ func (o StacksEntryOutput) Directory() pulumi.StringOutput {
 	return o.ApplyT(func(v StacksEntry) string { return v.Directory }).(pulumi.StringOutput)
 }
 
-// Environment variables for the update, for example cloud credentials. A secret value stays secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
+// Environment variables for the update, for example cloud credentials. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
 func (o StacksEntryOutput) Environment() pulumi.StringMapOutput {
 	return o.ApplyT(func(v StacksEntry) map[string]string { return v.Environment }).(pulumi.StringMapOutput)
 }
 
-// Pool that runs the update. The preview runs on the hosted pool only, so omit it.
+// Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs bash, curl, gzip and the Pulumi CLI on PATH.
+func (o StacksEntryOutput) Image() ImagePtrOutput {
+	return o.ApplyT(func(v StacksEntry) *Image { return v.Image }).(ImagePtrOutput)
+}
+
+// Bash commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
+func (o StacksEntryOutput) PreRunCommands() pulumi.StringArrayOutput {
+	return o.ApplyT(func(v StacksEntry) []string { return v.PreRunCommands }).(pulumi.StringArrayOutput)
+}
+
+// Pool that runs the update. In the private preview, all work runs on the hosted pool, so omit it.
 func (o StacksEntryOutput) Runtime() WorkflowsRuntimeOutput {
 	return o.ApplyT(func(v StacksEntry) *WorkflowsRuntime { return v.Runtime }).(WorkflowsRuntimeOutput)
 }
@@ -811,7 +1109,7 @@ func (o StacksEntryOutput) Source() pulumi.AnyOutput {
 	return o.ApplyT(func(v StacksEntry) interface{} { return v.Source }).(pulumi.AnyOutput)
 }
 
-// Target stack as organization/project/stack. It must exist before the first run, in the organization of the pipeline.
+// Target stack as project/stack. It must exist before the first run, in the organization of the pipeline.
 func (o StacksEntryOutput) Stack() pulumi.StringOutput {
 	return o.ApplyT(func(v StacksEntry) string { return v.Stack }).(pulumi.StringOutput)
 }
@@ -841,172 +1139,13 @@ func (o StacksEntryMapOutput) MapIndex(k pulumi.StringInput) StacksEntryOutput {
 	}).(StacksEntryOutput)
 }
 
-// How the service verifies a post to a webhook source.
-type WebhookSigning struct {
-	// Kind of signature: hmac-sha256 (an HMAC over the raw body) or token (a shared secret).
-	Kind string `pulumi:"kind"`
-	// Secret that the external system signs with. It stays secret.
-	Secret string `pulumi:"secret"`
-}
-
-// WebhookSigningInput is an input type that accepts WebhookSigningArgs and WebhookSigningOutput values.
-// You can construct a concrete instance of `WebhookSigningInput` via:
-//
-//	WebhookSigningArgs{...}
-type WebhookSigningInput interface {
-	pulumi.Input
-
-	ToWebhookSigningOutput() WebhookSigningOutput
-	ToWebhookSigningOutputWithContext(context.Context) WebhookSigningOutput
-}
-
-// How the service verifies a post to a webhook source.
-type WebhookSigningArgs struct {
-	// Kind of signature: hmac-sha256 (an HMAC over the raw body) or token (a shared secret).
-	Kind pulumi.StringInput `pulumi:"kind"`
-	// Secret that the external system signs with. It stays secret.
-	Secret pulumi.StringInput `pulumi:"secret"`
-}
-
-func (WebhookSigningArgs) ElementType() reflect.Type {
-	return reflect.TypeOf((*WebhookSigning)(nil)).Elem()
-}
-
-func (i WebhookSigningArgs) ToWebhookSigningOutput() WebhookSigningOutput {
-	return i.ToWebhookSigningOutputWithContext(context.Background())
-}
-
-func (i WebhookSigningArgs) ToWebhookSigningOutputWithContext(ctx context.Context) WebhookSigningOutput {
-	return pulumi.ToOutputWithContext(ctx, i).(WebhookSigningOutput)
-}
-
-func (i WebhookSigningArgs) ToWebhookSigningPtrOutput() WebhookSigningPtrOutput {
-	return i.ToWebhookSigningPtrOutputWithContext(context.Background())
-}
-
-func (i WebhookSigningArgs) ToWebhookSigningPtrOutputWithContext(ctx context.Context) WebhookSigningPtrOutput {
-	return pulumi.ToOutputWithContext(ctx, i).(WebhookSigningOutput).ToWebhookSigningPtrOutputWithContext(ctx)
-}
-
-// WebhookSigningPtrInput is an input type that accepts WebhookSigningArgs, WebhookSigningPtr and WebhookSigningPtrOutput values.
-// You can construct a concrete instance of `WebhookSigningPtrInput` via:
-//
-//	        WebhookSigningArgs{...}
-//
-//	or:
-//
-//	        nil
-type WebhookSigningPtrInput interface {
-	pulumi.Input
-
-	ToWebhookSigningPtrOutput() WebhookSigningPtrOutput
-	ToWebhookSigningPtrOutputWithContext(context.Context) WebhookSigningPtrOutput
-}
-
-type webhookSigningPtrType WebhookSigningArgs
-
-func WebhookSigningPtr(v *WebhookSigningArgs) WebhookSigningPtrInput {
-	return (*webhookSigningPtrType)(v)
-}
-
-func (*webhookSigningPtrType) ElementType() reflect.Type {
-	return reflect.TypeOf((**WebhookSigning)(nil)).Elem()
-}
-
-func (i *webhookSigningPtrType) ToWebhookSigningPtrOutput() WebhookSigningPtrOutput {
-	return i.ToWebhookSigningPtrOutputWithContext(context.Background())
-}
-
-func (i *webhookSigningPtrType) ToWebhookSigningPtrOutputWithContext(ctx context.Context) WebhookSigningPtrOutput {
-	return pulumi.ToOutputWithContext(ctx, i).(WebhookSigningPtrOutput)
-}
-
-// How the service verifies a post to a webhook source.
-type WebhookSigningOutput struct{ *pulumi.OutputState }
-
-func (WebhookSigningOutput) ElementType() reflect.Type {
-	return reflect.TypeOf((*WebhookSigning)(nil)).Elem()
-}
-
-func (o WebhookSigningOutput) ToWebhookSigningOutput() WebhookSigningOutput {
-	return o
-}
-
-func (o WebhookSigningOutput) ToWebhookSigningOutputWithContext(ctx context.Context) WebhookSigningOutput {
-	return o
-}
-
-func (o WebhookSigningOutput) ToWebhookSigningPtrOutput() WebhookSigningPtrOutput {
-	return o.ToWebhookSigningPtrOutputWithContext(context.Background())
-}
-
-func (o WebhookSigningOutput) ToWebhookSigningPtrOutputWithContext(ctx context.Context) WebhookSigningPtrOutput {
-	return o.ApplyTWithContext(ctx, func(_ context.Context, v WebhookSigning) *WebhookSigning {
-		return &v
-	}).(WebhookSigningPtrOutput)
-}
-
-// Kind of signature: hmac-sha256 (an HMAC over the raw body) or token (a shared secret).
-func (o WebhookSigningOutput) Kind() pulumi.StringOutput {
-	return o.ApplyT(func(v WebhookSigning) string { return v.Kind }).(pulumi.StringOutput)
-}
-
-// Secret that the external system signs with. It stays secret.
-func (o WebhookSigningOutput) Secret() pulumi.StringOutput {
-	return o.ApplyT(func(v WebhookSigning) string { return v.Secret }).(pulumi.StringOutput)
-}
-
-type WebhookSigningPtrOutput struct{ *pulumi.OutputState }
-
-func (WebhookSigningPtrOutput) ElementType() reflect.Type {
-	return reflect.TypeOf((**WebhookSigning)(nil)).Elem()
-}
-
-func (o WebhookSigningPtrOutput) ToWebhookSigningPtrOutput() WebhookSigningPtrOutput {
-	return o
-}
-
-func (o WebhookSigningPtrOutput) ToWebhookSigningPtrOutputWithContext(ctx context.Context) WebhookSigningPtrOutput {
-	return o
-}
-
-func (o WebhookSigningPtrOutput) Elem() WebhookSigningOutput {
-	return o.ApplyT(func(v *WebhookSigning) WebhookSigning {
-		if v != nil {
-			return *v
-		}
-		var ret WebhookSigning
-		return ret
-	}).(WebhookSigningOutput)
-}
-
-// Kind of signature: hmac-sha256 (an HMAC over the raw body) or token (a shared secret).
-func (o WebhookSigningPtrOutput) Kind() pulumi.StringPtrOutput {
-	return o.ApplyT(func(v *WebhookSigning) *string {
-		if v == nil {
-			return nil
-		}
-		return &v.Kind
-	}).(pulumi.StringPtrOutput)
-}
-
-// Secret that the external system signs with. It stays secret.
-func (o WebhookSigningPtrOutput) Secret() pulumi.StringPtrOutput {
-	return o.ApplyT(func(v *WebhookSigning) *string {
-		if v == nil {
-			return nil
-		}
-		return &v.Secret
-	}).(pulumi.StringPtrOutput)
-}
-
-// Pool selection. The preview runs on the hosted pool only.
+// Pool selection. In the private preview, all work runs on the hosted pool.
 type WorkflowsRuntimeArgsType struct {
-	// Pool identifier. Returned unchanged as the ref of the resource.
+	// Pool identifier. The resource returns it unchanged as ref.
 	AgentPool string `pulumi:"agentPool"`
 }
 
-// Pool selection. The preview runs on the hosted pool only.
+// Pool selection. In the private preview, all work runs on the hosted pool.
 type WorkflowsRuntimeArgsTypeOutput struct{ *pulumi.OutputState }
 
 func (WorkflowsRuntimeArgsTypeOutput) ElementType() reflect.Type {
@@ -1021,12 +1160,16 @@ func (o WorkflowsRuntimeArgsTypeOutput) ToWorkflowsRuntimeArgsTypeOutputWithCont
 	return o
 }
 
-// Pool identifier. Returned unchanged as the ref of the resource.
+// Pool identifier. The resource returns it unchanged as ref.
 func (o WorkflowsRuntimeArgsTypeOutput) AgentPool() pulumi.StringOutput {
 	return o.ApplyT(func(v WorkflowsRuntimeArgsType) string { return v.AgentPool }).(pulumi.StringOutput)
 }
 
 func init() {
+	pulumi.RegisterInputType(reflect.TypeOf((*ImageInput)(nil)).Elem(), ImageArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*ImagePtrInput)(nil)).Elem(), ImageArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*ImageCredentialsInput)(nil)).Elem(), ImageCredentialsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*ImageCredentialsPtrInput)(nil)).Elem(), ImageCredentialsArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*ProgramSourceInput)(nil)).Elem(), ProgramSourceArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*RuleInput)(nil)).Elem(), RuleArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*RulePtrInput)(nil)).Elem(), RuleArgs{})
@@ -1035,8 +1178,10 @@ func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*SourceTriggerPtrInput)(nil)).Elem(), SourceTriggerArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*StacksEntryInput)(nil)).Elem(), StacksEntryArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*StacksEntryMapInput)(nil)).Elem(), StacksEntryMap{})
-	pulumi.RegisterInputType(reflect.TypeOf((*WebhookSigningInput)(nil)).Elem(), WebhookSigningArgs{})
-	pulumi.RegisterInputType(reflect.TypeOf((*WebhookSigningPtrInput)(nil)).Elem(), WebhookSigningArgs{})
+	pulumi.RegisterOutputType(ImageOutput{})
+	pulumi.RegisterOutputType(ImagePtrOutput{})
+	pulumi.RegisterOutputType(ImageCredentialsOutput{})
+	pulumi.RegisterOutputType(ImageCredentialsPtrOutput{})
 	pulumi.RegisterOutputType(ProgramSourceOutput{})
 	pulumi.RegisterOutputType(RuleOutput{})
 	pulumi.RegisterOutputType(RulePtrOutput{})
@@ -1045,7 +1190,5 @@ func init() {
 	pulumi.RegisterOutputType(SourceTriggerPtrOutput{})
 	pulumi.RegisterOutputType(StacksEntryOutput{})
 	pulumi.RegisterOutputType(StacksEntryMapOutput{})
-	pulumi.RegisterOutputType(WebhookSigningOutput{})
-	pulumi.RegisterOutputType(WebhookSigningPtrOutput{})
 	pulumi.RegisterOutputType(WorkflowsRuntimeArgsTypeOutput{})
 }

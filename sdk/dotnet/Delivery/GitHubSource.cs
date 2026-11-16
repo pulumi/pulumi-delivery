@@ -11,9 +11,9 @@ using Pulumi;
 namespace Pulumi.Delivery.Delivery
 {
     /// <summary>
-    /// Declares a GitHub repository and branch. Members check out this source. The source locks its commit when the run first creates it, and every stage of the run gets that commit. The commit output is that commit. It is unknown during registration and preview.
+    /// Declares a GitHub repository and branch. Members check out this source. The source locks its commit when the run first creates it, and every stage of the run gets that commit. The commit output holds this commit. It is unknown during registration and preview.
     /// 
-    /// A source does not start runs unless you set trigger. Set trigger to true to start a run on every push to the branch, or to { paths } to start one only when a push changes a matching file.
+    /// A source does not start runs unless you set trigger. Set trigger to true to start a run on every push to the branch. Set it to { paths } to start a run only when a push changes a matching file.
     /// 
     /// ## Example Usage
     /// </summary>
@@ -62,19 +62,13 @@ namespace Pulumi.Delivery.Delivery
         public Input<string> Branch { get; set; } = null!;
 
         /// <summary>
-        /// Name of the VCS integration. Omit it when the organization has one integration for this forge.
-        /// </summary>
-        [Input("integration")]
-        public Input<string>? Integration { get; set; }
-
-        /// <summary>
-        /// Repository identifier understood by the VCS integration.
+        /// Repository of the source. Use `owner/repo` on GitHub, `group/subgroup/repo` (the full path) on GitLab, `workspace/repo` on Bitbucket and `org/project/repo` on Azure DevOps. Pulumi Cloud picks the integration of the organization whose account (GitHub), group (GitLab), workspace (Bitbucket) or organization and project (Azure DevOps) holds the repository.
         /// </summary>
         [Input("repository", required: true)]
         public Input<string> Repository { get; set; } = null!;
 
         /// <summary>
-        /// Starts a run on a push to the branch. Set true for every push, or { paths } for pushes that change a matching file. Omit it for a source that is part of the release but never starts a run.
+        /// Starts a run when someone pushes to the branch. Set true for every push, or { paths } for pushes that change a matching file. If you omit it, the source is part of the release but never starts a run.
         /// </summary>
         [Input("trigger")]
         public InputUnion<bool, Inputs.SourceTriggerArgs>? Trigger { get; set; }

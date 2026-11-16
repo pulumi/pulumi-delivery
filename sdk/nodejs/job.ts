@@ -2,18 +2,20 @@
 // *** Do not edit by hand unless you're certain you know what you are doing! ***
 
 import * as pulumi from "@pulumi/pulumi";
+import * as inputs from "./types/input";
+import * as outputs from "./types/output";
 import * as utilities from "./utilities";
 
-import {AzureDevOpsSource, BitbucketSource, GitHubSource, GitLabSource, Stage} from "./index";
+import {AzureDevOpsSource, BitbucketSource, GitHubSource, GitLabSource, Stage, WorkflowsRuntime} from "./index";
 
 /**
- * Declares a command that a run executes in a stage. The service checks out the source at the commit of the run and runs the command in directory.
+ * Declares a command that a run executes in a stage. Delivery checks out the source at the commit of the run and runs the command in directory.
  *
  * A resource that is not a Delivery resource waits for the job when it uses an output of the job.
  *
- * The command sees these variables: DELIVERY_RELEASE, DELIVERY_RUN, DELIVERY_STAGE, DELIVERY_COMMIT and DELIVERY_PIPELINE. To publish outputs, the command writes a JSON object to the file that DELIVERY_OUTPUTS names. Each key is one output. The file can be at most 1 MiB. To mark an output as secret, write it as {"value": ..., "secret": true}.
+ * The command can read these variables: DELIVERY_RELEASE, DELIVERY_RUN, DELIVERY_STAGE, DELIVERY_COMMIT and DELIVERY_PIPELINE. To publish outputs, write a JSON object to the file that DELIVERY_OUTPUTS names. Each key is one output. The file can be at most 1 MiB. To mark an output as secret, write it as {"value": ..., "secret": true}.
  *
- * If any output is secret, the whole map is secret. An output is secret when the job marks it or when it contains a secret environment value.
+ * If one output is secret, the whole map is secret. An output is secret when the job marks it as secret or when it contains a secret environment value.
  *
  * ## Example Usage
  *
@@ -44,7 +46,7 @@ export class Job extends pulumi.ComponentResource {
     }
 
     /**
-     * Outputs that the command wrote. They are unknown until the job has run.
+     * Outputs that the command wrote. They are unknown until the job runs.
      */
     declare public /*out*/ readonly outputs: pulumi.Output<{[key: string]: string}>;
 
@@ -74,6 +76,9 @@ export class Job extends pulumi.ComponentResource {
             resourceInputs["command"] = args?.command;
             resourceInputs["directory"] = args?.directory;
             resourceInputs["environment"] = args?.environment;
+            resourceInputs["image"] = args?.image;
+            resourceInputs["preRunCommands"] = args?.preRunCommands;
+            resourceInputs["runtime"] = args?.runtime;
             resourceInputs["source"] = args?.source;
             resourceInputs["stage"] = args?.stage;
             resourceInputs["timeout"] = args?.timeout;
@@ -91,7 +96,7 @@ export class Job extends pulumi.ComponentResource {
  */
 export interface JobArgs {
     /**
-     * Command to run. It runs with sh -c. The command can write outputs to the file that DELIVERY_OUTPUTS names.
+     * Command to run with sh -c. To publish outputs, the command writes them to the file that DELIVERY_OUTPUTS names.
      */
     command: pulumi.Input<string>;
     /**
@@ -99,19 +104,31 @@ export interface JobArgs {
      */
     directory: pulumi.Input<string>;
     /**
-     * Environment variables for the command. A secret value stays secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
+     * Environment variables for the command. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
      */
     environment?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
+    /**
+     * Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs bash, curl, gzip and the Pulumi CLI on PATH.
+     */
+    image?: pulumi.Input<inputs.ImageArgs | undefined>;
+    /**
+     * Bash commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
+     */
+    preRunCommands?: pulumi.Input<pulumi.Input<string>[] | undefined>;
+    /**
+     * Pool that runs the job. In the private preview, all work runs on the hosted pool, so omit it.
+     */
+    runtime?: pulumi.Input<WorkflowsRuntime | undefined>;
     /**
      * VCS source to check out.
      */
     source: pulumi.Input<GitHubSource | GitLabSource | BitbucketSource | AzureDevOpsSource>;
     /**
-     * Stage that the job runs in. A pipeline requires it.
+     * Stage that the job runs in.
      */
     stage: pulumi.Input<Stage>;
     /**
-     * Maximum run time as a Go duration, such as 30m. The preview does not apply this value yet. A job stops after 2 hours.
+     * Maximum run time as a Go duration, such as 30m. Delivery does not apply this value in the private preview. A job stops after 2 hours.
      */
     timeout?: pulumi.Input<string | undefined>;
 }

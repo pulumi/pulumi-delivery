@@ -11,13 +11,13 @@ using Pulumi;
 namespace Pulumi.Delivery.Delivery
 {
     /// <summary>
-    /// Declares a command that a run executes in a stage. The service checks out the source at the commit of the run and runs the command in directory.
+    /// Declares a command that a run executes in a stage. Delivery checks out the source at the commit of the run and runs the command in directory.
     /// 
     /// A resource that is not a Delivery resource waits for the job when it uses an output of the job.
     /// 
-    /// The command sees these variables: DELIVERY_RELEASE, DELIVERY_RUN, DELIVERY_STAGE, DELIVERY_COMMIT and DELIVERY_PIPELINE. To publish outputs, the command writes a JSON object to the file that DELIVERY_OUTPUTS names. Each key is one output. The file can be at most 1 MiB. To mark an output as secret, write it as {"value": ..., "secret": true}.
+    /// The command can read these variables: DELIVERY_RELEASE, DELIVERY_RUN, DELIVERY_STAGE, DELIVERY_COMMIT and DELIVERY_PIPELINE. To publish outputs, write a JSON object to the file that DELIVERY_OUTPUTS names. Each key is one output. The file can be at most 1 MiB. To mark an output as secret, write it as {"value": ..., "secret": true}.
     /// 
-    /// If any output is secret, the whole map is secret. An output is secret when the job marks it or when it contains a secret environment value.
+    /// If one output is secret, the whole map is secret. An output is secret when the job marks it as secret or when it contains a secret environment value.
     /// 
     /// ## Example Usage
     /// </summary>
@@ -25,7 +25,7 @@ namespace Pulumi.Delivery.Delivery
     public partial class Job : global::Pulumi.ComponentResource
     {
         /// <summary>
-        /// Outputs that the command wrote. They are unknown until the job has run.
+        /// Outputs that the command wrote. They are unknown until the job runs.
         /// </summary>
         [Output("outputs")]
         public Output<ImmutableDictionary<string, string>> Outputs { get; private set; } = null!;
@@ -60,7 +60,7 @@ namespace Pulumi.Delivery.Delivery
     public sealed class JobArgs : global::Pulumi.ResourceArgs
     {
         /// <summary>
-        /// Command to run. It runs with sh -c. The command can write outputs to the file that DELIVERY_OUTPUTS names.
+        /// Command to run with sh -c. To publish outputs, the command writes them to the file that DELIVERY_OUTPUTS names.
         /// </summary>
         [Input("command", required: true)]
         public Input<string> Command { get; set; } = null!;
@@ -75,7 +75,7 @@ namespace Pulumi.Delivery.Delivery
         private InputMap<string>? _environment;
 
         /// <summary>
-        /// Environment variables for the command. A secret value stays secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
+        /// Environment variables for the command. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
         /// </summary>
         public InputMap<string> Environment
         {
@@ -84,19 +84,43 @@ namespace Pulumi.Delivery.Delivery
         }
 
         /// <summary>
+        /// Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs bash, curl, gzip and the Pulumi CLI on PATH.
+        /// </summary>
+        [Input("image")]
+        public Input<Inputs.ImageArgs>? Image { get; set; }
+
+        [Input("preRunCommands")]
+        private InputList<string>? _preRunCommands;
+
+        /// <summary>
+        /// Bash commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
+        /// </summary>
+        public InputList<string> PreRunCommands
+        {
+            get => _preRunCommands ?? (_preRunCommands = new InputList<string>());
+            set => _preRunCommands = value;
+        }
+
+        /// <summary>
+        /// Pool that runs the job. In the private preview, all work runs on the hosted pool, so omit it.
+        /// </summary>
+        [Input("runtime")]
+        public Input<Pulumi.Delivery.Delivery.WorkflowsRuntime>? Runtime { get; set; }
+
+        /// <summary>
         /// VCS source to check out.
         /// </summary>
         [Input("source", required: true)]
         public object Source { get; set; } = null!;
 
         /// <summary>
-        /// Stage that the job runs in. A pipeline requires it.
+        /// Stage that the job runs in.
         /// </summary>
         [Input("stage", required: true)]
         public Input<Pulumi.Delivery.Delivery.Stage> Stage { get; set; } = null!;
 
         /// <summary>
-        /// Maximum run time as a Go duration, such as 30m. The preview does not apply this value yet. A job stops after 2 hours.
+        /// Maximum run time as a Go duration, such as 30m. Delivery does not apply this value in the private preview. A job stops after 2 hours.
         /// </summary>
         [Input("timeout")]
         public Input<string>? Timeout { get; set; }

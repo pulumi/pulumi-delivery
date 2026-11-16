@@ -7,7 +7,7 @@ const code = new delivery.GitHubSource("code", {
 });
 // A stage of another pipeline in the same organization. Its artifacts are known once a run reads them.
 const platform = new delivery.PipelineSource("platform", {
-    pipeline: "acme/platform-delivery/main",
+    pipeline: "platform-delivery/main",
     stage: "prod",
     trigger: true,
 });
@@ -31,12 +31,12 @@ const services = new delivery.Stacks("services", {
     stage: dev,
     stacks: {
         api: {
-            stack: "acme/shop-api/dev",
+            stack: "shop-api/dev",
             source: code,
             directory: "api",
             config: {clusterEndpoint: platform.artifacts["clusterEndpoint"]},
         },
-        worker: {stack: "acme/shop-worker/dev", source: code, directory: "worker", timeout: 1800},
+        worker: {stack: "shop-worker/dev", source: code, directory: "worker", timeout: 1800},
     },
 });
 export const release = pipeline.releaseNumber;

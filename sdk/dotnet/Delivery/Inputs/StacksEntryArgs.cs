@@ -20,7 +20,7 @@ namespace Pulumi.Delivery.Delivery.Inputs
         private InputMap<string>? _config;
 
         /// <summary>
-        /// Config values that Delivery sets on the target stack before the update. Values are plain strings, and Delivery rejects secret values. Keep secrets in the config file of the target stack or in an ESC environment.
+        /// Config values that Delivery sets on the target stack before the update. Values are plain strings. Delivery rejects secret values. Keep secrets in the config file of the target stack or in an ESC environment.
         /// </summary>
         public InputMap<string> Config
         {
@@ -38,7 +38,7 @@ namespace Pulumi.Delivery.Delivery.Inputs
         private InputMap<string>? _environment;
 
         /// <summary>
-        /// Environment variables for the update, for example cloud credentials. A secret value stays secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
+        /// Environment variables for the update, for example cloud credentials. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
         /// </summary>
         public InputMap<string> Environment
         {
@@ -47,7 +47,25 @@ namespace Pulumi.Delivery.Delivery.Inputs
         }
 
         /// <summary>
-        /// Pool that runs the update. The preview runs on the hosted pool only, so omit it.
+        /// Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs bash, curl, gzip and the Pulumi CLI on PATH.
+        /// </summary>
+        [Input("image")]
+        public Input<Inputs.ImageArgs>? Image { get; set; }
+
+        [Input("preRunCommands")]
+        private InputList<string>? _preRunCommands;
+
+        /// <summary>
+        /// Bash commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
+        /// </summary>
+        public InputList<string> PreRunCommands
+        {
+            get => _preRunCommands ?? (_preRunCommands = new InputList<string>());
+            set => _preRunCommands = value;
+        }
+
+        /// <summary>
+        /// Pool that runs the update. In the private preview, all work runs on the hosted pool, so omit it.
         /// </summary>
         [Input("runtime")]
         public Input<Pulumi.Delivery.Delivery.WorkflowsRuntime>? Runtime { get; set; }
@@ -59,7 +77,7 @@ namespace Pulumi.Delivery.Delivery.Inputs
         public object Source { get; set; } = null!;
 
         /// <summary>
-        /// Target stack as organization/project/stack. It must exist before the first run, in the organization of the pipeline.
+        /// Target stack as project/stack. It must exist before the first run, in the organization of the pipeline.
         /// </summary>
         [Input("stack", required: true)]
         public Input<string> Stack { get; set; } = null!;

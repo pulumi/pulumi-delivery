@@ -8,11 +8,39 @@ import * as outputs from "../types/output";
 import {AzureDevOpsSource, BitbucketSource, GitHubSource, GitLabSource, WorkflowsRuntime} from "..";
 
 /**
- * Checkout location of the pipeline program.
+ * Container image that a member runs in.
+ */
+export interface ImageArgs {
+    /**
+     * Credentials for a private registry.
+     */
+    credentials?: pulumi.Input<inputs.ImageCredentialsArgs | undefined>;
+    /**
+     * Image reference, for example pulumi/pulumi-nodejs:3.272.0.
+     */
+    reference: pulumi.Input<string>;
+}
+
+/**
+ * Credentials for a private registry.
+ */
+export interface ImageCredentialsArgs {
+    /**
+     * Registry password or token. It is a secret.
+     */
+    password: pulumi.Input<string>;
+    /**
+     * Registry user name.
+     */
+    username: pulumi.Input<string>;
+}
+
+/**
+ * Location of the pipeline program in a repository.
  */
 export interface ProgramSourceArgs {
     /**
-     * Directory containing the pipeline Pulumi.yaml, relative to the repository root.
+     * Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root.
      */
     directory: pulumi.Input<string>;
     /**
@@ -22,23 +50,19 @@ export interface ProgramSourceArgs {
 }
 
 /**
- * Stage entry rule. Rules may nest at most three levels.
+ * Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.
  */
 export interface Rule {
     /**
-     * Name of the Decision Agent definition that a decision rule asks. Required for that kind.
-     */
-    agent?: string;
-    /**
-     * Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
+     * Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
      */
     approvers?: string[];
     /**
-     * HTTP request body. Pulumi secret values remain secret.
+     * HTTP request body. Secret values stay secret.
      */
     body?: string;
     /**
-     * Number of approvals required. For approval rules, omitted or zero means one.
+     * Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
      */
     count?: number;
     /**
@@ -46,23 +70,19 @@ export interface Rule {
      */
     description?: string;
     /**
-     * HTTP request headers. Pulumi secret values remain secret.
+     * HTTP request headers. Secret values stay secret.
      */
     headers?: {[key: string]: string};
     /**
-     * Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule.
+     * Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
      */
     headersEnvironment?: string;
     /**
-     * Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.
-     */
-    inputs?: {[key: string]: any};
-    /**
-     * HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
+     * Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
      */
     interval?: string;
     /**
-     * Rule kind: approval, http, manual, decision, all, or any.
+     * Kind of the rule. Valid values are approval, http, manual, all, and any.
      */
     kind: string;
     /**
@@ -74,41 +94,37 @@ export interface Rule {
      */
     name?: string;
     /**
-     * Child rules for all or any. At least one child is required.
+     * Child rules for all and any rules. At least one is required.
      */
     rules?: inputs.Rule[];
     /**
-     * JMESPath expression that the service evaluates over the status, headers and body of the HTTP response. The rule passes when it is true. Required for http rules.
+     * JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
      */
     successExpression?: string;
     /**
-     * HTTP request timeout as a Go duration, such as 10s. Must be a positive whole number of seconds, at most 20 seconds.
+     * Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
      */
     timeout?: string;
     /**
-     * URL to call for an http rule. Required for that kind.
+     * URL to call. Required for http rules.
      */
     url?: string;
 }
 
 /**
- * Stage entry rule. Rules may nest at most three levels.
+ * Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.
  */
 export interface RuleArgs {
     /**
-     * Name of the Decision Agent definition that a decision rule asks. Required for that kind.
-     */
-    agent?: pulumi.Input<string | undefined>;
-    /**
-     * Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
+     * Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
      */
     approvers?: pulumi.Input<pulumi.Input<string>[] | undefined>;
     /**
-     * HTTP request body. Pulumi secret values remain secret.
+     * HTTP request body. Secret values stay secret.
      */
     body?: pulumi.Input<string | undefined>;
     /**
-     * Number of approvals required. For approval rules, omitted or zero means one.
+     * Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
      */
     count?: pulumi.Input<number | undefined>;
     /**
@@ -116,23 +132,19 @@ export interface RuleArgs {
      */
     description?: pulumi.Input<string | undefined>;
     /**
-     * HTTP request headers. Pulumi secret values remain secret.
+     * HTTP request headers. Secret values stay secret.
      */
     headers?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
     /**
-     * Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule.
+     * Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
      */
     headersEnvironment?: pulumi.Input<string | undefined>;
     /**
-     * Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.
-     */
-    inputs?: pulumi.Input<{[key: string]: any} | undefined>;
-    /**
-     * HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
+     * Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
      */
     interval?: pulumi.Input<string | undefined>;
     /**
-     * Rule kind: approval, http, manual, decision, all, or any.
+     * Kind of the rule. Valid values are approval, http, manual, all, and any.
      */
     kind: pulumi.Input<string>;
     /**
@@ -144,19 +156,19 @@ export interface RuleArgs {
      */
     name?: pulumi.Input<string | undefined>;
     /**
-     * Child rules for all or any. At least one child is required.
+     * Child rules for all and any rules. At least one is required.
      */
     rules?: pulumi.Input<pulumi.Input<inputs.RuleArgs>[] | undefined>;
     /**
-     * JMESPath expression that the service evaluates over the status, headers and body of the HTTP response. The rule passes when it is true. Required for http rules.
+     * JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
      */
     successExpression?: pulumi.Input<string | undefined>;
     /**
-     * HTTP request timeout as a Go duration, such as 10s. Must be a positive whole number of seconds, at most 20 seconds.
+     * Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
      */
     timeout?: pulumi.Input<string | undefined>;
     /**
-     * URL to call for an http rule. Required for that kind.
+     * URL to call. Required for http rules.
      */
     url?: pulumi.Input<string | undefined>;
 }
@@ -166,7 +178,7 @@ export interface RuleArgs {
  */
 export interface SourceTriggerArgs {
     /**
-     * Glob patterns of changed files. A push starts a run only when it changes a file that matches.
+     * Glob patterns of changed files. A push starts a run only when it changes a file that matches one of them.
      */
     paths: pulumi.Input<pulumi.Input<string>[]>;
 }
@@ -176,7 +188,7 @@ export interface SourceTriggerArgs {
  */
 export interface StacksEntryArgs {
     /**
-     * Config values that Delivery sets on the target stack before the update. Values are plain strings, and Delivery rejects secret values. Keep secrets in the config file of the target stack or in an ESC environment.
+     * Config values that Delivery sets on the target stack before the update. Values are plain strings. Delivery rejects secret values. Keep secrets in the config file of the target stack or in an ESC environment.
      */
     config?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
     /**
@@ -184,11 +196,19 @@ export interface StacksEntryArgs {
      */
     directory: pulumi.Input<string>;
     /**
-     * Environment variables for the update, for example cloud credentials. A secret value stays secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
+     * Environment variables for the update, for example cloud credentials. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
      */
     environment?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
     /**
-     * Pool that runs the update. The preview runs on the hosted pool only, so omit it.
+     * Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs bash, curl, gzip and the Pulumi CLI on PATH.
+     */
+    image?: pulumi.Input<inputs.ImageArgs | undefined>;
+    /**
+     * Bash commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
+     */
+    preRunCommands?: pulumi.Input<pulumi.Input<string>[] | undefined>;
+    /**
+     * Pool that runs the update. In the private preview, all work runs on the hosted pool, so omit it.
      */
     runtime?: pulumi.Input<WorkflowsRuntime | undefined>;
     /**
@@ -196,26 +216,12 @@ export interface StacksEntryArgs {
      */
     source: pulumi.Input<GitHubSource | GitLabSource | BitbucketSource | AzureDevOpsSource>;
     /**
-     * Target stack as organization/project/stack. It must exist before the first run, in the organization of the pipeline.
+     * Target stack as project/stack. It must exist before the first run, in the organization of the pipeline.
      */
     stack: pulumi.Input<string>;
     /**
      * Maximum run time of the update in seconds. The default is 7200 (2 hours).
      */
     timeout?: pulumi.Input<number | undefined>;
-}
-
-/**
- * How the service verifies a post to a webhook source.
- */
-export interface WebhookSigningArgs {
-    /**
-     * Kind of signature: hmac-sha256 (an HMAC over the raw body) or token (a shared secret).
-     */
-    kind: pulumi.Input<string>;
-    /**
-     * Secret that the external system signs with. It stays secret.
-     */
-    secret: pulumi.Input<string>;
 }
 

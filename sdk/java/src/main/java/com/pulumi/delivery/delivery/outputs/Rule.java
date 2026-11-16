@@ -6,7 +6,6 @@ package com.pulumi.delivery.delivery.outputs;
 import com.pulumi.core.annotations.CustomType;
 import com.pulumi.exceptions.MissingRequiredPropertyException;
 import java.lang.Integer;
-import java.lang.Object;
 import java.lang.String;
 import java.util.List;
 import java.util.Map;
@@ -17,22 +16,17 @@ import javax.annotation.Nullable;
 @CustomType
 public final class Rule {
     /**
-     * @return Name of the Decision Agent definition that a decision rule asks. Required for that kind.
-     * 
-     */
-    private @Nullable String agent;
-    /**
-     * @return Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
+     * @return Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
      * 
      */
     private @Nullable List<String> approvers;
     /**
-     * @return HTTP request body. Pulumi secret values remain secret.
+     * @return HTTP request body. Secret values stay secret.
      * 
      */
     private @Nullable String body;
     /**
-     * @return Number of approvals required. For approval rules, omitted or zero means one.
+     * @return Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
      * 
      */
     private @Nullable Integer count;
@@ -42,27 +36,22 @@ public final class Rule {
      */
     private @Nullable String description;
     /**
-     * @return HTTP request headers. Pulumi secret values remain secret.
+     * @return HTTP request headers. Secret values stay secret.
      * 
      */
     private @Nullable Map<String,String> headers;
     /**
-     * @return Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule.
+     * @return Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
      * 
      */
     private @Nullable String headersEnvironment;
     /**
-     * @return Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.
-     * 
-     */
-    private @Nullable Map<String,Object> inputs;
-    /**
-     * @return HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
+     * @return Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
      * 
      */
     private @Nullable String interval;
     /**
-     * @return Rule kind: approval, http, manual, decision, all, or any.
+     * @return Kind of the rule. Valid values are approval, http, manual, all, and any.
      * 
      */
     private String kind;
@@ -77,50 +66,43 @@ public final class Rule {
      */
     private @Nullable String name;
     /**
-     * @return Child rules for all or any. At least one child is required.
+     * @return Child rules for all and any rules. At least one is required.
      * 
      */
     private @Nullable List<Rule> rules;
     /**
-     * @return JMESPath expression that the service evaluates over the status, headers and body of the HTTP response. The rule passes when it is true. Required for http rules.
+     * @return JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
      * 
      */
     private @Nullable String successExpression;
     /**
-     * @return HTTP request timeout as a Go duration, such as 10s. Must be a positive whole number of seconds, at most 20 seconds.
+     * @return Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
      * 
      */
     private @Nullable String timeout;
     /**
-     * @return URL to call for an http rule. Required for that kind.
+     * @return URL to call. Required for http rules.
      * 
      */
     private @Nullable String url;
 
     private Rule() {}
     /**
-     * @return Name of the Decision Agent definition that a decision rule asks. Required for that kind.
-     * 
-     */
-    public Optional<String> agent() {
-        return Optional.ofNullable(this.agent);
-    }
-    /**
-     * @return Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
+     * @return Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
      * 
      */
     public List<String> approvers() {
         return this.approvers == null ? List.of() : this.approvers;
     }
     /**
-     * @return HTTP request body. Pulumi secret values remain secret.
+     * @return HTTP request body. Secret values stay secret.
      * 
      */
     public Optional<String> body() {
         return Optional.ofNullable(this.body);
     }
     /**
-     * @return Number of approvals required. For approval rules, omitted or zero means one.
+     * @return Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
      * 
      */
     public Optional<Integer> count() {
@@ -134,35 +116,28 @@ public final class Rule {
         return Optional.ofNullable(this.description);
     }
     /**
-     * @return HTTP request headers. Pulumi secret values remain secret.
+     * @return HTTP request headers. Secret values stay secret.
      * 
      */
     public Map<String,String> headers() {
         return this.headers == null ? Map.of() : this.headers;
     }
     /**
-     * @return Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule.
+     * @return Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
      * 
      */
     public Optional<String> headersEnvironment() {
         return Optional.ofNullable(this.headersEnvironment);
     }
     /**
-     * @return Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.
-     * 
-     */
-    public Map<String,Object> inputs() {
-        return this.inputs == null ? Map.of() : this.inputs;
-    }
-    /**
-     * @return HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
+     * @return Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
      * 
      */
     public Optional<String> interval() {
         return Optional.ofNullable(this.interval);
     }
     /**
-     * @return Rule kind: approval, http, manual, decision, all, or any.
+     * @return Kind of the rule. Valid values are approval, http, manual, all, and any.
      * 
      */
     public String kind() {
@@ -183,28 +158,28 @@ public final class Rule {
         return Optional.ofNullable(this.name);
     }
     /**
-     * @return Child rules for all or any. At least one child is required.
+     * @return Child rules for all and any rules. At least one is required.
      * 
      */
     public List<Rule> rules() {
         return this.rules == null ? List.of() : this.rules;
     }
     /**
-     * @return JMESPath expression that the service evaluates over the status, headers and body of the HTTP response. The rule passes when it is true. Required for http rules.
+     * @return JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
      * 
      */
     public Optional<String> successExpression() {
         return Optional.ofNullable(this.successExpression);
     }
     /**
-     * @return HTTP request timeout as a Go duration, such as 10s. Must be a positive whole number of seconds, at most 20 seconds.
+     * @return Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
      * 
      */
     public Optional<String> timeout() {
         return Optional.ofNullable(this.timeout);
     }
     /**
-     * @return URL to call for an http rule. Required for that kind.
+     * @return URL to call. Required for http rules.
      * 
      */
     public Optional<String> url() {
@@ -220,14 +195,12 @@ public final class Rule {
     }
     @CustomType.Builder
     public static final class Builder {
-        private @Nullable String agent;
         private @Nullable List<String> approvers;
         private @Nullable String body;
         private @Nullable Integer count;
         private @Nullable String description;
         private @Nullable Map<String,String> headers;
         private @Nullable String headersEnvironment;
-        private @Nullable Map<String,Object> inputs;
         private @Nullable String interval;
         private String kind;
         private @Nullable String method;
@@ -239,14 +212,12 @@ public final class Rule {
         public Builder() {}
         public Builder(Rule defaults) {
     	      Objects.requireNonNull(defaults);
-    	      this.agent = defaults.agent;
     	      this.approvers = defaults.approvers;
     	      this.body = defaults.body;
     	      this.count = defaults.count;
     	      this.description = defaults.description;
     	      this.headers = defaults.headers;
     	      this.headersEnvironment = defaults.headersEnvironment;
-    	      this.inputs = defaults.inputs;
     	      this.interval = defaults.interval;
     	      this.kind = defaults.kind;
     	      this.method = defaults.method;
@@ -257,12 +228,6 @@ public final class Rule {
     	      this.url = defaults.url;
         }
 
-        @CustomType.Setter
-        public Builder agent(@Nullable String agent) {
-
-            this.agent = agent;
-            return this;
-        }
         @CustomType.Setter
         public Builder approvers(@Nullable List<String> approvers) {
 
@@ -300,12 +265,6 @@ public final class Rule {
         public Builder headersEnvironment(@Nullable String headersEnvironment) {
 
             this.headersEnvironment = headersEnvironment;
-            return this;
-        }
-        @CustomType.Setter
-        public Builder inputs(@Nullable Map<String,Object> inputs) {
-
-            this.inputs = inputs;
             return this;
         }
         @CustomType.Setter
@@ -363,14 +322,12 @@ public final class Rule {
         }
         public Rule build() {
             final var _resultValue = new Rule();
-            _resultValue.agent = agent;
             _resultValue.approvers = approvers;
             _resultValue.body = body;
             _resultValue.count = count;
             _resultValue.description = description;
             _resultValue.headers = headers;
             _resultValue.headersEnvironment = headersEnvironment;
-            _resultValue.inputs = inputs;
             _resultValue.interval = interval;
             _resultValue.kind = kind;
             _resultValue.method = method;

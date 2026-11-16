@@ -120,7 +120,7 @@ func TestPipelineSourceFailsWithTheServiceMessage(t *testing.T) {
 
 func TestPipelineSourceValidation(t *testing.T) {
 	newFakeService(t)
-	for _, bad := range []string{"acme/platform", "acme//main", "a/b/c/d", ""} {
+	for _, bad := range []string{"main", "acme//main", "a/b/c/d", ""} {
 		_, err := newServer(t).Construct(pipelineSourceRequest(true, bad))
 		require.Error(t, err, bad)
 	}
@@ -307,4 +307,25 @@ func TestSchemaOfUpstreams(t *testing.T) {
 	assert.NotContains(t, string(schema.Types["delivery:index:ProgramSource"].Properties["source"]), typePipelineSource)
 	assert.Contains(t, string(schema.Resources[typeArtifact].Inputs["stage"]), typeStage)
 	assert.NotContains(t, schema.Resources[typeArtifact].Props, "childUrn")
+}
+
+func TestTwoPartPipelineIsQualifiedWithTheOrganization(t *testing.T) {
+	service := newFakeService(t)
+	service.run = true
+	service.pipelineAnswer = &memberAnswer{http.StatusOK, upstreamValue}
+
+	_, err := newServer(t).Construct(pipelineSourceRequest(false, "platform/main"))
+	require.NoError(t, err)
+	require.Len(t, service.valueRequests, 1)
+	assert.Equal(t, "org/platform/main", service.valueRequests[0]["identity"].(map[string]any)["pipeline"])
+}
+
+func TestArtifactValueKeepsNulls(t *testing.T) {
+	service := newFakeService(t)
+	value := property.New(property.NewMap(map[string]property.Value{"owner": property.New(property.Null)}))
+	_, err := newServer(t).Construct(artifactRequest(false, value))
+	require.NoError(t, err)
+	require.Len(t, service.declared(), 1)
+	inputs := service.declared()[0]["inputs"].(map[string]any)
+	assert.Equal(t, map[string]any{"owner": nil}, inputs["value"])
 }

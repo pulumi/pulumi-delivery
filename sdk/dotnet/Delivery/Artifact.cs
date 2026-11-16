@@ -11,7 +11,7 @@ using Pulumi;
 namespace Pulumi.Delivery.Delivery
 {
     /// <summary>
-    /// Publishes a value for the pipelines that read this stage with a PipelineSource. The artifact is named like the resource. It succeeds once its stage is admitted and its value is known.
+    /// Publishes a value for the pipelines that read this stage with a PipelineSource. The artifact has the name of the resource. It succeeds when its stage admits the release and its value is known.
     /// 
     /// ## Example Usage
     /// </summary>
@@ -57,7 +57,7 @@ namespace Pulumi.Delivery.Delivery
         public Input<Pulumi.Delivery.Delivery.Stage> Stage { get; set; } = null!;
 
         /// <summary>
-        /// Value to publish. It can be any value, also a secret or a structure.
+        /// Value to publish. It can be any value, including a secret or a structure.
         /// </summary>
         [Input("value", required: true)]
         public Input<object> Value { get; set; } = null!;

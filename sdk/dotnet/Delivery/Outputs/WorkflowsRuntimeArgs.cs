@@ -12,13 +12,13 @@ namespace Pulumi.Delivery.Delivery.Outputs
 {
 
     /// <summary>
-    /// Pool selection. The preview runs on the hosted pool only.
+    /// Pool selection. In the private preview, all work runs on the hosted pool.
     /// </summary>
     [OutputType]
     public sealed class WorkflowsRuntimeArgs
     {
         /// <summary>
-        /// Pool identifier. Returned unchanged as the ref of the resource.
+        /// Pool identifier. The resource returns it unchanged as ref.
         /// </summary>
         public readonly string AgentPool;
 

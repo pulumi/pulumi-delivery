@@ -35,29 +35,14 @@ public final class GitHubSourceArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * Name of the VCS integration. Omit it when the organization has one integration for this forge.
-     * 
-     */
-    @Import(name="integration")
-    private @Nullable Output<String> integration;
-
-    /**
-     * @return Name of the VCS integration. Omit it when the organization has one integration for this forge.
-     * 
-     */
-    public Optional<Output<String>> integration() {
-        return Optional.ofNullable(this.integration);
-    }
-
-    /**
-     * Repository identifier understood by the VCS integration.
+     * Repository of the source. Use `owner/repo` on GitHub, `group/subgroup/repo` (the full path) on GitLab, `workspace/repo` on Bitbucket and `org/project/repo` on Azure DevOps. Pulumi Cloud picks the integration of the organization whose account (GitHub), group (GitLab), workspace (Bitbucket) or organization and project (Azure DevOps) holds the repository.
      * 
      */
     @Import(name="repository", required=true)
     private Output<String> repository;
 
     /**
-     * @return Repository identifier understood by the VCS integration.
+     * @return Repository of the source. Use `owner/repo` on GitHub, `group/subgroup/repo` (the full path) on GitLab, `workspace/repo` on Bitbucket and `org/project/repo` on Azure DevOps. Pulumi Cloud picks the integration of the organization whose account (GitHub), group (GitLab), workspace (Bitbucket) or organization and project (Azure DevOps) holds the repository.
      * 
      */
     public Output<String> repository() {
@@ -65,14 +50,14 @@ public final class GitHubSourceArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * Starts a run on a push to the branch. Set true for every push, or { paths } for pushes that change a matching file. Omit it for a source that is part of the release but never starts a run.
+     * Starts a run when someone pushes to the branch. Set true for every push, or { paths } for pushes that change a matching file. If you omit it, the source is part of the release but never starts a run.
      * 
      */
     @Import(name="trigger")
     private @Nullable Output<Either<Boolean,SourceTriggerArgs>> trigger;
 
     /**
-     * @return Starts a run on a push to the branch. Set true for every push, or { paths } for pushes that change a matching file. Omit it for a source that is part of the release but never starts a run.
+     * @return Starts a run when someone pushes to the branch. Set true for every push, or { paths } for pushes that change a matching file. If you omit it, the source is part of the release but never starts a run.
      * 
      */
     public Optional<Output<Either<Boolean,SourceTriggerArgs>>> trigger() {
@@ -83,7 +68,6 @@ public final class GitHubSourceArgs extends com.pulumi.resources.ResourceArgs {
 
     private GitHubSourceArgs(GitHubSourceArgs $) {
         this.branch = $.branch;
-        this.integration = $.integration;
         this.repository = $.repository;
         this.trigger = $.trigger;
     }
@@ -128,28 +112,7 @@ public final class GitHubSourceArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param integration Name of the VCS integration. Omit it when the organization has one integration for this forge.
-         * 
-         * @return builder
-         * 
-         */
-        public Builder integration(@Nullable Output<String> integration) {
-            $.integration = integration;
-            return this;
-        }
-
-        /**
-         * @param integration Name of the VCS integration. Omit it when the organization has one integration for this forge.
-         * 
-         * @return builder
-         * 
-         */
-        public Builder integration(String integration) {
-            return integration(Output.of(integration));
-        }
-
-        /**
-         * @param repository Repository identifier understood by the VCS integration.
+         * @param repository Repository of the source. Use `owner/repo` on GitHub, `group/subgroup/repo` (the full path) on GitLab, `workspace/repo` on Bitbucket and `org/project/repo` on Azure DevOps. Pulumi Cloud picks the integration of the organization whose account (GitHub), group (GitLab), workspace (Bitbucket) or organization and project (Azure DevOps) holds the repository.
          * 
          * @return builder
          * 
@@ -160,7 +123,7 @@ public final class GitHubSourceArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param repository Repository identifier understood by the VCS integration.
+         * @param repository Repository of the source. Use `owner/repo` on GitHub, `group/subgroup/repo` (the full path) on GitLab, `workspace/repo` on Bitbucket and `org/project/repo` on Azure DevOps. Pulumi Cloud picks the integration of the organization whose account (GitHub), group (GitLab), workspace (Bitbucket) or organization and project (Azure DevOps) holds the repository.
          * 
          * @return builder
          * 
@@ -170,7 +133,7 @@ public final class GitHubSourceArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param trigger Starts a run on a push to the branch. Set true for every push, or { paths } for pushes that change a matching file. Omit it for a source that is part of the release but never starts a run.
+         * @param trigger Starts a run when someone pushes to the branch. Set true for every push, or { paths } for pushes that change a matching file. If you omit it, the source is part of the release but never starts a run.
          * 
          * @return builder
          * 
@@ -181,7 +144,7 @@ public final class GitHubSourceArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param trigger Starts a run on a push to the branch. Set true for every push, or { paths } for pushes that change a matching file. Omit it for a source that is part of the release but never starts a run.
+         * @param trigger Starts a run when someone pushes to the branch. Set true for every push, or { paths } for pushes that change a matching file. If you omit it, the source is part of the release but never starts a run.
          * 
          * @return builder
          * 
@@ -191,7 +154,7 @@ public final class GitHubSourceArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param trigger Starts a run on a push to the branch. Set true for every push, or { paths } for pushes that change a matching file. Omit it for a source that is part of the release but never starts a run.
+         * @param trigger Starts a run when someone pushes to the branch. Set true for every push, or { paths } for pushes that change a matching file. If you omit it, the source is part of the release but never starts a run.
          * 
          * @return builder
          * 
@@ -201,7 +164,7 @@ public final class GitHubSourceArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param trigger Starts a run on a push to the branch. Set true for every push, or { paths } for pushes that change a matching file. Omit it for a source that is part of the release but never starts a run.
+         * @param trigger Starts a run when someone pushes to the branch. Set true for every push, or { paths } for pushes that change a matching file. If you omit it, the source is part of the release but never starts a run.
          * 
          * @return builder
          * 

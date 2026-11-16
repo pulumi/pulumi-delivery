@@ -18,14 +18,14 @@ public final class StacksArgs extends com.pulumi.resources.ResourceArgs {
     public static final StacksArgs Empty = new StacksArgs();
 
     /**
-     * Entries by name. Names can use letters, digits, underscores and hyphens. Each entry updates one target stack.
+     * Entries by name. A name can contain letters, digits, underscores and hyphens. Each entry updates one target stack.
      * 
      */
     @Import(name="stacks", required=true)
     private Output<Map<String,StacksEntryArgs>> stacks;
 
     /**
-     * @return Entries by name. Names can use letters, digits, underscores and hyphens. Each entry updates one target stack.
+     * @return Entries by name. A name can contain letters, digits, underscores and hyphens. Each entry updates one target stack.
      * 
      */
     public Output<Map<String,StacksEntryArgs>> stacks() {
@@ -33,14 +33,14 @@ public final class StacksArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * Stage that the group runs in. A pipeline requires it.
+     * Stage that the group runs in.
      * 
      */
     @Import(name="stage", required=true)
     private Output<Stage> stage;
 
     /**
-     * @return Stage that the group runs in. A pipeline requires it.
+     * @return Stage that the group runs in.
      * 
      */
     public Output<Stage> stage() {
@@ -73,7 +73,7 @@ public final class StacksArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param stacks Entries by name. Names can use letters, digits, underscores and hyphens. Each entry updates one target stack.
+         * @param stacks Entries by name. A name can contain letters, digits, underscores and hyphens. Each entry updates one target stack.
          * 
          * @return builder
          * 
@@ -84,7 +84,7 @@ public final class StacksArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param stacks Entries by name. Names can use letters, digits, underscores and hyphens. Each entry updates one target stack.
+         * @param stacks Entries by name. A name can contain letters, digits, underscores and hyphens. Each entry updates one target stack.
          * 
          * @return builder
          * 
@@ -94,7 +94,7 @@ public final class StacksArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param stage Stage that the group runs in. A pipeline requires it.
+         * @param stage Stage that the group runs in.
          * 
          * @return builder
          * 
@@ -105,7 +105,7 @@ public final class StacksArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param stage Stage that the group runs in. A pipeline requires it.
+         * @param stage Stage that the group runs in.
          * 
          * @return builder
          * 

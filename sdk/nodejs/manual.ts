@@ -7,7 +7,7 @@ import * as outputs from "./types/output";
 import * as utilities from "./utilities";
 
 /**
- * Builds a manual rule for a Stage's when. A manual gate waits until someone continues it, from the console or with a POST to the continue route of the gate. It works on every plan. Use approval() when you need named approvers and the Approvals feature.
+ * Builds a manual rule for the when property of a Stage. A manual gate waits until someone continues it. Continue it in the console or with a POST to the continue route of the gate. It works on every plan. To require named approvers, use approval(), which needs the Approvals feature.
  *
  * ## Example Usage
  *
@@ -39,29 +39,25 @@ export interface ManualArgs {
      */
     description?: string;
     /**
-     * Rule name. Omit it to let Delivery use the kind, manual. Names are unique within a gate.
+     * Rule name. If you omit it, Delivery uses manual. Names must be unique within a gate.
      */
     name?: string;
 }
 
 /**
- * Stage entry rule. Rules may nest at most three levels.
+ * Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.
  */
 export interface ManualResult {
     /**
-     * Name of the Decision Agent definition that a decision rule asks. Required for that kind.
-     */
-    readonly agent?: string;
-    /**
-     * Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
+     * Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
      */
     readonly approvers?: string[];
     /**
-     * HTTP request body. Pulumi secret values remain secret.
+     * HTTP request body. Secret values stay secret.
      */
     readonly body?: string;
     /**
-     * Number of approvals required. For approval rules, omitted or zero means one.
+     * Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
      */
     readonly count?: number;
     /**
@@ -69,23 +65,19 @@ export interface ManualResult {
      */
     readonly description?: string;
     /**
-     * HTTP request headers. Pulumi secret values remain secret.
+     * HTTP request headers. Secret values stay secret.
      */
     readonly headers?: {[key: string]: string};
     /**
-     * Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule.
+     * Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
      */
     readonly headersEnvironment?: string;
     /**
-     * Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.
-     */
-    readonly inputs?: {[key: string]: any};
-    /**
-     * HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
+     * Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
      */
     readonly interval?: string;
     /**
-     * Rule kind: approval, http, manual, decision, all, or any.
+     * Kind of the rule. Valid values are approval, http, manual, all, and any.
      */
     readonly kind: string;
     /**
@@ -97,24 +89,24 @@ export interface ManualResult {
      */
     readonly name?: string;
     /**
-     * Child rules for all or any. At least one child is required.
+     * Child rules for all and any rules. At least one is required.
      */
     readonly rules?: outputs.Rule[];
     /**
-     * JMESPath expression that the service evaluates over the status, headers and body of the HTTP response. The rule passes when it is true. Required for http rules.
+     * JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
      */
     readonly successExpression?: string;
     /**
-     * HTTP request timeout as a Go duration, such as 10s. Must be a positive whole number of seconds, at most 20 seconds.
+     * Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
      */
     readonly timeout?: string;
     /**
-     * URL to call for an http rule. Required for that kind.
+     * URL to call. Required for http rules.
      */
     readonly url?: string;
 }
 /**
- * Builds a manual rule for a Stage's when. A manual gate waits until someone continues it, from the console or with a POST to the continue route of the gate. It works on every plan. Use approval() when you need named approvers and the Approvals feature.
+ * Builds a manual rule for the when property of a Stage. A manual gate waits until someone continues it. Continue it in the console or with a POST to the continue route of the gate. It works on every plan. To require named approvers, use approval(), which needs the Approvals feature.
  *
  * ## Example Usage
  *
@@ -146,7 +138,7 @@ export interface ManualOutputArgs {
      */
     description?: pulumi.Input<string | undefined>;
     /**
-     * Rule name. Omit it to let Delivery use the kind, manual. Names are unique within a gate.
+     * Rule name. If you omit it, Delivery uses manual. Names must be unique within a gate.
      */
     name?: pulumi.Input<string | undefined>;
 }

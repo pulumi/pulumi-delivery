@@ -22,20 +22,16 @@ class GitHubSourceArgs:
     def __init__(__self__, *,
                  branch: pulumi.Input[_builtins.str],
                  repository: pulumi.Input[_builtins.str],
-                 integration: pulumi.Input[Optional[_builtins.str]] = None,
                  trigger: pulumi.Input[Optional[Union[_builtins.bool, 'SourceTriggerArgs']]] = None):
         """
         The set of arguments for constructing a GitHubSource resource.
 
         :param pulumi.Input[_builtins.str] branch: Branch of the source.
-        :param pulumi.Input[_builtins.str] repository: Repository identifier understood by the VCS integration.
-        :param pulumi.Input[_builtins.str] integration: Name of the VCS integration. Omit it when the organization has one integration for this forge.
-        :param pulumi.Input[Union[_builtins.bool, 'SourceTriggerArgs']] trigger: Starts a run on a push to the branch. Set true for every push, or { paths } for pushes that change a matching file. Omit it for a source that is part of the release but never starts a run.
+        :param pulumi.Input[_builtins.str] repository: Repository of the source. Use `owner/repo` on GitHub, `group/subgroup/repo` (the full path) on GitLab, `workspace/repo` on Bitbucket and `org/project/repo` on Azure DevOps. Pulumi Cloud picks the integration of the organization whose account (GitHub), group (GitLab), workspace (Bitbucket) or organization and project (Azure DevOps) holds the repository.
+        :param pulumi.Input[Union[_builtins.bool, 'SourceTriggerArgs']] trigger: Starts a run when someone pushes to the branch. Set true for every push, or { paths } for pushes that change a matching file. If you omit it, the source is part of the release but never starts a run.
         """
         pulumi.set(__self__, "branch", branch)
         pulumi.set(__self__, "repository", repository)
-        if integration is not None:
-            pulumi.set(__self__, "integration", integration)
         if trigger is not None:
             pulumi.set(__self__, "trigger", trigger)
 
@@ -55,7 +51,7 @@ class GitHubSourceArgs:
     @pulumi.getter
     def repository(self) -> pulumi.Input[_builtins.str]:
         """
-        Repository identifier understood by the VCS integration.
+        Repository of the source. Use `owner/repo` on GitHub, `group/subgroup/repo` (the full path) on GitLab, `workspace/repo` on Bitbucket and `org/project/repo` on Azure DevOps. Pulumi Cloud picks the integration of the organization whose account (GitHub), group (GitLab), workspace (Bitbucket) or organization and project (Azure DevOps) holds the repository.
         """
         return pulumi.get(self, "repository")
 
@@ -65,21 +61,9 @@ class GitHubSourceArgs:
 
     @_builtins.property
     @pulumi.getter
-    def integration(self) -> pulumi.Input[Optional[_builtins.str]]:
-        """
-        Name of the VCS integration. Omit it when the organization has one integration for this forge.
-        """
-        return pulumi.get(self, "integration")
-
-    @integration.setter
-    def integration(self, value: pulumi.Input[Optional[_builtins.str]]):
-        pulumi.set(self, "integration", value)
-
-    @_builtins.property
-    @pulumi.getter
     def trigger(self) -> pulumi.Input[Optional[Union[_builtins.bool, 'SourceTriggerArgs']]]:
         """
-        Starts a run on a push to the branch. Set true for every push, or { paths } for pushes that change a matching file. Omit it for a source that is part of the release but never starts a run.
+        Starts a run when someone pushes to the branch. Set true for every push, or { paths } for pushes that change a matching file. If you omit it, the source is part of the release but never starts a run.
         """
         return pulumi.get(self, "trigger")
 
@@ -95,23 +79,21 @@ class GitHubSource(pulumi.ComponentResource):
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
                  branch: pulumi.Input[Optional[_builtins.str]] = None,
-                 integration: pulumi.Input[Optional[_builtins.str]] = None,
                  repository: pulumi.Input[Optional[_builtins.str]] = None,
                  trigger: pulumi.Input[Optional[Union[_builtins.bool, Union['SourceTriggerArgs', 'SourceTriggerArgsDict']]]] = None,
                  __props__=None):
         """
-        Declares a GitHub repository and branch. Members check out this source. The source locks its commit when the run first creates it, and every stage of the run gets that commit. The commit output is that commit. It is unknown during registration and preview.
+        Declares a GitHub repository and branch. Members check out this source. The source locks its commit when the run first creates it, and every stage of the run gets that commit. The commit output holds this commit. It is unknown during registration and preview.
 
-        A source does not start runs unless you set trigger. Set trigger to true to start a run on every push to the branch, or to { paths } to start one only when a push changes a matching file.
+        A source does not start runs unless you set trigger. Set trigger to true to start a run on every push to the branch. Set it to { paths } to start a run only when a push changes a matching file.
 
         ## Example Usage
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
         :param pulumi.Input[_builtins.str] branch: Branch of the source.
-        :param pulumi.Input[_builtins.str] integration: Name of the VCS integration. Omit it when the organization has one integration for this forge.
-        :param pulumi.Input[_builtins.str] repository: Repository identifier understood by the VCS integration.
-        :param pulumi.Input[Union[_builtins.bool, Union['SourceTriggerArgs', 'SourceTriggerArgsDict']]] trigger: Starts a run on a push to the branch. Set true for every push, or { paths } for pushes that change a matching file. Omit it for a source that is part of the release but never starts a run.
+        :param pulumi.Input[_builtins.str] repository: Repository of the source. Use `owner/repo` on GitHub, `group/subgroup/repo` (the full path) on GitLab, `workspace/repo` on Bitbucket and `org/project/repo` on Azure DevOps. Pulumi Cloud picks the integration of the organization whose account (GitHub), group (GitLab), workspace (Bitbucket) or organization and project (Azure DevOps) holds the repository.
+        :param pulumi.Input[Union[_builtins.bool, Union['SourceTriggerArgs', 'SourceTriggerArgsDict']]] trigger: Starts a run when someone pushes to the branch. Set true for every push, or { paths } for pushes that change a matching file. If you omit it, the source is part of the release but never starts a run.
         """
         ...
     @overload
@@ -120,9 +102,9 @@ class GitHubSource(pulumi.ComponentResource):
                  args: GitHubSourceArgs,
                  opts: Optional[pulumi.ResourceOptions] = None):
         """
-        Declares a GitHub repository and branch. Members check out this source. The source locks its commit when the run first creates it, and every stage of the run gets that commit. The commit output is that commit. It is unknown during registration and preview.
+        Declares a GitHub repository and branch. Members check out this source. The source locks its commit when the run first creates it, and every stage of the run gets that commit. The commit output holds this commit. It is unknown during registration and preview.
 
-        A source does not start runs unless you set trigger. Set trigger to true to start a run on every push to the branch, or to { paths } to start one only when a push changes a matching file.
+        A source does not start runs unless you set trigger. Set trigger to true to start a run on every push to the branch. Set it to { paths } to start a run only when a push changes a matching file.
 
         ## Example Usage
 
@@ -142,7 +124,6 @@ class GitHubSource(pulumi.ComponentResource):
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
                  branch: pulumi.Input[Optional[_builtins.str]] = None,
-                 integration: pulumi.Input[Optional[_builtins.str]] = None,
                  repository: pulumi.Input[Optional[_builtins.str]] = None,
                  trigger: pulumi.Input[Optional[Union[_builtins.bool, Union['SourceTriggerArgs', 'SourceTriggerArgsDict']]]] = None,
                  __props__=None):
@@ -159,7 +140,6 @@ class GitHubSource(pulumi.ComponentResource):
             if branch is None and not opts.urn:
                 raise TypeError("Missing required property 'branch'")
             __props__.__dict__["branch"] = branch
-            __props__.__dict__["integration"] = integration
             if repository is None and not opts.urn:
                 raise TypeError("Missing required property 'repository'")
             __props__.__dict__["repository"] = repository

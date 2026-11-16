@@ -21,7 +21,7 @@ public static class Compile
         new GitHubSource("docs", new GitHubSourceArgs { Repository = "acme/docs", Branch = "main" });
         var platform = new PipelineSource("platform", new PipelineSourceArgs
         {
-            Pipeline = "acme/platform-delivery/main",
+            Pipeline = "platform-delivery/main",
             Stage = "prod",
             Trigger = true,
         });

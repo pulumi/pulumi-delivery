@@ -10,9 +10,12 @@ import com.pulumi.delivery.delivery.BitbucketSource;
 import com.pulumi.delivery.delivery.GitHubSource;
 import com.pulumi.delivery.delivery.GitLabSource;
 import com.pulumi.delivery.delivery.Stage;
+import com.pulumi.delivery.delivery.WorkflowsRuntime;
+import com.pulumi.delivery.delivery.inputs.ImageArgs;
 import com.pulumi.exceptions.MissingRequiredPropertyException;
 import java.lang.Object;
 import java.lang.String;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -24,14 +27,14 @@ public final class JobArgs extends com.pulumi.resources.ResourceArgs {
     public static final JobArgs Empty = new JobArgs();
 
     /**
-     * Command to run. It runs with sh -c. The command can write outputs to the file that DELIVERY_OUTPUTS names.
+     * Command to run with sh -c. To publish outputs, the command writes them to the file that DELIVERY_OUTPUTS names.
      * 
      */
     @Import(name="command", required=true)
     private Output<String> command;
 
     /**
-     * @return Command to run. It runs with sh -c. The command can write outputs to the file that DELIVERY_OUTPUTS names.
+     * @return Command to run with sh -c. To publish outputs, the command writes them to the file that DELIVERY_OUTPUTS names.
      * 
      */
     public Output<String> command() {
@@ -54,18 +57,63 @@ public final class JobArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * Environment variables for the command. A secret value stays secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
+     * Environment variables for the command. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
      * 
      */
     @Import(name="environment")
     private @Nullable Output<Map<String,String>> environment;
 
     /**
-     * @return Environment variables for the command. A secret value stays secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
+     * @return Environment variables for the command. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
      * 
      */
     public Optional<Output<Map<String,String>>> environment() {
         return Optional.ofNullable(this.environment);
+    }
+
+    /**
+     * Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs bash, curl, gzip and the Pulumi CLI on PATH.
+     * 
+     */
+    @Import(name="image")
+    private @Nullable Output<ImageArgs> image;
+
+    /**
+     * @return Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs bash, curl, gzip and the Pulumi CLI on PATH.
+     * 
+     */
+    public Optional<Output<ImageArgs>> image() {
+        return Optional.ofNullable(this.image);
+    }
+
+    /**
+     * Bash commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
+     * 
+     */
+    @Import(name="preRunCommands")
+    private @Nullable Output<List<String>> preRunCommands;
+
+    /**
+     * @return Bash commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
+     * 
+     */
+    public Optional<Output<List<String>>> preRunCommands() {
+        return Optional.ofNullable(this.preRunCommands);
+    }
+
+    /**
+     * Pool that runs the job. In the private preview, all work runs on the hosted pool, so omit it.
+     * 
+     */
+    @Import(name="runtime")
+    private @Nullable Output<WorkflowsRuntime> runtime;
+
+    /**
+     * @return Pool that runs the job. In the private preview, all work runs on the hosted pool, so omit it.
+     * 
+     */
+    public Optional<Output<WorkflowsRuntime>> runtime() {
+        return Optional.ofNullable(this.runtime);
     }
 
     /**
@@ -84,14 +132,14 @@ public final class JobArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * Stage that the job runs in. A pipeline requires it.
+     * Stage that the job runs in.
      * 
      */
     @Import(name="stage", required=true)
     private Output<Stage> stage;
 
     /**
-     * @return Stage that the job runs in. A pipeline requires it.
+     * @return Stage that the job runs in.
      * 
      */
     public Output<Stage> stage() {
@@ -99,14 +147,14 @@ public final class JobArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * Maximum run time as a Go duration, such as 30m. The preview does not apply this value yet. A job stops after 2 hours.
+     * Maximum run time as a Go duration, such as 30m. Delivery does not apply this value in the private preview. A job stops after 2 hours.
      * 
      */
     @Import(name="timeout")
     private @Nullable Output<String> timeout;
 
     /**
-     * @return Maximum run time as a Go duration, such as 30m. The preview does not apply this value yet. A job stops after 2 hours.
+     * @return Maximum run time as a Go duration, such as 30m. Delivery does not apply this value in the private preview. A job stops after 2 hours.
      * 
      */
     public Optional<Output<String>> timeout() {
@@ -119,6 +167,9 @@ public final class JobArgs extends com.pulumi.resources.ResourceArgs {
         this.command = $.command;
         this.directory = $.directory;
         this.environment = $.environment;
+        this.image = $.image;
+        this.preRunCommands = $.preRunCommands;
+        this.runtime = $.runtime;
         this.source = $.source;
         this.stage = $.stage;
         this.timeout = $.timeout;
@@ -143,7 +194,7 @@ public final class JobArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param command Command to run. It runs with sh -c. The command can write outputs to the file that DELIVERY_OUTPUTS names.
+         * @param command Command to run with sh -c. To publish outputs, the command writes them to the file that DELIVERY_OUTPUTS names.
          * 
          * @return builder
          * 
@@ -154,7 +205,7 @@ public final class JobArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param command Command to run. It runs with sh -c. The command can write outputs to the file that DELIVERY_OUTPUTS names.
+         * @param command Command to run with sh -c. To publish outputs, the command writes them to the file that DELIVERY_OUTPUTS names.
          * 
          * @return builder
          * 
@@ -185,7 +236,7 @@ public final class JobArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param environment Environment variables for the command. A secret value stays secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
+         * @param environment Environment variables for the command. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
          * 
          * @return builder
          * 
@@ -196,13 +247,86 @@ public final class JobArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param environment Environment variables for the command. A secret value stays secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
+         * @param environment Environment variables for the command. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
          * 
          * @return builder
          * 
          */
         public Builder environment(Map<String,String> environment) {
             return environment(Output.of(environment));
+        }
+
+        /**
+         * @param image Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs bash, curl, gzip and the Pulumi CLI on PATH.
+         * 
+         * @return builder
+         * 
+         */
+        public Builder image(@Nullable Output<ImageArgs> image) {
+            $.image = image;
+            return this;
+        }
+
+        /**
+         * @param image Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs bash, curl, gzip and the Pulumi CLI on PATH.
+         * 
+         * @return builder
+         * 
+         */
+        public Builder image(ImageArgs image) {
+            return image(Output.of(image));
+        }
+
+        /**
+         * @param preRunCommands Bash commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
+         * 
+         * @return builder
+         * 
+         */
+        public Builder preRunCommands(@Nullable Output<List<String>> preRunCommands) {
+            $.preRunCommands = preRunCommands;
+            return this;
+        }
+
+        /**
+         * @param preRunCommands Bash commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
+         * 
+         * @return builder
+         * 
+         */
+        public Builder preRunCommands(List<String> preRunCommands) {
+            return preRunCommands(Output.of(preRunCommands));
+        }
+
+        /**
+         * @param preRunCommands Bash commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
+         * 
+         * @return builder
+         * 
+         */
+        public Builder preRunCommands(String... preRunCommands) {
+            return preRunCommands(List.of(preRunCommands));
+        }
+
+        /**
+         * @param runtime Pool that runs the job. In the private preview, all work runs on the hosted pool, so omit it.
+         * 
+         * @return builder
+         * 
+         */
+        public Builder runtime(@Nullable Output<WorkflowsRuntime> runtime) {
+            $.runtime = runtime;
+            return this;
+        }
+
+        /**
+         * @param runtime Pool that runs the job. In the private preview, all work runs on the hosted pool, so omit it.
+         * 
+         * @return builder
+         * 
+         */
+        public Builder runtime(WorkflowsRuntime runtime) {
+            return runtime(Output.of(runtime));
         }
 
         /**
@@ -227,7 +351,7 @@ public final class JobArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param stage Stage that the job runs in. A pipeline requires it.
+         * @param stage Stage that the job runs in.
          * 
          * @return builder
          * 
@@ -238,7 +362,7 @@ public final class JobArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param stage Stage that the job runs in. A pipeline requires it.
+         * @param stage Stage that the job runs in.
          * 
          * @return builder
          * 
@@ -248,7 +372,7 @@ public final class JobArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param timeout Maximum run time as a Go duration, such as 30m. The preview does not apply this value yet. A job stops after 2 hours.
+         * @param timeout Maximum run time as a Go duration, such as 30m. Delivery does not apply this value in the private preview. A job stops after 2 hours.
          * 
          * @return builder
          * 
@@ -259,7 +383,7 @@ public final class JobArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param timeout Maximum run time as a Go duration, such as 30m. The preview does not apply this value yet. A job stops after 2 hours.
+         * @param timeout Maximum run time as a Go duration, such as 30m. Delivery does not apply this value in the private preview. A job stops after 2 hours.
          * 
          * @return builder
          * 

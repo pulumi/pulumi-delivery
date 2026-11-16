@@ -69,6 +69,11 @@ func withDeliveryConstruct(inner func(context.Context, p.ConstructRequest) (p.Co
 		if isMember(typ) && req.ResourceHooks != nil && len(req.ResourceHooks.OnError) > 0 {
 			return p.ConstructResponse{}, errors.New("Delivery resources do not support error hooks. Use a retry or a new run.")
 		}
+		if typ != typeArtifact {
+			req.Inputs = dropNulls(req.Inputs)
+		}
+		req.Inputs = qualifyStackNames(typ, req.Inputs, req.Organization)
+		req.Inputs = secretRegistryPassword(typ, req.Inputs)
 		if err := validateInputs(typ, req.Inputs); err != nil {
 			return p.ConstructResponse{}, err
 		}
@@ -276,6 +281,42 @@ func (v *pipelineValue) state(state property.Map) property.Map {
 		Set("artifacts", property.New(v.artifacts).WithSecret(hasSecret(property.New(v.artifacts))))
 }
 
+// qualifyStackNames prefixes the organization of the pipeline to the project/stack names in the inputs
+// (`pipeline` of a PipelineSource, `stack` of each Stacks entry), so that everything after sees org/project/stack.
+// Pulumi Cloud only accepts stacks of the organization of the pipeline. Other values are left for validation.
+func qualifyStackNames(typ string, inputs property.Map, organization string) property.Map {
+	// like gives v the secret mark and the dependencies of old.
+	like := func(old, v property.Value) property.Value {
+		return v.WithSecret(old.Secret()).WithDependencies(old.Dependencies())
+	}
+	qualify := func(value property.Value) property.Value {
+		if !value.IsString() || organization == "" {
+			return value
+		}
+		if project, stack, ok := strings.Cut(value.AsString(), "/"); !ok || project == "" || stack == "" || strings.Contains(stack, "/") {
+			return value
+		}
+		return like(value, property.New(organization+"/"+value.AsString()))
+	}
+	switch typ {
+	case typePipelineSource:
+		if v, ok := inputs.GetOk("pipeline"); ok {
+			inputs = inputs.Set("pipeline", qualify(v))
+		}
+	case typeStacks:
+		if stacks := inputs.Get("stacks"); stacks.IsMap() {
+			entries := stacks.AsMap()
+			for name, entry := range entries.AsMap() {
+				if v, ok := mapInput(entry).GetOk("stack"); ok {
+					entries = entries.Set(name, like(entry, property.New(entry.AsMap().Set("stack", qualify(v)))))
+				}
+			}
+			inputs = inputs.Set("stacks", like(stacks, property.New(entries)))
+		}
+	}
+	return inputs
+}
+
 // readPipelineSource returns the value of a PipelineSource in a run, or nil. The map is secret if any artifact
 // is, and the artifacts keep their own marks inside.
 func readPipelineSource(ctx context.Context, client *cloudclient.Client, req p.ConstructRequest) (*pipelineValue, error) {
@@ -326,6 +367,76 @@ func hasSecret(value property.Value) bool {
 		}
 	}
 	return false
+}
+
+// secretRegistryPassword marks image.credentials.password of a Job, or of each Stacks entry, as secret.
+// Most SDKs do not mark a plain string, so the provider does. Unknown and null values stay as they are.
+func secretRegistryPassword(typ string, inputs property.Map) property.Map {
+	switch typ {
+	case typeJob:
+		return withSecretPassword(inputs)
+	case typeStacks:
+		stacks, ok := inputs.GetOk("stacks")
+		if !ok || !stacks.IsMap() {
+			return inputs
+		}
+		entries := map[string]property.Value{}
+		for name, entry := range stacks.AsMap().AsMap() {
+			if entry.IsMap() {
+				entry = property.New(withSecretPassword(entry.AsMap())).WithSecret(entry.Secret()).WithDependencies(entry.Dependencies())
+			}
+			entries[name] = entry
+		}
+		return inputs.Set("stacks", property.New(property.NewMap(entries)).WithSecret(stacks.Secret()).WithDependencies(stacks.Dependencies()))
+	}
+	return inputs
+}
+
+// withSecretPassword marks image.credentials.password of one member as secret.
+func withSecretPassword(member property.Map) property.Map {
+	image, ok := member.GetOk("image")
+	if !ok || !image.IsMap() {
+		return member
+	}
+	credentials, ok := image.AsMap().GetOk("credentials")
+	if !ok || !credentials.IsMap() {
+		return member
+	}
+	password, ok := credentials.AsMap().GetOk("password")
+	if !ok || !password.IsString() {
+		return member
+	}
+	credentials = property.New(credentials.AsMap().Set("password", password.WithSecret(true))).
+		WithSecret(credentials.Secret()).WithDependencies(credentials.Dependencies())
+	image = property.New(image.AsMap().Set("credentials", credentials)).
+		WithSecret(image.Secret()).WithDependencies(image.Dependencies())
+	return member.Set("image", image)
+}
+
+// dropNulls removes plain null fields and map entries, at any depth, so that a null input is an omitted one.
+// Pulumi HCL sends every unset field of an object as null. A null with dependencies or a secret flag stays.
+func dropNulls(m property.Map) property.Map {
+	out := map[string]property.Value{}
+	for key, value := range m.AsMap() {
+		if !value.IsNull() || value.Secret() || len(value.Dependencies()) > 0 {
+			out[key] = dropNullsIn(value)
+		}
+	}
+	return property.NewMap(out)
+}
+
+func dropNullsIn(value property.Value) property.Value {
+	switch {
+	case value.IsMap():
+		return property.New(dropNulls(value.AsMap())).WithSecret(value.Secret()).WithDependencies(value.Dependencies())
+	case value.IsArray():
+		items := value.AsArray().AsSlice()
+		for i, item := range items {
+			items[i] = dropNullsIn(item)
+		}
+		return property.New(property.NewArray(items)).WithSecret(value.Secret()).WithDependencies(value.Dependencies())
+	}
+	return value
 }
 
 func mapInput(value property.Value) property.Map {
@@ -424,7 +535,7 @@ func validateInputs(typ string, inputs property.Map) error {
 	case typePipelineSource:
 		if pipeline := stringInput(inputs, "pipeline"); pipeline != "" {
 			if parts := strings.Split(pipeline, "/"); len(parts) != 3 || slices.Contains(parts, "") {
-				return fmt.Errorf("pipeline must be org/project/stack, not %q", pipeline)
+				return fmt.Errorf("pipeline must be project/stack, not %q", pipeline)
 			}
 		} else if err := requiredUnlessUnknown(inputs, "", "pipeline"); err != nil {
 			return err
@@ -447,6 +558,14 @@ func validateInputs(typ string, inputs property.Map) error {
 			}
 		}
 		if err := validateTimeout(inputs); err != nil {
+			return err
+		}
+		if _, ok := inputs.GetOk("runtime"); ok {
+			if err := requireRef(inputs, "runtime", "delivery:index:WorkflowsRuntime"); err != nil {
+				return err
+			}
+		}
+		if err := checkImage(inputs); err != nil {
 			return err
 		}
 		return checkEnvironment(inputs)
@@ -493,6 +612,14 @@ func validateAgent(inputs property.Map) error {
 	return validateTimeout(inputs)
 }
 
+func checkImage(inputs property.Map) error {
+	if _, ok := inputs.GetOk("image"); !ok || unknown(inputs, "image") {
+		return nil
+	}
+	image := mapInput(inputs.Get("image"))
+	return requiredUnlessUnknown(inputs, stringInput(image, "reference"), "image", "reference")
+}
+
 func checkEnvironment(inputs property.Map) error {
 	environment := mapInput(inputs.Get("environment"))
 	for _, key := range reservedEnvironment {
@@ -531,7 +658,7 @@ func validateStacks(inputs property.Map) error {
 		}
 		if stackName != "" {
 			if parts := strings.Split(stackName, "/"); len(parts) != 3 || slices.Contains(parts, "") {
-				return fail(fmt.Errorf("stack must be org/project/stack, not %q", stackName))
+				return fail(fmt.Errorf("stack must be project/stack, not %q", stackName))
 			}
 			if other, dup := targets[stackName]; dup {
 				return fmt.Errorf("entries %q and %q both update stack %s; a stack can appear once per Stacks resource", other, name, stackName)
@@ -548,6 +675,9 @@ func validateStacks(inputs property.Map) error {
 			if err := requireRef(entry, "runtime", "delivery:index:WorkflowsRuntime"); err != nil {
 				return fail(err)
 			}
+		}
+		if err := checkImage(entry); err != nil {
+			return fail(err)
 		}
 		if err := checkEnvironment(entry); err != nil {
 			return fail(err)

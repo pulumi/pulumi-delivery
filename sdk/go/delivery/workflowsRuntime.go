@@ -12,7 +12,7 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-// Selects the pool that runs the work of a member. The preview runs on the hosted pool only, so do not use this resource in the preview. Agent pools are not available yet.
+// Selects the pool that runs the work of a member. In the private preview, all work runs on the hosted pool, so do not use this resource yet. Agent pools are not available.
 type WorkflowsRuntime struct {
 	pulumi.CustomResourceState
 
@@ -67,13 +67,13 @@ func (WorkflowsRuntimeState) ElementType() reflect.Type {
 }
 
 type workflowsRuntimeArgs struct {
-	// Pool identifier. Returned unchanged as the ref of the resource.
+	// Pool identifier. The resource returns it unchanged as ref.
 	AgentPool string `pulumi:"agentPool"`
 }
 
 // The set of arguments for constructing a WorkflowsRuntime resource.
 type WorkflowsRuntimeArgs struct {
-	// Pool identifier. Returned unchanged as the ref of the resource.
+	// Pool identifier. The resource returns it unchanged as ref.
 	AgentPool pulumi.StringInput
 }
 

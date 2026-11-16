@@ -33,7 +33,7 @@ func newProvider() (p.Provider, error) {
 	provider, err := infer.NewProviderBuilder().
 		WithNamespace("delivery").
 		WithDisplayName("Pulumi Delivery").
-		WithDescription("Define pipelines, stages and jobs in a Pulumi program.").
+		WithDescription("Define Delivery pipelines, stages, jobs and sources in a Pulumi program.").
 		WithPublisher("pulumi").
 		WithRepository("https://github.com/pulumi/pulumi-delivery").
 		WithHomepage("https://github.com/pulumi/pulumi-delivery").

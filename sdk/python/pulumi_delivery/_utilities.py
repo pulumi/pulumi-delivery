@@ -325,4 +325,4 @@ def get_plugin_download_url():
 	return "https://get.pulumi.com/releases/plugins/"
 
 def get_version():
-    return "0.2.0-neon.1"
+    return "0.0.0-dev"

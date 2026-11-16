@@ -18,14 +18,14 @@ public final class PipelineSourceArgs extends com.pulumi.resources.ResourceArgs 
     public static final PipelineSourceArgs Empty = new PipelineSourceArgs();
 
     /**
-     * Upstream pipeline as org/project/stack.
+     * Upstream pipeline as project/stack, in the organization of this pipeline.
      * 
      */
     @Import(name="pipeline", required=true)
     private Output<String> pipeline;
 
     /**
-     * @return Upstream pipeline as org/project/stack.
+     * @return Upstream pipeline as project/stack, in the organization of this pipeline.
      * 
      */
     public Output<String> pipeline() {
@@ -48,14 +48,14 @@ public final class PipelineSourceArgs extends com.pulumi.resources.ResourceArgs 
     }
 
     /**
-     * Set true to start a run of this pipeline when the stage deploys a new release. Omit it for a source that is part of the release but never starts a run.
+     * Set true to start a run of this pipeline when the stage deploys a new release. If you omit it, the source is part of the release but never starts a run.
      * 
      */
     @Import(name="trigger")
     private @Nullable Output<Boolean> trigger;
 
     /**
-     * @return Set true to start a run of this pipeline when the stage deploys a new release. Omit it for a source that is part of the release but never starts a run.
+     * @return Set true to start a run of this pipeline when the stage deploys a new release. If you omit it, the source is part of the release but never starts a run.
      * 
      */
     public Optional<Output<Boolean>> trigger() {
@@ -89,7 +89,7 @@ public final class PipelineSourceArgs extends com.pulumi.resources.ResourceArgs 
         }
 
         /**
-         * @param pipeline Upstream pipeline as org/project/stack.
+         * @param pipeline Upstream pipeline as project/stack, in the organization of this pipeline.
          * 
          * @return builder
          * 
@@ -100,7 +100,7 @@ public final class PipelineSourceArgs extends com.pulumi.resources.ResourceArgs 
         }
 
         /**
-         * @param pipeline Upstream pipeline as org/project/stack.
+         * @param pipeline Upstream pipeline as project/stack, in the organization of this pipeline.
          * 
          * @return builder
          * 
@@ -131,7 +131,7 @@ public final class PipelineSourceArgs extends com.pulumi.resources.ResourceArgs 
         }
 
         /**
-         * @param trigger Set true to start a run of this pipeline when the stage deploys a new release. Omit it for a source that is part of the release but never starts a run.
+         * @param trigger Set true to start a run of this pipeline when the stage deploys a new release. If you omit it, the source is part of the release but never starts a run.
          * 
          * @return builder
          * 
@@ -142,7 +142,7 @@ public final class PipelineSourceArgs extends com.pulumi.resources.ResourceArgs 
         }
 
         /**
-         * @param trigger Set true to start a run of this pipeline when the stage deploys a new release. Omit it for a source that is part of the release but never starts a run.
+         * @param trigger Set true to start a run of this pipeline when the stage deploys a new release. If you omit it, the source is part of the release but never starts a run.
          * 
          * @return builder
          * 

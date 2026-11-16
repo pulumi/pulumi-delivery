@@ -27,7 +27,5 @@ pulumi plugin install resource delivery <version> -f pulumi-resource-delivery-v<
 
 ## Release
 
-1. Set `version` in `schema.json`. Use `X.Y.Z` or `X.Y.Z-alpha.N`.
-2. Run `make sdk` and commit.
-3. Push the tag `vX.Y.Z` or `vX.Y.Z-alpha.N`. The `release` workflow uploads the archives.
-4. A registry administrator publishes the schema and `docs/_index.md` as `pulumi/pulumi/delivery` with the registry API. Do this for each release.
+1. Push the tag `vX.Y.Z` or `vX.Y.Z-alpha.N`. The `release` workflow stamps that version into the plugin and uploads the archives. The repository holds no version; local builds and the committed SDK say `0.0.0-dev`.
+2. A registry administrator publishes the schema and `docs/_index.md` as `pulumi/pulumi/delivery` with the registry API. Do this for each release.

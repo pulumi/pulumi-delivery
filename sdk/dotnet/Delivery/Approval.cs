@@ -13,7 +13,7 @@ namespace Pulumi.Delivery.Delivery
     public static class Approval
     {
         /// <summary>
-        /// Builds an approval rule for a Stage's when. The gate waits until the required number of eligible people approve. Omitted or zero count means one approval. The person who started the run cannot approve it. Without named approvers, anyone with the organization update permission can approve. Approving needs the Approvals feature.
+        /// Builds an approval rule for the when property of a Stage. The gate waits until the required number of eligible people approve. If you omit count or set it to zero, one approval is required. Anyone eligible can approve, including the person who started the run. If you name no approvers, anyone with the pipeline:approve permission on the pipeline stack can approve. Approving needs the Approvals feature.
         /// 
         /// ## Example Usage
         /// 
@@ -31,7 +31,7 @@ namespace Pulumi.Delivery.Delivery
             => global::Pulumi.Deployment.Instance.InvokeAsync<ApprovalResult>("delivery:index:approval", args ?? new ApprovalArgs(), options.WithDefaults());
 
         /// <summary>
-        /// Builds an approval rule for a Stage's when. The gate waits until the required number of eligible people approve. Omitted or zero count means one approval. The person who started the run cannot approve it. Without named approvers, anyone with the organization update permission can approve. Approving needs the Approvals feature.
+        /// Builds an approval rule for the when property of a Stage. The gate waits until the required number of eligible people approve. If you omit count or set it to zero, one approval is required. Anyone eligible can approve, including the person who started the run. If you name no approvers, anyone with the pipeline:approve permission on the pipeline stack can approve. Approving needs the Approvals feature.
         /// 
         /// ## Example Usage
         /// 
@@ -49,7 +49,7 @@ namespace Pulumi.Delivery.Delivery
             => global::Pulumi.Deployment.Instance.Invoke<ApprovalResult>("delivery:index:approval", args ?? new ApprovalInvokeArgs(), options.WithDefaults());
 
         /// <summary>
-        /// Builds an approval rule for a Stage's when. The gate waits until the required number of eligible people approve. Omitted or zero count means one approval. The person who started the run cannot approve it. Without named approvers, anyone with the organization update permission can approve. Approving needs the Approvals feature.
+        /// Builds an approval rule for the when property of a Stage. The gate waits until the required number of eligible people approve. If you omit count or set it to zero, one approval is required. Anyone eligible can approve, including the person who started the run. If you name no approvers, anyone with the pipeline:approve permission on the pipeline stack can approve. Approving needs the Approvals feature.
         /// 
         /// ## Example Usage
         /// 
@@ -74,7 +74,7 @@ namespace Pulumi.Delivery.Delivery
         private List<string>? _approvers;
 
         /// <summary>
-        /// Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
+        /// Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
         /// </summary>
         public List<string> Approvers
         {
@@ -83,7 +83,7 @@ namespace Pulumi.Delivery.Delivery
         }
 
         /// <summary>
-        /// Number of approvals required. Omitted or zero means one.
+        /// Number of approvals required. If you omit it or set it to zero, one approval is required.
         /// </summary>
         [Input("count")]
         public int? Count { get; set; }
@@ -106,7 +106,7 @@ namespace Pulumi.Delivery.Delivery
         private InputList<string>? _approvers;
 
         /// <summary>
-        /// Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
+        /// Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
         /// </summary>
         public InputList<string> Approvers
         {
@@ -115,7 +115,7 @@ namespace Pulumi.Delivery.Delivery
         }
 
         /// <summary>
-        /// Number of approvals required. Omitted or zero means one.
+        /// Number of approvals required. If you omit it or set it to zero, one approval is required.
         /// </summary>
         [Input("count")]
         public Input<int>? Count { get; set; }
@@ -137,19 +137,15 @@ namespace Pulumi.Delivery.Delivery
     public sealed class ApprovalResult
     {
         /// <summary>
-        /// Name of the Decision Agent definition that a decision rule asks. Required for that kind.
-        /// </summary>
-        public readonly string? Agent;
-        /// <summary>
-        /// Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
+        /// Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
         /// </summary>
         public readonly ImmutableArray<string> Approvers;
         /// <summary>
-        /// HTTP request body. Pulumi secret values remain secret.
+        /// HTTP request body. Secret values stay secret.
         /// </summary>
         public readonly string? Body;
         /// <summary>
-        /// Number of approvals required. For approval rules, omitted or zero means one.
+        /// Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
         /// </summary>
         public readonly int? Count;
         /// <summary>
@@ -157,23 +153,19 @@ namespace Pulumi.Delivery.Delivery
         /// </summary>
         public readonly string? Description;
         /// <summary>
-        /// HTTP request headers. Pulumi secret values remain secret.
+        /// HTTP request headers. Secret values stay secret.
         /// </summary>
         public readonly ImmutableDictionary<string, string>? Headers;
         /// <summary>
-        /// Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule.
+        /// Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
         /// </summary>
         public readonly string? HeadersEnvironment;
         /// <summary>
-        /// Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.
-        /// </summary>
-        public readonly ImmutableDictionary<string, object>? Inputs;
-        /// <summary>
-        /// HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
+        /// Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
         /// </summary>
         public readonly string? Interval;
         /// <summary>
-        /// Rule kind: approval, http, manual, decision, all, or any.
+        /// Kind of the rule. Valid values are approval, http, manual, all, and any.
         /// </summary>
         public readonly string Kind;
         /// <summary>
@@ -185,26 +177,24 @@ namespace Pulumi.Delivery.Delivery
         /// </summary>
         public readonly string? Name;
         /// <summary>
-        /// Child rules for all or any. At least one child is required.
+        /// Child rules for all and any rules. At least one is required.
         /// </summary>
         public readonly ImmutableArray<Outputs.Rule> Rules;
         /// <summary>
-        /// JMESPath expression that the service evaluates over the status, headers and body of the HTTP response. The rule passes when it is true. Required for http rules.
+        /// JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
         /// </summary>
         public readonly string? SuccessExpression;
         /// <summary>
-        /// HTTP request timeout as a Go duration, such as 10s. Must be a positive whole number of seconds, at most 20 seconds.
+        /// Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
         /// </summary>
         public readonly string? Timeout;
         /// <summary>
-        /// URL to call for an http rule. Required for that kind.
+        /// URL to call. Required for http rules.
         /// </summary>
         public readonly string? Url;
 
         [OutputConstructor]
         private ApprovalResult(
-            string? agent,
-
             ImmutableArray<string> approvers,
 
             string? body,
@@ -216,8 +206,6 @@ namespace Pulumi.Delivery.Delivery
             ImmutableDictionary<string, string>? headers,
 
             string? headersEnvironment,
-
-            ImmutableDictionary<string, object>? inputs,
 
             string? interval,
 
@@ -235,14 +223,12 @@ namespace Pulumi.Delivery.Delivery
 
             string? url)
         {
-            Agent = agent;
             Approvers = approvers;
             Body = body;
             Count = count;
             Description = description;
             Headers = headers;
             HeadersEnvironment = headersEnvironment;
-            Inputs = inputs;
             Interval = interval;
             Kind = kind;
             Method = method;

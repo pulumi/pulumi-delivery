@@ -24,7 +24,7 @@ class WorkflowsRuntimeArgs:
         """
         The set of arguments for constructing a WorkflowsRuntime resource.
 
-        :param pulumi.Input[_builtins.str] agent_pool: Pool identifier. Returned unchanged as the ref of the resource.
+        :param pulumi.Input[_builtins.str] agent_pool: Pool identifier. The resource returns it unchanged as ref.
         """
         pulumi.set(__self__, "agent_pool", agent_pool)
 
@@ -32,7 +32,7 @@ class WorkflowsRuntimeArgs:
     @pulumi.getter(name="agentPool")
     def agent_pool(self) -> pulumi.Input[_builtins.str]:
         """
-        Pool identifier. Returned unchanged as the ref of the resource.
+        Pool identifier. The resource returns it unchanged as ref.
         """
         return pulumi.get(self, "agent_pool")
 
@@ -50,11 +50,11 @@ class WorkflowsRuntime(pulumi.CustomResource):
                  agent_pool: pulumi.Input[Optional[_builtins.str]] = None,
                  __props__=None):
         """
-        Selects the pool that runs the work of a member. The preview runs on the hosted pool only, so do not use this resource in the preview. Agent pools are not available yet.
+        Selects the pool that runs the work of a member. In the private preview, all work runs on the hosted pool, so do not use this resource yet. Agent pools are not available.
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
-        :param pulumi.Input[_builtins.str] agent_pool: Pool identifier. Returned unchanged as the ref of the resource.
+        :param pulumi.Input[_builtins.str] agent_pool: Pool identifier. The resource returns it unchanged as ref.
         """
         ...
     @overload
@@ -63,7 +63,7 @@ class WorkflowsRuntime(pulumi.CustomResource):
                  args: WorkflowsRuntimeArgs,
                  opts: Optional[pulumi.ResourceOptions] = None):
         """
-        Selects the pool that runs the work of a member. The preview runs on the hosted pool only, so do not use this resource in the preview. Agent pools are not available yet.
+        Selects the pool that runs the work of a member. In the private preview, all work runs on the hosted pool, so do not use this resource yet. Agent pools are not available.
 
         :param str resource_name: The name of the resource.
         :param WorkflowsRuntimeArgs args: The arguments to use to populate this resource's properties.

@@ -25,12 +25,9 @@ __all__ = [
 @pulumi.output_type
 class ApprovalResult:
     """
-    Stage entry rule. Rules may nest at most three levels.
+    Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.
     """
-    def __init__(__self__, agent=None, approvers=None, body=None, count=None, description=None, headers=None, headers_environment=None, inputs=None, interval=None, kind=None, method=None, name=None, rules=None, success_expression=None, timeout=None, url=None):
-        if agent and not isinstance(agent, str):
-            raise TypeError("Expected argument 'agent' to be a str")
-        pulumi.set(__self__, "agent", agent)
+    def __init__(__self__, approvers=None, body=None, count=None, description=None, headers=None, headers_environment=None, interval=None, kind=None, method=None, name=None, rules=None, success_expression=None, timeout=None, url=None):
         if approvers and not isinstance(approvers, list):
             raise TypeError("Expected argument 'approvers' to be a list")
         pulumi.set(__self__, "approvers", approvers)
@@ -49,9 +46,6 @@ class ApprovalResult:
         if headers_environment and not isinstance(headers_environment, str):
             raise TypeError("Expected argument 'headers_environment' to be a str")
         pulumi.set(__self__, "headers_environment", headers_environment)
-        if inputs and not isinstance(inputs, dict):
-            raise TypeError("Expected argument 'inputs' to be a dict")
-        pulumi.set(__self__, "inputs", inputs)
         if interval and not isinstance(interval, str):
             raise TypeError("Expected argument 'interval' to be a str")
         pulumi.set(__self__, "interval", interval)
@@ -79,17 +73,9 @@ class ApprovalResult:
 
     @_builtins.property
     @pulumi.getter
-    def agent(self) -> Optional[_builtins.str]:
-        """
-        Name of the Decision Agent definition that a decision rule asks. Required for that kind.
-        """
-        return pulumi.get(self, "agent")
-
-    @_builtins.property
-    @pulumi.getter
     def approvers(self) -> Optional[Sequence[_builtins.str]]:
         """
-        Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
+        Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
         """
         return pulumi.get(self, "approvers")
 
@@ -97,7 +83,7 @@ class ApprovalResult:
     @pulumi.getter
     def body(self) -> Optional[_builtins.str]:
         """
-        HTTP request body. Pulumi secret values remain secret.
+        HTTP request body. Secret values stay secret.
         """
         return pulumi.get(self, "body")
 
@@ -105,7 +91,7 @@ class ApprovalResult:
     @pulumi.getter
     def count(self) -> Optional[_builtins.int]:
         """
-        Number of approvals required. For approval rules, omitted or zero means one.
+        Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
         """
         return pulumi.get(self, "count")
 
@@ -121,7 +107,7 @@ class ApprovalResult:
     @pulumi.getter
     def headers(self) -> Optional[Mapping[str, _builtins.str]]:
         """
-        HTTP request headers. Pulumi secret values remain secret.
+        HTTP request headers. Secret values stay secret.
         """
         return pulumi.get(self, "headers")
 
@@ -129,23 +115,15 @@ class ApprovalResult:
     @pulumi.getter(name="headersEnvironment")
     def headers_environment(self) -> Optional[_builtins.str]:
         """
-        Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule.
+        Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
         """
         return pulumi.get(self, "headers_environment")
 
     @_builtins.property
     @pulumi.getter
-    def inputs(self) -> Optional[Mapping[str, Any]]:
-        """
-        Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.
-        """
-        return pulumi.get(self, "inputs")
-
-    @_builtins.property
-    @pulumi.getter
     def interval(self) -> Optional[_builtins.str]:
         """
-        HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
+        Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
         """
         return pulumi.get(self, "interval")
 
@@ -153,7 +131,7 @@ class ApprovalResult:
     @pulumi.getter
     def kind(self) -> _builtins.str:
         """
-        Rule kind: approval, http, manual, decision, all, or any.
+        Kind of the rule. Valid values are approval, http, manual, all, and any.
         """
         return pulumi.get(self, "kind")
 
@@ -177,7 +155,7 @@ class ApprovalResult:
     @pulumi.getter
     def rules(self) -> Optional[Sequence['outputs.Rule']]:
         """
-        Child rules for all or any. At least one child is required.
+        Child rules for all and any rules. At least one is required.
         """
         return pulumi.get(self, "rules")
 
@@ -185,7 +163,7 @@ class ApprovalResult:
     @pulumi.getter(name="successExpression")
     def success_expression(self) -> Optional[_builtins.str]:
         """
-        JMESPath expression that the service evaluates over the status, headers and body of the HTTP response. The rule passes when it is true. Required for http rules.
+        JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
         """
         return pulumi.get(self, "success_expression")
 
@@ -193,7 +171,7 @@ class ApprovalResult:
     @pulumi.getter
     def timeout(self) -> Optional[_builtins.str]:
         """
-        HTTP request timeout as a Go duration, such as 10s. Must be a positive whole number of seconds, at most 20 seconds.
+        Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
         """
         return pulumi.get(self, "timeout")
 
@@ -201,7 +179,7 @@ class ApprovalResult:
     @pulumi.getter
     def url(self) -> Optional[_builtins.str]:
         """
-        URL to call for an http rule. Required for that kind.
+        URL to call. Required for http rules.
         """
         return pulumi.get(self, "url")
 
@@ -212,14 +190,12 @@ class AwaitableApprovalResult(ApprovalResult):
         if False:
             yield self
         return ApprovalResult(
-            agent=self.agent,
             approvers=self.approvers,
             body=self.body,
             count=self.count,
             description=self.description,
             headers=self.headers,
             headers_environment=self.headers_environment,
-            inputs=self.inputs,
             interval=self.interval,
             kind=self.kind,
             method=self.method,
@@ -235,12 +211,12 @@ def approval(approvers: Optional[Sequence[_builtins.str]] = None,
              name: Optional[_builtins.str] = None,
              opts: Optional[pulumi.InvokeOptions] = None) -> AwaitableApprovalResult:
     """
-    Builds an approval rule for a Stage's when. The gate waits until the required number of eligible people approve. Omitted or zero count means one approval. The person who started the run cannot approve it. Without named approvers, anyone with the organization update permission can approve. Approving needs the Approvals feature.
+    Builds an approval rule for the when property of a Stage. The gate waits until the required number of eligible people approve. If you omit count or set it to zero, one approval is required. Anyone eligible can approve, including the person who started the run. If you name no approvers, anyone with the pipeline:approve permission on the pipeline stack can approve. Approving needs the Approvals feature.
 
     ## Example Usage
 
-    :param Sequence[_builtins.str] approvers: Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
-    :param _builtins.int count: Number of approvals required. Omitted or zero means one.
+    :param Sequence[_builtins.str] approvers: Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
+    :param _builtins.int count: Number of approvals required. If you omit it or set it to zero, one approval is required.
     :param _builtins.str name: Rule name. Omit it to let Delivery assign one.
     """
     __args__ = dict()
@@ -251,14 +227,12 @@ def approval(approvers: Optional[Sequence[_builtins.str]] = None,
     __ret__ = pulumi.runtime.invoke('delivery:index:approval', __args__, opts=opts, typ=ApprovalResult).value
 
     return AwaitableApprovalResult(
-        agent=pulumi.get(__ret__, 'agent'),
         approvers=pulumi.get(__ret__, 'approvers'),
         body=pulumi.get(__ret__, 'body'),
         count=pulumi.get(__ret__, 'count'),
         description=pulumi.get(__ret__, 'description'),
         headers=pulumi.get(__ret__, 'headers'),
         headers_environment=pulumi.get(__ret__, 'headers_environment'),
-        inputs=pulumi.get(__ret__, 'inputs'),
         interval=pulumi.get(__ret__, 'interval'),
         kind=pulumi.get(__ret__, 'kind'),
         method=pulumi.get(__ret__, 'method'),
@@ -272,12 +246,12 @@ def approval_output(approvers: pulumi.Input[Optional[Optional[Sequence[_builtins
                     name: pulumi.Input[Optional[Optional[_builtins.str]]] = None,
                     opts: Optional[Union[pulumi.InvokeOptions, pulumi.InvokeOutputOptions]] = None) -> pulumi.Output[ApprovalResult]:
     """
-    Builds an approval rule for a Stage's when. The gate waits until the required number of eligible people approve. Omitted or zero count means one approval. The person who started the run cannot approve it. Without named approvers, anyone with the organization update permission can approve. Approving needs the Approvals feature.
+    Builds an approval rule for the when property of a Stage. The gate waits until the required number of eligible people approve. If you omit count or set it to zero, one approval is required. Anyone eligible can approve, including the person who started the run. If you name no approvers, anyone with the pipeline:approve permission on the pipeline stack can approve. Approving needs the Approvals feature.
 
     ## Example Usage
 
-    :param Sequence[_builtins.str] approvers: Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
-    :param _builtins.int count: Number of approvals required. Omitted or zero means one.
+    :param Sequence[_builtins.str] approvers: Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
+    :param _builtins.int count: Number of approvals required. If you omit it or set it to zero, one approval is required.
     :param _builtins.str name: Rule name. Omit it to let Delivery assign one.
     """
     __args__ = dict()
@@ -287,14 +261,12 @@ def approval_output(approvers: pulumi.Input[Optional[Optional[Sequence[_builtins
     opts = pulumi.InvokeOutputOptions.merge(_utilities.get_invoke_opts_defaults(), opts)
     __ret__ = pulumi.runtime.invoke_output('delivery:index:approval', __args__, opts=opts, typ=ApprovalResult)
     return __ret__.apply(lambda __response__: ApprovalResult(
-        agent=pulumi.get(__response__, 'agent'),
         approvers=pulumi.get(__response__, 'approvers'),
         body=pulumi.get(__response__, 'body'),
         count=pulumi.get(__response__, 'count'),
         description=pulumi.get(__response__, 'description'),
         headers=pulumi.get(__response__, 'headers'),
         headers_environment=pulumi.get(__response__, 'headers_environment'),
-        inputs=pulumi.get(__response__, 'inputs'),
         interval=pulumi.get(__response__, 'interval'),
         kind=pulumi.get(__response__, 'kind'),
         method=pulumi.get(__response__, 'method'),
