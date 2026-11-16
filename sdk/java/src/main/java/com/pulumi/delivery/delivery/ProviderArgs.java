@@ -3,15 +3,44 @@
 
 package com.pulumi.delivery.delivery;
 
-
+import com.pulumi.core.Output;
+import com.pulumi.core.annotations.Import;
+import com.pulumi.delivery.delivery.inputs.ProgramSourceArgs;
+import java.util.Objects;
+import java.util.Optional;
+import javax.annotation.Nullable;
 
 
 public final class ProviderArgs extends com.pulumi.resources.ResourceArgs {
 
     public static final ProviderArgs Empty = new ProviderArgs();
 
+    /**
+     * Location of the pipeline program, the recommended way to tell Delivery where the program lives.
+     * 
+     */
+    @Import(name="source", json=true)
+    private @Nullable Output<ProgramSourceArgs> source;
+
+    /**
+     * @return Location of the pipeline program, the recommended way to tell Delivery where the program lives.
+     * 
+     */
+    public Optional<Output<ProgramSourceArgs>> source() {
+        return Optional.ofNullable(this.source);
+    }
+
+    private ProviderArgs() {}
+
+    private ProviderArgs(ProviderArgs $) {
+        this.source = $.source;
+    }
+
     public static Builder builder() {
         return new Builder();
+    }
+    public static Builder builder(ProviderArgs defaults) {
+        return new Builder(defaults);
     }
 
     public static final class Builder {
@@ -20,6 +49,32 @@ public final class ProviderArgs extends com.pulumi.resources.ResourceArgs {
         public Builder() {
             $ = new ProviderArgs();
         }
+
+        public Builder(ProviderArgs defaults) {
+            $ = new ProviderArgs(Objects.requireNonNull(defaults));
+        }
+
+        /**
+         * @param source Location of the pipeline program, the recommended way to tell Delivery where the program lives.
+         * 
+         * @return builder
+         * 
+         */
+        public Builder source(@Nullable Output<ProgramSourceArgs> source) {
+            $.source = source;
+            return this;
+        }
+
+        /**
+         * @param source Location of the pipeline program, the recommended way to tell Delivery where the program lives.
+         * 
+         * @return builder
+         * 
+         */
+        public Builder source(ProgramSourceArgs source) {
+            return source(Output.of(source));
+        }
+
         public ProviderArgs build() {
             return $;
         }

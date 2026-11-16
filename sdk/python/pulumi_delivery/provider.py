@@ -13,16 +13,34 @@ if sys.version_info >= (3, 11):
 else:
     from typing_extensions import NotRequired, TypedDict, TypeAlias
 from . import _utilities
+from . import outputs
+from ._inputs import *
 
 __all__ = ['ProviderArgs', 'Provider']
 
 @pulumi.input_type
 class ProviderArgs:
-    def __init__(__self__):
+    def __init__(__self__, *,
+                 source: pulumi.Input[Optional['ProgramSourceArgs']] = None):
         """
         The set of arguments for constructing a Provider resource.
+
+        :param pulumi.Input['ProgramSourceArgs'] source: Location of the pipeline program, the recommended way to tell Delivery where the program lives.
         """
-        pass
+        if source is not None:
+            pulumi.set(__self__, "source", source)
+
+    @_builtins.property
+    @pulumi.getter
+    def source(self) -> pulumi.Input[Optional['ProgramSourceArgs']]:
+        """
+        Location of the pipeline program, the recommended way to tell Delivery where the program lives.
+        """
+        return pulumi.get(self, "source")
+
+    @source.setter
+    def source(self, value: pulumi.Input[Optional['ProgramSourceArgs']]):
+        pulumi.set(self, "source", value)
 
 
 @pulumi.type_token("pulumi:providers:delivery")
@@ -31,12 +49,14 @@ class Provider(pulumi.ProviderResource):
     def __init__(__self__,
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
+                 source: pulumi.Input[Optional[Union['ProgramSourceArgs', 'ProgramSourceArgsDict', 'outputs.ProgramSource']]] = None,
                  __props__=None):
         """
         Create a Delivery resource with the given unique name, props, and options.
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
+        :param pulumi.Input[Union['ProgramSourceArgs', 'ProgramSourceArgsDict', 'outputs.ProgramSource']] source: Location of the pipeline program, the recommended way to tell Delivery where the program lives.
         """
         ...
     @overload
@@ -62,6 +82,7 @@ class Provider(pulumi.ProviderResource):
     def _internal_init(__self__,
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
+                 source: pulumi.Input[Optional[Union['ProgramSourceArgs', 'ProgramSourceArgsDict', 'outputs.ProgramSource']]] = None,
                  __props__=None):
         opts = pulumi.ResourceOptions.merge(_utilities.get_resource_opts_defaults(), opts)
         if not isinstance(opts, pulumi.ResourceOptions):
@@ -71,6 +92,7 @@ class Provider(pulumi.ProviderResource):
                 raise TypeError('__props__ is only valid when passed in combination with a valid opts.id to get an existing resource')
             __props__ = ProviderArgs.__new__(ProviderArgs)
 
+            __props__.__dict__["source"] = pulumi.Output.from_input(source).apply(pulumi.runtime.to_json) if source is not None else None
         super(Provider, __self__).__init__(
             'delivery',
             resource_name,

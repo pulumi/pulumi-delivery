@@ -48,7 +48,7 @@ func isDeliveryComponent(typ string) bool {
 //   - sends the declaration to the service in a real update, before the component code runs,
 //   - reads the value of a source from the service in a run, and
 //   - makes the outputs of a member depend on its child resource.
-func withDeliveryConstruct(inner func(context.Context, p.ConstructRequest) (p.ConstructResponse, error),
+func withDeliveryConstruct(config *ProviderConfig, inner func(context.Context, p.ConstructRequest) (p.ConstructResponse, error),
 ) func(context.Context, p.ConstructRequest) (p.ConstructResponse, error) {
 	return func(ctx context.Context, req p.ConstructRequest) (p.ConstructResponse, error) {
 		typ := string(req.Urn.Type())
@@ -76,7 +76,14 @@ func withDeliveryConstruct(inner func(context.Context, p.ConstructRequest) (p.Co
 			if err != nil {
 				return p.ConstructResponse{}, err
 			}
-			request, err := decl.request(ctx, req.Inputs)
+			inputs := req.Inputs
+			if typ == typePipeline && config.Source != nil {
+				inputs = inputs.Set("programSource", property.New(config.Source.value()))
+			}
+			if typ == typePipeline {
+				inputs = servicePrincipalAsString(inputs)
+			}
+			request, err := decl.request(ctx, inputs)
 			if err != nil {
 				return p.ConstructResponse{}, err
 			}
@@ -481,14 +488,7 @@ func validateInputs(typ string, inputs property.Map) error {
 	}
 	switch typ {
 	case typePipeline:
-		if unknown(inputs, "program") {
-			return nil
-		}
-		program := mapInput(inputs.Get("program"))
-		if err := requireRef(program, "source", sourceTypes...); err != nil {
-			return fmt.Errorf("program.%w", err)
-		}
-		return requiredUnlessUnknown(inputs, stringInput(program, "directory"), "program", "directory")
+		return validateServicePrincipal(inputs)
 	case typeStage:
 		if err := requireRef(inputs, "pipeline", typePipeline); err != nil {
 			return err
@@ -537,6 +537,52 @@ func validateInputs(typ string, inputs property.Map) error {
 		return checkEnvironment(inputs)
 	}
 	return nil
+}
+
+func validateServicePrincipal(inputs property.Map) error {
+	value, ok := inputs.GetOk("servicePrincipal")
+	if !ok || value.IsNull() || value.IsComputed() {
+		return nil
+	}
+	if !value.IsMap() {
+		return errors.New("servicePrincipal must be an object with userId or teamName")
+	}
+	principal := value.AsMap()
+	present := func(name string) bool {
+		v, ok := principal.GetOk(name)
+		return ok && !v.IsNull()
+	}
+	userID, _ := principal.GetOk("userId")
+	user := present("userId") && (userID.IsComputed() || !userID.IsString() || userID.AsString() != "")
+	team := present("teamName")
+	switch {
+	case present("userId") && team:
+		return errors.New("servicePrincipal takes userId or teamName, not both")
+	case team:
+		return errors.New("servicePrincipal.teamName is not supported yet: Delivery cannot run a pipeline as a team. Use servicePrincipal.userId with a user-defined service principal.")
+	case !user:
+		return errors.New("servicePrincipal needs userId or teamName")
+	case !userID.IsComputed() && !userID.IsString():
+		return errors.New("servicePrincipal.userId must be a string")
+	}
+	return nil
+}
+
+// servicePrincipalAsString replaces the servicePrincipal object of a Pipeline with its userId, because the
+// service reads the principal as a string. The userId keeps its unknown and secret marks.
+func servicePrincipalAsString(inputs property.Map) property.Map {
+	principal, ok := inputs.GetOk("servicePrincipal")
+	if !ok || !principal.IsMap() {
+		return inputs
+	}
+	userID, ok := principal.AsMap().GetOk("userId")
+	if !ok {
+		return inputs.Delete("servicePrincipal")
+	}
+	if principal.Secret() {
+		userID = userID.WithSecret(true)
+	}
+	return inputs.Set("servicePrincipal", userID.WithDependencies(principal.Dependencies()))
 }
 
 func checkImage(inputs property.Map) error {
@@ -674,4 +720,16 @@ func redactValue(value property.Value) property.Value {
 		return property.New(property.NewArray(items)).WithDependencies(value.Dependencies())
 	}
 	return value
+}
+
+// value is the programSource of the Pipeline declaration. It leaves out the fields that are not set.
+func (s ProgramSource) value() property.Map {
+	m := map[string]property.Value{"url": property.New(s.URL)}
+	if s.Branch != "" {
+		m["branch"] = property.New(s.Branch)
+	}
+	if s.Directory != "" {
+		m["directory"] = property.New(s.Directory)
+	}
+	return property.NewMap(m)
 }

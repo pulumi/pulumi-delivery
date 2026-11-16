@@ -148,23 +148,16 @@ func (r *CombinedRuleArgs) Annotate(a infer.Annotator) {
 }
 
 func (r *Pipeline) Annotate(a infer.Annotator) {
-	a.Describe(r, `Declares the pipeline. It names the source and directory of the pipeline program itself, and it gives the release number of the run. A program has one Pipeline.
+	a.Describe(r, `Declares the pipeline. It gives the release number of the run. Set delivery:source in the stack config to tell Delivery where the program lives. A program has one Pipeline.
 
-To register the pipeline, run pulumi up on the pipeline stack. Registration ends with exit code 10, because the members wait for a run.
+To register the pipeline, run PULUMI_DELIVERY_REGISTER=true pulumi up on the pipeline stack. Registration ends with exit code 10, because the members wait for a run.
 
 ## Example Usage
 
 `+"```"+`typescript
 import * as delivery from "@pulumi/delivery";
 
-const code = new delivery.GitHubSource("code", {
-    repository: "acme/shop",
-    branch: "main",
-    trigger: true,
-});
-const pipeline = new delivery.Pipeline("shop", {
-    program: { source: code, directory: "delivery" },
-});
+const pipeline = new delivery.Pipeline("shop");
 export const release = pipeline.releaseNumber;
 `+"```")
 	a.Describe(&r.ReleaseNumber, "Number of the release of the run. It is unknown during registration and preview.")
@@ -172,13 +165,24 @@ export const release = pipeline.releaseNumber;
 
 func (r *PipelineArgs) Annotate(a infer.Annotator) {
 	a.Describe(r, "Pipeline settings.")
-	a.Describe(&r.Program, "Source and directory of the pipeline program.")
+	a.Describe(&r.ServicePrincipal, "Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.")
+}
+
+func (r *PipelineServicePrincipal) Annotate(a infer.Annotator) {
+	a.Describe(r, "Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.")
+	a.Describe(&r.UserID, "ID or login of a user-defined service principal. Cannot be set together with teamName.")
+	a.Describe(&r.TeamName, "Name of a team. The pipeline runs as the service principal of the team, with the roles of the team. Not supported yet. Cannot be set together with userId.")
+}
+
+func (r *ProviderConfig) Annotate(a infer.Annotator) {
+	a.Describe(&r.Source, "Location of the pipeline program, the recommended way to tell Delivery where the program lives.")
 }
 
 func (r *ProgramSource) Annotate(a infer.Annotator) {
 	a.Describe(r, "Location of the pipeline program in a repository.")
-	a.Describe(&r.Source, "VCS source of the pipeline program.")
-	a.Describe(&r.Directory, "Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root.")
+	a.Describe(&r.URL, "Clone URL of the repository.")
+	a.Describe(&r.Branch, "Branch that tracks the pipeline program. Omit it to let the service choose the branch.")
+	a.Describe(&r.Directory, "Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to let the service choose the directory.")
 }
 
 func (r *Stage) Annotate(a infer.Annotator) {

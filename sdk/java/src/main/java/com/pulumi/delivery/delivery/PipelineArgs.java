@@ -5,9 +5,10 @@ package com.pulumi.delivery.delivery;
 
 import com.pulumi.core.Output;
 import com.pulumi.core.annotations.Import;
-import com.pulumi.delivery.delivery.inputs.ProgramSourceArgs;
-import com.pulumi.exceptions.MissingRequiredPropertyException;
+import com.pulumi.delivery.delivery.inputs.PipelineServicePrincipalArgs;
 import java.util.Objects;
+import java.util.Optional;
+import javax.annotation.Nullable;
 
 
 public final class PipelineArgs extends com.pulumi.resources.ResourceArgs {
@@ -15,24 +16,24 @@ public final class PipelineArgs extends com.pulumi.resources.ResourceArgs {
     public static final PipelineArgs Empty = new PipelineArgs();
 
     /**
-     * Source and directory of the pipeline program.
+     * Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
      * 
      */
-    @Import(name="program", required=true)
-    private Output<ProgramSourceArgs> program;
+    @Import(name="servicePrincipal")
+    private @Nullable Output<PipelineServicePrincipalArgs> servicePrincipal;
 
     /**
-     * @return Source and directory of the pipeline program.
+     * @return Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
      * 
      */
-    public Output<ProgramSourceArgs> program() {
-        return this.program;
+    public Optional<Output<PipelineServicePrincipalArgs>> servicePrincipal() {
+        return Optional.ofNullable(this.servicePrincipal);
     }
 
     private PipelineArgs() {}
 
     private PipelineArgs(PipelineArgs $) {
-        this.program = $.program;
+        this.servicePrincipal = $.servicePrincipal;
     }
 
     public static Builder builder() {
@@ -54,30 +55,27 @@ public final class PipelineArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param program Source and directory of the pipeline program.
+         * @param servicePrincipal Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
          * 
          * @return builder
          * 
          */
-        public Builder program(Output<ProgramSourceArgs> program) {
-            $.program = program;
+        public Builder servicePrincipal(@Nullable Output<PipelineServicePrincipalArgs> servicePrincipal) {
+            $.servicePrincipal = servicePrincipal;
             return this;
         }
 
         /**
-         * @param program Source and directory of the pipeline program.
+         * @param servicePrincipal Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
          * 
          * @return builder
          * 
          */
-        public Builder program(ProgramSourceArgs program) {
-            return program(Output.of(program));
+        public Builder servicePrincipal(PipelineServicePrincipalArgs servicePrincipal) {
+            return servicePrincipal(Output.of(servicePrincipal));
         }
 
         public PipelineArgs build() {
-            if ($.program == null) {
-                throw new MissingRequiredPropertyException("PipelineArgs", "program");
-            }
             return $;
         }
     }

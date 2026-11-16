@@ -13,9 +13,9 @@ import java.lang.Integer;
 import javax.annotation.Nullable;
 
 /**
- * Declares the pipeline. It names the source and directory of the pipeline program itself, and it gives the release number of the run. A program has one Pipeline.
+ * Declares the pipeline. It gives the release number of the run. Set delivery:source in the stack config to tell Delivery where the program lives. A program has one Pipeline.
  * 
- * To register the pipeline, run pulumi up on the pipeline stack. Registration ends with exit code 10, because the members wait for a run.
+ * To register the pipeline, run PULUMI_DELIVERY_REGISTER=true pulumi up on the pipeline stack. Registration ends with exit code 10, because the members wait for a run.
  * 
  * ## Example Usage
  * 
@@ -49,7 +49,7 @@ public class Pipeline extends com.pulumi.resources.ComponentResource {
      * @param name The _unique_ name of the resulting resource.
      * @param args The arguments to use to populate this resource's properties.
      */
-    public Pipeline(java.lang.String name, PipelineArgs args) {
+    public Pipeline(java.lang.String name, @Nullable PipelineArgs args) {
         this(name, args, null);
     }
     /**
@@ -58,11 +58,11 @@ public class Pipeline extends com.pulumi.resources.ComponentResource {
      * @param args The arguments to use to populate this resource's properties.
      * @param options A bag of options that control this resource's behavior.
      */
-    public Pipeline(java.lang.String name, PipelineArgs args, @Nullable com.pulumi.resources.ComponentResourceOptions options) {
+    public Pipeline(java.lang.String name, @Nullable PipelineArgs args, @Nullable com.pulumi.resources.ComponentResourceOptions options) {
         super("delivery:index:Pipeline", name, makeArgs(args, options), makeResourceOptions(options, Codegen.empty()), true);
     }
 
-    private static PipelineArgs makeArgs(PipelineArgs args, @Nullable com.pulumi.resources.ComponentResourceOptions options) {
+    private static PipelineArgs makeArgs(@Nullable PipelineArgs args, @Nullable com.pulumi.resources.ComponentResourceOptions options) {
         if (options != null && options.getUrn().isPresent()) {
             return null;
         }

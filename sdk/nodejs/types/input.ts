@@ -36,17 +36,35 @@ export interface ImageCredentialsArgs {
 }
 
 /**
+ * Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
+ */
+export interface PipelineServicePrincipalArgs {
+    /**
+     * Name of a team. The pipeline runs as the service principal of the team, with the roles of the team. Not supported yet. Cannot be set together with userId.
+     */
+    teamName?: pulumi.Input<string | undefined>;
+    /**
+     * ID or login of a user-defined service principal. Cannot be set together with teamName.
+     */
+    userId?: pulumi.Input<string | undefined>;
+}
+
+/**
  * Location of the pipeline program in a repository.
  */
 export interface ProgramSourceArgs {
     /**
-     * Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root.
+     * Branch that tracks the pipeline program. Omit it to let the service choose the branch.
      */
-    directory: pulumi.Input<string>;
+    branch?: pulumi.Input<string | undefined>;
     /**
-     * VCS source of the pipeline program.
+     * Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to let the service choose the directory.
      */
-    source: pulumi.Input<GitHubSource | GitLabSource | BitbucketSource | AzureDevOpsSource>;
+    directory?: pulumi.Input<string | undefined>;
+    /**
+     * Clone URL of the repository.
+     */
+    url: pulumi.Input<string>;
 }
 
 /**

@@ -11,13 +11,15 @@ import (
 )
 
 // ProtocolVersion is the version of the declaration protocol that this client speaks.
-const ProtocolVersion = 1
+const ProtocolVersion = 2
 
 // Declaration is the body of POST {stack}/delivery/declarations.
 type Declaration struct {
-	ProtocolVersion int    `json:"protocolVersion"`
-	URN             string `json:"urn"`
-	Type            string `json:"type"`
+	ProtocolVersion int `json:"protocolVersion"`
+	// Mode is "register" when the update is a registration of the pipeline. It is omitted otherwise.
+	Mode string `json:"mode,omitempty"`
+	URN  string `json:"urn"`
+	Type string `json:"type"`
 	// Inputs are the raw inputs in the Pulumi JSON property encoding.
 	Inputs               map[string]any      `json:"inputs"`
 	Dependencies         []string            `json:"dependencies"`

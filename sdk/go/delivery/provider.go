@@ -32,10 +32,14 @@ func NewProvider(ctx *pulumi.Context,
 }
 
 type providerArgs struct {
+	// Location of the pipeline program, the recommended way to tell Delivery where the program lives.
+	Source *ProgramSource `pulumi:"source"`
 }
 
 // The set of arguments for constructing a Provider resource.
 type ProviderArgs struct {
+	// Location of the pipeline program, the recommended way to tell Delivery where the program lives.
+	Source ProgramSourcePtrInput
 }
 
 func (ProviderArgs) ElementType() reflect.Type {

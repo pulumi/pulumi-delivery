@@ -8,6 +8,24 @@ import * as outputs from "../types/output";
 import {AzureDevOpsSource, BitbucketSource, GitHubSource, GitLabSource, WorkflowsRuntime} from "..";
 
 /**
+ * Location of the pipeline program in a repository.
+ */
+export interface ProgramSource {
+    /**
+     * Branch that tracks the pipeline program. Omit it to let the service choose the branch.
+     */
+    branch?: string;
+    /**
+     * Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to let the service choose the directory.
+     */
+    directory?: string;
+    /**
+     * Clone URL of the repository.
+     */
+    url: string;
+}
+
+/**
  * Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.
  */
 export interface Rule {

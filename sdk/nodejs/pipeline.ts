@@ -6,26 +6,17 @@ import * as inputs from "./types/input";
 import * as outputs from "./types/output";
 import * as utilities from "./utilities";
 
-import {AzureDevOpsSource, BitbucketSource, GitHubSource, GitLabSource} from "./index";
-
 /**
- * Declares the pipeline. It names the source and directory of the pipeline program itself, and it gives the release number of the run. A program has one Pipeline.
+ * Declares the pipeline. It gives the release number of the run. Set delivery:source in the stack config to tell Delivery where the program lives. A program has one Pipeline.
  *
- * To register the pipeline, run pulumi up on the pipeline stack. Registration ends with exit code 10, because the members wait for a run.
+ * To register the pipeline, run PULUMI_DELIVERY_REGISTER=true pulumi up on the pipeline stack. Registration ends with exit code 10, because the members wait for a run.
  *
  * ## Example Usage
  *
  * ```typescript
  * import * as delivery from "@pulumi/delivery";
  *
- * const code = new delivery.GitHubSource("code", {
- *     repository: "acme/shop",
- *     branch: "main",
- *     trigger: true,
- * });
- * const pipeline = new delivery.Pipeline("shop", {
- *     program: { source: code, directory: "delivery" },
- * });
+ * const pipeline = new delivery.Pipeline("shop");
  * export const release = pipeline.releaseNumber;
  * ```
  */
@@ -56,14 +47,11 @@ export class Pipeline extends pulumi.ComponentResource {
      * @param args The arguments to use to populate this resource's properties.
      * @param opts A bag of options that control this resource's behavior.
      */
-    constructor(name: string, args: PipelineArgs, opts?: pulumi.ComponentResourceOptions) {
+    constructor(name: string, args?: PipelineArgs, opts?: pulumi.ComponentResourceOptions) {
         let resourceInputs: pulumi.Inputs = {};
         opts = opts || {};
         if (!opts.id) {
-            if (args?.program === undefined && !opts.urn) {
-                throw new Error("Missing required property 'program'");
-            }
-            resourceInputs["program"] = args?.program;
+            resourceInputs["servicePrincipal"] = args?.servicePrincipal;
             resourceInputs["releaseNumber"] = undefined /*out*/;
         } else {
             resourceInputs["releaseNumber"] = undefined /*out*/;
@@ -78,7 +66,7 @@ export class Pipeline extends pulumi.ComponentResource {
  */
 export interface PipelineArgs {
     /**
-     * Source and directory of the pipeline program.
+     * Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
      */
-    program: pulumi.Input<inputs.ProgramSourceArgs>;
+    servicePrincipal?: pulumi.Input<inputs.PipelineServicePrincipalArgs | undefined>;
 }

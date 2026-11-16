@@ -50,7 +50,7 @@ func TestAPIErrorIncludesMethodAndPath(t *testing.T) {
 	}
 }
 
-// TestRequestsCarryTheProtocolVersion proves that every route of the protocol sends version 1.
+// TestRequestsCarryTheProtocolVersion proves that every route of the protocol sends version 2.
 func TestRequestsCarryTheProtocolVersion(t *testing.T) {
 	var paths []string
 	var bodies []string
@@ -76,16 +76,16 @@ func TestRequestsCarryTheProtocolVersion(t *testing.T) {
 	if want := "POST /api/stacks/org/proj/stack/delivery/declarations"; paths[0] != want {
 		t.Fatalf("path = %q, want %q", paths[0], want)
 	}
-	if !strings.Contains(bodies[0], `"protocolVersion":1`) {
+	if !strings.Contains(bodies[0], `"protocolVersion":2`) {
 		t.Fatalf("declaration body = %s", bodies[0])
 	}
-	if want := "GET /api/stacks/org/proj/stack/delivery/run?protocolVersion=1"; paths[1] != want {
+	if want := "GET /api/stacks/org/proj/stack/delivery/run?protocolVersion=2"; paths[1] != want {
 		t.Fatalf("path = %q, want %q", paths[1], want)
 	}
 	if want := "POST /api/stacks/org/proj/stack/delivery/run/values"; paths[2] != want {
 		t.Fatalf("path = %q, want %q", paths[2], want)
 	}
-	if !strings.Contains(bodies[2], `"protocolVersion":1`) || !strings.Contains(bodies[2], `"kind":"source"`) {
+	if !strings.Contains(bodies[2], `"protocolVersion":2`) || !strings.Contains(bodies[2], `"kind":"source"`) {
 		t.Fatalf("run value body = %s", bodies[2])
 	}
 }

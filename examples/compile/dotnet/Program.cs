@@ -25,10 +25,7 @@ public static class Compile
             Stage = "prod",
             Trigger = true,
         });
-        var pipeline = new Pipeline("shop", new PipelineArgs
-        {
-            Program = new ProgramSourceArgs { Source = code, Directory = "delivery" },
-        });
+        var pipeline = new Pipeline("shop");
         // manual returns a plain result in .NET: the rule is built as RuleArgs.
         _ = Manual.InvokeAsync(new ManualArgs { Name = "dashboards", Description = "Check the dashboards first." });
         var prod = new Stage("prod", new StageArgs

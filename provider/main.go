@@ -30,7 +30,9 @@ func main() {
 }
 
 func newProvider() (p.Provider, error) {
+	config := &ProviderConfig{}
 	provider, err := infer.NewProviderBuilder().
+		WithConfig(infer.Config(config)).
 		WithNamespace("delivery").
 		WithDisplayName("Pulumi Delivery").
 		WithDescription("Define Delivery pipelines, stages, jobs and sources in a Pulumi program.").
@@ -76,7 +78,24 @@ func newProvider() (p.Provider, error) {
 		return p.Provider{}, err
 	}
 	provider = unknownOutputsInPreview(provider)
-	provider.Construct = withDeliveryConstruct(provider.Construct)
+	provider.Construct = withDeliveryConstruct(config, provider.Construct)
 	provider.GetSchema = withReferences(provider.GetSchema)
+	provider.DiffConfig = diffConfig
 	return provider, nil
+}
+
+// diffConfig reports every change of the configuration as an update in place, so that a change of delivery:source never
+// replaces the provider and the resources under it. It compares the property values: the typed configuration is one
+// shared object, and reading the old state into it would leave the old source behind.
+// A Configure only overwrites the fields that are present, which is safe because the engine configures a provider
+// process once per update.
+func diffConfig(_ context.Context, req p.DiffRequest) (p.DiffResponse, error) {
+	resp := p.DiffResponse{DetailedDiff: map[string]p.PropertyDiff{}}
+	for _, key := range []string{"source", "version"} {
+		if !req.State.Get(key).Equals(req.Inputs.Get(key)) {
+			resp.DetailedDiff[key] = p.PropertyDiff{Kind: p.Update, InputDiff: true}
+			resp.HasChanges = true
+		}
+	}
+	return resp, nil
 }

@@ -41,7 +41,14 @@
       "respectSchemaVersion": true
     }
   },
-  "config": {},
+  "config": {
+    "variables": {
+      "source": {
+        "$ref": "#/types/delivery:index:ProgramSource",
+        "description": "Location of the pipeline program, the recommended way to tell Delivery where the program lives."
+      }
+    }
+  },
   "types": {
     "delivery:index:Image": {
       "description": "Container image that a member runs in.",
@@ -79,35 +86,39 @@
         "password"
       ]
     },
+    "delivery:index:PipelineServicePrincipal": {
+      "description": "Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.",
+      "properties": {
+        "teamName": {
+          "type": "string",
+          "description": "Name of a team. The pipeline runs as the service principal of the team, with the roles of the team. Not supported yet. Cannot be set together with userId."
+        },
+        "userId": {
+          "type": "string",
+          "description": "ID or login of a user-defined service principal. Cannot be set together with teamName."
+        }
+      },
+      "type": "object"
+    },
     "delivery:index:ProgramSource": {
       "description": "Location of the pipeline program in a repository.",
       "properties": {
+        "branch": {
+          "type": "string",
+          "description": "Branch that tracks the pipeline program. Omit it to let the service choose the branch."
+        },
         "directory": {
           "type": "string",
-          "description": "Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root."
+          "description": "Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to let the service choose the directory."
         },
-        "source": {
-          "oneOf": [
-            {
-              "$ref": "#/resources/delivery:index:GitHubSource"
-            },
-            {
-              "$ref": "#/resources/delivery:index:GitLabSource"
-            },
-            {
-              "$ref": "#/resources/delivery:index:BitbucketSource"
-            },
-            {
-              "$ref": "#/resources/delivery:index:AzureDevOpsSource"
-            }
-          ],
-          "description": "VCS source of the pipeline program."
+        "url": {
+          "type": "string",
+          "description": "Clone URL of the repository."
         }
       },
       "type": "object",
       "required": [
-        "source",
-        "directory"
+        "url"
       ]
     },
     "delivery:index:Rule": {
@@ -282,6 +293,20 @@
       "required": [
         "agentPool"
       ]
+    }
+  },
+  "provider": {
+    "properties": {
+      "source": {
+        "$ref": "#/types/delivery:index:ProgramSource",
+        "description": "Location of the pipeline program, the recommended way to tell Delivery where the program lives."
+      }
+    },
+    "inputProperties": {
+      "source": {
+        "$ref": "#/types/delivery:index:ProgramSource",
+        "description": "Location of the pipeline program, the recommended way to tell Delivery where the program lives."
+      }
     }
   },
   "resources": {
@@ -544,7 +569,7 @@
       "isComponent": true
     },
     "delivery:index:Pipeline": {
-      "description": "Declares the pipeline. It names the source and directory of the pipeline program itself, and it gives the release number of the run. A program has one Pipeline.\n\nTo register the pipeline, run pulumi up on the pipeline stack. Registration ends with exit code 10, because the members wait for a run.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nconst code = new delivery.GitHubSource(\"code\", {\n    repository: \"acme/shop\",\n    branch: \"main\",\n    trigger: true,\n});\nconst pipeline = new delivery.Pipeline(\"shop\", {\n    program: { source: code, directory: \"delivery\" },\n});\nexport const release = pipeline.releaseNumber;\n```",
+      "description": "Declares the pipeline. It gives the release number of the run. Set delivery:source in the stack config to tell Delivery where the program lives. A program has one Pipeline.\n\nTo register the pipeline, run PULUMI_DELIVERY_REGISTER=true pulumi up on the pipeline stack. Registration ends with exit code 10, because the members wait for a run.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nconst pipeline = new delivery.Pipeline(\"shop\");\nexport const release = pipeline.releaseNumber;\n```",
       "properties": {
         "releaseNumber": {
           "type": "integer",
@@ -555,14 +580,11 @@
         "releaseNumber"
       ],
       "inputProperties": {
-        "program": {
-          "$ref": "#/types/delivery:index:ProgramSource",
-          "description": "Source and directory of the pipeline program."
+        "servicePrincipal": {
+          "$ref": "#/types/delivery:index:PipelineServicePrincipal",
+          "description": "Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline."
         }
       },
-      "requiredInputs": [
-        "program"
-      ],
       "isComponent": true
     },
     "delivery:index:PipelineSource": {

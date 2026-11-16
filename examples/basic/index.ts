@@ -11,9 +11,7 @@ const platform = new delivery.PipelineSource("platform", {
     stage: "prod",
     trigger: true,
 });
-const pipeline = new delivery.Pipeline("shop", {
-    program: {source: code, directory: "delivery"},
-});
+const pipeline = new delivery.Pipeline("shop");
 const dev = new delivery.Stage("dev", {pipeline});
 const prod = new delivery.Stage("prod", {
     pipeline,

@@ -92,9 +92,11 @@ utilities.lazyLoad(exports, ["WorkflowsRuntime"], () => require("./workflowsRunt
 
 
 // Export sub-modules:
+import * as config from "./config";
 import * as types from "./types";
 
 export {
+    config,
     types,
 };
 

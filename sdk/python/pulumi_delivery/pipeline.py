@@ -14,35 +14,32 @@ else:
     from typing_extensions import NotRequired, TypedDict, TypeAlias
 from . import _utilities
 from ._inputs import *
-from .azure_dev_ops_source import AzureDevOpsSource
-from .bitbucket_source import BitbucketSource
-from .git_hub_source import GitHubSource
-from .git_lab_source import GitLabSource
 
 __all__ = ['PipelineArgs', 'Pipeline']
 
 @pulumi.input_type
 class PipelineArgs:
     def __init__(__self__, *,
-                 program: pulumi.Input['ProgramSourceArgs']):
+                 service_principal: pulumi.Input[Optional['PipelineServicePrincipalArgs']] = None):
         """
         The set of arguments for constructing a Pipeline resource.
 
-        :param pulumi.Input['ProgramSourceArgs'] program: Source and directory of the pipeline program.
+        :param pulumi.Input['PipelineServicePrincipalArgs'] service_principal: Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
         """
-        pulumi.set(__self__, "program", program)
+        if service_principal is not None:
+            pulumi.set(__self__, "service_principal", service_principal)
 
     @_builtins.property
-    @pulumi.getter
-    def program(self) -> pulumi.Input['ProgramSourceArgs']:
+    @pulumi.getter(name="servicePrincipal")
+    def service_principal(self) -> pulumi.Input[Optional['PipelineServicePrincipalArgs']]:
         """
-        Source and directory of the pipeline program.
+        Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
         """
-        return pulumi.get(self, "program")
+        return pulumi.get(self, "service_principal")
 
-    @program.setter
-    def program(self, value: pulumi.Input['ProgramSourceArgs']):
-        pulumi.set(self, "program", value)
+    @service_principal.setter
+    def service_principal(self, value: pulumi.Input[Optional['PipelineServicePrincipalArgs']]):
+        pulumi.set(self, "service_principal", value)
 
 
 @pulumi.type_token("delivery:index:Pipeline")
@@ -51,29 +48,29 @@ class Pipeline(pulumi.ComponentResource):
     def __init__(__self__,
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
-                 program: pulumi.Input[Optional[Union['ProgramSourceArgs', 'ProgramSourceArgsDict']]] = None,
+                 service_principal: pulumi.Input[Optional[Union['PipelineServicePrincipalArgs', 'PipelineServicePrincipalArgsDict']]] = None,
                  __props__=None):
         """
-        Declares the pipeline. It names the source and directory of the pipeline program itself, and it gives the release number of the run. A program has one Pipeline.
+        Declares the pipeline. It gives the release number of the run. Set delivery:source in the stack config to tell Delivery where the program lives. A program has one Pipeline.
 
-        To register the pipeline, run pulumi up on the pipeline stack. Registration ends with exit code 10, because the members wait for a run.
+        To register the pipeline, run PULUMI_DELIVERY_REGISTER=true pulumi up on the pipeline stack. Registration ends with exit code 10, because the members wait for a run.
 
         ## Example Usage
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
-        :param pulumi.Input[Union['ProgramSourceArgs', 'ProgramSourceArgsDict']] program: Source and directory of the pipeline program.
+        :param pulumi.Input[Union['PipelineServicePrincipalArgs', 'PipelineServicePrincipalArgsDict']] service_principal: Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
         """
         ...
     @overload
     def __init__(__self__,
                  resource_name: str,
-                 args: PipelineArgs,
+                 args: Optional[PipelineArgs] = None,
                  opts: Optional[pulumi.ResourceOptions] = None):
         """
-        Declares the pipeline. It names the source and directory of the pipeline program itself, and it gives the release number of the run. A program has one Pipeline.
+        Declares the pipeline. It gives the release number of the run. Set delivery:source in the stack config to tell Delivery where the program lives. A program has one Pipeline.
 
-        To register the pipeline, run pulumi up on the pipeline stack. Registration ends with exit code 10, because the members wait for a run.
+        To register the pipeline, run PULUMI_DELIVERY_REGISTER=true pulumi up on the pipeline stack. Registration ends with exit code 10, because the members wait for a run.
 
         ## Example Usage
 
@@ -92,7 +89,7 @@ class Pipeline(pulumi.ComponentResource):
     def _internal_init(__self__,
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
-                 program: pulumi.Input[Optional[Union['ProgramSourceArgs', 'ProgramSourceArgsDict']]] = None,
+                 service_principal: pulumi.Input[Optional[Union['PipelineServicePrincipalArgs', 'PipelineServicePrincipalArgsDict']]] = None,
                  __props__=None):
         opts = pulumi.ResourceOptions.merge(_utilities.get_resource_opts_defaults(), opts)
         if not isinstance(opts, pulumi.ResourceOptions):
@@ -104,9 +101,7 @@ class Pipeline(pulumi.ComponentResource):
                 raise TypeError('__props__ is only valid when passed in combination with a valid opts.id to get an existing resource')
             __props__ = PipelineArgs.__new__(PipelineArgs)
 
-            if program is None and not opts.urn:
-                raise TypeError("Missing required property 'program'")
-            __props__.__dict__["program"] = program
+            __props__.__dict__["service_principal"] = service_principal
             __props__.__dict__["release_number"] = None
         super(Pipeline, __self__).__init__(
             'delivery:index:Pipeline',

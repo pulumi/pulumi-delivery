@@ -24,7 +24,7 @@ Set up the Pulumi integration for your forge.
 - [Bitbucket](https://www.pulumi.com/docs/integrations/version-control/bitbucket/)
 - [Azure DevOps](https://www.pulumi.com/docs/integrations/version-control/azure-devops-integration/)
 
-Give the integration access to each repository that a source names, including the repository of the pipeline program. Pulumi Cloud picks the integration of your organization whose account (GitHub), group (GitLab), workspace (Bitbucket) or organization and project (Azure DevOps) holds the repository.
+Give the integration access to each repository that a source names and to the repository of the pipeline program. Pulumi Cloud picks the integration of your organization whose account (GitHub), group (GitLab), workspace (Bitbucket) or organization and project (Azure DevOps) holds the repository.
 
 Write the `repository` of a source like this:
 
@@ -69,7 +69,7 @@ A member update runs with a short-lived token that has the default deployment ro
 
 ## Concepts
 
-- **Pipeline program and pipeline stack.** The pipeline is a Pulumi program in a repository. You register it with `pulumi up` on the pipeline stack. Registration ends with exit code 10 because the members wait for a run. This is the expected result.
+- **Pipeline program and pipeline stack.** The pipeline is a Pulumi program in a repository. You register it with `PULUMI_DELIVERY_REGISTER=true pulumi up` on the pipeline stack. Registration ends with exit code 10 because the members wait for a run. This is the expected result.
 - **Run.** A run takes one release through the stages. Each run has its own run stack, named `<pipeline stack>-r<run number>`. Run stacks do not appear in stack lists or search. Open one from the page of its run. Do not run `pulumi up` on a run stack.
 - **Stage.** A stage is a step of the pipeline. It waits for other stages with `from` and for a gate with `when`. A stage deploys one run at a time. A newer run replaces a run that waits for the stage or a gate, but not a run that the stage already admitted.
 - **Member.** A member is a resource that does work in a stage. `Stacks` updates one or more existing stacks. `Job` runs a command. `Artifact` publishes a value for other pipelines.
@@ -150,9 +150,7 @@ import * as delivery from "@pulumi/delivery";
 
 const app = new delivery.GitHubSource("app", { repository: "acme/shop", branch: "main", trigger: true });
 
-const pipeline = new delivery.Pipeline("shop", {
-    program: { source: app, directory: "delivery" },
-});
+const pipeline = new delivery.Pipeline("shop");
 
 const dev = new delivery.Stage("dev", { pipeline });
 const prod = new delivery.Stage("prod", {
@@ -208,7 +206,7 @@ echo "{\"checked\": \"$ENDPOINT\"}" > "$DELIVERY_OUTPUTS"
 
 ### Register the pipeline
 
-Commit everything and push it. A run checks out the pipeline program from the repository.
+Commit everything and push it to the branch that tracks the pipeline. A run checks out the pipeline program from that repository. Tell Delivery where the program lives with `delivery:source` in the stack config.
 
 ```sh
 cd delivery
@@ -217,18 +215,33 @@ pulumi stack init acme/shop-delivery/main
 git add -A && git commit -m "Add the delivery pipeline" && git push
 ```
 
+Set `delivery:source` in `Pulumi.main.yaml`:
+
+```yaml
+config:
+  delivery:source:
+    url: https://github.com/acme/shop
+    branch: main
+    directory: delivery
+```
+
 Register the pipeline:
 
 ```sh
-pulumi up
+PULUMI_DELIVERY_REGISTER=true pulumi up
 ```
 
-The update ends with exit code 10 and one of these messages.
+Registering is explicit. A plain `pulumi up` on the pipeline stack is refused with a message that tells you to set `PULUMI_DELIVERY_REGISTER=true`. The variable is read as a boolean: `true` and `1` set it, in any case of the word. With any other value the command is a plain `pulumi up`. `pulumi preview`, `pulumi destroy` and `pulumi refresh` are not affected. Changing `delivery:source` updates the provider in place and does not replace any resource.
 
-- "Registered. A run starts for commit abc1234 when this update finishes."
-- "Registered. No run starts because commit abc1234 is not the head of branch main." Push your commit, or pull the latest commit and register again.
-- "Registered. No run starts because the checkout has uncommitted changes. Commit the changes. Push the commit to start a run."
-- "Registered. No run starts because the update has no git commit." Run `pulumi up` from a Git checkout.
+A successful registration ends with exit code 10. In the following cases the update fails instead, with an error message of its own, and nothing registers.
+
+- The checkout has uncommitted changes. Commit the changes.
+- The commit is not on the tracked branch. Commit, push and merge it, then register again.
+- The update has no git commit. Run `pulumi up` from a Git checkout.
+
+`delivery:source` is the recommended, explicit way to say where the program lives. `url` is the clone URL and is required. `branch` and `directory` are optional. `directory` is relative to the repository root. If you omit a value, the service chooses it. The URL must not contain credentials, because the config is stored with the stack in plain text.
+
+A push to the tracked branch updates the pipeline: Delivery runs `pulumi up` on the pipeline stack. A run never changes the pipeline definition.
 
 ### Watch the run
 
@@ -407,7 +420,7 @@ Both pipelines must be in the same organization. With `trigger: true`, each new 
 
 ### One repository, several pipelines
 
-A monorepo can hold the programs of several pipelines. Give each pipeline its own program directory, its own pipeline stack and a source that triggers only on its own paths.
+A monorepo can hold the programs of several pipelines. Give each pipeline its own program directory, its own pipeline stack and a source that triggers only on its own paths. Set `directory` in `delivery:source` of each pipeline stack to the directory of its program.
 
 ```typescript
 // delivery/shop/index.ts
@@ -416,12 +429,10 @@ const repo = new delivery.GitHubSource("repo", {
     branch: "main",
     trigger: { paths: ["shop/**", "delivery/shop/**"] },
 });
-const pipeline = new delivery.Pipeline("shop", {
-    program: { source: repo, directory: "delivery/shop" },
-});
+const pipeline = new delivery.Pipeline("shop");
 ```
 
-The pipeline in `delivery/search/index.ts` is the same, with `search/**` and `delivery/search/**` as the paths. A push that changes only `search/` then starts only the `search` pipeline. Every pipeline needs its own pipeline stack, for example `acme/shop-delivery/main` and `acme/search-delivery/main`. Register each one with `pulumi up` in its own directory.
+The pipeline in `delivery/search/index.ts` is the same, with `search/**` and `delivery/search/**` as the paths. A push that changes only `search/` then starts only the `search` pipeline. Every pipeline needs its own pipeline stack, for example `acme/shop-delivery/main` and `acme/search-delivery/main`. Register each one with `PULUMI_DELIVERY_REGISTER=true pulumi up` in its own directory.
 
 ## Recover a run
 
@@ -544,8 +555,12 @@ Do not write the run number into the environment variables of a Lambda function.
 
 ## Permissions
 
-- Write access to the branch of the pipeline program gives deploy access to every stack that the Delivery identity of your organization can reach. Protect that branch.
-- The Delivery identity of the organization needs read access to the upstream pipeline stack of a `PipelineSource`. Your own access is not enough.
+- A pipeline runs as a service principal. Without `servicePrincipal` on the `Pipeline`, Delivery generates one for the pipeline. When you register, Delivery gives the generated principal write access to the target stacks that you can grant access to, and warns about the others.
+- To run as a service principal of your own, set `servicePrincipal: { userId }` on the `Pipeline` to its ID or login, and give that principal access to the target stacks yourself.
+- To run as a team, set `servicePrincipal: { teamName }`. The pipeline then runs as the service principal of the team. This is not supported yet: Delivery refuses `teamName` for now. Later, the team will need access to the target stacks. Set `userId` or `teamName`, not both.
+- Only a registration by a person (`PULUMI_DELIVERY_REGISTER=true pulumi up`) can set or change the principal. A push that changes it fails to register, and the pipeline keeps its definition.
+- Write access to the branch of the pipeline program gives deploy access to every stack that the principal of the pipeline can reach. Protect that branch.
+- The principal of the pipeline needs read access to the upstream pipeline stack of a `PipelineSource`, and to the ESC environments that the pipeline stack and the target stacks import. Your own access is not enough.
 - Each action on a pipeline needs its own permission on the pipeline stack. No permission implies another, and `stack:write` grants none of them.
 
   | Action | Permission |
@@ -594,7 +609,7 @@ Each entry of a `Stacks` group uses one concurrency slot of your organization. A
 - The `artifacts` map of a `PipelineSource` is secret as a whole when one artifact is secret.
 - A `timeout` on a `Job` has no effect yet. A job stops after 2 hours.
 - Delivery deletes a run stack without a destroy. Resources in the pipeline program that are not Delivery resources stay in the cloud without state. A run that waits keeps its stack.
-- You cannot delete a pipeline stack while runs are in progress. Deleting a pipeline stack stops the pipeline and deletes its run stacks. After you restore the stack, run `pulumi up` on it to register the pipeline again.
+- You cannot delete a pipeline stack while runs are in progress. Deleting a pipeline stack stops the pipeline and deletes its run stacks. After you restore the stack, run `PULUMI_DELIVERY_REGISTER=true pulumi up` on it to register the pipeline again.
 - You cannot move a pipeline stack to another organization. You cannot rename or move a run stack.
 - The `http()` rule is not available in the preview. Registration rejects a stage with an `http()` rule.
 - The preview has no time-based triggers, no ESC triggers, no dispatch inputs and no `pulumi delivery` command.

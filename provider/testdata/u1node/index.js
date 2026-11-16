@@ -24,7 +24,7 @@ const Stage = remote("delivery:index:Stage", []);
 const Job = remote("delivery:index:Job", ["outputs"]);
 
 const code = new GitHubSource("code", { repository: "acme/shop", branch: "main" });
-const pipeline = new Pipeline("shop", { program: { source: code, directory: "delivery" } });
+const pipeline = new Pipeline("shop");
 const dev = new Stage("dev", { pipeline });
 const job = new Job("build", { stage: dev, source: code, directory: "app", command: "make" });
 

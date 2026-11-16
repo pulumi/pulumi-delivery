@@ -17,16 +17,22 @@ namespace Pulumi.Delivery.Delivery.Inputs
     public sealed class ProgramSourceArgs : global::Pulumi.ResourceArgs
     {
         /// <summary>
-        /// Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root.
+        /// Branch that tracks the pipeline program. Omit it to let the service choose the branch.
         /// </summary>
-        [Input("directory", required: true)]
-        public Input<string> Directory { get; set; } = null!;
+        [Input("branch")]
+        public Input<string>? Branch { get; set; }
 
         /// <summary>
-        /// VCS source of the pipeline program.
+        /// Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to let the service choose the directory.
         /// </summary>
-        [Input("source", required: true)]
-        public object Source { get; set; } = null!;
+        [Input("directory")]
+        public Input<string>? Directory { get; set; }
+
+        /// <summary>
+        /// Clone URL of the repository.
+        /// </summary>
+        [Input("url", required: true)]
+        public Input<string> Url { get; set; } = null!;
 
         public ProgramSourceArgs()
         {

@@ -5,14 +5,11 @@ package com.pulumi.delivery.delivery.inputs;
 
 import com.pulumi.core.Output;
 import com.pulumi.core.annotations.Import;
-import com.pulumi.delivery.delivery.AzureDevOpsSource;
-import com.pulumi.delivery.delivery.BitbucketSource;
-import com.pulumi.delivery.delivery.GitHubSource;
-import com.pulumi.delivery.delivery.GitLabSource;
 import com.pulumi.exceptions.MissingRequiredPropertyException;
-import java.lang.Object;
 import java.lang.String;
 import java.util.Objects;
+import java.util.Optional;
+import javax.annotation.Nullable;
 
 
 /**
@@ -24,40 +21,56 @@ public final class ProgramSourceArgs extends com.pulumi.resources.ResourceArgs {
     public static final ProgramSourceArgs Empty = new ProgramSourceArgs();
 
     /**
-     * Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root.
+     * Branch that tracks the pipeline program. Omit it to let the service choose the branch.
      * 
      */
-    @Import(name="directory", required=true)
-    private Output<String> directory;
+    @Import(name="branch")
+    private @Nullable Output<String> branch;
 
     /**
-     * @return Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root.
+     * @return Branch that tracks the pipeline program. Omit it to let the service choose the branch.
      * 
      */
-    public Output<String> directory() {
-        return this.directory;
+    public Optional<Output<String>> branch() {
+        return Optional.ofNullable(this.branch);
     }
 
     /**
-     * VCS source of the pipeline program.
+     * Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to let the service choose the directory.
      * 
      */
-    @Import(name="source", required=true)
-    private Output<Object> source;
+    @Import(name="directory")
+    private @Nullable Output<String> directory;
 
     /**
-     * @return VCS source of the pipeline program.
+     * @return Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to let the service choose the directory.
      * 
      */
-    public Output<Object> source() {
-        return this.source;
+    public Optional<Output<String>> directory() {
+        return Optional.ofNullable(this.directory);
+    }
+
+    /**
+     * Clone URL of the repository.
+     * 
+     */
+    @Import(name="url", required=true)
+    private Output<String> url;
+
+    /**
+     * @return Clone URL of the repository.
+     * 
+     */
+    public Output<String> url() {
+        return this.url;
     }
 
     private ProgramSourceArgs() {}
 
     private ProgramSourceArgs(ProgramSourceArgs $) {
+        this.branch = $.branch;
         this.directory = $.directory;
-        this.source = $.source;
+        this.url = $.url;
     }
 
     public static Builder builder() {
@@ -79,18 +92,39 @@ public final class ProgramSourceArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param directory Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root.
+         * @param branch Branch that tracks the pipeline program. Omit it to let the service choose the branch.
          * 
          * @return builder
          * 
          */
-        public Builder directory(Output<String> directory) {
+        public Builder branch(@Nullable Output<String> branch) {
+            $.branch = branch;
+            return this;
+        }
+
+        /**
+         * @param branch Branch that tracks the pipeline program. Omit it to let the service choose the branch.
+         * 
+         * @return builder
+         * 
+         */
+        public Builder branch(String branch) {
+            return branch(Output.of(branch));
+        }
+
+        /**
+         * @param directory Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to let the service choose the directory.
+         * 
+         * @return builder
+         * 
+         */
+        public Builder directory(@Nullable Output<String> directory) {
             $.directory = directory;
             return this;
         }
 
         /**
-         * @param directory Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root.
+         * @param directory Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to let the service choose the directory.
          * 
          * @return builder
          * 
@@ -100,32 +134,29 @@ public final class ProgramSourceArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param source VCS source of the pipeline program.
+         * @param url Clone URL of the repository.
          * 
          * @return builder
          * 
          */
-        public Builder source(Output<Object> source) {
-            $.source = source;
+        public Builder url(Output<String> url) {
+            $.url = url;
             return this;
         }
 
         /**
-         * @param source VCS source of the pipeline program.
+         * @param url Clone URL of the repository.
          * 
          * @return builder
          * 
          */
-        public Builder source(Object source) {
-            return source(Output.of(source));
+        public Builder url(String url) {
+            return url(Output.of(url));
         }
 
         public ProgramSourceArgs build() {
-            if ($.directory == null) {
-                throw new MissingRequiredPropertyException("ProgramSourceArgs", "directory");
-            }
-            if ($.source == null) {
-                throw new MissingRequiredPropertyException("ProgramSourceArgs", "source");
+            if ($.url == null) {
+                throw new MissingRequiredPropertyException("ProgramSourceArgs", "url");
             }
             return $;
         }

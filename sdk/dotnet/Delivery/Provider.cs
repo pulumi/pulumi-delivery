@@ -41,6 +41,12 @@ namespace Pulumi.Delivery.Delivery
 
     public sealed class ProviderArgs : global::Pulumi.ResourceArgs
     {
+        /// <summary>
+        /// Location of the pipeline program, the recommended way to tell Delivery where the program lives.
+        /// </summary>
+        [Input("source", json: true)]
+        public Input<Inputs.ProgramSourceArgs>? Source { get; set; }
+
         public ProviderArgs()
         {
         }

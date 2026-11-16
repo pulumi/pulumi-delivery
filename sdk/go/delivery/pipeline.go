@@ -7,14 +7,13 @@ import (
 	"context"
 	"reflect"
 
-	"errors"
 	"github.com/pulumi/pulumi-delivery/sdk/go/delivery/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-// Declares the pipeline. It names the source and directory of the pipeline program itself, and it gives the release number of the run. A program has one Pipeline.
+// Declares the pipeline. It gives the release number of the run. Set delivery:source in the stack config to tell Delivery where the program lives. A program has one Pipeline.
 //
-// To register the pipeline, run pulumi up on the pipeline stack. Registration ends with exit code 10, because the members wait for a run.
+// To register the pipeline, run PULUMI_DELIVERY_REGISTER=true pulumi up on the pipeline stack. Registration ends with exit code 10, because the members wait for a run.
 //
 // ## Example Usage
 type Pipeline struct {
@@ -28,12 +27,9 @@ type Pipeline struct {
 func NewPipeline(ctx *pulumi.Context,
 	name string, args *PipelineArgs, opts ...pulumi.ResourceOption) (*Pipeline, error) {
 	if args == nil {
-		return nil, errors.New("missing one or more required arguments")
+		args = &PipelineArgs{}
 	}
 
-	if args.Program == nil {
-		return nil, errors.New("invalid value for required argument 'Program'")
-	}
 	opts = internal.PkgResourceDefaultOpts(opts)
 	var resource Pipeline
 	err := ctx.RegisterRemoteComponentResource("delivery:index:Pipeline", name, args, &resource, opts...)
@@ -44,14 +40,14 @@ func NewPipeline(ctx *pulumi.Context,
 }
 
 type pipelineArgs struct {
-	// Source and directory of the pipeline program.
-	Program ProgramSource `pulumi:"program"`
+	// Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
+	ServicePrincipal *PipelineServicePrincipal `pulumi:"servicePrincipal"`
 }
 
 // The set of arguments for constructing a Pipeline resource.
 type PipelineArgs struct {
-	// Source and directory of the pipeline program.
-	Program ProgramSourceInput
+	// Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
+	ServicePrincipal PipelineServicePrincipalPtrInput
 }
 
 func (PipelineArgs) ElementType() reflect.Type {

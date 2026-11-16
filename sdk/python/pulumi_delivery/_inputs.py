@@ -24,6 +24,8 @@ __all__ = [
     'ImageArgsDict',
     'ImageCredentialsArgs',
     'ImageCredentialsArgsDict',
+    'PipelineServicePrincipalArgs',
+    'PipelineServicePrincipalArgsDict',
     'ProgramSourceArgs',
     'ProgramSourceArgsDict',
     'Rule',
@@ -141,56 +143,131 @@ class ImageCredentialsArgs:
         pulumi.set(self, "username", value)
 
 
+class PipelineServicePrincipalArgsDict(TypedDict):
+    """
+    Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
+    """
+    team_name: NotRequired[pulumi.Input[Optional[_builtins.str]]]
+    """
+    Name of a team. The pipeline runs as the service principal of the team, with the roles of the team. Not supported yet. Cannot be set together with userId.
+    """
+    user_id: NotRequired[pulumi.Input[Optional[_builtins.str]]]
+    """
+    ID or login of a user-defined service principal. Cannot be set together with teamName.
+    """
+
+@pulumi.input_type
+class PipelineServicePrincipalArgs:
+    def __init__(__self__, *,
+                 team_name: pulumi.Input[Optional[_builtins.str]] = None,
+                 user_id: pulumi.Input[Optional[_builtins.str]] = None):
+        """
+        Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
+
+        :param pulumi.Input[_builtins.str] team_name: Name of a team. The pipeline runs as the service principal of the team, with the roles of the team. Not supported yet. Cannot be set together with userId.
+        :param pulumi.Input[_builtins.str] user_id: ID or login of a user-defined service principal. Cannot be set together with teamName.
+        """
+        if team_name is not None:
+            pulumi.set(__self__, "team_name", team_name)
+        if user_id is not None:
+            pulumi.set(__self__, "user_id", user_id)
+
+    @_builtins.property
+    @pulumi.getter(name="teamName")
+    def team_name(self) -> pulumi.Input[Optional[_builtins.str]]:
+        """
+        Name of a team. The pipeline runs as the service principal of the team, with the roles of the team. Not supported yet. Cannot be set together with userId.
+        """
+        return pulumi.get(self, "team_name")
+
+    @team_name.setter
+    def team_name(self, value: pulumi.Input[Optional[_builtins.str]]):
+        pulumi.set(self, "team_name", value)
+
+    @_builtins.property
+    @pulumi.getter(name="userId")
+    def user_id(self) -> pulumi.Input[Optional[_builtins.str]]:
+        """
+        ID or login of a user-defined service principal. Cannot be set together with teamName.
+        """
+        return pulumi.get(self, "user_id")
+
+    @user_id.setter
+    def user_id(self, value: pulumi.Input[Optional[_builtins.str]]):
+        pulumi.set(self, "user_id", value)
+
+
 class ProgramSourceArgsDict(TypedDict):
     """
     Location of the pipeline program in a repository.
     """
-    directory: pulumi.Input[_builtins.str]
+    url: pulumi.Input[_builtins.str]
     """
-    Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root.
+    Clone URL of the repository.
     """
-    source: pulumi.Input[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource']]
+    branch: NotRequired[pulumi.Input[Optional[_builtins.str]]]
     """
-    VCS source of the pipeline program.
+    Branch that tracks the pipeline program. Omit it to let the service choose the branch.
+    """
+    directory: NotRequired[pulumi.Input[Optional[_builtins.str]]]
+    """
+    Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to let the service choose the directory.
     """
 
 @pulumi.input_type
 class ProgramSourceArgs:
     def __init__(__self__, *,
-                 directory: pulumi.Input[_builtins.str],
-                 source: pulumi.Input[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource']]):
+                 url: pulumi.Input[_builtins.str],
+                 branch: pulumi.Input[Optional[_builtins.str]] = None,
+                 directory: pulumi.Input[Optional[_builtins.str]] = None):
         """
         Location of the pipeline program in a repository.
 
-        :param pulumi.Input[_builtins.str] directory: Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root.
-        :param pulumi.Input[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource']] source: VCS source of the pipeline program.
+        :param pulumi.Input[_builtins.str] url: Clone URL of the repository.
+        :param pulumi.Input[_builtins.str] branch: Branch that tracks the pipeline program. Omit it to let the service choose the branch.
+        :param pulumi.Input[_builtins.str] directory: Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to let the service choose the directory.
         """
-        pulumi.set(__self__, "directory", directory)
-        pulumi.set(__self__, "source", source)
+        pulumi.set(__self__, "url", url)
+        if branch is not None:
+            pulumi.set(__self__, "branch", branch)
+        if directory is not None:
+            pulumi.set(__self__, "directory", directory)
 
     @_builtins.property
     @pulumi.getter
-    def directory(self) -> pulumi.Input[_builtins.str]:
+    def url(self) -> pulumi.Input[_builtins.str]:
         """
-        Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root.
+        Clone URL of the repository.
+        """
+        return pulumi.get(self, "url")
+
+    @url.setter
+    def url(self, value: pulumi.Input[_builtins.str]):
+        pulumi.set(self, "url", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def branch(self) -> pulumi.Input[Optional[_builtins.str]]:
+        """
+        Branch that tracks the pipeline program. Omit it to let the service choose the branch.
+        """
+        return pulumi.get(self, "branch")
+
+    @branch.setter
+    def branch(self, value: pulumi.Input[Optional[_builtins.str]]):
+        pulumi.set(self, "branch", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def directory(self) -> pulumi.Input[Optional[_builtins.str]]:
+        """
+        Directory that contains the Pulumi.yaml of the pipeline, relative to the repository root. Omit it to let the service choose the directory.
         """
         return pulumi.get(self, "directory")
 
     @directory.setter
-    def directory(self, value: pulumi.Input[_builtins.str]):
+    def directory(self, value: pulumi.Input[Optional[_builtins.str]]):
         pulumi.set(self, "directory", value)
-
-    @_builtins.property
-    @pulumi.getter
-    def source(self) -> pulumi.Input[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource']]:
-        """
-        VCS source of the pipeline program.
-        """
-        return pulumi.get(self, "source")
-
-    @source.setter
-    def source(self, value: pulumi.Input[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource']]):
-        pulumi.set(self, "source", value)
 
 
 class RuleDict(TypedDict):
