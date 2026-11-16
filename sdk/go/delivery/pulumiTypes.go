@@ -333,7 +333,7 @@ func (o ImageCredentialsPtrOutput) Username() pulumi.StringPtrOutput {
 
 // Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
 type PipelineServicePrincipal struct {
-	// Name of a team. The pipeline runs as the service principal of the team, with the roles of the team. Cannot be set together with userId.
+	// Name of a team. The pipeline runs as the service principal of the team, with the roles of the team. Not supported yet. Cannot be set together with userId.
 	TeamName *string `pulumi:"teamName"`
 	// ID or login of a user-defined service principal. Cannot be set together with teamName.
 	UserId *string `pulumi:"userId"`
@@ -352,7 +352,7 @@ type PipelineServicePrincipalInput interface {
 
 // Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
 type PipelineServicePrincipalArgs struct {
-	// Name of a team. The pipeline runs as the service principal of the team, with the roles of the team. Cannot be set together with userId.
+	// Name of a team. The pipeline runs as the service principal of the team, with the roles of the team. Not supported yet. Cannot be set together with userId.
 	TeamName pulumi.StringPtrInput `pulumi:"teamName"`
 	// ID or login of a user-defined service principal. Cannot be set together with teamName.
 	UserId pulumi.StringPtrInput `pulumi:"userId"`
@@ -436,7 +436,7 @@ func (o PipelineServicePrincipalOutput) ToPipelineServicePrincipalPtrOutputWithC
 	}).(PipelineServicePrincipalPtrOutput)
 }
 
-// Name of a team. The pipeline runs as the service principal of the team, with the roles of the team. Cannot be set together with userId.
+// Name of a team. The pipeline runs as the service principal of the team, with the roles of the team. Not supported yet. Cannot be set together with userId.
 func (o PipelineServicePrincipalOutput) TeamName() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v PipelineServicePrincipal) *string { return v.TeamName }).(pulumi.StringPtrOutput)
 }
@@ -470,7 +470,7 @@ func (o PipelineServicePrincipalPtrOutput) Elem() PipelineServicePrincipalOutput
 	}).(PipelineServicePrincipalOutput)
 }
 
-// Name of a team. The pipeline runs as the service principal of the team, with the roles of the team. Cannot be set together with userId.
+// Name of a team. The pipeline runs as the service principal of the team, with the roles of the team. Not supported yet. Cannot be set together with userId.
 func (o PipelineServicePrincipalPtrOutput) TeamName() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *PipelineServicePrincipal) *string {
 		if v == nil {

@@ -149,7 +149,7 @@ class PipelineServicePrincipalArgsDict(TypedDict):
     """
     team_name: NotRequired[pulumi.Input[Optional[_builtins.str]]]
     """
-    Name of a team. The pipeline runs as the service principal of the team, with the roles of the team. Cannot be set together with userId.
+    Name of a team. The pipeline runs as the service principal of the team, with the roles of the team. Not supported yet. Cannot be set together with userId.
     """
     user_id: NotRequired[pulumi.Input[Optional[_builtins.str]]]
     """
@@ -164,7 +164,7 @@ class PipelineServicePrincipalArgs:
         """
         Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
 
-        :param pulumi.Input[_builtins.str] team_name: Name of a team. The pipeline runs as the service principal of the team, with the roles of the team. Cannot be set together with userId.
+        :param pulumi.Input[_builtins.str] team_name: Name of a team. The pipeline runs as the service principal of the team, with the roles of the team. Not supported yet. Cannot be set together with userId.
         :param pulumi.Input[_builtins.str] user_id: ID or login of a user-defined service principal. Cannot be set together with teamName.
         """
         if team_name is not None:
@@ -176,7 +176,7 @@ class PipelineServicePrincipalArgs:
     @pulumi.getter(name="teamName")
     def team_name(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        Name of a team. The pipeline runs as the service principal of the team, with the roles of the team. Cannot be set together with userId.
+        Name of a team. The pipeline runs as the service principal of the team, with the roles of the team. Not supported yet. Cannot be set together with userId.
         """
         return pulumi.get(self, "team_name")
 

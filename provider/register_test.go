@@ -126,14 +126,16 @@ func TestPipelineDeclaresItsServicePrincipal(t *testing.T) {
 	}{
 		{name: "absent"},
 		{name: "userId", inputs: principal(map[string]property.Value{"userId": property.New("service-principal:1")}),
-			want: map[string]any{"userId": "service-principal:1"}},
+			want: "service-principal:1"},
 		{name: "teamName", inputs: principal(map[string]property.Value{"teamName": property.New("platform")}),
-			want: map[string]any{"teamName": "platform"}},
+			wantErr: "servicePrincipal.teamName is not supported yet: Delivery cannot run a pipeline as a team. Use servicePrincipal.userId with a user-defined service principal."},
 		{name: "both", inputs: principal(map[string]property.Value{"userId": property.New("a"), "teamName": property.New("b")}),
 			wantErr: "servicePrincipal takes userId or teamName, not both"},
 		{name: "empty", inputs: principal(map[string]property.Value{}),
 			wantErr: "servicePrincipal needs userId or teamName"},
-		{name: "unknown", inputs: principal(map[string]property.Value{"userId": property.New(property.Computed), "teamName": property.New("b")}),
+		{name: "secret", inputs: principal(map[string]property.Value{"userId": property.New("service-principal:2").WithSecret(true)}),
+			want: "secret"},
+		{name: "unknown", inputs: principal(map[string]property.Value{"userId": property.New(property.Computed)}),
 			want: "skip"},
 	}
 	for _, c := range cases {
@@ -152,7 +154,12 @@ func TestPipelineDeclaresItsServicePrincipal(t *testing.T) {
 			require.NoError(t, err)
 			declared := service.declared()
 			require.Len(t, declared, 1)
+			if c.want == "secret" {
+				assert.Equal(t, `"service-principal:2"`, declared[0]["inputs"].(map[string]any)["servicePrincipal"].(map[string]any)["plaintext"])
+				return
+			}
 			if c.want == "skip" {
+				assert.IsType(t, "", declared[0]["inputs"].(map[string]any)["servicePrincipal"])
 				return
 			}
 			if c.want == nil {

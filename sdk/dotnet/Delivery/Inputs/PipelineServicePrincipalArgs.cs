@@ -17,7 +17,7 @@ namespace Pulumi.Delivery.Delivery.Inputs
     public sealed class PipelineServicePrincipalArgs : global::Pulumi.ResourceArgs
     {
         /// <summary>
-        /// Name of a team. The pipeline runs as the service principal of the team, with the roles of the team. Cannot be set together with userId.
+        /// Name of a team. The pipeline runs as the service principal of the team, with the roles of the team. Not supported yet. Cannot be set together with userId.
         /// </summary>
         [Input("teamName")]
         public Input<string>? TeamName { get; set; }
