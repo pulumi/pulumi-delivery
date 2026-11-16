@@ -113,6 +113,10 @@
     "delivery:index:Rule": {
       "description": "Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.",
       "properties": {
+        "agent": {
+          "type": "string",
+          "description": "Name of the Decision Agent definition that a decision rule asks. Required for that kind."
+        },
         "approvers": {
           "type": "array",
           "items": {
@@ -143,13 +147,20 @@
           "type": "string",
           "description": "Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule."
         },
+        "inputs": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "pulumi.json#/Any"
+          },
+          "description": "Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs."
+        },
         "interval": {
           "type": "string",
           "description": "Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds."
         },
         "kind": {
           "type": "string",
-          "description": "Kind of the rule. Valid values are approval, http, manual, all, and any."
+          "description": "Kind of the rule. Valid values are approval, http, manual, decision, all, and any."
         },
         "method": {
           "type": "string",
@@ -269,6 +280,25 @@
         "directory"
       ]
     },
+    "delivery:index:WebhookSigning": {
+      "description": "How the service verifies a post to a webhook source.",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "description": "Kind of signature: hmac-sha256 (an HMAC over the raw body) or token (a shared secret)."
+        },
+        "secret": {
+          "type": "string",
+          "description": "Secret that the external system signs with. It stays secret.",
+          "secret": true
+        }
+      },
+      "type": "object",
+      "required": [
+        "kind",
+        "secret"
+      ]
+    },
     "delivery:index:WorkflowsRuntimeArgs": {
       "description": "Pool selection. In the private preview, all work runs on the hosted pool.",
       "properties": {
@@ -285,6 +315,51 @@
     }
   },
   "resources": {
+    "delivery:index:Agent": {
+      "description": "Declares a structured invocation of a Custom Agent of the organization that a run executes in a stage. The agent works on the prompt and ends with one JSON value that the response schema describes.\n\nThe prompt can use the outputs of other members with apply. The pass that declares the invocation is then a later pass of the run.\n\nA resource that is not a Delivery resource waits for the invocation when it uses an output of it.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nconst fix = new delivery.Agent(\"fix\", {\n    stage: implement,\n    agentDefinitionId: implementerId,\n    prompt: pulumi.interpolate`Implement ${issue.data.apply(data => data[\"identifier\"])}: ${issue.data.apply(data => data[\"title\"])}`,\n    responseSchema: { type: \"object\", properties: { pullRequest: { type: \"integer\" } }, required: [\"pullRequest\"] },\n});\nexport const pullRequest = fix.response.apply(response => response[\"pullRequest\"]);\n```",
+      "properties": {
+        "response": {
+          "$ref": "pulumi.json#/Any",
+          "description": "Structured response of the invocation, as the response schema describes it. It is unknown until the invocation has completed."
+        },
+        "taskId": {
+          "type": "string",
+          "description": "Identifier of the task of the invocation in Pulumi Cloud. It is unknown until the invocation has completed."
+        }
+      },
+      "required": [
+        "response",
+        "taskId"
+      ],
+      "inputProperties": {
+        "agentDefinitionId": {
+          "type": "string",
+          "description": "ID of the Custom Agent definition in the organization."
+        },
+        "prompt": {
+          "type": "string",
+          "description": "Prompt of the invocation. Build it from the outputs of other members with apply."
+        },
+        "responseSchema": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "pulumi.json#/Any"
+          },
+          "description": "JSON Schema that the response of the invocation must satisfy. It must not contain a $ref."
+        },
+        "stage": {
+          "$ref": "#/resources/delivery:index:Stage",
+          "description": "Stage that the invocation runs in. A pipeline requires it."
+        }
+      },
+      "requiredInputs": [
+        "stage",
+        "agentDefinitionId",
+        "prompt",
+        "responseSchema"
+      ],
+      "isComponent": true
+    },
     "delivery:index:Artifact": {
       "description": "Publishes a value for the pipelines that read this stage with a PipelineSource. The artifact has the name of the resource. It succeeds when its stage admits the release and its value is known.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nnew delivery.Artifact(\"clusterEndpoint\", {\n    stage: prod,\n    value: cluster.endpoint,\n});\n```",
       "properties": {
@@ -543,6 +618,71 @@
       ],
       "isComponent": true
     },
+    "delivery:index:LinearIssueSource": {
+      "description": "Declares a WebhookSource for the issue webhooks of Linear, with a fixed map and a when built from the filters. Point a Linear webhook for issues at the url output. Linear signs each post with HMAC-SHA256 over the raw body in the Linear-Signature header.\n\nA post starts a run when it is about an issue that was created or updated, every label in labels is on the issue, the state of the issue is one of states, and (with ignoreBots) a user made the change. The subject is the id of the issue, the version is when the issue changed, and the data holds identifier, title, description, url, state, labels, team and action.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nconst issues = new delivery.LinearIssueSource(\"issues\", {\n    signingSecret: config.requireSecret(\"linearSigningSecret\"),\n    labels: [\"neon\"],\n    states: [\"Todo\"],\n});\nexport const issuesUrl = issues.url;\n```",
+      "properties": {
+        "data": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "pulumi.json#/Any"
+          },
+          "description": "Fields of the issue: identifier, title, description, url, state, labels, team and action. They are unknown during registration and preview."
+        },
+        "ref": {
+          "type": "string",
+          "description": "Identifier of the source, as webhook:<name>."
+        },
+        "subject": {
+          "type": "string",
+          "description": "Id of the issue of the post that started the run. It is unknown during registration and preview."
+        },
+        "url": {
+          "type": "string",
+          "description": "URL to point the Linear webhook at."
+        },
+        "version": {
+          "type": "string",
+          "description": "When the issue changed. It is unknown during registration and preview."
+        }
+      },
+      "required": [
+        "ref",
+        "url",
+        "subject",
+        "version",
+        "data"
+      ],
+      "inputProperties": {
+        "ignoreBots": {
+          "type": "boolean",
+          "description": "Ignores a change that an app or an integration made rather than a user. The default is true.",
+          "default": true
+        },
+        "labels": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Names of labels that must all be on the issue. Omit it to accept issues with any labels."
+        },
+        "signingSecret": {
+          "type": "string",
+          "description": "Signing secret of the Linear webhook. It stays secret.",
+          "secret": true
+        },
+        "states": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Names of states, one of which the issue must be in. Omit it to accept issues in any state."
+        }
+      },
+      "requiredInputs": [
+        "signingSecret"
+      ],
+      "isComponent": true
+    },
     "delivery:index:Pipeline": {
       "description": "Declares the pipeline. It names the source and directory of the pipeline program itself, and it gives the release number of the run. A program has one Pipeline.\n\nTo register the pipeline, run pulumi up on the pipeline stack. Registration ends with exit code 10, because the members wait for a run.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nconst code = new delivery.GitHubSource(\"code\", {\n    repository: \"acme/shop\",\n    branch: \"main\",\n    trigger: true,\n});\nconst pipeline = new delivery.Pipeline(\"shop\", {\n    program: { source: code, directory: \"delivery\" },\n});\nexport const release = pipeline.releaseNumber;\n```",
       "properties": {
@@ -669,6 +809,64 @@
       ],
       "isComponent": true
     },
+    "delivery:index:WebhookSource": {
+      "description": "Declares a source that an external system posts to. The url output is where it posts. The service verifies each post with signing, checks it against when, and maps it with map to the subject, version and data of the run that the post starts. Every stage of the run sees that value.\n\nThe subject, version and data outputs are what the map expression yielded for the post that started the run. They are unknown during registration and preview.\n\nA webhook source is not a checkout source: a job cannot check it out.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nconst orders = new delivery.WebhookSource(\"orders\", {\n    signing: { kind: \"hmac-sha256\", secret: config.requireSecret(\"ordersSecret\") },\n    when: \"event == 'order.created'\",\n    map: \"{subject: order.id, version: order.updatedAt, data: order}\",\n});\nexport const ordersUrl = orders.url;\n```",
+      "properties": {
+        "data": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "pulumi.json#/Any"
+          },
+          "description": "Data that the map expression yielded for the post that started the run. It is unknown during registration and preview."
+        },
+        "ref": {
+          "type": "string",
+          "description": "Identifier of the source, as webhook:<name>."
+        },
+        "subject": {
+          "type": "string",
+          "description": "Subject that the map expression yielded for the post that started the run. It is unknown during registration and preview."
+        },
+        "url": {
+          "type": "string",
+          "description": "URL where the external system posts. It is <backend>/api/preview/delivery/webhooks/<organization>/<project>/<pipeline stack>/<name>."
+        },
+        "version": {
+          "type": "string",
+          "description": "Version that the map expression yielded for the post that started the run. It is unknown during registration and preview."
+        }
+      },
+      "required": [
+        "ref",
+        "url",
+        "subject",
+        "version",
+        "data"
+      ],
+      "inputProperties": {
+        "map": {
+          "type": "string",
+          "description": "JMESPath expression over the JSON body of a post. It must yield an object { subject: string, version: string, data: object }."
+        },
+        "signing": {
+          "$ref": "#/types/delivery:index:WebhookSigning",
+          "description": "How the service verifies a post. Omit it for a source that accepts every post."
+        },
+        "trigger": {
+          "type": "boolean",
+          "description": "Starts a run on a matching post. The default is true. Set false for a source that is part of the release but never starts a run.",
+          "default": true
+        },
+        "when": {
+          "type": "string",
+          "description": "JMESPath expression over the JSON body of a post. A post starts a run only when it is truthy. Omit it to accept every post."
+        }
+      },
+      "requiredInputs": [
+        "map"
+      ],
+      "isComponent": true
+    },
     "delivery:index:WorkflowsRuntime": {
       "description": "Selects the pool that runs the work of a member. In the private preview, all work runs on the hosted pool, so do not use this resource yet. Agent pools are not available.",
       "properties": {
@@ -721,6 +919,10 @@
       "outputs": {
         "description": "Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.",
         "properties": {
+          "agent": {
+            "description": "Name of the Decision Agent definition that a decision rule asks. Required for that kind.",
+            "type": "string"
+          },
           "approvers": {
             "description": "Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.",
             "items": {
@@ -751,12 +953,19 @@
             "description": "Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.",
             "type": "string"
           },
+          "inputs": {
+            "additionalProperties": {
+              "$ref": "pulumi.json#/Any"
+            },
+            "description": "Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.",
+            "type": "object"
+          },
           "interval": {
             "description": "Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.",
             "type": "string"
           },
           "kind": {
-            "description": "Kind of the rule. Valid values are approval, http, manual, all, and any.",
+            "description": "Kind of the rule. Valid values are approval, http, manual, decision, all, and any.",
             "type": "string"
           },
           "method": {
@@ -818,6 +1027,10 @@
       "outputs": {
         "description": "Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.",
         "properties": {
+          "agent": {
+            "description": "Name of the Decision Agent definition that a decision rule asks. Required for that kind.",
+            "type": "string"
+          },
           "approvers": {
             "description": "Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.",
             "items": {
@@ -848,12 +1061,19 @@
             "description": "Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.",
             "type": "string"
           },
+          "inputs": {
+            "additionalProperties": {
+              "$ref": "pulumi.json#/Any"
+            },
+            "description": "Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.",
+            "type": "object"
+          },
           "interval": {
             "description": "Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.",
             "type": "string"
           },
           "kind": {
-            "description": "Kind of the rule. Valid values are approval, http, manual, all, and any.",
+            "description": "Kind of the rule. Valid values are approval, http, manual, decision, all, and any.",
             "type": "string"
           },
           "method": {
@@ -916,6 +1136,10 @@
       "outputs": {
         "description": "Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.",
         "properties": {
+          "agent": {
+            "description": "Name of the Decision Agent definition that a decision rule asks. Required for that kind.",
+            "type": "string"
+          },
           "approvers": {
             "description": "Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.",
             "items": {
@@ -946,12 +1170,131 @@
             "description": "Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.",
             "type": "string"
           },
+          "inputs": {
+            "additionalProperties": {
+              "$ref": "pulumi.json#/Any"
+            },
+            "description": "Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.",
+            "type": "object"
+          },
           "interval": {
             "description": "Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.",
             "type": "string"
           },
           "kind": {
-            "description": "Kind of the rule. Valid values are approval, http, manual, all, and any.",
+            "description": "Kind of the rule. Valid values are approval, http, manual, decision, all, and any.",
+            "type": "string"
+          },
+          "method": {
+            "description": "HTTP request method. The default is GET.",
+            "type": "string"
+          },
+          "name": {
+            "description": "Rule name. Omit it to let Delivery assign one.",
+            "type": "string"
+          },
+          "rules": {
+            "description": "Child rules for all and any rules. At least one is required.",
+            "items": {
+              "$ref": "#/types/delivery:index:Rule"
+            },
+            "type": "array"
+          },
+          "successExpression": {
+            "description": "JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.",
+            "type": "string"
+          },
+          "url": {
+            "description": "URL to call. Required for http rules.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind"
+        ],
+        "type": "object"
+      }
+    },
+    "delivery:index:decision": {
+      "description": "Builds a decision rule for a Stage's when. The gate asks a Decision Agent of the organization, with the inputs as the fields of its prompt, and passes when the agent decides to continue. The inputs are usually built from the outputs of members of earlier stages, so the pass that declares the rule can be a later pass of the run.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nconst merge = new delivery.Stage(\"merge\", {\n    pipeline,\n    from: [implement],\n    when: delivery.decisionOutput({\n        agent: \"reviewer\",\n        inputs: { pullRequest: fix.response.apply(response => response[\"pullRequest\"]) },\n    }),\n});\n```",
+      "inputs": {
+        "description": "Decision rule settings.",
+        "properties": {
+          "agent": {
+            "type": "string",
+            "description": "Name of the Decision Agent definition in the organization. Required."
+          },
+          "inputs": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "pulumi.json#/Any"
+            },
+            "description": "Prompt fields of the decision. Any JSON shape is allowed, usually built from member outputs with apply."
+          },
+          "name": {
+            "type": "string",
+            "description": "Rule name. Omit it to let Delivery use the kind, decision. Names are unique within a gate."
+          }
+        },
+        "type": "object",
+        "required": [
+          "agent"
+        ]
+      },
+      "outputs": {
+        "description": "Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.",
+        "properties": {
+          "agent": {
+            "description": "Name of the Decision Agent definition that a decision rule asks. Required for that kind.",
+            "type": "string"
+          },
+          "approvers": {
+            "description": "Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "body": {
+            "description": "HTTP request body. Secret values stay secret.",
+            "type": "string"
+          },
+          "count": {
+            "description": "Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.",
+            "type": "integer"
+          },
+          "description": {
+            "description": "Text for the person who continues a manual gate, for example what to check first.",
+            "type": "string"
+          },
+          "headers": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "HTTP request headers. Secret values stay secret.",
+            "type": "object"
+          },
+          "headersEnvironment": {
+            "description": "Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.",
+            "type": "string"
+          },
+          "inputs": {
+            "additionalProperties": {
+              "$ref": "pulumi.json#/Any"
+            },
+            "description": "Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.",
+            "type": "object"
+          },
+          "interval": {
+            "description": "Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.",
+            "type": "string"
+          },
+          "kind": {
+            "description": "Kind of the rule. Valid values are approval, http, manual, decision, all, and any.",
             "type": "string"
           },
           "method": {
@@ -1042,6 +1385,10 @@
       "outputs": {
         "description": "Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.",
         "properties": {
+          "agent": {
+            "description": "Name of the Decision Agent definition that a decision rule asks. Required for that kind.",
+            "type": "string"
+          },
           "approvers": {
             "description": "Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.",
             "items": {
@@ -1072,12 +1419,19 @@
             "description": "Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.",
             "type": "string"
           },
+          "inputs": {
+            "additionalProperties": {
+              "$ref": "pulumi.json#/Any"
+            },
+            "description": "Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.",
+            "type": "object"
+          },
           "interval": {
             "description": "Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.",
             "type": "string"
           },
           "kind": {
-            "description": "Kind of the rule. Valid values are approval, http, manual, all, and any.",
+            "description": "Kind of the rule. Valid values are approval, http, manual, decision, all, and any.",
             "type": "string"
           },
           "method": {
@@ -1133,6 +1487,10 @@
       "outputs": {
         "description": "Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.",
         "properties": {
+          "agent": {
+            "description": "Name of the Decision Agent definition that a decision rule asks. Required for that kind.",
+            "type": "string"
+          },
           "approvers": {
             "description": "Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.",
             "items": {
@@ -1163,12 +1521,19 @@
             "description": "Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.",
             "type": "string"
           },
+          "inputs": {
+            "additionalProperties": {
+              "$ref": "pulumi.json#/Any"
+            },
+            "description": "Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.",
+            "type": "object"
+          },
           "interval": {
             "description": "Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.",
             "type": "string"
           },
           "kind": {
-            "description": "Kind of the rule. Valid values are approval, http, manual, all, and any.",
+            "description": "Kind of the rule. Valid values are approval, http, manual, decision, all, and any.",
             "type": "string"
           },
           "method": {

@@ -120,7 +120,7 @@ const merge = new delivery.Stage("merge", {
     from: [implement],
     when: delivery.decisionOutput({
         agent: "reviewer",
-        inputs: { pullRequest: fix.result.apply(result => result["pullRequest"]) },
+        inputs: { pullRequest: fix.response.apply(response => response["pullRequest"]) },
     }),
 });
 `+"```")
@@ -289,11 +289,11 @@ func (r *JobArgs) Annotate(a infer.Annotator) {
 }
 
 func (r *Agent) Annotate(a infer.Annotator) {
-	a.Describe(r, `Declares a task for a Custom Agent of the organization that a run executes in a stage. The agent works on the prompt, in the repository of source when one is set, and returns a typed result that the result schema describes.
+	a.Describe(r, `Declares a structured invocation of a Custom Agent of the organization that a run executes in a stage. The agent works on the prompt and ends with one JSON value that the response schema describes.
 
-The prompt can use the outputs of other members with apply. The pass that declares the task is then a later pass of the run.
+The prompt can use the outputs of other members with apply. The pass that declares the invocation is then a later pass of the run.
 
-A resource that is not a Delivery resource waits for the task when it uses an output of the task.
+A resource that is not a Delivery resource waits for the invocation when it uses an output of it.
 
 ## Example Usage
 
@@ -302,25 +302,22 @@ import * as delivery from "@pulumi/delivery";
 
 const fix = new delivery.Agent("fix", {
     stage: implement,
-    agent: "implementer",
-    source: code,
+    agentDefinitionId: implementerId,
     prompt: pulumi.interpolate`+"`"+`Implement ${issue.data.apply(data => data["identifier"])}: ${issue.data.apply(data => data["title"])}`+"`"+`,
-    resultSchema: { type: "object", properties: { pullRequest: { type: "integer" } }, required: ["pullRequest"] },
+    responseSchema: { type: "object", properties: { pullRequest: { type: "integer" } }, required: ["pullRequest"] },
 });
-export const pullRequest = fix.result.apply(result => result["pullRequest"]);
+export const pullRequest = fix.response.apply(response => response["pullRequest"]);
 `+"```")
-	a.Describe(&r.Result, "Typed result of the task, as the result schema describes it. It is unknown until the task has run.")
-	a.Describe(&r.TaskId, "Identifier of the task in Pulumi Cloud. It is unknown until the task has started.")
+	a.Describe(&r.Response, "Structured response of the invocation, as the response schema describes it. It is unknown until the invocation has completed.")
+	a.Describe(&r.TaskId, "Identifier of the task of the invocation in Pulumi Cloud. It is unknown until the invocation has completed.")
 }
 
 func (r *AgentArgs) Annotate(a infer.Annotator) {
-	a.Describe(r, "Agent task settings.")
-	a.Describe(&r.Stage, "Stage that the task runs in. A pipeline requires it.")
-	a.Describe(&r.Agent, "Name of the Custom Agent definition in the organization.")
-	a.Describe(&r.Prompt, "Prompt of the task. Build it from the outputs of other members with apply.")
-	a.Describe(&r.ResultSchema, "JSON Schema that the typed result of the task must satisfy. Omit it for a result without a fixed shape.")
-	a.Describe(&r.Source, "VCS source of the repository that the agent works in. The agent gets the commit of the run for this source.")
-	a.Describe(&r.Timeout, "Maximum run time as a Go duration, such as 30m.")
+	a.Describe(r, "Agent invocation settings.")
+	a.Describe(&r.Stage, "Stage that the invocation runs in. A pipeline requires it.")
+	a.Describe(&r.AgentDefinitionId, "ID of the Custom Agent definition in the organization.")
+	a.Describe(&r.Prompt, "Prompt of the invocation. Build it from the outputs of other members with apply.")
+	a.Describe(&r.ResponseSchema, "JSON Schema that the response of the invocation must satisfy. It must not contain a $ref.")
 }
 
 func (r *Stacks) Annotate(a infer.Annotator) {

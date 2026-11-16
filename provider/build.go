@@ -34,7 +34,7 @@ func buildComponent(ctx *pulumi.Context, typ, name string, inputs comProvider.Co
 		// The wrapper sets the outputs.
 		return register(ctx, typ, name, inputs, &PipelineSource{}, opts, pulumi.Map{})
 	case typeWebhookSource:
-		return buildWebhookSource(ctx, name, opts)
+		return buildWebhookSource(ctx, name, inputs, opts)
 	case typeLinearIssueSource:
 		return buildLinearIssueSource(ctx, name, inputs, opts)
 	}
@@ -99,17 +99,17 @@ func buildJob(ctx *pulumi.Context, name string, inputs comProvider.ConstructInpu
 	return comProvider.NewConstructResult(job)
 }
 
-// buildAgent registers the child of an Agent, like a Job. The result and the task id are two outputs of the
+// buildAgent registers the child of an Agent, like a Job. The response and the task id are two outputs of the
 // child.
 func buildAgent(ctx *pulumi.Context, name string, inputs comProvider.ConstructInputs,
 	opts pulumi.ResourceOption, d declaration, organization string,
 ) (*comProvider.ConstructResult, error) {
 	agent := &Agent{}
-	if err := ctx.RegisterComponentResource(typeAgent, name, agent, opts); err != nil {
-		return nil, err
-	}
 	inputMap, err := inputs.Map()
 	if err != nil {
+		return nil, err
+	}
+	if err := ctx.RegisterComponentResourceV2(typeAgent, name, inputMap, agent, opts); err != nil {
 		return nil, err
 	}
 	child := &memberRunResource{}
@@ -120,17 +120,16 @@ func buildAgent(ctx *pulumi.Context, name string, inputs comProvider.ConstructIn
 	}, child, pulumi.Parent(agent)); err != nil {
 		return nil, err
 	}
-	agent.Result = child.Outputs.ApplyT(func(outputs map[string]any) map[string]any {
-		result, _ := outputs["result"].(map[string]any)
-		return result
-	}).(pulumi.MapOutput)
+	agent.Response = child.Outputs.ApplyT(func(outputs map[string]any) any {
+		return outputs["response"]
+	}).(pulumi.AnyOutput)
 	agent.TaskId = child.Outputs.ApplyT(func(outputs map[string]any) string {
 		taskID, _ := outputs["taskId"].(string)
 		return taskID
 	}).(pulumi.StringOutput)
 	agent.ChildUrn = child.URN().ApplyT(func(u pulumi.URN) string { return string(u) }).(pulumi.StringOutput)
 	if err := ctx.RegisterResourceOutputs(agent, pulumi.Map{
-		"result": agent.Result, "taskId": agent.TaskId, "childUrn": agent.ChildUrn,
+		"response": agent.Response, "taskId": agent.TaskId, "childUrn": agent.ChildUrn,
 	}); err != nil {
 		return nil, err
 	}

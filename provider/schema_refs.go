@@ -42,7 +42,6 @@ var referencePatches = []struct {
 	{[]string{"resources", typeStacks, "inputProperties", "stage"}, func() map[string]any { return ref(typeStage) }},
 	{[]string{"resources", typeArtifact, "inputProperties", "stage"}, func() map[string]any { return ref(typeStage) }},
 	{[]string{"resources", typeAgent, "inputProperties", "stage"}, func() map[string]any { return ref(typeStage) }},
-	{[]string{"resources", typeAgent, "inputProperties", "source"}, sourceRef},
 	{[]string{"types", "delivery:index:StacksEntry", "properties", "source"}, sourceRef},
 	{[]string{"resources", "delivery:index:GitHubSource", "inputProperties", "trigger"}, sourceTrigger},
 	{[]string{"resources", "delivery:index:GitLabSource", "inputProperties", "trigger"}, sourceTrigger},

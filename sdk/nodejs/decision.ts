@@ -19,7 +19,7 @@ import * as utilities from "./utilities";
  *     from: [implement],
  *     when: delivery.decisionOutput({
  *         agent: "reviewer",
- *         inputs: { pullRequest: fix.result.apply(result => result["pullRequest"]) },
+ *         inputs: { pullRequest: fix.response.apply(response => response["pullRequest"]) },
  *     }),
  * });
  * ```
@@ -52,7 +52,7 @@ export interface DecisionArgs {
 }
 
 /**
- * Stage entry rule. Rules may nest at most three levels.
+ * Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.
  */
 export interface DecisionResult {
     /**
@@ -60,15 +60,15 @@ export interface DecisionResult {
      */
     readonly agent?: string;
     /**
-     * Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
+     * Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
      */
     readonly approvers?: string[];
     /**
-     * HTTP request body. Pulumi secret values remain secret.
+     * HTTP request body. Secret values stay secret.
      */
     readonly body?: string;
     /**
-     * Number of approvals required. For approval rules, omitted or zero means one.
+     * Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
      */
     readonly count?: number;
     /**
@@ -76,11 +76,11 @@ export interface DecisionResult {
      */
     readonly description?: string;
     /**
-     * HTTP request headers. Pulumi secret values remain secret.
+     * HTTP request headers. Secret values stay secret.
      */
     readonly headers?: {[key: string]: string};
     /**
-     * Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule.
+     * Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
      */
     readonly headersEnvironment?: string;
     /**
@@ -88,11 +88,11 @@ export interface DecisionResult {
      */
     readonly inputs?: {[key: string]: any};
     /**
-     * HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
+     * Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
      */
     readonly interval?: string;
     /**
-     * Rule kind: approval, http, manual, decision, all, or any.
+     * Kind of the rule. Valid values are approval, http, manual, decision, all, and any.
      */
     readonly kind: string;
     /**
@@ -104,19 +104,19 @@ export interface DecisionResult {
      */
     readonly name?: string;
     /**
-     * Child rules for all or any. At least one child is required.
+     * Child rules for all and any rules. At least one is required.
      */
     readonly rules?: outputs.Rule[];
     /**
-     * JMESPath expression that the service evaluates over the status, headers and body of the HTTP response. The rule passes when it is true. Required for http rules.
+     * JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
      */
     readonly successExpression?: string;
     /**
-     * HTTP request timeout as a Go duration, such as 10s. Must be a positive whole number of seconds, at most 20 seconds.
+     * Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
      */
     readonly timeout?: string;
     /**
-     * URL to call for an http rule. Required for that kind.
+     * URL to call. Required for http rules.
      */
     readonly url?: string;
 }
@@ -133,7 +133,7 @@ export interface DecisionResult {
  *     from: [implement],
  *     when: delivery.decisionOutput({
  *         agent: "reviewer",
- *         inputs: { pullRequest: fix.result.apply(result => result["pullRequest"]) },
+ *         inputs: { pullRequest: fix.response.apply(response => response["pullRequest"]) },
  *     }),
  * });
  * ```

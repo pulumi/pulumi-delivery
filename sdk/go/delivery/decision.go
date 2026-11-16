@@ -34,39 +34,39 @@ type DecisionArgs struct {
 	Name *string `pulumi:"name"`
 }
 
-// Stage entry rule. Rules may nest at most three levels.
+// Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.
 type DecisionResult struct {
 	// Name of the Decision Agent definition that a decision rule asks. Required for that kind.
 	Agent *string `pulumi:"agent"`
-	// Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
+	// Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
 	Approvers []string `pulumi:"approvers"`
-	// HTTP request body. Pulumi secret values remain secret.
+	// HTTP request body. Secret values stay secret.
 	Body *string `pulumi:"body"`
-	// Number of approvals required. For approval rules, omitted or zero means one.
+	// Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
 	Count *int `pulumi:"count"`
 	// Text for the person who continues a manual gate, for example what to check first.
 	Description *string `pulumi:"description"`
-	// HTTP request headers. Pulumi secret values remain secret.
+	// HTTP request headers. Secret values stay secret.
 	Headers map[string]string `pulumi:"headers"`
-	// Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule.
+	// Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
 	HeadersEnvironment *string `pulumi:"headersEnvironment"`
 	// Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.
 	Inputs map[string]interface{} `pulumi:"inputs"`
-	// HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
+	// Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
 	Interval *string `pulumi:"interval"`
-	// Rule kind: approval, http, manual, decision, all, or any.
+	// Kind of the rule. Valid values are approval, http, manual, decision, all, and any.
 	Kind string `pulumi:"kind"`
 	// HTTP request method. The default is GET.
 	Method *string `pulumi:"method"`
 	// Rule name. Omit it to let Delivery assign one.
 	Name *string `pulumi:"name"`
-	// Child rules for all or any. At least one child is required.
+	// Child rules for all and any rules. At least one is required.
 	Rules []Rule `pulumi:"rules"`
-	// JMESPath expression that the service evaluates over the status, headers and body of the HTTP response. The rule passes when it is true. Required for http rules.
+	// JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
 	SuccessExpression *string `pulumi:"successExpression"`
-	// HTTP request timeout as a Go duration, such as 10s. Must be a positive whole number of seconds, at most 20 seconds.
+	// Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
 	Timeout *string `pulumi:"timeout"`
-	// URL to call for an http rule. Required for that kind.
+	// URL to call. Required for http rules.
 	Url *string `pulumi:"url"`
 }
 
@@ -89,7 +89,7 @@ func (DecisionOutputArgs) ElementType() reflect.Type {
 	return reflect.TypeOf((*DecisionArgs)(nil)).Elem()
 }
 
-// Stage entry rule. Rules may nest at most three levels.
+// Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.
 type DecisionResultOutput struct{ *pulumi.OutputState }
 
 func (DecisionResultOutput) ElementType() reflect.Type {
@@ -109,17 +109,17 @@ func (o DecisionResultOutput) Agent() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v DecisionResult) *string { return v.Agent }).(pulumi.StringPtrOutput)
 }
 
-// Pulumi usernames or team names in the organization. An empty list lets anyone with the organization update permission approve. The person who started the run can never approve it, and no setting changes that.
+// Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
 func (o DecisionResultOutput) Approvers() pulumi.StringArrayOutput {
 	return o.ApplyT(func(v DecisionResult) []string { return v.Approvers }).(pulumi.StringArrayOutput)
 }
 
-// HTTP request body. Pulumi secret values remain secret.
+// HTTP request body. Secret values stay secret.
 func (o DecisionResultOutput) Body() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v DecisionResult) *string { return v.Body }).(pulumi.StringPtrOutput)
 }
 
-// Number of approvals required. For approval rules, omitted or zero means one.
+// Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
 func (o DecisionResultOutput) Count() pulumi.IntPtrOutput {
 	return o.ApplyT(func(v DecisionResult) *int { return v.Count }).(pulumi.IntPtrOutput)
 }
@@ -129,12 +129,12 @@ func (o DecisionResultOutput) Description() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v DecisionResult) *string { return v.Description }).(pulumi.StringPtrOutput)
 }
 
-// HTTP request headers. Pulumi secret values remain secret.
+// HTTP request headers. Secret values stay secret.
 func (o DecisionResultOutput) Headers() pulumi.StringMapOutput {
 	return o.ApplyT(func(v DecisionResult) map[string]string { return v.Headers }).(pulumi.StringMapOutput)
 }
 
-// Name of an ESC environment that exports values.headers. Its headers go first, then the headers of the rule.
+// Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
 func (o DecisionResultOutput) HeadersEnvironment() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v DecisionResult) *string { return v.HeadersEnvironment }).(pulumi.StringPtrOutput)
 }
@@ -144,12 +144,12 @@ func (o DecisionResultOutput) Inputs() pulumi.MapOutput {
 	return o.ApplyT(func(v DecisionResult) map[string]interface{} { return v.Inputs }).(pulumi.MapOutput)
 }
 
-// HTTP polling interval as a Go duration, such as 1m. Must be a positive whole number of seconds, at least 60 seconds.
+// Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
 func (o DecisionResultOutput) Interval() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v DecisionResult) *string { return v.Interval }).(pulumi.StringPtrOutput)
 }
 
-// Rule kind: approval, http, manual, decision, all, or any.
+// Kind of the rule. Valid values are approval, http, manual, decision, all, and any.
 func (o DecisionResultOutput) Kind() pulumi.StringOutput {
 	return o.ApplyT(func(v DecisionResult) string { return v.Kind }).(pulumi.StringOutput)
 }
@@ -164,22 +164,22 @@ func (o DecisionResultOutput) Name() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v DecisionResult) *string { return v.Name }).(pulumi.StringPtrOutput)
 }
 
-// Child rules for all or any. At least one child is required.
+// Child rules for all and any rules. At least one is required.
 func (o DecisionResultOutput) Rules() RuleArrayOutput {
 	return o.ApplyT(func(v DecisionResult) []Rule { return v.Rules }).(RuleArrayOutput)
 }
 
-// JMESPath expression that the service evaluates over the status, headers and body of the HTTP response. The rule passes when it is true. Required for http rules.
+// JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
 func (o DecisionResultOutput) SuccessExpression() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v DecisionResult) *string { return v.SuccessExpression }).(pulumi.StringPtrOutput)
 }
 
-// HTTP request timeout as a Go duration, such as 10s. Must be a positive whole number of seconds, at most 20 seconds.
+// Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
 func (o DecisionResultOutput) Timeout() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v DecisionResult) *string { return v.Timeout }).(pulumi.StringPtrOutput)
 }
 
-// URL to call for an http rule. Required for that kind.
+// URL to call. Required for http rules.
 func (o DecisionResultOutput) Url() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v DecisionResult) *string { return v.Url }).(pulumi.StringPtrOutput)
 }

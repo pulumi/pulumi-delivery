@@ -7,6 +7,7 @@ import com.pulumi.core.Output;
 import com.pulumi.core.annotations.Import;
 import com.pulumi.exceptions.MissingRequiredPropertyException;
 import java.lang.Integer;
+import java.lang.Object;
 import java.lang.String;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +23,21 @@ import javax.annotation.Nullable;
 public final class RuleArgs extends com.pulumi.resources.ResourceArgs {
 
     public static final RuleArgs Empty = new RuleArgs();
+
+    /**
+     * Name of the Decision Agent definition that a decision rule asks. Required for that kind.
+     * 
+     */
+    @Import(name="agent")
+    private @Nullable Output<String> agent;
+
+    /**
+     * @return Name of the Decision Agent definition that a decision rule asks. Required for that kind.
+     * 
+     */
+    public Optional<Output<String>> agent() {
+        return Optional.ofNullable(this.agent);
+    }
 
     /**
      * Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
@@ -114,6 +130,21 @@ public final class RuleArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
+     * Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.
+     * 
+     */
+    @Import(name="inputs")
+    private @Nullable Output<Map<String,Object>> inputs;
+
+    /**
+     * @return Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.
+     * 
+     */
+    public Optional<Output<Map<String,Object>>> inputs() {
+        return Optional.ofNullable(this.inputs);
+    }
+
+    /**
      * Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
      * 
      */
@@ -129,14 +160,14 @@ public final class RuleArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * Kind of the rule. Valid values are approval, http, manual, all, and any.
+     * Kind of the rule. Valid values are approval, http, manual, decision, all, and any.
      * 
      */
     @Import(name="kind", required=true)
     private Output<String> kind;
 
     /**
-     * @return Kind of the rule. Valid values are approval, http, manual, all, and any.
+     * @return Kind of the rule. Valid values are approval, http, manual, decision, all, and any.
      * 
      */
     public Output<String> kind() {
@@ -236,12 +267,14 @@ public final class RuleArgs extends com.pulumi.resources.ResourceArgs {
     private RuleArgs() {}
 
     private RuleArgs(RuleArgs $) {
+        this.agent = $.agent;
         this.approvers = $.approvers;
         this.body = $.body;
         this.count = $.count;
         this.description = $.description;
         this.headers = $.headers;
         this.headersEnvironment = $.headersEnvironment;
+        this.inputs = $.inputs;
         this.interval = $.interval;
         this.kind = $.kind;
         this.method = $.method;
@@ -268,6 +301,27 @@ public final class RuleArgs extends com.pulumi.resources.ResourceArgs {
 
         public Builder(RuleArgs defaults) {
             $ = new RuleArgs(Objects.requireNonNull(defaults));
+        }
+
+        /**
+         * @param agent Name of the Decision Agent definition that a decision rule asks. Required for that kind.
+         * 
+         * @return builder
+         * 
+         */
+        public Builder agent(@Nullable Output<String> agent) {
+            $.agent = agent;
+            return this;
+        }
+
+        /**
+         * @param agent Name of the Decision Agent definition that a decision rule asks. Required for that kind.
+         * 
+         * @return builder
+         * 
+         */
+        public Builder agent(String agent) {
+            return agent(Output.of(agent));
         }
 
         /**
@@ -407,6 +461,27 @@ public final class RuleArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
+         * @param inputs Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.
+         * 
+         * @return builder
+         * 
+         */
+        public Builder inputs(@Nullable Output<Map<String,Object>> inputs) {
+            $.inputs = inputs;
+            return this;
+        }
+
+        /**
+         * @param inputs Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.
+         * 
+         * @return builder
+         * 
+         */
+        public Builder inputs(Map<String,Object> inputs) {
+            return inputs(Output.of(inputs));
+        }
+
+        /**
          * @param interval Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
          * 
          * @return builder
@@ -428,7 +503,7 @@ public final class RuleArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param kind Kind of the rule. Valid values are approval, http, manual, all, and any.
+         * @param kind Kind of the rule. Valid values are approval, http, manual, decision, all, and any.
          * 
          * @return builder
          * 
@@ -439,7 +514,7 @@ public final class RuleArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param kind Kind of the rule. Valid values are approval, http, manual, all, and any.
+         * @param kind Kind of the rule. Valid values are approval, http, manual, decision, all, and any.
          * 
          * @return builder
          * 

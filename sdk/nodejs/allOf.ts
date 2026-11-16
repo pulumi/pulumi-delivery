@@ -50,6 +50,10 @@ export interface AllOfArgs {
  */
 export interface AllOfResult {
     /**
+     * Name of the Decision Agent definition that a decision rule asks. Required for that kind.
+     */
+    readonly agent?: string;
+    /**
      * Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
      */
     readonly approvers?: string[];
@@ -74,11 +78,15 @@ export interface AllOfResult {
      */
     readonly headersEnvironment?: string;
     /**
+     * Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.
+     */
+    readonly inputs?: {[key: string]: any};
+    /**
      * Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
      */
     readonly interval?: string;
     /**
-     * Kind of the rule. Valid values are approval, http, manual, all, and any.
+     * Kind of the rule. Valid values are approval, http, manual, decision, all, and any.
      */
     readonly kind: string;
     /**

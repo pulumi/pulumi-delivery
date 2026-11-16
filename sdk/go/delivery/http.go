@@ -48,6 +48,8 @@ type HttpArgs struct {
 
 // Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.
 type HttpResult struct {
+	// Name of the Decision Agent definition that a decision rule asks. Required for that kind.
+	Agent *string `pulumi:"agent"`
 	// Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
 	Approvers []string `pulumi:"approvers"`
 	// HTTP request body. Secret values stay secret.
@@ -60,9 +62,11 @@ type HttpResult struct {
 	Headers map[string]string `pulumi:"headers"`
 	// Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
 	HeadersEnvironment *string `pulumi:"headersEnvironment"`
+	// Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.
+	Inputs map[string]interface{} `pulumi:"inputs"`
 	// Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
 	Interval *string `pulumi:"interval"`
-	// Kind of the rule. Valid values are approval, http, manual, all, and any.
+	// Kind of the rule. Valid values are approval, http, manual, decision, all, and any.
 	Kind string `pulumi:"kind"`
 	// HTTP request method. The default is GET.
 	Method *string `pulumi:"method"`
@@ -124,6 +128,11 @@ func (o HttpResultOutput) ToHttpResultOutputWithContext(ctx context.Context) Htt
 	return o
 }
 
+// Name of the Decision Agent definition that a decision rule asks. Required for that kind.
+func (o HttpResultOutput) Agent() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v HttpResult) *string { return v.Agent }).(pulumi.StringPtrOutput)
+}
+
 // Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
 func (o HttpResultOutput) Approvers() pulumi.StringArrayOutput {
 	return o.ApplyT(func(v HttpResult) []string { return v.Approvers }).(pulumi.StringArrayOutput)
@@ -154,12 +163,17 @@ func (o HttpResultOutput) HeadersEnvironment() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v HttpResult) *string { return v.HeadersEnvironment }).(pulumi.StringPtrOutput)
 }
 
+// Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.
+func (o HttpResultOutput) Inputs() pulumi.MapOutput {
+	return o.ApplyT(func(v HttpResult) map[string]interface{} { return v.Inputs }).(pulumi.MapOutput)
+}
+
 // Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
 func (o HttpResultOutput) Interval() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v HttpResult) *string { return v.Interval }).(pulumi.StringPtrOutput)
 }
 
-// Kind of the rule. Valid values are approval, http, manual, all, and any.
+// Kind of the rule. Valid values are approval, http, manual, decision, all, and any.
 func (o HttpResultOutput) Kind() pulumi.StringOutput {
 	return o.ApplyT(func(v HttpResult) string { return v.Kind }).(pulumi.StringOutput)
 }

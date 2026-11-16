@@ -4,14 +4,14 @@
 import * as pulumi from "@pulumi/pulumi";
 import * as utilities from "./utilities";
 
-import {AzureDevOpsSource, BitbucketSource, GitHubSource, GitLabSource, Stage} from "./index";
+import {Stage} from "./index";
 
 /**
- * Declares a task for a Custom Agent of the organization that a run executes in a stage. The agent works on the prompt, in the repository of source when one is set, and returns a typed result that the result schema describes.
+ * Declares a structured invocation of a Custom Agent of the organization that a run executes in a stage. The agent works on the prompt and ends with one JSON value that the response schema describes.
  *
- * The prompt can use the outputs of other members with apply. The pass that declares the task is then a later pass of the run.
+ * The prompt can use the outputs of other members with apply. The pass that declares the invocation is then a later pass of the run.
  *
- * A resource that is not a Delivery resource waits for the task when it uses an output of the task.
+ * A resource that is not a Delivery resource waits for the invocation when it uses an output of it.
  *
  * ## Example Usage
  *
@@ -20,12 +20,11 @@ import {AzureDevOpsSource, BitbucketSource, GitHubSource, GitLabSource, Stage} f
  *
  * const fix = new delivery.Agent("fix", {
  *     stage: implement,
- *     agent: "implementer",
- *     source: code,
+ *     agentDefinitionId: implementerId,
  *     prompt: pulumi.interpolate`Implement ${issue.data.apply(data => data["identifier"])}: ${issue.data.apply(data => data["title"])}`,
- *     resultSchema: { type: "object", properties: { pullRequest: { type: "integer" } }, required: ["pullRequest"] },
+ *     responseSchema: { type: "object", properties: { pullRequest: { type: "integer" } }, required: ["pullRequest"] },
  * });
- * export const pullRequest = fix.result.apply(result => result["pullRequest"]);
+ * export const pullRequest = fix.response.apply(response => response["pullRequest"]);
  * ```
  */
 export class Agent extends pulumi.ComponentResource {
@@ -44,11 +43,11 @@ export class Agent extends pulumi.ComponentResource {
     }
 
     /**
-     * Typed result of the task, as the result schema describes it. It is unknown until the task has run.
+     * Structured response of the invocation, as the response schema describes it. It is unknown until the invocation has completed.
      */
-    declare public /*out*/ readonly result: pulumi.Output<{[key: string]: any}>;
+    declare public /*out*/ readonly response: pulumi.Output<any>;
     /**
-     * Identifier of the task in Pulumi Cloud. It is unknown until the task has started.
+     * Identifier of the task of the invocation in Pulumi Cloud. It is unknown until the invocation has completed.
      */
     declare public /*out*/ readonly taskId: pulumi.Output<string>;
 
@@ -63,25 +62,26 @@ export class Agent extends pulumi.ComponentResource {
         let resourceInputs: pulumi.Inputs = {};
         opts = opts || {};
         if (!opts.id) {
-            if (args?.agent === undefined && !opts.urn) {
-                throw new Error("Missing required property 'agent'");
+            if (args?.agentDefinitionId === undefined && !opts.urn) {
+                throw new Error("Missing required property 'agentDefinitionId'");
             }
             if (args?.prompt === undefined && !opts.urn) {
                 throw new Error("Missing required property 'prompt'");
             }
+            if (args?.responseSchema === undefined && !opts.urn) {
+                throw new Error("Missing required property 'responseSchema'");
+            }
             if (args?.stage === undefined && !opts.urn) {
                 throw new Error("Missing required property 'stage'");
             }
-            resourceInputs["agent"] = args?.agent;
+            resourceInputs["agentDefinitionId"] = args?.agentDefinitionId;
             resourceInputs["prompt"] = args?.prompt;
-            resourceInputs["resultSchema"] = args?.resultSchema;
-            resourceInputs["source"] = args?.source;
+            resourceInputs["responseSchema"] = args?.responseSchema;
             resourceInputs["stage"] = args?.stage;
-            resourceInputs["timeout"] = args?.timeout;
-            resourceInputs["result"] = undefined /*out*/;
+            resourceInputs["response"] = undefined /*out*/;
             resourceInputs["taskId"] = undefined /*out*/;
         } else {
-            resourceInputs["result"] = undefined /*out*/;
+            resourceInputs["response"] = undefined /*out*/;
             resourceInputs["taskId"] = undefined /*out*/;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
@@ -94,27 +94,19 @@ export class Agent extends pulumi.ComponentResource {
  */
 export interface AgentArgs {
     /**
-     * Name of the Custom Agent definition in the organization.
+     * ID of the Custom Agent definition in the organization.
      */
-    agent: pulumi.Input<string>;
+    agentDefinitionId: pulumi.Input<string>;
     /**
-     * Prompt of the task. Build it from the outputs of other members with apply.
+     * Prompt of the invocation. Build it from the outputs of other members with apply.
      */
     prompt: pulumi.Input<string>;
     /**
-     * JSON Schema that the typed result of the task must satisfy. Omit it for a result without a fixed shape.
+     * JSON Schema that the response of the invocation must satisfy. It must not contain a $ref.
      */
-    resultSchema?: pulumi.Input<{[key: string]: any} | undefined>;
+    responseSchema: pulumi.Input<{[key: string]: any}>;
     /**
-     * VCS source of the repository that the agent works in. The agent gets the commit of the run for this source.
-     */
-    source?: pulumi.Input<GitHubSource | GitLabSource | BitbucketSource | AzureDevOpsSource | undefined>;
-    /**
-     * Stage that the task runs in. A pipeline requires it.
+     * Stage that the invocation runs in. A pipeline requires it.
      */
     stage: pulumi.Input<Stage>;
-    /**
-     * Maximum run time as a Go duration, such as 30m.
-     */
-    timeout?: pulumi.Input<string | undefined>;
 }

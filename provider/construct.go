@@ -138,7 +138,7 @@ func withDeliveryConstruct(inner func(context.Context, p.ConstructRequest) (p.Co
 var memberOutputs = map[string][]string{
 	typeJob:      {"outputs"},
 	typeArtifact: {"value"},
-	typeAgent:    {"result", "taskId"},
+	typeAgent:    {"response", "taskId"},
 }
 
 // finishState makes the outputs of a Job, an Artifact or an Agent depend on its child (and drops the child URN),
@@ -589,27 +589,25 @@ func validateTimeout(inputs property.Map) error {
 	return nil
 }
 
-// validateAgent checks the inputs of an Agent: the stage, the agent and the prompt are required, the source is a
-// VCS source when set (a webhook source cannot be checked out), and the result schema is an object. Unknown
-// values pass.
+// validateAgent checks the inputs of an Agent: the stage, the agent definition and the prompt are required, and the
+// response schema is an object. Unknown values pass. The service checks that the schema is a valid JSON Schema.
 func validateAgent(inputs property.Map) error {
 	if err := requireRef(inputs, "stage", typeStage); err != nil {
 		return err
 	}
-	for _, name := range []string{"agent", "prompt"} {
+	for _, name := range []string{"agentDefinitionId", "prompt"} {
 		if err := requiredUnlessUnknown(inputs, stringInput(inputs, name), name); err != nil {
 			return err
 		}
 	}
-	if source, ok := inputs.GetOk("source"); ok && !source.IsNull() {
-		if err := requireRef(inputs, "source", sourceTypes...); err != nil {
-			return err
-		}
+	schema, ok := inputs.GetOk("responseSchema")
+	if !ok || schema.IsNull() {
+		return errors.New("responseSchema is required")
 	}
-	if schema, ok := inputs.GetOk("resultSchema"); ok && !schema.IsNull() && !schema.IsComputed() && !schema.IsMap() {
-		return errors.New("resultSchema must be a JSON Schema object")
+	if !schema.IsComputed() && !schema.IsMap() {
+		return errors.New("responseSchema must be a JSON Schema object")
 	}
-	return validateTimeout(inputs)
+	return nil
 }
 
 func checkImage(inputs property.Map) error {

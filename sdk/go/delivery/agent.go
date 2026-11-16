@@ -12,19 +12,19 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-// Declares a task for a Custom Agent of the organization that a run executes in a stage. The agent works on the prompt, in the repository of source when one is set, and returns a typed result that the result schema describes.
+// Declares a structured invocation of a Custom Agent of the organization that a run executes in a stage. The agent works on the prompt and ends with one JSON value that the response schema describes.
 //
-// The prompt can use the outputs of other members with apply. The pass that declares the task is then a later pass of the run.
+// The prompt can use the outputs of other members with apply. The pass that declares the invocation is then a later pass of the run.
 //
-// A resource that is not a Delivery resource waits for the task when it uses an output of the task.
+// A resource that is not a Delivery resource waits for the invocation when it uses an output of it.
 //
 // ## Example Usage
 type Agent struct {
 	pulumi.ResourceState
 
-	// Typed result of the task, as the result schema describes it. It is unknown until the task has run.
-	Result pulumi.MapOutput `pulumi:"result"`
-	// Identifier of the task in Pulumi Cloud. It is unknown until the task has started.
+	// Structured response of the invocation, as the response schema describes it. It is unknown until the invocation has completed.
+	Response pulumi.AnyOutput `pulumi:"response"`
+	// Identifier of the task of the invocation in Pulumi Cloud. It is unknown until the invocation has completed.
 	TaskId pulumi.StringOutput `pulumi:"taskId"`
 }
 
@@ -35,11 +35,14 @@ func NewAgent(ctx *pulumi.Context,
 		return nil, errors.New("missing one or more required arguments")
 	}
 
-	if args.Agent == nil {
-		return nil, errors.New("invalid value for required argument 'Agent'")
+	if args.AgentDefinitionId == nil {
+		return nil, errors.New("invalid value for required argument 'AgentDefinitionId'")
 	}
 	if args.Prompt == nil {
 		return nil, errors.New("invalid value for required argument 'Prompt'")
+	}
+	if args.ResponseSchema == nil {
+		return nil, errors.New("invalid value for required argument 'ResponseSchema'")
 	}
 	if args.Stage == nil {
 		return nil, errors.New("invalid value for required argument 'Stage'")
@@ -54,34 +57,26 @@ func NewAgent(ctx *pulumi.Context,
 }
 
 type agentArgs struct {
-	// Name of the Custom Agent definition in the organization.
-	Agent string `pulumi:"agent"`
-	// Prompt of the task. Build it from the outputs of other members with apply.
+	// ID of the Custom Agent definition in the organization.
+	AgentDefinitionId string `pulumi:"agentDefinitionId"`
+	// Prompt of the invocation. Build it from the outputs of other members with apply.
 	Prompt string `pulumi:"prompt"`
-	// JSON Schema that the typed result of the task must satisfy. Omit it for a result without a fixed shape.
-	ResultSchema map[string]interface{} `pulumi:"resultSchema"`
-	// VCS source of the repository that the agent works in. The agent gets the commit of the run for this source.
-	Source interface{} `pulumi:"source"`
-	// Stage that the task runs in. A pipeline requires it.
+	// JSON Schema that the response of the invocation must satisfy. It must not contain a $ref.
+	ResponseSchema map[string]interface{} `pulumi:"responseSchema"`
+	// Stage that the invocation runs in. A pipeline requires it.
 	Stage *Stage `pulumi:"stage"`
-	// Maximum run time as a Go duration, such as 30m.
-	Timeout *string `pulumi:"timeout"`
 }
 
 // The set of arguments for constructing a Agent resource.
 type AgentArgs struct {
-	// Name of the Custom Agent definition in the organization.
-	Agent pulumi.StringInput
-	// Prompt of the task. Build it from the outputs of other members with apply.
+	// ID of the Custom Agent definition in the organization.
+	AgentDefinitionId pulumi.StringInput
+	// Prompt of the invocation. Build it from the outputs of other members with apply.
 	Prompt pulumi.StringInput
-	// JSON Schema that the typed result of the task must satisfy. Omit it for a result without a fixed shape.
-	ResultSchema pulumi.MapInput
-	// VCS source of the repository that the agent works in. The agent gets the commit of the run for this source.
-	Source pulumi.Input
-	// Stage that the task runs in. A pipeline requires it.
+	// JSON Schema that the response of the invocation must satisfy. It must not contain a $ref.
+	ResponseSchema pulumi.MapInput
+	// Stage that the invocation runs in. A pipeline requires it.
 	Stage StageInput
-	// Maximum run time as a Go duration, such as 30m.
-	Timeout pulumi.StringPtrInput
 }
 
 func (AgentArgs) ElementType() reflect.Type {
@@ -171,12 +166,12 @@ func (o AgentOutput) ToAgentOutputWithContext(ctx context.Context) AgentOutput {
 	return o
 }
 
-// Typed result of the task, as the result schema describes it. It is unknown until the task has run.
-func (o AgentOutput) Result() pulumi.MapOutput {
-	return o.ApplyT(func(v *Agent) pulumi.MapOutput { return v.Result }).(pulumi.MapOutput)
+// Structured response of the invocation, as the response schema describes it. It is unknown until the invocation has completed.
+func (o AgentOutput) Response() pulumi.AnyOutput {
+	return o.ApplyT(func(v *Agent) pulumi.AnyOutput { return v.Response }).(pulumi.AnyOutput)
 }
 
-// Identifier of the task in Pulumi Cloud. It is unknown until the task has started.
+// Identifier of the task of the invocation in Pulumi Cloud. It is unknown until the invocation has completed.
 func (o AgentOutput) TaskId() pulumi.StringOutput {
 	return o.ApplyT(func(v *Agent) pulumi.StringOutput { return v.TaskId }).(pulumi.StringOutput)
 }

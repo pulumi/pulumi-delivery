@@ -542,6 +542,13 @@ hookDetails: JSON.stringify({
 
 Do not write the run number into the environment variables of a Lambda function. That changes the function in every run.
 
+### Webhook sources, agents and decision gates
+
+- A `WebhookSource` is a source that an external system posts to. Its `url` output is where the system posts. The service verifies a post with `signing` (`hmac-sha256` over the raw body, or a shared `token`), checks it against the JMESPath `when`, and maps it with the JMESPath `map` to the `subject`, `version` and `data` of the run that the post starts. A matching post starts a run unless `trigger` is `false`. The `subject`, `version` and `data` outputs are known in a run. A webhook source is not a checkout source: a `Job` cannot check it out.
+- A `LinearIssueSource` is a `WebhookSource` for the issue webhooks of Linear. Give it the `signingSecret` of the webhook, and point the webhook at its `url` output. A run starts when a user creates or updates an issue that carries every label in `labels` and is in one of `states`. `ignoreBots` (the default) skips changes that an app made. `data` holds `identifier`, `title`, `description`, `url`, `state`, `labels`, `team` and `action`.
+- An `Agent` declares a structured invocation of a Custom Agent of the organization. It runs in its `stage` as the agent that `agentDefinitionId` names, and gets the `prompt`, which a program builds from the outputs of other members with `apply`. `responseSchema` is the JSON Schema of the `response`, the one JSON value that the agent ends with. It must not contain a `$ref`. `taskId` names the task of the invocation in Pulumi Cloud. Both outputs are unknown until the invocation has completed.
+- `decision({ agent, inputs })` is a gate rule that asks a Decision Agent of the organization. `inputs` are the fields of its prompt, usually built from member outputs with `apply`, so use `decisionOutput()` in TypeScript. The gate passes when the agent decides to continue. See `examples/neon` for a pipeline with a `LinearIssueSource`, an `Agent` and a decision gate.
+
 ## Permissions
 
 - Write access to the branch of the pipeline program gives deploy access to every stack that the Delivery identity of your organization can reach. Protect that branch.

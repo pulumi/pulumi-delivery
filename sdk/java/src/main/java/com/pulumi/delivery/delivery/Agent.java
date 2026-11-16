@@ -11,15 +11,14 @@ import com.pulumi.delivery.delivery.AgentArgs;
 import com.pulumi.delivery.delivery.Utilities;
 import java.lang.Object;
 import java.lang.String;
-import java.util.Map;
 import javax.annotation.Nullable;
 
 /**
- * Declares a task for a Custom Agent of the organization that a run executes in a stage. The agent works on the prompt, in the repository of source when one is set, and returns a typed result that the result schema describes.
+ * Declares a structured invocation of a Custom Agent of the organization that a run executes in a stage. The agent works on the prompt and ends with one JSON value that the response schema describes.
  * 
- * The prompt can use the outputs of other members with apply. The pass that declares the task is then a later pass of the run.
+ * The prompt can use the outputs of other members with apply. The pass that declares the invocation is then a later pass of the run.
  * 
- * A resource that is not a Delivery resource waits for the task when it uses an output of the task.
+ * A resource that is not a Delivery resource waits for the invocation when it uses an output of it.
  * 
  * ## Example Usage
  * 
@@ -27,28 +26,28 @@ import javax.annotation.Nullable;
 @ResourceType(type="delivery:index:Agent")
 public class Agent extends com.pulumi.resources.ComponentResource {
     /**
-     * Typed result of the task, as the result schema describes it. It is unknown until the task has run.
+     * Structured response of the invocation, as the response schema describes it. It is unknown until the invocation has completed.
      * 
      */
-    @Export(name="result", refs={Map.class,String.class,Object.class}, tree="[0,1,2]")
-    private Output<Map<String,Object>> result;
+    @Export(name="response", refs={Object.class}, tree="[0]")
+    private Output<Object> response;
 
     /**
-     * @return Typed result of the task, as the result schema describes it. It is unknown until the task has run.
+     * @return Structured response of the invocation, as the response schema describes it. It is unknown until the invocation has completed.
      * 
      */
-    public Output<Map<String,Object>> result() {
-        return this.result;
+    public Output<Object> response() {
+        return this.response;
     }
     /**
-     * Identifier of the task in Pulumi Cloud. It is unknown until the task has started.
+     * Identifier of the task of the invocation in Pulumi Cloud. It is unknown until the invocation has completed.
      * 
      */
     @Export(name="taskId", refs={String.class}, tree="[0]")
     private Output<String> taskId;
 
     /**
-     * @return Identifier of the task in Pulumi Cloud. It is unknown until the task has started.
+     * @return Identifier of the task of the invocation in Pulumi Cloud. It is unknown until the invocation has completed.
      * 
      */
     public Output<String> taskId() {

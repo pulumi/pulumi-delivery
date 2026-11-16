@@ -5,18 +5,12 @@ package com.pulumi.delivery.delivery;
 
 import com.pulumi.core.Output;
 import com.pulumi.core.annotations.Import;
-import com.pulumi.delivery.delivery.AzureDevOpsSource;
-import com.pulumi.delivery.delivery.BitbucketSource;
-import com.pulumi.delivery.delivery.GitHubSource;
-import com.pulumi.delivery.delivery.GitLabSource;
 import com.pulumi.delivery.delivery.Stage;
 import com.pulumi.exceptions.MissingRequiredPropertyException;
 import java.lang.Object;
 import java.lang.String;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
-import javax.annotation.Nullable;
 
 
 public final class AgentArgs extends com.pulumi.resources.ResourceArgs {
@@ -24,29 +18,29 @@ public final class AgentArgs extends com.pulumi.resources.ResourceArgs {
     public static final AgentArgs Empty = new AgentArgs();
 
     /**
-     * Name of the Custom Agent definition in the organization.
+     * ID of the Custom Agent definition in the organization.
      * 
      */
-    @Import(name="agent", required=true)
-    private Output<String> agent;
+    @Import(name="agentDefinitionId", required=true)
+    private Output<String> agentDefinitionId;
 
     /**
-     * @return Name of the Custom Agent definition in the organization.
+     * @return ID of the Custom Agent definition in the organization.
      * 
      */
-    public Output<String> agent() {
-        return this.agent;
+    public Output<String> agentDefinitionId() {
+        return this.agentDefinitionId;
     }
 
     /**
-     * Prompt of the task. Build it from the outputs of other members with apply.
+     * Prompt of the invocation. Build it from the outputs of other members with apply.
      * 
      */
     @Import(name="prompt", required=true)
     private Output<String> prompt;
 
     /**
-     * @return Prompt of the task. Build it from the outputs of other members with apply.
+     * @return Prompt of the invocation. Build it from the outputs of other members with apply.
      * 
      */
     public Output<String> prompt() {
@@ -54,74 +48,42 @@ public final class AgentArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * JSON Schema that the typed result of the task must satisfy. Omit it for a result without a fixed shape.
+     * JSON Schema that the response of the invocation must satisfy. It must not contain a $ref.
      * 
      */
-    @Import(name="resultSchema")
-    private @Nullable Output<Map<String,Object>> resultSchema;
+    @Import(name="responseSchema", required=true)
+    private Output<Map<String,Object>> responseSchema;
 
     /**
-     * @return JSON Schema that the typed result of the task must satisfy. Omit it for a result without a fixed shape.
+     * @return JSON Schema that the response of the invocation must satisfy. It must not contain a $ref.
      * 
      */
-    public Optional<Output<Map<String,Object>>> resultSchema() {
-        return Optional.ofNullable(this.resultSchema);
+    public Output<Map<String,Object>> responseSchema() {
+        return this.responseSchema;
     }
 
     /**
-     * VCS source of the repository that the agent works in. The agent gets the commit of the run for this source.
-     * 
-     */
-    @Import(name="source")
-    private @Nullable Output<Object> source;
-
-    /**
-     * @return VCS source of the repository that the agent works in. The agent gets the commit of the run for this source.
-     * 
-     */
-    public Optional<Output<Object>> source() {
-        return Optional.ofNullable(this.source);
-    }
-
-    /**
-     * Stage that the task runs in. A pipeline requires it.
+     * Stage that the invocation runs in. A pipeline requires it.
      * 
      */
     @Import(name="stage", required=true)
     private Output<Stage> stage;
 
     /**
-     * @return Stage that the task runs in. A pipeline requires it.
+     * @return Stage that the invocation runs in. A pipeline requires it.
      * 
      */
     public Output<Stage> stage() {
         return this.stage;
     }
 
-    /**
-     * Maximum run time as a Go duration, such as 30m.
-     * 
-     */
-    @Import(name="timeout")
-    private @Nullable Output<String> timeout;
-
-    /**
-     * @return Maximum run time as a Go duration, such as 30m.
-     * 
-     */
-    public Optional<Output<String>> timeout() {
-        return Optional.ofNullable(this.timeout);
-    }
-
     private AgentArgs() {}
 
     private AgentArgs(AgentArgs $) {
-        this.agent = $.agent;
+        this.agentDefinitionId = $.agentDefinitionId;
         this.prompt = $.prompt;
-        this.resultSchema = $.resultSchema;
-        this.source = $.source;
+        this.responseSchema = $.responseSchema;
         this.stage = $.stage;
-        this.timeout = $.timeout;
     }
 
     public static Builder builder() {
@@ -143,28 +105,28 @@ public final class AgentArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param agent Name of the Custom Agent definition in the organization.
+         * @param agentDefinitionId ID of the Custom Agent definition in the organization.
          * 
          * @return builder
          * 
          */
-        public Builder agent(Output<String> agent) {
-            $.agent = agent;
+        public Builder agentDefinitionId(Output<String> agentDefinitionId) {
+            $.agentDefinitionId = agentDefinitionId;
             return this;
         }
 
         /**
-         * @param agent Name of the Custom Agent definition in the organization.
+         * @param agentDefinitionId ID of the Custom Agent definition in the organization.
          * 
          * @return builder
          * 
          */
-        public Builder agent(String agent) {
-            return agent(Output.of(agent));
+        public Builder agentDefinitionId(String agentDefinitionId) {
+            return agentDefinitionId(Output.of(agentDefinitionId));
         }
 
         /**
-         * @param prompt Prompt of the task. Build it from the outputs of other members with apply.
+         * @param prompt Prompt of the invocation. Build it from the outputs of other members with apply.
          * 
          * @return builder
          * 
@@ -175,7 +137,7 @@ public final class AgentArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param prompt Prompt of the task. Build it from the outputs of other members with apply.
+         * @param prompt Prompt of the invocation. Build it from the outputs of other members with apply.
          * 
          * @return builder
          * 
@@ -185,49 +147,28 @@ public final class AgentArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param resultSchema JSON Schema that the typed result of the task must satisfy. Omit it for a result without a fixed shape.
+         * @param responseSchema JSON Schema that the response of the invocation must satisfy. It must not contain a $ref.
          * 
          * @return builder
          * 
          */
-        public Builder resultSchema(@Nullable Output<Map<String,Object>> resultSchema) {
-            $.resultSchema = resultSchema;
+        public Builder responseSchema(Output<Map<String,Object>> responseSchema) {
+            $.responseSchema = responseSchema;
             return this;
         }
 
         /**
-         * @param resultSchema JSON Schema that the typed result of the task must satisfy. Omit it for a result without a fixed shape.
+         * @param responseSchema JSON Schema that the response of the invocation must satisfy. It must not contain a $ref.
          * 
          * @return builder
          * 
          */
-        public Builder resultSchema(Map<String,Object> resultSchema) {
-            return resultSchema(Output.of(resultSchema));
+        public Builder responseSchema(Map<String,Object> responseSchema) {
+            return responseSchema(Output.of(responseSchema));
         }
 
         /**
-         * @param source VCS source of the repository that the agent works in. The agent gets the commit of the run for this source.
-         * 
-         * @return builder
-         * 
-         */
-        public Builder source(@Nullable Output<Object> source) {
-            $.source = source;
-            return this;
-        }
-
-        /**
-         * @param source VCS source of the repository that the agent works in. The agent gets the commit of the run for this source.
-         * 
-         * @return builder
-         * 
-         */
-        public Builder source(Object source) {
-            return source(Output.of(source));
-        }
-
-        /**
-         * @param stage Stage that the task runs in. A pipeline requires it.
+         * @param stage Stage that the invocation runs in. A pipeline requires it.
          * 
          * @return builder
          * 
@@ -238,7 +179,7 @@ public final class AgentArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param stage Stage that the task runs in. A pipeline requires it.
+         * @param stage Stage that the invocation runs in. A pipeline requires it.
          * 
          * @return builder
          * 
@@ -247,33 +188,15 @@ public final class AgentArgs extends com.pulumi.resources.ResourceArgs {
             return stage(Output.of(stage));
         }
 
-        /**
-         * @param timeout Maximum run time as a Go duration, such as 30m.
-         * 
-         * @return builder
-         * 
-         */
-        public Builder timeout(@Nullable Output<String> timeout) {
-            $.timeout = timeout;
-            return this;
-        }
-
-        /**
-         * @param timeout Maximum run time as a Go duration, such as 30m.
-         * 
-         * @return builder
-         * 
-         */
-        public Builder timeout(String timeout) {
-            return timeout(Output.of(timeout));
-        }
-
         public AgentArgs build() {
-            if ($.agent == null) {
-                throw new MissingRequiredPropertyException("AgentArgs", "agent");
+            if ($.agentDefinitionId == null) {
+                throw new MissingRequiredPropertyException("AgentArgs", "agentDefinitionId");
             }
             if ($.prompt == null) {
                 throw new MissingRequiredPropertyException("AgentArgs", "prompt");
+            }
+            if ($.responseSchema == null) {
+                throw new MissingRequiredPropertyException("AgentArgs", "responseSchema");
             }
             if ($.stage == null) {
                 throw new MissingRequiredPropertyException("AgentArgs", "stage");

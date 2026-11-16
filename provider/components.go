@@ -137,18 +137,17 @@ type PipelineSource struct {
 }
 
 type AgentArgs struct {
-	Stage  any    `pulumi:"stage"`
-	Agent  string `pulumi:"agent"`
-	Prompt string `pulumi:"prompt"`
-	// ResultSchema is the JSON Schema of the result. Any object is accepted here; the service checks it.
-	ResultSchema map[string]any `pulumi:"resultSchema,optional"`
-	Source       any            `pulumi:"source,optional"`
-	Timeout      string         `pulumi:"timeout,optional"`
+	Stage any `pulumi:"stage"`
+	// AgentDefinitionId is the ID of the Custom Agent definition that the invocation runs as.
+	AgentDefinitionId string `pulumi:"agentDefinitionId"`
+	Prompt            string `pulumi:"prompt"`
+	// ResponseSchema is the JSON Schema of the response. Any object is accepted here; the service checks it.
+	ResponseSchema map[string]any `pulumi:"responseSchema"`
 }
 type Agent struct {
 	pulumi.ResourceState
-	// Result is the typed result of the task.
-	Result pulumi.MapOutput `pulumi:"result"`
+	// Response is the structured response of the invocation: the JSON value that the response schema describes.
+	Response pulumi.AnyOutput `pulumi:"response"`
 	// TaskId is the identifier of the task in Pulumi Cloud.
 	TaskId pulumi.StringOutput `pulumi:"taskId"`
 	// ChildUrn is the URN of the internal child resource of the task.

@@ -16,6 +16,12 @@ namespace Pulumi.Delivery.Delivery.Inputs
     /// </summary>
     public sealed class Rule : global::Pulumi.InvokeArgs
     {
+        /// <summary>
+        /// Name of the Decision Agent definition that a decision rule asks. Required for that kind.
+        /// </summary>
+        [Input("agent")]
+        public string? Agent { get; set; }
+
         [Input("approvers")]
         private List<string>? _approvers;
 
@@ -64,6 +70,18 @@ namespace Pulumi.Delivery.Delivery.Inputs
         [Input("headersEnvironment")]
         public string? HeadersEnvironment { get; set; }
 
+        [Input("inputs")]
+        private Dictionary<string, object>? _inputs;
+
+        /// <summary>
+        /// Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.
+        /// </summary>
+        public Dictionary<string, object> Inputs
+        {
+            get => _inputs ?? (_inputs = new Dictionary<string, object>());
+            set => _inputs = value;
+        }
+
         /// <summary>
         /// Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
         /// </summary>
@@ -71,7 +89,7 @@ namespace Pulumi.Delivery.Delivery.Inputs
         public string? Interval { get; set; }
 
         /// <summary>
-        /// Kind of the rule. Valid values are approval, http, manual, all, and any.
+        /// Kind of the rule. Valid values are approval, http, manual, decision, all, and any.
         /// </summary>
         [Input("kind", required: true)]
         public string Kind { get; set; } = null!;

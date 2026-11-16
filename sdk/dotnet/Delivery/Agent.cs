@@ -11,11 +11,11 @@ using Pulumi;
 namespace Pulumi.Delivery.Delivery
 {
     /// <summary>
-    /// Declares a task for a Custom Agent of the organization that a run executes in a stage. The agent works on the prompt, in the repository of source when one is set, and returns a typed result that the result schema describes.
+    /// Declares a structured invocation of a Custom Agent of the organization that a run executes in a stage. The agent works on the prompt and ends with one JSON value that the response schema describes.
     /// 
-    /// The prompt can use the outputs of other members with apply. The pass that declares the task is then a later pass of the run.
+    /// The prompt can use the outputs of other members with apply. The pass that declares the invocation is then a later pass of the run.
     /// 
-    /// A resource that is not a Delivery resource waits for the task when it uses an output of the task.
+    /// A resource that is not a Delivery resource waits for the invocation when it uses an output of it.
     /// 
     /// ## Example Usage
     /// </summary>
@@ -23,13 +23,13 @@ namespace Pulumi.Delivery.Delivery
     public partial class Agent : global::Pulumi.ComponentResource
     {
         /// <summary>
-        /// Typed result of the task, as the result schema describes it. It is unknown until the task has run.
+        /// Structured response of the invocation, as the response schema describes it. It is unknown until the invocation has completed.
         /// </summary>
-        [Output("result")]
-        public Output<ImmutableDictionary<string, object>> Result { get; private set; } = null!;
+        [Output("response")]
+        public Output<object> Response { get; private set; } = null!;
 
         /// <summary>
-        /// Identifier of the task in Pulumi Cloud. It is unknown until the task has started.
+        /// Identifier of the task of the invocation in Pulumi Cloud. It is unknown until the invocation has completed.
         /// </summary>
         [Output("taskId")]
         public Output<string> TaskId { get; private set; } = null!;
@@ -64,46 +64,34 @@ namespace Pulumi.Delivery.Delivery
     public sealed class AgentArgs : global::Pulumi.ResourceArgs
     {
         /// <summary>
-        /// Name of the Custom Agent definition in the organization.
+        /// ID of the Custom Agent definition in the organization.
         /// </summary>
-        [Input("agent", required: true)]
-        public Input<string> Agent { get; set; } = null!;
+        [Input("agentDefinitionId", required: true)]
+        public Input<string> AgentDefinitionId { get; set; } = null!;
 
         /// <summary>
-        /// Prompt of the task. Build it from the outputs of other members with apply.
+        /// Prompt of the invocation. Build it from the outputs of other members with apply.
         /// </summary>
         [Input("prompt", required: true)]
         public Input<string> Prompt { get; set; } = null!;
 
-        [Input("resultSchema")]
-        private InputMap<object>? _resultSchema;
+        [Input("responseSchema", required: true)]
+        private InputMap<object>? _responseSchema;
 
         /// <summary>
-        /// JSON Schema that the typed result of the task must satisfy. Omit it for a result without a fixed shape.
+        /// JSON Schema that the response of the invocation must satisfy. It must not contain a $ref.
         /// </summary>
-        public InputMap<object> ResultSchema
+        public InputMap<object> ResponseSchema
         {
-            get => _resultSchema ?? (_resultSchema = new InputMap<object>());
-            set => _resultSchema = value;
+            get => _responseSchema ?? (_responseSchema = new InputMap<object>());
+            set => _responseSchema = value;
         }
 
         /// <summary>
-        /// VCS source of the repository that the agent works in. The agent gets the commit of the run for this source.
-        /// </summary>
-        [Input("source")]
-        public object? Source { get; set; }
-
-        /// <summary>
-        /// Stage that the task runs in. A pipeline requires it.
+        /// Stage that the invocation runs in. A pipeline requires it.
         /// </summary>
         [Input("stage", required: true)]
         public Input<Pulumi.Delivery.Delivery.Stage> Stage { get; set; } = null!;
-
-        /// <summary>
-        /// Maximum run time as a Go duration, such as 30m.
-        /// </summary>
-        [Input("timeout")]
-        public Input<string>? Timeout { get; set; }
 
         public AgentArgs()
         {

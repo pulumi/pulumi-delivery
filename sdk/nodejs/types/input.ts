@@ -54,6 +54,10 @@ export interface ProgramSourceArgs {
  */
 export interface Rule {
     /**
+     * Name of the Decision Agent definition that a decision rule asks. Required for that kind.
+     */
+    agent?: string;
+    /**
      * Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
      */
     approvers?: string[];
@@ -78,11 +82,15 @@ export interface Rule {
      */
     headersEnvironment?: string;
     /**
+     * Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.
+     */
+    inputs?: {[key: string]: any};
+    /**
      * Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
      */
     interval?: string;
     /**
-     * Kind of the rule. Valid values are approval, http, manual, all, and any.
+     * Kind of the rule. Valid values are approval, http, manual, decision, all, and any.
      */
     kind: string;
     /**
@@ -116,6 +124,10 @@ export interface Rule {
  */
 export interface RuleArgs {
     /**
+     * Name of the Decision Agent definition that a decision rule asks. Required for that kind.
+     */
+    agent?: pulumi.Input<string | undefined>;
+    /**
      * Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
      */
     approvers?: pulumi.Input<pulumi.Input<string>[] | undefined>;
@@ -140,11 +152,15 @@ export interface RuleArgs {
      */
     headersEnvironment?: pulumi.Input<string | undefined>;
     /**
+     * Prompt fields of a decision rule. Any JSON shape is allowed, usually built from member outputs.
+     */
+    inputs?: pulumi.Input<{[key: string]: any} | undefined>;
+    /**
      * Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
      */
     interval?: pulumi.Input<string | undefined>;
     /**
-     * Kind of the rule. Valid values are approval, http, manual, all, and any.
+     * Kind of the rule. Valid values are approval, http, manual, decision, all, and any.
      */
     kind: pulumi.Input<string>;
     /**
@@ -223,5 +239,19 @@ export interface StacksEntryArgs {
      * Maximum run time of the update in seconds. The default is 7200 (2 hours).
      */
     timeout?: pulumi.Input<number | undefined>;
+}
+
+/**
+ * How the service verifies a post to a webhook source.
+ */
+export interface WebhookSigningArgs {
+    /**
+     * Kind of signature: hmac-sha256 (an HMAC over the raw body) or token (a shared secret).
+     */
+    kind: pulumi.Input<string>;
+    /**
+     * Secret that the external system signs with. It stays secret.
+     */
+    secret: pulumi.Input<string>;
 }
 

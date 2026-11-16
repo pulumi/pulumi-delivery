@@ -13,10 +13,6 @@ if sys.version_info >= (3, 11):
 else:
     from typing_extensions import NotRequired, TypedDict, TypeAlias
 from . import _utilities
-from .azure_dev_ops_source import AzureDevOpsSource
-from .bitbucket_source import BitbucketSource
-from .git_hub_source import GitHubSource
-from .git_lab_source import GitLabSource
 from .stage import Stage
 
 __all__ = ['AgentArgs', 'Agent']
@@ -24,49 +20,40 @@ __all__ = ['AgentArgs', 'Agent']
 @pulumi.input_type
 class AgentArgs:
     def __init__(__self__, *,
-                 agent: pulumi.Input[_builtins.str],
+                 agent_definition_id: pulumi.Input[_builtins.str],
                  prompt: pulumi.Input[_builtins.str],
-                 stage: pulumi.Input['Stage'],
-                 result_schema: pulumi.Input[Optional[Mapping[str, Any]]] = None,
-                 source: pulumi.Input[Optional[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource']]] = None,
-                 timeout: pulumi.Input[Optional[_builtins.str]] = None):
+                 response_schema: pulumi.Input[Mapping[str, Any]],
+                 stage: pulumi.Input['Stage']):
         """
         The set of arguments for constructing a Agent resource.
 
-        :param pulumi.Input[_builtins.str] agent: Name of the Custom Agent definition in the organization.
-        :param pulumi.Input[_builtins.str] prompt: Prompt of the task. Build it from the outputs of other members with apply.
-        :param pulumi.Input['Stage'] stage: Stage that the task runs in. A pipeline requires it.
-        :param pulumi.Input[Mapping[str, Any]] result_schema: JSON Schema that the typed result of the task must satisfy. Omit it for a result without a fixed shape.
-        :param pulumi.Input[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource']] source: VCS source of the repository that the agent works in. The agent gets the commit of the run for this source.
-        :param pulumi.Input[_builtins.str] timeout: Maximum run time as a Go duration, such as 30m.
+        :param pulumi.Input[_builtins.str] agent_definition_id: ID of the Custom Agent definition in the organization.
+        :param pulumi.Input[_builtins.str] prompt: Prompt of the invocation. Build it from the outputs of other members with apply.
+        :param pulumi.Input[Mapping[str, Any]] response_schema: JSON Schema that the response of the invocation must satisfy. It must not contain a $ref.
+        :param pulumi.Input['Stage'] stage: Stage that the invocation runs in. A pipeline requires it.
         """
-        pulumi.set(__self__, "agent", agent)
+        pulumi.set(__self__, "agent_definition_id", agent_definition_id)
         pulumi.set(__self__, "prompt", prompt)
+        pulumi.set(__self__, "response_schema", response_schema)
         pulumi.set(__self__, "stage", stage)
-        if result_schema is not None:
-            pulumi.set(__self__, "result_schema", result_schema)
-        if source is not None:
-            pulumi.set(__self__, "source", source)
-        if timeout is not None:
-            pulumi.set(__self__, "timeout", timeout)
 
     @_builtins.property
-    @pulumi.getter
-    def agent(self) -> pulumi.Input[_builtins.str]:
+    @pulumi.getter(name="agentDefinitionId")
+    def agent_definition_id(self) -> pulumi.Input[_builtins.str]:
         """
-        Name of the Custom Agent definition in the organization.
+        ID of the Custom Agent definition in the organization.
         """
-        return pulumi.get(self, "agent")
+        return pulumi.get(self, "agent_definition_id")
 
-    @agent.setter
-    def agent(self, value: pulumi.Input[_builtins.str]):
-        pulumi.set(self, "agent", value)
+    @agent_definition_id.setter
+    def agent_definition_id(self, value: pulumi.Input[_builtins.str]):
+        pulumi.set(self, "agent_definition_id", value)
 
     @_builtins.property
     @pulumi.getter
     def prompt(self) -> pulumi.Input[_builtins.str]:
         """
-        Prompt of the task. Build it from the outputs of other members with apply.
+        Prompt of the invocation. Build it from the outputs of other members with apply.
         """
         return pulumi.get(self, "prompt")
 
@@ -75,52 +62,28 @@ class AgentArgs:
         pulumi.set(self, "prompt", value)
 
     @_builtins.property
+    @pulumi.getter(name="responseSchema")
+    def response_schema(self) -> pulumi.Input[Mapping[str, Any]]:
+        """
+        JSON Schema that the response of the invocation must satisfy. It must not contain a $ref.
+        """
+        return pulumi.get(self, "response_schema")
+
+    @response_schema.setter
+    def response_schema(self, value: pulumi.Input[Mapping[str, Any]]):
+        pulumi.set(self, "response_schema", value)
+
+    @_builtins.property
     @pulumi.getter
     def stage(self) -> pulumi.Input['Stage']:
         """
-        Stage that the task runs in. A pipeline requires it.
+        Stage that the invocation runs in. A pipeline requires it.
         """
         return pulumi.get(self, "stage")
 
     @stage.setter
     def stage(self, value: pulumi.Input['Stage']):
         pulumi.set(self, "stage", value)
-
-    @_builtins.property
-    @pulumi.getter(name="resultSchema")
-    def result_schema(self) -> pulumi.Input[Optional[Mapping[str, Any]]]:
-        """
-        JSON Schema that the typed result of the task must satisfy. Omit it for a result without a fixed shape.
-        """
-        return pulumi.get(self, "result_schema")
-
-    @result_schema.setter
-    def result_schema(self, value: pulumi.Input[Optional[Mapping[str, Any]]]):
-        pulumi.set(self, "result_schema", value)
-
-    @_builtins.property
-    @pulumi.getter
-    def source(self) -> pulumi.Input[Optional[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource']]]:
-        """
-        VCS source of the repository that the agent works in. The agent gets the commit of the run for this source.
-        """
-        return pulumi.get(self, "source")
-
-    @source.setter
-    def source(self, value: pulumi.Input[Optional[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource']]]):
-        pulumi.set(self, "source", value)
-
-    @_builtins.property
-    @pulumi.getter
-    def timeout(self) -> pulumi.Input[Optional[_builtins.str]]:
-        """
-        Maximum run time as a Go duration, such as 30m.
-        """
-        return pulumi.get(self, "timeout")
-
-    @timeout.setter
-    def timeout(self, value: pulumi.Input[Optional[_builtins.str]]):
-        pulumi.set(self, "timeout", value)
 
 
 @pulumi.type_token("delivery:index:Agent")
@@ -129,30 +92,26 @@ class Agent(pulumi.ComponentResource):
     def __init__(__self__,
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
-                 agent: pulumi.Input[Optional[_builtins.str]] = None,
+                 agent_definition_id: pulumi.Input[Optional[_builtins.str]] = None,
                  prompt: pulumi.Input[Optional[_builtins.str]] = None,
-                 result_schema: pulumi.Input[Optional[Mapping[str, Any]]] = None,
-                 source: pulumi.Input[Optional[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource']]] = None,
+                 response_schema: pulumi.Input[Optional[Mapping[str, Any]]] = None,
                  stage: pulumi.Input[Optional['Stage']] = None,
-                 timeout: pulumi.Input[Optional[_builtins.str]] = None,
                  __props__=None):
         """
-        Declares a task for a Custom Agent of the organization that a run executes in a stage. The agent works on the prompt, in the repository of source when one is set, and returns a typed result that the result schema describes.
+        Declares a structured invocation of a Custom Agent of the organization that a run executes in a stage. The agent works on the prompt and ends with one JSON value that the response schema describes.
 
-        The prompt can use the outputs of other members with apply. The pass that declares the task is then a later pass of the run.
+        The prompt can use the outputs of other members with apply. The pass that declares the invocation is then a later pass of the run.
 
-        A resource that is not a Delivery resource waits for the task when it uses an output of the task.
+        A resource that is not a Delivery resource waits for the invocation when it uses an output of it.
 
         ## Example Usage
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
-        :param pulumi.Input[_builtins.str] agent: Name of the Custom Agent definition in the organization.
-        :param pulumi.Input[_builtins.str] prompt: Prompt of the task. Build it from the outputs of other members with apply.
-        :param pulumi.Input[Mapping[str, Any]] result_schema: JSON Schema that the typed result of the task must satisfy. Omit it for a result without a fixed shape.
-        :param pulumi.Input[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource']] source: VCS source of the repository that the agent works in. The agent gets the commit of the run for this source.
-        :param pulumi.Input['Stage'] stage: Stage that the task runs in. A pipeline requires it.
-        :param pulumi.Input[_builtins.str] timeout: Maximum run time as a Go duration, such as 30m.
+        :param pulumi.Input[_builtins.str] agent_definition_id: ID of the Custom Agent definition in the organization.
+        :param pulumi.Input[_builtins.str] prompt: Prompt of the invocation. Build it from the outputs of other members with apply.
+        :param pulumi.Input[Mapping[str, Any]] response_schema: JSON Schema that the response of the invocation must satisfy. It must not contain a $ref.
+        :param pulumi.Input['Stage'] stage: Stage that the invocation runs in. A pipeline requires it.
         """
         ...
     @overload
@@ -161,11 +120,11 @@ class Agent(pulumi.ComponentResource):
                  args: AgentArgs,
                  opts: Optional[pulumi.ResourceOptions] = None):
         """
-        Declares a task for a Custom Agent of the organization that a run executes in a stage. The agent works on the prompt, in the repository of source when one is set, and returns a typed result that the result schema describes.
+        Declares a structured invocation of a Custom Agent of the organization that a run executes in a stage. The agent works on the prompt and ends with one JSON value that the response schema describes.
 
-        The prompt can use the outputs of other members with apply. The pass that declares the task is then a later pass of the run.
+        The prompt can use the outputs of other members with apply. The pass that declares the invocation is then a later pass of the run.
 
-        A resource that is not a Delivery resource waits for the task when it uses an output of the task.
+        A resource that is not a Delivery resource waits for the invocation when it uses an output of it.
 
         ## Example Usage
 
@@ -184,12 +143,10 @@ class Agent(pulumi.ComponentResource):
     def _internal_init(__self__,
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
-                 agent: pulumi.Input[Optional[_builtins.str]] = None,
+                 agent_definition_id: pulumi.Input[Optional[_builtins.str]] = None,
                  prompt: pulumi.Input[Optional[_builtins.str]] = None,
-                 result_schema: pulumi.Input[Optional[Mapping[str, Any]]] = None,
-                 source: pulumi.Input[Optional[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource']]] = None,
+                 response_schema: pulumi.Input[Optional[Mapping[str, Any]]] = None,
                  stage: pulumi.Input[Optional['Stage']] = None,
-                 timeout: pulumi.Input[Optional[_builtins.str]] = None,
                  __props__=None):
         opts = pulumi.ResourceOptions.merge(_utilities.get_resource_opts_defaults(), opts)
         if not isinstance(opts, pulumi.ResourceOptions):
@@ -201,19 +158,19 @@ class Agent(pulumi.ComponentResource):
                 raise TypeError('__props__ is only valid when passed in combination with a valid opts.id to get an existing resource')
             __props__ = AgentArgs.__new__(AgentArgs)
 
-            if agent is None and not opts.urn:
-                raise TypeError("Missing required property 'agent'")
-            __props__.__dict__["agent"] = agent
+            if agent_definition_id is None and not opts.urn:
+                raise TypeError("Missing required property 'agent_definition_id'")
+            __props__.__dict__["agent_definition_id"] = agent_definition_id
             if prompt is None and not opts.urn:
                 raise TypeError("Missing required property 'prompt'")
             __props__.__dict__["prompt"] = prompt
-            __props__.__dict__["result_schema"] = result_schema
-            __props__.__dict__["source"] = source
+            if response_schema is None and not opts.urn:
+                raise TypeError("Missing required property 'response_schema'")
+            __props__.__dict__["response_schema"] = response_schema
             if stage is None and not opts.urn:
                 raise TypeError("Missing required property 'stage'")
             __props__.__dict__["stage"] = stage
-            __props__.__dict__["timeout"] = timeout
-            __props__.__dict__["result"] = None
+            __props__.__dict__["response"] = None
             __props__.__dict__["task_id"] = None
         super(Agent, __self__).__init__(
             'delivery:index:Agent',
@@ -224,17 +181,17 @@ class Agent(pulumi.ComponentResource):
 
     @_builtins.property
     @pulumi.getter
-    def result(self) -> pulumi.Output[Mapping[str, Any]]:
+    def response(self) -> pulumi.Output[Any]:
         """
-        Typed result of the task, as the result schema describes it. It is unknown until the task has run.
+        Structured response of the invocation, as the response schema describes it. It is unknown until the invocation has completed.
         """
-        return pulumi.get(self, "result")
+        return pulumi.get(self, "response")
 
     @_builtins.property
     @pulumi.getter(name="taskId")
     def task_id(self) -> pulumi.Output[_builtins.str]:
         """
-        Identifier of the task in Pulumi Cloud. It is unknown until the task has started.
+        Identifier of the task of the invocation in Pulumi Cloud. It is unknown until the invocation has completed.
         """
         return pulumi.get(self, "task_id")
 
