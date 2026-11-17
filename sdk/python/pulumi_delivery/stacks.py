@@ -16,6 +16,7 @@ from . import _utilities
 from ._inputs import *
 from .azure_dev_ops_source import AzureDevOpsSource
 from .bitbucket_source import BitbucketSource
+from .entire_source import EntireSource
 from .git_hub_source import GitHubSource
 from .git_lab_source import GitLabSource
 from .stage import Stage

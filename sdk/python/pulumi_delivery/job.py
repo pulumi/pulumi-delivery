@@ -16,6 +16,7 @@ from . import _utilities
 from ._inputs import *
 from .azure_dev_ops_source import AzureDevOpsSource
 from .bitbucket_source import BitbucketSource
+from .entire_source import EntireSource
 from .git_hub_source import GitHubSource
 from .git_lab_source import GitLabSource
 from .stage import Stage
@@ -28,7 +29,7 @@ class JobArgs:
     def __init__(__self__, *,
                  command: pulumi.Input[_builtins.str],
                  directory: pulumi.Input[_builtins.str],
-                 source: pulumi.Input[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource']],
+                 source: pulumi.Input[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource', 'EntireSource']],
                  stage: pulumi.Input['Stage'],
                  environment: pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
                  image: pulumi.Input[Optional['ImageArgs']] = None,
@@ -40,7 +41,7 @@ class JobArgs:
 
         :param pulumi.Input[_builtins.str] command: Command to run with sh -c. To publish outputs, the command writes them to the file that DELIVERY_OUTPUTS names.
         :param pulumi.Input[_builtins.str] directory: Directory to run the command in, relative to the repository root.
-        :param pulumi.Input[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource']] source: VCS source to check out.
+        :param pulumi.Input[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource', 'EntireSource']] source: VCS source to check out.
         :param pulumi.Input['Stage'] stage: Stage that the job runs in.
         :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] environment: Environment variables for the command. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
         :param pulumi.Input['ImageArgs'] image: Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs bash, curl, gzip and the Pulumi CLI on PATH.
@@ -89,14 +90,14 @@ class JobArgs:
 
     @_builtins.property
     @pulumi.getter
-    def source(self) -> pulumi.Input[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource']]:
+    def source(self) -> pulumi.Input[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource', 'EntireSource']]:
         """
         VCS source to check out.
         """
         return pulumi.get(self, "source")
 
     @source.setter
-    def source(self, value: pulumi.Input[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource']]):
+    def source(self, value: pulumi.Input[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource', 'EntireSource']]):
         pulumi.set(self, "source", value)
 
     @_builtins.property
@@ -184,7 +185,7 @@ class Job(pulumi.ComponentResource):
                  image: pulumi.Input[Optional[Union['ImageArgs', 'ImageArgsDict']]] = None,
                  pre_run_commands: pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]] = None,
                  runtime: pulumi.Input[Optional['WorkflowsRuntime']] = None,
-                 source: pulumi.Input[Optional[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource']]] = None,
+                 source: pulumi.Input[Optional[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource', 'EntireSource']]] = None,
                  stage: pulumi.Input[Optional['Stage']] = None,
                  timeout: pulumi.Input[Optional[_builtins.str]] = None,
                  __props__=None):
@@ -207,7 +208,7 @@ class Job(pulumi.ComponentResource):
         :param pulumi.Input[Union['ImageArgs', 'ImageArgsDict']] image: Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs bash, curl, gzip and the Pulumi CLI on PATH.
         :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] pre_run_commands: Bash commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
         :param pulumi.Input['WorkflowsRuntime'] runtime: Pool that runs the job.
-        :param pulumi.Input[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource']] source: VCS source to check out.
+        :param pulumi.Input[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource', 'EntireSource']] source: VCS source to check out.
         :param pulumi.Input['Stage'] stage: Stage that the job runs in.
         :param pulumi.Input[_builtins.str] timeout: Maximum run time of the job, as a Go duration such as 30m. It must be from 5m to 24h in whole seconds. The default is 2h.
         """
@@ -249,7 +250,7 @@ class Job(pulumi.ComponentResource):
                  image: pulumi.Input[Optional[Union['ImageArgs', 'ImageArgsDict']]] = None,
                  pre_run_commands: pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]] = None,
                  runtime: pulumi.Input[Optional['WorkflowsRuntime']] = None,
-                 source: pulumi.Input[Optional[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource']]] = None,
+                 source: pulumi.Input[Optional[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource', 'EntireSource']]] = None,
                  stage: pulumi.Input[Optional['Stage']] = None,
                  timeout: pulumi.Input[Optional[_builtins.str]] = None,
                  __props__=None):

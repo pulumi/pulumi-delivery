@@ -6,7 +6,7 @@ import * as inputs from "../types/input";
 import * as outputs from "../types/output";
 import * as enums from "../types/enums";
 
-import {AzureDevOpsSource, BitbucketSource, GitHubSource, GitLabSource, WorkflowsRuntime} from "..";
+import {AzureDevOpsSource, BitbucketSource, EntireSource, GitHubSource, GitLabSource, WorkflowsRuntime} from "..";
 
 /**
  * One narrow judgment in a decision rule.

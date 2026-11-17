@@ -29,6 +29,7 @@
         "config/index.ts",
         "config/vars.ts",
         "decision.ts",
+        "entireSource.ts",
         "gitHubSource.ts",
         "gitLabSource.ts",
         "http.ts",

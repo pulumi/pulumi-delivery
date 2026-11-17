@@ -27,7 +27,7 @@ class GitLabSourceArgs:
         The set of arguments for constructing a GitLabSource resource.
 
         :param pulumi.Input[_builtins.str] branch: Branch of the source.
-        :param pulumi.Input[_builtins.str] repository: Repository of the source. Use `owner/repo` on GitHub, `group/subgroup/repo` (the full path) on GitLab, `workspace/repo` on Bitbucket and `org/project/repo` on Azure DevOps. Pulumi Cloud picks the integration of the organization whose account (GitHub), group (GitLab), workspace (Bitbucket) or organization and project (Azure DevOps) holds the repository.
+        :param pulumi.Input[_builtins.str] repository: Repository of the source. Use `owner/repo` on GitHub, `group/subgroup/repo` (the full path) on GitLab, `workspace/repo` on Bitbucket, `org/project/repo` on Azure DevOps and `project/repo` on Entire. Pulumi Cloud picks the integration of the organization whose account (GitHub), group (GitLab), workspace (Bitbucket), organization and project (Azure DevOps) or installation (Entire) holds the repository.
         :param pulumi.Input[Union[_builtins.bool, 'SourceTriggerArgs']] trigger: Starts a run when someone pushes to the branch. Set true for every push, or { paths } for pushes that change a matching file. If you omit it, the source is part of the release but never starts a run.
         """
         pulumi.set(__self__, "branch", branch)
@@ -51,7 +51,7 @@ class GitLabSourceArgs:
     @pulumi.getter
     def repository(self) -> pulumi.Input[_builtins.str]:
         """
-        Repository of the source. Use `owner/repo` on GitHub, `group/subgroup/repo` (the full path) on GitLab, `workspace/repo` on Bitbucket and `org/project/repo` on Azure DevOps. Pulumi Cloud picks the integration of the organization whose account (GitHub), group (GitLab), workspace (Bitbucket) or organization and project (Azure DevOps) holds the repository.
+        Repository of the source. Use `owner/repo` on GitHub, `group/subgroup/repo` (the full path) on GitLab, `workspace/repo` on Bitbucket, `org/project/repo` on Azure DevOps and `project/repo` on Entire. Pulumi Cloud picks the integration of the organization whose account (GitHub), group (GitLab), workspace (Bitbucket), organization and project (Azure DevOps) or installation (Entire) holds the repository.
         """
         return pulumi.get(self, "repository")
 
@@ -88,7 +88,7 @@ class GitLabSource(pulumi.ComponentResource):
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
         :param pulumi.Input[_builtins.str] branch: Branch of the source.
-        :param pulumi.Input[_builtins.str] repository: Repository of the source. Use `owner/repo` on GitHub, `group/subgroup/repo` (the full path) on GitLab, `workspace/repo` on Bitbucket and `org/project/repo` on Azure DevOps. Pulumi Cloud picks the integration of the organization whose account (GitHub), group (GitLab), workspace (Bitbucket) or organization and project (Azure DevOps) holds the repository.
+        :param pulumi.Input[_builtins.str] repository: Repository of the source. Use `owner/repo` on GitHub, `group/subgroup/repo` (the full path) on GitLab, `workspace/repo` on Bitbucket, `org/project/repo` on Azure DevOps and `project/repo` on Entire. Pulumi Cloud picks the integration of the organization whose account (GitHub), group (GitLab), workspace (Bitbucket), organization and project (Azure DevOps) or installation (Entire) holds the repository.
         :param pulumi.Input[Union[_builtins.bool, Union['SourceTriggerArgs', 'SourceTriggerArgsDict']]] trigger: Starts a run when someone pushes to the branch. Set true for every push, or { paths } for pushes that change a matching file. If you omit it, the source is part of the release but never starts a run.
         """
         ...

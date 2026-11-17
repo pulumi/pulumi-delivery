@@ -409,9 +409,14 @@ func (r *AzureDevOpsSource) Annotate(a infer.Annotator) {
 	a.Describe(&r.Commit, "Commit of the run for this source. It is unknown during registration and preview.")
 }
 
+func (r *EntireSource) Annotate(a infer.Annotator) {
+	a.Describe(r, "Declares an Entire repository and branch. See GitHubSource.")
+	a.Describe(&r.Commit, "Commit of the run for this source. It is unknown during registration and preview.")
+}
+
 func (r *SourceArgs) Annotate(a infer.Annotator) {
 	a.Describe(r, "Source settings.")
-	a.Describe(&r.Repository, "Repository of the source. Use `owner/repo` on GitHub, `group/subgroup/repo` (the full path) on GitLab, `workspace/repo` on Bitbucket and `org/project/repo` on Azure DevOps. Pulumi Cloud picks the integration of the organization whose account (GitHub), group (GitLab), workspace (Bitbucket) or organization and project (Azure DevOps) holds the repository.")
+	a.Describe(&r.Repository, "Repository of the source. Use `owner/repo` on GitHub, `group/subgroup/repo` (the full path) on GitLab, `workspace/repo` on Bitbucket, `org/project/repo` on Azure DevOps and `project/repo` on Entire. Pulumi Cloud picks the integration of the organization whose account (GitHub), group (GitLab), workspace (Bitbucket), organization and project (Azure DevOps) or installation (Entire) holds the repository.")
 	a.Describe(&r.Branch, "Branch of the source.")
 	a.Describe(&r.Trigger, "Starts a run when someone pushes to the branch. Set true for every push, or { paths } for pushes that change a matching file. If you omit it, the source is part of the release but never starts a run.")
 }

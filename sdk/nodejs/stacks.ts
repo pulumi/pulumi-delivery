@@ -7,7 +7,7 @@ import * as outputs from "./types/output";
 import * as enums from "./types/enums";
 import * as utilities from "./utilities";
 
-import {AzureDevOpsSource, BitbucketSource, GitHubSource, GitLabSource, Stage, WorkflowsRuntime} from "./index";
+import {AzureDevOpsSource, BitbucketSource, EntireSource, GitHubSource, GitLabSource, Stage, WorkflowsRuntime} from "./index";
 
 /**
  * Updates one or more existing stacks in a stage. Each entry of stacks updates one target stack. Delivery checks out the source of the entry at the commit of the run and runs pulumi up on the target stack.

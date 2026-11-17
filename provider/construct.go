@@ -472,6 +472,7 @@ func stringInput(inputs property.Map, name string) string {
 var sourceTypes = []string{
 	"delivery:index:GitHubSource", "delivery:index:GitLabSource",
 	"delivery:index:BitbucketSource", "delivery:index:AzureDevOpsSource",
+	"delivery:index:EntireSource",
 }
 
 // requireRef checks that an input is a reference to a resource of one of the types, unless it is unknown.

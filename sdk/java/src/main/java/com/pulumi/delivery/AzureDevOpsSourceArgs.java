@@ -35,14 +35,14 @@ public final class AzureDevOpsSourceArgs extends com.pulumi.resources.ResourceAr
     }
 
     /**
-     * Repository of the source. Use `owner/repo` on GitHub, `group/subgroup/repo` (the full path) on GitLab, `workspace/repo` on Bitbucket and `org/project/repo` on Azure DevOps. Pulumi Cloud picks the integration of the organization whose account (GitHub), group (GitLab), workspace (Bitbucket) or organization and project (Azure DevOps) holds the repository.
+     * Repository of the source. Use `owner/repo` on GitHub, `group/subgroup/repo` (the full path) on GitLab, `workspace/repo` on Bitbucket, `org/project/repo` on Azure DevOps and `project/repo` on Entire. Pulumi Cloud picks the integration of the organization whose account (GitHub), group (GitLab), workspace (Bitbucket), organization and project (Azure DevOps) or installation (Entire) holds the repository.
      * 
      */
     @Import(name="repository", required=true)
     private Output<String> repository;
 
     /**
-     * @return Repository of the source. Use `owner/repo` on GitHub, `group/subgroup/repo` (the full path) on GitLab, `workspace/repo` on Bitbucket and `org/project/repo` on Azure DevOps. Pulumi Cloud picks the integration of the organization whose account (GitHub), group (GitLab), workspace (Bitbucket) or organization and project (Azure DevOps) holds the repository.
+     * @return Repository of the source. Use `owner/repo` on GitHub, `group/subgroup/repo` (the full path) on GitLab, `workspace/repo` on Bitbucket, `org/project/repo` on Azure DevOps and `project/repo` on Entire. Pulumi Cloud picks the integration of the organization whose account (GitHub), group (GitLab), workspace (Bitbucket), organization and project (Azure DevOps) or installation (Entire) holds the repository.
      * 
      */
     public Output<String> repository() {
@@ -112,7 +112,7 @@ public final class AzureDevOpsSourceArgs extends com.pulumi.resources.ResourceAr
         }
 
         /**
-         * @param repository Repository of the source. Use `owner/repo` on GitHub, `group/subgroup/repo` (the full path) on GitLab, `workspace/repo` on Bitbucket and `org/project/repo` on Azure DevOps. Pulumi Cloud picks the integration of the organization whose account (GitHub), group (GitLab), workspace (Bitbucket) or organization and project (Azure DevOps) holds the repository.
+         * @param repository Repository of the source. Use `owner/repo` on GitHub, `group/subgroup/repo` (the full path) on GitLab, `workspace/repo` on Bitbucket, `org/project/repo` on Azure DevOps and `project/repo` on Entire. Pulumi Cloud picks the integration of the organization whose account (GitHub), group (GitLab), workspace (Bitbucket), organization and project (Azure DevOps) or installation (Entire) holds the repository.
          * 
          * @return builder
          * 
@@ -123,7 +123,7 @@ public final class AzureDevOpsSourceArgs extends com.pulumi.resources.ResourceAr
         }
 
         /**
-         * @param repository Repository of the source. Use `owner/repo` on GitHub, `group/subgroup/repo` (the full path) on GitLab, `workspace/repo` on Bitbucket and `org/project/repo` on Azure DevOps. Pulumi Cloud picks the integration of the organization whose account (GitHub), group (GitLab), workspace (Bitbucket) or organization and project (Azure DevOps) holds the repository.
+         * @param repository Repository of the source. Use `owner/repo` on GitHub, `group/subgroup/repo` (the full path) on GitLab, `workspace/repo` on Bitbucket, `org/project/repo` on Azure DevOps and `project/repo` on Entire. Pulumi Cloud picks the integration of the organization whose account (GitHub), group (GitLab), workspace (Bitbucket), organization and project (Azure DevOps) or installation (Entire) holds the repository.
          * 
          * @return builder
          * 

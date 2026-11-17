@@ -7,6 +7,7 @@ import com.pulumi.core.Output;
 import com.pulumi.core.annotations.Import;
 import com.pulumi.delivery.AzureDevOpsSource;
 import com.pulumi.delivery.BitbucketSource;
+import com.pulumi.delivery.EntireSource;
 import com.pulumi.delivery.GitHubSource;
 import com.pulumi.delivery.GitLabSource;
 import com.pulumi.delivery.Stage;

@@ -321,6 +321,9 @@
             },
             {
               "$ref": "#/resources/delivery:index:AzureDevOpsSource"
+            },
+            {
+              "$ref": "#/resources/delivery:index:EntireSource"
             }
           ],
           "description": "VCS source to check out. The update uses the commit of the run for this source."
@@ -454,7 +457,7 @@
         },
         "repository": {
           "type": "string",
-          "description": "Repository of the source. Use `owner/repo` on GitHub, `group/subgroup/repo` (the full path) on GitLab, `workspace/repo` on Bitbucket and `org/project/repo` on Azure DevOps. Pulumi Cloud picks the integration of the organization whose account (GitHub), group (GitLab), workspace (Bitbucket) or organization and project (Azure DevOps) holds the repository."
+          "description": "Repository of the source. Use `owner/repo` on GitHub, `group/subgroup/repo` (the full path) on GitLab, `workspace/repo` on Bitbucket, `org/project/repo` on Azure DevOps and `project/repo` on Entire. Pulumi Cloud picks the integration of the organization whose account (GitHub), group (GitLab), workspace (Bitbucket), organization and project (Azure DevOps) or installation (Entire) holds the repository."
         },
         "trigger": {
           "oneOf": [
@@ -492,7 +495,45 @@
         },
         "repository": {
           "type": "string",
-          "description": "Repository of the source. Use `owner/repo` on GitHub, `group/subgroup/repo` (the full path) on GitLab, `workspace/repo` on Bitbucket and `org/project/repo` on Azure DevOps. Pulumi Cloud picks the integration of the organization whose account (GitHub), group (GitLab), workspace (Bitbucket) or organization and project (Azure DevOps) holds the repository."
+          "description": "Repository of the source. Use `owner/repo` on GitHub, `group/subgroup/repo` (the full path) on GitLab, `workspace/repo` on Bitbucket, `org/project/repo` on Azure DevOps and `project/repo` on Entire. Pulumi Cloud picks the integration of the organization whose account (GitHub), group (GitLab), workspace (Bitbucket), organization and project (Azure DevOps) or installation (Entire) holds the repository."
+        },
+        "trigger": {
+          "oneOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "$ref": "#/types/delivery:index:SourceTrigger"
+            }
+          ],
+          "description": "Starts a run when someone pushes to the branch. Set true for every push, or { paths } for pushes that change a matching file. If you omit it, the source is part of the release but never starts a run."
+        }
+      },
+      "requiredInputs": [
+        "repository",
+        "branch"
+      ],
+      "isComponent": true
+    },
+    "delivery:index:EntireSource": {
+      "description": "Declares an Entire repository and branch. See GitHubSource.",
+      "properties": {
+        "commit": {
+          "type": "string",
+          "description": "Commit of the run for this source. It is unknown during registration and preview."
+        }
+      },
+      "required": [
+        "commit"
+      ],
+      "inputProperties": {
+        "branch": {
+          "type": "string",
+          "description": "Branch of the source."
+        },
+        "repository": {
+          "type": "string",
+          "description": "Repository of the source. Use `owner/repo` on GitHub, `group/subgroup/repo` (the full path) on GitLab, `workspace/repo` on Bitbucket, `org/project/repo` on Azure DevOps and `project/repo` on Entire. Pulumi Cloud picks the integration of the organization whose account (GitHub), group (GitLab), workspace (Bitbucket), organization and project (Azure DevOps) or installation (Entire) holds the repository."
         },
         "trigger": {
           "oneOf": [
@@ -530,7 +571,7 @@
         },
         "repository": {
           "type": "string",
-          "description": "Repository of the source. Use `owner/repo` on GitHub, `group/subgroup/repo` (the full path) on GitLab, `workspace/repo` on Bitbucket and `org/project/repo` on Azure DevOps. Pulumi Cloud picks the integration of the organization whose account (GitHub), group (GitLab), workspace (Bitbucket) or organization and project (Azure DevOps) holds the repository."
+          "description": "Repository of the source. Use `owner/repo` on GitHub, `group/subgroup/repo` (the full path) on GitLab, `workspace/repo` on Bitbucket, `org/project/repo` on Azure DevOps and `project/repo` on Entire. Pulumi Cloud picks the integration of the organization whose account (GitHub), group (GitLab), workspace (Bitbucket), organization and project (Azure DevOps) or installation (Entire) holds the repository."
         },
         "trigger": {
           "oneOf": [
@@ -568,7 +609,7 @@
         },
         "repository": {
           "type": "string",
-          "description": "Repository of the source. Use `owner/repo` on GitHub, `group/subgroup/repo` (the full path) on GitLab, `workspace/repo` on Bitbucket and `org/project/repo` on Azure DevOps. Pulumi Cloud picks the integration of the organization whose account (GitHub), group (GitLab), workspace (Bitbucket) or organization and project (Azure DevOps) holds the repository."
+          "description": "Repository of the source. Use `owner/repo` on GitHub, `group/subgroup/repo` (the full path) on GitLab, `workspace/repo` on Bitbucket, `org/project/repo` on Azure DevOps and `project/repo` on Entire. Pulumi Cloud picks the integration of the organization whose account (GitHub), group (GitLab), workspace (Bitbucket), organization and project (Azure DevOps) or installation (Entire) holds the repository."
         },
         "trigger": {
           "oneOf": [
@@ -647,6 +688,9 @@
             },
             {
               "$ref": "#/resources/delivery:index:AzureDevOpsSource"
+            },
+            {
+              "$ref": "#/resources/delivery:index:EntireSource"
             }
           ],
           "description": "VCS source to check out."
