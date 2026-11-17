@@ -40,12 +40,16 @@ func NewPipeline(ctx *pulumi.Context,
 }
 
 type pipelineArgs struct {
+	// Pool that runs the pipeline program. A change applies from the next run. In the private preview, all work runs on the hosted pool, so omit it.
+	Runtime *WorkflowsRuntime `pulumi:"runtime"`
 	// Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
 	ServicePrincipal *PipelineServicePrincipal `pulumi:"servicePrincipal"`
 }
 
 // The set of arguments for constructing a Pipeline resource.
 type PipelineArgs struct {
+	// Pool that runs the pipeline program. A change applies from the next run. In the private preview, all work runs on the hosted pool, so omit it.
+	Runtime WorkflowsRuntimeInput
 	// Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
 	ServicePrincipal PipelineServicePrincipalPtrInput
 }

@@ -521,6 +521,11 @@ func validateInputs(typ string, inputs property.Map) error {
 	}
 	switch typ {
 	case typePipeline:
+		if _, ok := inputs.GetOk("runtime"); ok {
+			if err := requireRef(inputs, "runtime", "delivery:index:WorkflowsRuntime"); err != nil {
+				return err
+			}
+		}
 		return validateServicePrincipal(inputs)
 	case typeStage:
 		if err := requireRef(inputs, "pipeline", typePipeline); err != nil {

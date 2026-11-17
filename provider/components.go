@@ -16,6 +16,7 @@ import (
 
 type PipelineArgs struct {
 	ServicePrincipal *PipelineServicePrincipal `pulumi:"servicePrincipal,optional"`
+	Runtime          any                       `pulumi:"runtime,optional"`
 }
 
 type PipelineServicePrincipal struct {

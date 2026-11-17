@@ -6,6 +6,8 @@ import * as inputs from "./types/input";
 import * as outputs from "./types/output";
 import * as utilities from "./utilities";
 
+import {WorkflowsRuntime} from "./index";
+
 /**
  * Declares the pipeline. It gives the release number of the run. Set delivery:source in the stack config to tell Delivery where the program lives. A program has one Pipeline.
  *
@@ -51,6 +53,7 @@ export class Pipeline extends pulumi.ComponentResource {
         let resourceInputs: pulumi.Inputs = {};
         opts = opts || {};
         if (!opts.id) {
+            resourceInputs["runtime"] = args?.runtime;
             resourceInputs["servicePrincipal"] = args?.servicePrincipal;
             resourceInputs["releaseNumber"] = undefined /*out*/;
         } else {
@@ -65,6 +68,10 @@ export class Pipeline extends pulumi.ComponentResource {
  * The set of arguments for constructing a Pipeline resource.
  */
 export interface PipelineArgs {
+    /**
+     * Pool that runs the pipeline program. A change applies from the next run. In the private preview, all work runs on the hosted pool, so omit it.
+     */
+    runtime?: pulumi.Input<WorkflowsRuntime | undefined>;
     /**
      * Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
      */

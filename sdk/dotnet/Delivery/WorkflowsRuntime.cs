@@ -11,7 +11,7 @@ using Pulumi;
 namespace Pulumi.Delivery.Delivery
 {
     /// <summary>
-    /// Selects the pool that runs the work of a member. In the private preview, all work runs on the hosted pool, so do not use this resource yet. Agent pools are not available.
+    /// Selects the pool that runs the work of a member or the pipeline program. In the private preview, all work runs on the hosted pool, so do not use this resource yet. Agent pools are not available.
     /// </summary>
     [DeliveryResourceType("delivery:index:WorkflowsRuntime")]
     public partial class WorkflowsRuntime : global::Pulumi.CustomResource

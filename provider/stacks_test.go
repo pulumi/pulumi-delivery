@@ -623,6 +623,34 @@ func TestJobRuntimeMustBeAWorkflowsRuntimeReference(t *testing.T) {
 	}
 }
 
+func TestPipelineRuntimeIsDeclared(t *testing.T) {
+	service := newFakeService(t)
+	request := pipelineRequest(false)
+	request.Inputs = request.Inputs.Set("runtime", reference("delivery:index:WorkflowsRuntime", "pool"))
+	_, err := newServer(t).Construct(request)
+	require.NoError(t, err)
+
+	decoded, err := stack.DeserializeProperties(service.declared()[0]["inputs"].(map[string]any), config.NewErrorCrypter("no ciphertext"))
+	require.NoError(t, err)
+	assert.True(t, decoded["runtime"].IsResourceReference())
+}
+
+func TestPipelineRuntimeMustBeAWorkflowsRuntimeReference(t *testing.T) {
+	newFakeService(t)
+	server := newServer(t)
+	for name, runtime := range map[string]property.Value{
+		"plain string": property.New("pool"),
+		"wrong type":   reference("delivery:index:GitHubSource", "code"),
+	} {
+		t.Run(name, func(t *testing.T) {
+			request := pipelineRequest(true)
+			request.Inputs = request.Inputs.Set("runtime", runtime)
+			_, err := server.Construct(request)
+			require.ErrorContains(t, err, "runtime")
+		})
+	}
+}
+
 func TestUnknownImageAndReferencePassInPreview(t *testing.T) {
 	newFakeService(t)
 	server := newServer(t)

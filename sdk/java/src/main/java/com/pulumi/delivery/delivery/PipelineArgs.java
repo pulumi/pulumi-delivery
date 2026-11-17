@@ -5,6 +5,7 @@ package com.pulumi.delivery.delivery;
 
 import com.pulumi.core.Output;
 import com.pulumi.core.annotations.Import;
+import com.pulumi.delivery.delivery.WorkflowsRuntime;
 import com.pulumi.delivery.delivery.inputs.PipelineServicePrincipalArgs;
 import java.util.Objects;
 import java.util.Optional;
@@ -14,6 +15,21 @@ import javax.annotation.Nullable;
 public final class PipelineArgs extends com.pulumi.resources.ResourceArgs {
 
     public static final PipelineArgs Empty = new PipelineArgs();
+
+    /**
+     * Pool that runs the pipeline program. A change applies from the next run. In the private preview, all work runs on the hosted pool, so omit it.
+     * 
+     */
+    @Import(name="runtime")
+    private @Nullable Output<WorkflowsRuntime> runtime;
+
+    /**
+     * @return Pool that runs the pipeline program. A change applies from the next run. In the private preview, all work runs on the hosted pool, so omit it.
+     * 
+     */
+    public Optional<Output<WorkflowsRuntime>> runtime() {
+        return Optional.ofNullable(this.runtime);
+    }
 
     /**
      * Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
@@ -33,6 +49,7 @@ public final class PipelineArgs extends com.pulumi.resources.ResourceArgs {
     private PipelineArgs() {}
 
     private PipelineArgs(PipelineArgs $) {
+        this.runtime = $.runtime;
         this.servicePrincipal = $.servicePrincipal;
     }
 
@@ -52,6 +69,27 @@ public final class PipelineArgs extends com.pulumi.resources.ResourceArgs {
 
         public Builder(PipelineArgs defaults) {
             $ = new PipelineArgs(Objects.requireNonNull(defaults));
+        }
+
+        /**
+         * @param runtime Pool that runs the pipeline program. A change applies from the next run. In the private preview, all work runs on the hosted pool, so omit it.
+         * 
+         * @return builder
+         * 
+         */
+        public Builder runtime(@Nullable Output<WorkflowsRuntime> runtime) {
+            $.runtime = runtime;
+            return this;
+        }
+
+        /**
+         * @param runtime Pool that runs the pipeline program. A change applies from the next run. In the private preview, all work runs on the hosted pool, so omit it.
+         * 
+         * @return builder
+         * 
+         */
+        public Builder runtime(WorkflowsRuntime runtime) {
+            return runtime(Output.of(runtime));
         }
 
         /**

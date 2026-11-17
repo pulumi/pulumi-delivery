@@ -14,20 +14,37 @@ else:
     from typing_extensions import NotRequired, TypedDict, TypeAlias
 from . import _utilities
 from ._inputs import *
+from .workflows_runtime import WorkflowsRuntime
 
 __all__ = ['PipelineArgs', 'Pipeline']
 
 @pulumi.input_type
 class PipelineArgs:
     def __init__(__self__, *,
+                 runtime: pulumi.Input[Optional['WorkflowsRuntime']] = None,
                  service_principal: pulumi.Input[Optional['PipelineServicePrincipalArgs']] = None):
         """
         The set of arguments for constructing a Pipeline resource.
 
+        :param pulumi.Input['WorkflowsRuntime'] runtime: Pool that runs the pipeline program. A change applies from the next run. In the private preview, all work runs on the hosted pool, so omit it.
         :param pulumi.Input['PipelineServicePrincipalArgs'] service_principal: Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
         """
+        if runtime is not None:
+            pulumi.set(__self__, "runtime", runtime)
         if service_principal is not None:
             pulumi.set(__self__, "service_principal", service_principal)
+
+    @_builtins.property
+    @pulumi.getter
+    def runtime(self) -> pulumi.Input[Optional['WorkflowsRuntime']]:
+        """
+        Pool that runs the pipeline program. A change applies from the next run. In the private preview, all work runs on the hosted pool, so omit it.
+        """
+        return pulumi.get(self, "runtime")
+
+    @runtime.setter
+    def runtime(self, value: pulumi.Input[Optional['WorkflowsRuntime']]):
+        pulumi.set(self, "runtime", value)
 
     @_builtins.property
     @pulumi.getter(name="servicePrincipal")
@@ -48,6 +65,7 @@ class Pipeline(pulumi.ComponentResource):
     def __init__(__self__,
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
+                 runtime: pulumi.Input[Optional['WorkflowsRuntime']] = None,
                  service_principal: pulumi.Input[Optional[Union['PipelineServicePrincipalArgs', 'PipelineServicePrincipalArgsDict']]] = None,
                  __props__=None):
         """
@@ -59,6 +77,7 @@ class Pipeline(pulumi.ComponentResource):
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
+        :param pulumi.Input['WorkflowsRuntime'] runtime: Pool that runs the pipeline program. A change applies from the next run. In the private preview, all work runs on the hosted pool, so omit it.
         :param pulumi.Input[Union['PipelineServicePrincipalArgs', 'PipelineServicePrincipalArgsDict']] service_principal: Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
         """
         ...
@@ -89,6 +108,7 @@ class Pipeline(pulumi.ComponentResource):
     def _internal_init(__self__,
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
+                 runtime: pulumi.Input[Optional['WorkflowsRuntime']] = None,
                  service_principal: pulumi.Input[Optional[Union['PipelineServicePrincipalArgs', 'PipelineServicePrincipalArgsDict']]] = None,
                  __props__=None):
         opts = pulumi.ResourceOptions.merge(_utilities.get_resource_opts_defaults(), opts)
@@ -101,6 +121,7 @@ class Pipeline(pulumi.ComponentResource):
                 raise TypeError('__props__ is only valid when passed in combination with a valid opts.id to get an existing resource')
             __props__ = PipelineArgs.__new__(PipelineArgs)
 
+            __props__.__dict__["runtime"] = runtime
             __props__.__dict__["service_principal"] = service_principal
             __props__.__dict__["release_number"] = None
         super(Pipeline, __self__).__init__(
