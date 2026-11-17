@@ -123,24 +123,32 @@ func TestSourceAddedAndRemovedThroughDiff(t *testing.T) {
 
 func TestPipelineDeclaresItsServicePrincipal(t *testing.T) {
 	const unknownMarker = "04da6b54-80e4-46f7-96ec-b56ff0331ba9"
-	const teamRefused = "servicePrincipal.teamName is not supported yet: Delivery cannot run a pipeline as a team. Use servicePrincipal.userId with a user-defined service principal."
 	object := func(fields map[string]property.Value) property.Map {
 		return property.NewMap(map[string]property.Value{"servicePrincipal": property.New(property.NewMap(fields))})
 	}
 	str := func(v string) property.Value { return property.New(v) }
 	unk := property.New(property.Computed)
 	cases := []struct {
-		name    string
-		inputs  property.Map
-		want    any
-		wantErr string
+		name     string
+		inputs   property.Map
+		want     any
+		wantTeam any
+		wantErr  string
 	}{
 		{name: "absent"},
 		{name: "null", inputs: property.NewMap(map[string]property.Value{"servicePrincipal": property.New(property.Null)})},
 		{name: "userId", inputs: object(map[string]property.Value{"userId": str("service-principal:1")}), want: "service-principal:1"},
-		{name: "teamName", inputs: object(map[string]property.Value{"teamName": str("platform")}), wantErr: teamRefused},
-		{name: "empty teamName", inputs: object(map[string]property.Value{"teamName": str("")}), wantErr: teamRefused},
-		{name: "unknown teamName", inputs: object(map[string]property.Value{"teamName": unk}), wantErr: teamRefused},
+		{name: "teamName", inputs: object(map[string]property.Value{"teamName": str("platform")}), wantTeam: "platform"},
+		{name: "empty teamName", inputs: object(map[string]property.Value{"teamName": str("")}),
+			wantErr: "servicePrincipal needs userId or teamName"},
+		{name: "number teamName", inputs: object(map[string]property.Value{"teamName": property.New(5.0)}),
+			wantErr: "servicePrincipal.teamName must be a string"},
+		{name: "secret teamName", inputs: object(map[string]property.Value{"teamName": str("platform").WithSecret(true)}),
+			wantTeam: map[string]any{"4dabf18193072939515e22adb298388d": "1b47061264138c4ac30d75fd1eb44270", "plaintext": `"platform"`}},
+		{name: "secret object teamName", inputs: property.NewMap(map[string]property.Value{"servicePrincipal": property.New(property.NewMap(
+			map[string]property.Value{"teamName": str("platform")})).WithSecret(true)}),
+			wantTeam: map[string]any{"4dabf18193072939515e22adb298388d": "1b47061264138c4ac30d75fd1eb44270", "plaintext": `"platform"`}},
+		{name: "unknown teamName", inputs: object(map[string]property.Value{"teamName": unk}), wantTeam: unknownMarker},
 		{name: "both", inputs: object(map[string]property.Value{"userId": str("a"), "teamName": str("b")}),
 			wantErr: "servicePrincipal takes userId or teamName, not both"},
 		{name: "user and empty team", inputs: object(map[string]property.Value{"userId": str("x"), "teamName": str("")}),
@@ -175,10 +183,17 @@ func TestPipelineDeclaresItsServicePrincipal(t *testing.T) {
 			require.NoError(t, err)
 			declared := service.declared()
 			require.Len(t, declared, 1)
+			sent := declared[0]["inputs"].(map[string]any)
 			if c.want == nil {
-				assert.NotContains(t, declared[0]["inputs"], "servicePrincipal")
+				assert.NotContains(t, sent, "servicePrincipal")
 			} else {
-				assert.Equal(t, c.want, declared[0]["inputs"].(map[string]any)["servicePrincipal"])
+				assert.Equal(t, c.want, sent["servicePrincipal"])
+			}
+			if c.wantTeam == nil {
+				assert.NotContains(t, sent, "team")
+			} else {
+				assert.Equal(t, c.wantTeam, sent["team"])
+				assert.NotContains(t, sent, "servicePrincipal")
 			}
 		})
 	}
@@ -196,6 +211,6 @@ func TestPipelineDeclaresItsServicePrincipal(t *testing.T) {
 		req := pipelineRequest(true)
 		req.Inputs = object(map[string]property.Value{"teamName": unk})
 		_, err := newServer(t).Construct(req)
-		require.ErrorContains(t, err, teamRefused)
+		require.NoError(t, err)
 	})
 }

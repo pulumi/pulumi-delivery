@@ -91,7 +91,7 @@
       "properties": {
         "teamName": {
           "type": "string",
-          "description": "Name of a team. The pipeline runs as the service principal of the team, with the roles of the team. Not supported yet. Cannot be set together with userId."
+          "description": "Name of a team. The pipeline runs as the team, with the roles of the team. Cannot be set together with userId."
         },
         "userId": {
           "type": "string",

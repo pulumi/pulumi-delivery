@@ -171,7 +171,7 @@ func (r *PipelineArgs) Annotate(a infer.Annotator) {
 func (r *PipelineServicePrincipal) Annotate(a infer.Annotator) {
 	a.Describe(r, "Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.")
 	a.Describe(&r.UserID, "ID or login of a user-defined service principal. Cannot be set together with teamName.")
-	a.Describe(&r.TeamName, "Name of a team. The pipeline runs as the service principal of the team, with the roles of the team. Not supported yet. Cannot be set together with userId.")
+	a.Describe(&r.TeamName, "Name of a team. The pipeline runs as the team, with the roles of the team. Cannot be set together with userId.")
 }
 
 func (r *ProviderConfig) Annotate(a infer.Annotator) {
