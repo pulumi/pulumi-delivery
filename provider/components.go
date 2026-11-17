@@ -41,6 +41,21 @@ type Pipeline struct {
 	ReleaseNumber pulumi.IntOutput `pulumi:"releaseNumber"`
 }
 
+type AgentArgs struct {
+	Stage             any            `pulumi:"stage"`
+	AgentDefinitionID string         `pulumi:"agentDefinitionId"`
+	Prompt            string         `pulumi:"prompt"`
+	ResponseSchema    map[string]any `pulumi:"responseSchema"`
+}
+
+type Agent struct {
+	pulumi.ResourceState
+	// Response is the structured final response produced for this member in a Delivery run.
+	Response pulumi.AnyOutput `pulumi:"response"`
+	// ChildUrn is an internal dependency carrier and is removed from the public schema.
+	ChildUrn pulumi.StringOutput `pulumi:"childUrn"`
+}
+
 type StageArgs struct {
 	Pipeline any   `pulumi:"pipeline"`
 	From     []any `pulumi:"from,optional"`
@@ -179,6 +194,7 @@ var sourceKinds = map[string]string{
 
 const (
 	typePipeline = "delivery:index:Pipeline"
+	typeAgent    = "delivery:index:Agent"
 	typeStage    = "delivery:index:Stage"
 	typeJob      = "delivery:index:Job"
 	typeStacks   = "delivery:index:Stacks"

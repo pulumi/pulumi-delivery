@@ -21,6 +21,8 @@ func (m *module) Version() semver.Version {
 
 func (m *module) Construct(ctx *pulumi.Context, name, typ, urn string) (r pulumi.Resource, err error) {
 	switch typ {
+	case "delivery:index:Agent":
+		r = &Agent{}
 	case "delivery:index:Artifact":
 		r = &Artifact{}
 	case "delivery:index:AzureDevOpsSource":

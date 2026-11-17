@@ -39,7 +39,7 @@ func clientFor(organization string, resourceURN urn.URN) (*cloudclient.Client, e
 
 func isDeliveryComponent(typ string) bool {
 	_, source := sourceKinds[typ]
-	return source || typ == typePipeline || typ == typeStage || typ == typeJob || typ == typeStacks ||
+	return source || typ == typePipeline || typ == typeAgent || typ == typeStage || typ == typeJob || typ == typeStacks ||
 		typ == typeArtifact || typ == typePipelineSource
 }
 
@@ -55,11 +55,19 @@ func withDeliveryConstruct(config *ProviderConfig, sess *session, inner func(con
 		if !isDeliveryComponent(typ) {
 			return inner(ctx, req)
 		}
-		if (typ == typeJob || typ == typeStacks || typ == typeArtifact) && req.ResourceHooks != nil && len(req.ResourceHooks.OnError) > 0 {
+		if (typ == typeAgent || typ == typeJob || typ == typeStacks || typ == typeArtifact) &&
+			req.ResourceHooks != nil && len(req.ResourceHooks.OnError) > 0 {
 			return p.ConstructResponse{}, errors.New("Delivery resources do not support error hooks. Use a retry or a new run.")
 		}
+		originalInputs := req.Inputs
 		if typ != typeArtifact {
 			req.Inputs = dropNulls(req.Inputs)
+		}
+		if typ == typeAgent {
+			// responseSchema is user-authored JSON Schema, where null is meaningful.
+			if responseSchema, ok := originalInputs.GetOk("responseSchema"); ok {
+				req.Inputs = req.Inputs.Set("responseSchema", responseSchema)
+			}
 		}
 		req.Inputs = qualifyStackNames(typ, req.Inputs, req.Organization)
 		req.Inputs = secretRegistryPassword(typ, req.Inputs)
@@ -179,15 +187,17 @@ func finishState(typ string, state property.Map, commit string, release *int64, 
 	key := "outputs"
 	if typ == typeArtifact {
 		key = "value"
+	} else if typ == typeAgent {
+		key = "response"
 	}
 	if _, ok := out[key]; !ok {
 		out[key] = property.New(property.Computed).WithDependencies([]urn.URN{childURN})
-	} else if typ == typeArtifact && out[key].IsComputed() {
+	} else if (typ == typeArtifact || typ == typeAgent) && out[key].IsComputed() {
 		// An unknown value is not secret: the engine rejects a secret without a value.
 		out[key] = out[key].WithSecret(false)
-	} else if typ == typeArtifact && hasSecret(inputs.Get("value")) {
-		// The child outputs are secret as a whole, so the secret mark comes from the input: only an actual
-		// secret is secret. A known value is marked here, because an unknown one cannot be secret.
+	} else if (typ == typeArtifact && hasSecret(inputs.Get("value"))) ||
+		(typ == typeAgent && (hasSecret(inputs.Get("prompt")) || hasSecret(inputs.Get("responseSchema")))) {
+		// A known output inherits secrecy from input that can be reflected in it. Unknown outputs cannot be secret.
 		out[key] = out[key].WithSecret(true)
 	}
 	return property.NewMap(out)
@@ -549,6 +559,15 @@ func validateInputs(typ string, inputs property.Map) error {
 	case typeArtifact:
 		if _, ok := inputs.GetOk("value"); !ok {
 			return errors.New("value is required")
+		}
+	case typeAgent:
+		if err := requireRef(inputs, "stage", typeStage); err != nil {
+			return err
+		}
+		for _, name := range []string{"agentDefinitionId", "prompt"} {
+			if err := requiredUnlessUnknown(inputs, stringInput(inputs, name), name); err != nil {
+				return err
+			}
 		}
 	case typeJob:
 		if err := requireRef(inputs, "source", sourceTypes...); err != nil {

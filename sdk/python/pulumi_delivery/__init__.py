@@ -6,6 +6,7 @@ import builtins as _builtins
 from . import _utilities
 import typing
 # Export this package's modules as members:
+from .agent import *
 from .all_of import *
 from .any_of import *
 from .approval import *
@@ -41,6 +42,7 @@ _utilities.register(
   "mod": "index",
   "fqn": "pulumi_delivery",
   "classes": {
+   "delivery:index:Agent": "Agent",
    "delivery:index:Artifact": "Artifact",
    "delivery:index:AzureDevOpsSource": "AzureDevOpsSource",
    "delivery:index:BitbucketSource": "BitbucketSource",

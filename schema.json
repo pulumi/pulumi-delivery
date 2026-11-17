@@ -310,6 +310,45 @@
     }
   },
   "resources": {
+    "delivery:index:Agent": {
+      "description": "Declares a structured Neo agent member of a Delivery stage. Delivery starts one invocation for each release after the stage and member dependencies are ready.",
+      "properties": {
+        "response": {
+          "$ref": "pulumi.json#/Any"
+        }
+      },
+      "required": [
+        "response"
+      ],
+      "inputProperties": {
+        "agentDefinitionId": {
+          "type": "string",
+          "description": "Required Custom Agent definition ID. The invocation runs with that agent's saved role, integrations, and instructions."
+        },
+        "prompt": {
+          "type": "string",
+          "description": "The single user message sent to the agent for each release."
+        },
+        "responseSchema": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "pulumi.json#/Any"
+          },
+          "description": "JSON Schema the final agent response must satisfy."
+        },
+        "stage": {
+          "$ref": "#/resources/delivery:index:Stage",
+          "description": "Stage that contains this agent member."
+        }
+      },
+      "requiredInputs": [
+        "stage",
+        "agentDefinitionId",
+        "prompt",
+        "responseSchema"
+      ],
+      "isComponent": true
+    },
     "delivery:index:Artifact": {
       "description": "Publishes a value for the pipelines that read this stage with a PipelineSource. The artifact has the name of the resource. It succeeds when its stage admits the release and its value is known.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nnew delivery.Artifact(\"clusterEndpoint\", {\n    stage: prod,\n    value: cluster.endpoint,\n});\n```",
       "properties": {

@@ -13,6 +13,18 @@ func (r *WorkflowsRuntimeArgs) Annotate(a infer.Annotator) {
 	a.Describe(&r.AgentPool, "Pool identifier. The resource returns it unchanged as ref.")
 }
 
+func (r *Agent) Annotate(a infer.Annotator) {
+	a.Describe(r, "Declares a structured Neo agent member of a Delivery stage. Delivery starts one invocation for each release after the stage and member dependencies are ready.")
+}
+
+func (r *AgentArgs) Annotate(a infer.Annotator) {
+	a.Describe(r, "Structured Neo agent member settings.")
+	a.Describe(&r.Stage, "Stage that contains this agent member.")
+	a.Describe(&r.AgentDefinitionID, "Required Custom Agent definition ID. The invocation runs with that agent's saved role, integrations, and instructions.")
+	a.Describe(&r.Prompt, "The single user message sent to the agent for each release.")
+	a.Describe(&r.ResponseSchema, "JSON Schema the final agent response must satisfy.")
+}
+
 func (r *Rule) Annotate(a infer.Annotator) {
 	a.Describe(r, "Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.")
 	a.Describe(&r.Kind, "Kind of the rule. Valid values are approval, http, manual, all, and any.")

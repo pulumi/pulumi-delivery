@@ -172,6 +172,22 @@ func jobRequest(dryRun bool) p.ConstructRequest {
 	}
 }
 
+func agentRequest(dryRun bool) p.ConstructRequest {
+	return p.ConstructRequest{
+		Urn:          urnOf(typeAgent, "risk-review"),
+		Organization: "org",
+		DryRun:       dryRun,
+		Inputs: property.NewMap(map[string]property.Value{
+			"stage":             reference(typeStage, "dev"),
+			"agentDefinitionId": property.New("risk-reviewer"),
+			"prompt":            property.New("Summarize the release risk."),
+			"responseSchema": property.New(property.NewMap(map[string]property.Value{
+				"type": property.New("object"),
+			})),
+		}),
+	}
+}
+
 func TestOneDeclarationForEachComponentInAnUpdate(t *testing.T) {
 	service := newFakeService(t)
 	server := newServer(t)
@@ -221,6 +237,125 @@ func TestOutputsOfAMemberDependOnItsChild(t *testing.T) {
 	assert.Contains(t, resp.State.Get("outputs").Dependencies(), child)
 }
 
+func TestAgentResponseDependsOnItsChild(t *testing.T) {
+	service := newFakeService(t)
+	var children []property.Map
+	server := newServerCapturing(t, &children)
+
+	resp, err := server.Construct(agentRequest(false))
+	require.NoError(t, err)
+
+	child := urnOf(typeAgent+"$"+typeMemberRun, "risk-review")
+	_, hasChildURN := resp.State.GetOk("childUrn")
+	assert.False(t, hasChildURN, "the child URN is not a public output")
+	assert.Contains(t, resp.State.Get("response").Dependencies(), child)
+
+	declarations := service.declared()
+	require.Len(t, declarations, 1)
+	inputs, err := stack.DeserializeProperties(declarations[0]["inputs"].(map[string]any), config.NewErrorCrypter("no ciphertext"))
+	require.NoError(t, err)
+	assert.Equal(t, "risk-reviewer", inputs["agentDefinitionId"].StringValue())
+	assert.Equal(t, "Summarize the release risk.", inputs["prompt"].StringValue())
+	assert.True(t, inputs["responseSchema"].IsObject())
+
+	require.Len(t, children, 1)
+	childInputs := children[0].Get("declaration").AsMap().Get("inputs").AsMap()
+	assert.Equal(t, "risk-reviewer", childInputs.Get("agentDefinitionId").AsString())
+	assert.Equal(t, "Summarize the release risk.", childInputs.Get("prompt").AsString())
+	assert.True(t, childInputs.Get("responseSchema").IsMap())
+}
+
+func TestAgentPreservesNullResponseSchemaKeywords(t *testing.T) {
+	service := newFakeService(t)
+	var children []property.Map
+	request := agentRequest(false)
+	request.Inputs = request.Inputs.Set("responseSchema", property.New(property.NewMap(map[string]property.Value{
+		"properties": property.New(property.NewMap(map[string]property.Value{
+			"value": property.New(property.NewMap(map[string]property.Value{"const": property.New(property.Null)})),
+		})),
+	})))
+
+	_, err := newServerCapturing(t, &children).Construct(request)
+	require.NoError(t, err)
+
+	declarations := service.declared()
+	require.Len(t, declarations, 1)
+	inputs, err := stack.DeserializeProperties(declarations[0]["inputs"].(map[string]any), config.NewErrorCrypter("no ciphertext"))
+	require.NoError(t, err)
+	constant, ok := inputs["responseSchema"].ObjectValue()["properties"].ObjectValue()["value"].ObjectValue()["const"]
+	require.True(t, ok)
+	assert.True(t, constant.IsNull())
+
+	require.Len(t, children, 1)
+}
+
+func TestAgentValidation(t *testing.T) {
+	newFakeService(t)
+	server := newServer(t)
+
+	request := agentRequest(true)
+	_, err := server.Construct(request)
+	require.NoError(t, err)
+
+	request.Inputs = request.Inputs.Delete("agentDefinitionId")
+	_, err = server.Construct(request)
+	require.ErrorContains(t, err, "agentDefinitionId is required")
+
+	request = agentRequest(true)
+	request.Inputs = request.Inputs.Set("prompt", property.New(""))
+	_, err = server.Construct(request)
+	require.ErrorContains(t, err, "prompt is required")
+
+	request = agentRequest(true)
+	request.Inputs = request.Inputs.Set("stage", property.New("dev"))
+	_, err = server.Construct(request)
+	require.ErrorContains(t, err, "stage is required and must be a resource")
+
+	request = agentRequest(true)
+	request.Inputs = request.Inputs.Set("stage", reference(typeJob, "build"))
+	_, err = server.Construct(request)
+	require.ErrorContains(t, err, "stage must be one of [delivery:index:Stage], not delivery:index:Job")
+
+	request = agentRequest(true)
+	for _, name := range []string{"stage", "agentDefinitionId", "prompt"} {
+		request.Inputs = request.Inputs.Set(name, property.New(property.Computed))
+	}
+	_, err = server.Construct(request)
+	require.NoError(t, err)
+}
+
+func TestFinishStateOfAnAgent(t *testing.T) {
+	child := string(urnOf(typeAgent+"$"+typeMemberRun, "risk-review"))
+	withChild := property.NewMap(map[string]property.Value{"childUrn": property.New(child)})
+
+	missing := finishState(typeAgent, withChild, "", nil, nil, agentRequest(false).Inputs)
+	assert.True(t, missing.Get("response").IsComputed())
+	assert.False(t, missing.Get("response").Secret(), "an unknown value is not secret")
+	assert.Equal(t, []resource.URN{resource.URN(child)}, missing.Get("response").Dependencies())
+
+	known := withChild.Set("response", property.New(property.NewMap(map[string]property.Value{"summary": property.New("safe")})))
+	plain := finishState(typeAgent, known, "", nil, nil, agentRequest(false).Inputs)
+	assert.False(t, plain.Get("response").Secret())
+	assert.True(t, plain.Get("response").IsMap())
+
+	request := agentRequest(false)
+	request.Inputs = request.Inputs.Set("prompt", property.New("Summarize the release risk.").WithSecret(true))
+	secret := finishState(typeAgent, known, "", nil, nil, request.Inputs)
+	assert.True(t, secret.Get("response").Secret())
+	assert.True(t, secret.Get("response").IsMap())
+
+	request = agentRequest(false)
+	request.Inputs = request.Inputs.Set("responseSchema", property.New(property.NewMap(map[string]property.Value{
+		"const": property.New("safe").WithSecret(true),
+	})))
+	secret = finishState(typeAgent, known, "", nil, nil, request.Inputs)
+	assert.True(t, secret.Get("response").Secret())
+
+	computed := withChild.Set("response", property.New(property.Computed).WithSecret(true))
+	assert.False(t, finishState(typeAgent, computed, "", nil, nil, request.Inputs).Get("response").Secret(),
+		"an unknown output is not secret, also when the prompt is")
+}
+
 func TestMissingCredentials(t *testing.T) {
 	t.Setenv("PULUMI_API", "")
 	t.Setenv("PULUMI_ACCESS_TOKEN", "token")
@@ -250,6 +385,12 @@ func TestErrorHooksFailAndOtherHooksPass(t *testing.T) {
 
 	request.ResourceHooks = &p.ResourceHooksBinding{OnError: []string{"retry"}}
 	_, err = server.Construct(request)
+	require.EqualError(t, err, "Delivery resources do not support error hooks. Use a retry or a new run.")
+	assert.Len(t, service.declared(), 1, "a rejected component sends no declaration")
+
+	agent := agentRequest(false)
+	agent.ResourceHooks = &p.ResourceHooksBinding{OnError: []string{"retry"}}
+	_, err = server.Construct(agent)
 	require.EqualError(t, err, "Delivery resources do not support error hooks. Use a retry or a new run.")
 	assert.Len(t, service.declared(), 1, "a rejected component sends no declaration")
 }
@@ -504,6 +645,8 @@ func TestSchemaHidesInternals(t *testing.T) {
 	}
 	require.NoError(t, json.Unmarshal([]byte(resp.Schema), &schema))
 	assert.NotContains(t, schema.Resources, typeMemberRun)
+	assert.NotContains(t, schema.Resources[typeAgent].Properties, "childUrn")
+	assert.NotContains(t, schema.Resources[typeAgent].Required, "childUrn")
 	assert.NotContains(t, schema.Resources[typeJob].Properties, "childUrn")
 	assert.NotContains(t, schema.Resources[typeJob].Required, "childUrn")
 	assert.Contains(t, schema.Resources[typeJob].Inputs, "stage")
@@ -678,6 +821,7 @@ func TestComponentsRecordTheirInputs(t *testing.T) {
 			"branch":     property.New("main"),
 		})},
 		{typ: typeJob, name: "build", key: "command", inputs: jobRequest(true).Inputs},
+		{typ: typeAgent, name: "risk-review", key: "agentDefinitionId", inputs: agentRequest(true).Inputs},
 		{typ: typeArtifact, name: "version", key: "value", inputs: property.NewMap(map[string]property.Value{
 			"stage": reference(typeStage, "dev"),
 			"value": property.New("v1").WithSecret(true),
