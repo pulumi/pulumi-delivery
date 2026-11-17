@@ -59,8 +59,15 @@ func withDeliveryConstruct(inner func(context.Context, p.ConstructRequest) (p.Co
 			req.ResourceHooks != nil && len(req.ResourceHooks.OnError) > 0 {
 			return p.ConstructResponse{}, errors.New("Delivery resources do not support error hooks. Use a retry or a new run.")
 		}
+		originalInputs := req.Inputs
 		if typ != typeArtifact {
 			req.Inputs = dropNulls(req.Inputs)
+		}
+		if typ == typeAgent {
+			// responseSchema is user-authored JSON Schema, where null is meaningful.
+			if responseSchema, ok := originalInputs.GetOk("responseSchema"); ok {
+				req.Inputs = req.Inputs.Set("responseSchema", responseSchema)
+			}
 		}
 		req.Inputs = qualifyStackNames(typ, req.Inputs, req.Organization)
 		req.Inputs = secretRegistryPassword(typ, req.Inputs)
@@ -152,12 +159,12 @@ func finishState(typ string, state property.Map, commit string, release *int64, 
 	}
 	if _, ok := out[key]; !ok {
 		out[key] = property.New(property.Computed).WithDependencies([]urn.URN{childURN})
-	} else if typ == typeArtifact && out[key].IsComputed() {
+	} else if (typ == typeArtifact || typ == typeAgent) && out[key].IsComputed() {
 		// An unknown value is not secret: the engine rejects a secret without a value.
 		out[key] = out[key].WithSecret(false)
-	} else if typ == typeArtifact && hasSecret(inputs.Get("value")) {
-		// The child outputs are secret as a whole, so the secret mark comes from the input: only an actual
-		// secret is secret. A known value is marked here, because an unknown one cannot be secret.
+	} else if (typ == typeArtifact && hasSecret(inputs.Get("value"))) ||
+		(typ == typeAgent && hasSecret(inputs.Get("prompt"))) {
+		// A known output inherits secrecy from input that can be reflected in it. Unknown outputs cannot be secret.
 		out[key] = out[key].WithSecret(true)
 	}
 	return property.NewMap(out)
@@ -514,6 +521,15 @@ func validateInputs(typ string, inputs property.Map) error {
 	case typeArtifact:
 		if _, ok := inputs.GetOk("value"); !ok {
 			return errors.New("value is required")
+		}
+	case typeAgent:
+		if err := requireRef(inputs, "stage", typeStage); err != nil {
+			return err
+		}
+		for _, name := range []string{"agentDefinitionId", "prompt"} {
+			if err := requiredUnlessUnknown(inputs, stringInput(inputs, name), name); err != nil {
+				return err
+			}
 		}
 	case typeJob:
 		if err := requireRef(inputs, "source", sourceTypes...); err != nil {
