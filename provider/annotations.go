@@ -166,7 +166,7 @@ export const release = pipeline.releaseNumber;
 func (r *PipelineArgs) Annotate(a infer.Annotator) {
 	a.Describe(r, "Pipeline settings.")
 	a.Describe(&r.ServicePrincipal, "Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.")
-	a.Describe(&r.Runtime, "Pool that runs the pipeline program. A change applies from the next run. In the private preview, all work runs on the hosted pool, so omit it.")
+	a.Describe(&r.Runtime, "Pool that runs the pipeline program. In the private preview, all work runs on the hosted pool, so omit it.")
 }
 
 func (r *PipelineServicePrincipal) Annotate(a infer.Annotator) {

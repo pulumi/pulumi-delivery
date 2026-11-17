@@ -626,13 +626,33 @@ func TestJobRuntimeMustBeAWorkflowsRuntimeReference(t *testing.T) {
 func TestPipelineRuntimeIsDeclared(t *testing.T) {
 	service := newFakeService(t)
 	request := pipelineRequest(false)
-	request.Inputs = request.Inputs.Set("runtime", reference("delivery:index:WorkflowsRuntime", "pool"))
+	request.Inputs = request.Inputs.Set("runtime", property.New(property.ResourceReference{
+		URN: urnOf("delivery:index:WorkflowsRuntime", "pool"),
+		ID:  property.New("pool-1"),
+	}))
 	_, err := newServer(t).Construct(request)
 	require.NoError(t, err)
 
 	decoded, err := stack.DeserializeProperties(service.declared()[0]["inputs"].(map[string]any), config.NewErrorCrypter("no ciphertext"))
 	require.NoError(t, err)
-	assert.True(t, decoded["runtime"].IsResourceReference())
+	require.True(t, decoded["runtime"].IsResourceReference())
+	assert.Equal(t, "pool-1", decoded["runtime"].ResourceReferenceValue().ID.StringValue())
+}
+
+func TestPipelineRuntimeNullOrUnknownPasses(t *testing.T) {
+	newFakeService(t)
+	server := newServer(t)
+	for name, runtime := range map[string]property.Value{
+		"null":    property.New(property.Null),
+		"unknown": property.New(property.Computed),
+	} {
+		t.Run(name, func(t *testing.T) {
+			request := pipelineRequest(true)
+			request.Inputs = request.Inputs.Set("runtime", runtime)
+			_, err := server.Construct(request)
+			require.NoError(t, err)
+		})
+	}
 }
 
 func TestPipelineRuntimeMustBeAWorkflowsRuntimeReference(t *testing.T) {

@@ -56,7 +56,7 @@ namespace Pulumi.Delivery.Delivery
     public sealed class PipelineArgs : global::Pulumi.ResourceArgs
     {
         /// <summary>
-        /// Pool that runs the pipeline program. A change applies from the next run. In the private preview, all work runs on the hosted pool, so omit it.
+        /// Pool that runs the pipeline program. In the private preview, all work runs on the hosted pool, so omit it.
         /// </summary>
         [Input("runtime")]
         public Input<Pulumi.Delivery.Delivery.WorkflowsRuntime>? Runtime { get; set; }
