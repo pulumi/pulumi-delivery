@@ -325,4 +325,4 @@ def get_plugin_download_url():
 	return "https://get.pulumi.com/releases/plugins/"
 
 def get_version():
-    return "0.0.0-dev"
+     return _version_str

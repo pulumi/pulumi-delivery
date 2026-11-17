@@ -3,7 +3,7 @@ module localprogram
 go 1.26.6
 
 require (
-	github.com/pulumi/pulumi-delivery/sdk/go v0.0.0
+	github.com/pulumi/pulumi-delivery/sdk v0.0.0
 	github.com/pulumi/pulumi/sdk/v3 v3.272.0
 )
 
@@ -119,4 +119,4 @@ require (
 	lukechampine.com/frand v1.4.2 // indirect
 )
 
-replace github.com/pulumi/pulumi-delivery/sdk/go => ../../../sdk/go
+replace github.com/pulumi/pulumi-delivery/sdk => ../../../sdk

@@ -5,7 +5,9 @@
   keywords = ["pulumi", "delivery", "category/utility", "kind/native"]
   readme = "README.md"
   requires-python = ">=3.9"
-  version = "0.0.0+dev"
+  version = "0.0.0a0+dev"
+  [project.license]
+    text = "Apache-2.0"
   [project.urls]
     Homepage = "https://github.com/pulumi/pulumi-delivery"
     Repository = "https://github.com/pulumi/pulumi-delivery"

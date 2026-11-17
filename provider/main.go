@@ -38,11 +38,11 @@ func newProvider() (p.Provider, error) {
 		WithDisplayName("Pulumi Delivery").
 		WithDescription("Define Delivery pipelines, stages, jobs and sources in a Pulumi program.").
 		WithPublisher("pulumi").
+		WithLicense("Apache-2.0").
 		WithRepository("https://github.com/pulumi/pulumi-delivery").
 		WithHomepage("https://github.com/pulumi/pulumi-delivery").
 		WithKeywords("pulumi", "delivery", "category/utility", "kind/native").
 		WithPluginDownloadURL("https://get.pulumi.com/releases/plugins/").
-		WithSupportPack(true).
 		WithLanguageMap(map[string]any{
 			"nodejs": map[string]any{"packageName": "@pulumi/delivery", "respectSchemaVersion": true},
 			"python": map[string]any{"packageName": "pulumi_delivery", "respectSchemaVersion": true, "pyproject": map[string]any{"enabled": true}},
