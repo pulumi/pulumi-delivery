@@ -611,9 +611,9 @@ func principalForService(inputs property.Map) property.Map {
 		return inputs
 	}
 	name, value := "servicePrincipal", property.Value{}
-	if v, ok := principal.AsMap().GetOk("userId"); ok {
+	if v, ok := principal.AsMap().GetOk("userId"); ok && !v.IsNull() {
 		value = v
-	} else if v, ok := principal.AsMap().GetOk("teamName"); ok {
+	} else if v, ok := principal.AsMap().GetOk("teamName"); ok && !v.IsNull() {
 		name, value = "team", v
 	} else {
 		return inputs.Delete("servicePrincipal")
