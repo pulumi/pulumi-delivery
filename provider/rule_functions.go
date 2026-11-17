@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sort"
 	"time"
 
 	"github.com/pulumi/pulumi-go-provider/infer"
@@ -101,7 +102,9 @@ func validateRuleValue(value property.Value, depth int) error {
 				}
 			}
 		}
-	case "manual", "decision":
+	case "manual":
+	case "decision":
+		return validateDecisionValue(rule)
 	case "all", "any":
 		rules := rule.Get("rules")
 		if rules.IsComputed() {
@@ -168,13 +171,73 @@ func validateDecision(r Rule) error {
 	if len(r.Questions) == 0 {
 		return errors.New("decision needs at least one question")
 	}
-	for name, question := range r.Questions {
-		if name == "" || question.Instructions == "" {
-			return errors.New("decision questions need names and instructions")
+	names := make([]string, 0, len(r.Questions))
+	for name := range r.Questions {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	for _, name := range names {
+		question := r.Questions[name]
+		if err := validateDecisionQuestion(name, question.Instructions, question.MaximumRisk); err != nil {
+			return err
 		}
-		if question.MaximumRisk < 0 || question.MaximumRisk > 1 {
-			return fmt.Errorf("decision question %q maximumRisk must be between 0 and 1", name)
+	}
+	return nil
+}
+
+func validateDecisionValue(rule property.Map) error {
+	questions, ok := rule.GetOk("questions")
+	if !ok || questions.IsNull() {
+		return errors.New("decision needs at least one question")
+	}
+	if questions.IsComputed() {
+		return nil
+	}
+	if !questions.IsMap() || questions.AsMap().Len() == 0 {
+		return errors.New("decision needs at least one question")
+	}
+	var validationErr error
+	questions.AsMap().AllStable(func(name string, question property.Value) bool {
+		if name == "" {
+			validationErr = errors.New("decision question name must not be empty")
+			return false
 		}
+		if question.IsComputed() {
+			return true
+		}
+		if !question.IsMap() {
+			validationErr = fmt.Errorf("decision question %q must be an object", name)
+			return false
+		}
+		fields := question.AsMap()
+		instructions := fields.Get("instructions")
+		maximumRisk := fields.Get("maximumRisk")
+		if instructions.IsComputed() || maximumRisk.IsComputed() {
+			return true
+		}
+		if !instructions.IsString() {
+			validationErr = fmt.Errorf("decision question %q needs instructions", name)
+			return false
+		}
+		if !maximumRisk.IsNumber() {
+			validationErr = fmt.Errorf("decision question %q maximumRisk must be between 0 and 1", name)
+			return false
+		}
+		validationErr = validateDecisionQuestion(name, instructions.AsString(), maximumRisk.AsNumber())
+		return validationErr == nil
+	})
+	return validationErr
+}
+
+func validateDecisionQuestion(name, instructions string, maximumRisk float64) error {
+	if name == "" {
+		return errors.New("decision question name must not be empty")
+	}
+	if instructions == "" {
+		return fmt.Errorf("decision question %q needs instructions", name)
+	}
+	if !(maximumRisk >= 0 && maximumRisk <= 1) {
+		return fmt.Errorf("decision question %q maximumRisk must be between 0 and 1", name)
 	}
 	return nil
 }
