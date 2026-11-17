@@ -327,6 +327,7 @@ func TestLocalSecondUpWithoutChangesStartsNoMember(t *testing.T) {
 		assert.ElementsMatch(t, []string{"a:succeeded", "b:succeeded"}, finals(svc.take()))
 
 		svc.snapshot(func() { svc.release = 4 })
+		require.NoError(t, os.Remove(e.observed))
 		code, out = e.up(parallel)
 		require.Zero(t, code, out)
 		events := svc.take()

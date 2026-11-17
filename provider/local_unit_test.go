@@ -34,6 +34,7 @@ func TestModeFromTheEnvironment(t *testing.T) {
 }
 
 func TestTheServiceDecidesTheMode(t *testing.T) {
+	setMode(t, modeLocal)
 	for mode, want := range map[string]bool{"local": true, "register": false, "pass": false, "": false} {
 		svc := newLocalService(t)
 		svc.mode = mode
@@ -55,6 +56,7 @@ func TestTheServiceDecidesTheMode(t *testing.T) {
 }
 
 func TestOneSessionUnderConcurrentConstructs(t *testing.T) {
+	setMode(t, modeLocal)
 	svc := newLocalService(t)
 	useLocalService(t, svc)
 	server := newServer(t)
@@ -189,6 +191,7 @@ func groupDigests(children []property.Map) []string {
 }
 
 func TestAGroupHasOneDigestForAllEntries(t *testing.T) {
+	setMode(t, modeLocal)
 	svc := newLocalService(t)
 	useLocalService(t, svc)
 	var children []property.Map
@@ -231,6 +234,7 @@ func TestAGroupHasOneDigestForAllEntries(t *testing.T) {
 }
 
 func TestAnOlderServiceGetsNoLocalInputsOnTheChildren(t *testing.T) {
+	setMode(t, modeLocal)
 	svc := newLocalService(t)
 	svc.mode = ""
 	useLocalService(t, svc)
@@ -288,6 +292,7 @@ func TestCancelPostsTheInterruptOnlyWhileAWaitIsInFlight(t *testing.T) {
 }
 
 func TestCancelOfTheProviderPostsNothingWithoutWaits(t *testing.T) {
+	setMode(t, modeLocal)
 	svc := newLocalService(t)
 	useLocalService(t, svc)
 	provider, err := newProvider()

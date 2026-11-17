@@ -11,13 +11,18 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func setMode(t *testing.T, mode string) {
+	old := declarationMode
+	declarationMode = mode
+	t.Cleanup(func() { declarationMode = old })
+}
+
 func TestDeclarationsCarryTheRegisterMode(t *testing.T) {
 	service := newFakeService(t)
 	server := newServer(t)
 
-	t.Cleanup(func() { declarationMode = "" })
 	for _, mode := range []string{"register", ""} {
-		declarationMode = mode
+		setMode(t, mode)
 		_, err := server.Construct(jobRequest(false))
 		require.NoError(t, err)
 		_, err = server.Construct(pipelineRequest(false))
