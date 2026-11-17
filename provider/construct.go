@@ -79,7 +79,7 @@ func withDeliveryConstruct(config *ProviderConfig, sess *session, inner func(con
 				inputs = inputs.Set("programSource", property.New(config.Source.value()))
 			}
 			if typ == typePipeline {
-				inputs = servicePrincipalAsString(inputs)
+				inputs = principalForService(inputs)
 			}
 			request, err := decl.request(ctx, inputs)
 			if err != nil {
@@ -586,36 +586,42 @@ func validateServicePrincipal(inputs property.Map) error {
 		return ok && !v.IsNull()
 	}
 	userID, _ := principal.GetOk("userId")
-	user := present("userId") && (userID.IsComputed() || !userID.IsString() || userID.AsString() != "")
-	team := present("teamName")
+	teamName, _ := principal.GetOk("teamName")
+	nonEmpty := func(v property.Value) bool { return v.IsComputed() || !v.IsString() || v.AsString() != "" }
+	user := present("userId") && nonEmpty(userID)
+	team := present("teamName") && nonEmpty(teamName)
 	switch {
-	case present("userId") && team:
+	case present("userId") && present("teamName"):
 		return errors.New("servicePrincipal takes userId or teamName, not both")
-	case team:
-		return errors.New("servicePrincipal.teamName is not supported yet: Delivery cannot run a pipeline as a team. Use servicePrincipal.userId with a user-defined service principal.")
-	case !user:
+	case !user && !team:
 		return errors.New("servicePrincipal needs userId or teamName")
-	case !userID.IsComputed() && !userID.IsString():
+	case user && !userID.IsComputed() && !userID.IsString():
 		return errors.New("servicePrincipal.userId must be a string")
+	case team && !teamName.IsComputed() && !teamName.IsString():
+		return errors.New("servicePrincipal.teamName must be a string")
 	}
 	return nil
 }
 
-// servicePrincipalAsString replaces the servicePrincipal object of a Pipeline with its userId, because the
-// service reads the principal as a string. The userId keeps its unknown and secret marks.
-func servicePrincipalAsString(inputs property.Map) property.Map {
+// principalForService replaces the servicePrincipal object of a Pipeline with what the service reads: a string
+// servicePrincipal for a userId, or a string team for a teamName. The value keeps its unknown and secret marks.
+func principalForService(inputs property.Map) property.Map {
 	principal, ok := inputs.GetOk("servicePrincipal")
 	if !ok || !principal.IsMap() {
 		return inputs
 	}
-	userID, ok := principal.AsMap().GetOk("userId")
-	if !ok {
+	name, value := "servicePrincipal", property.Value{}
+	if v, ok := principal.AsMap().GetOk("userId"); ok && !v.IsNull() {
+		value = v
+	} else if v, ok := principal.AsMap().GetOk("teamName"); ok && !v.IsNull() {
+		name, value = "team", v
+	} else {
 		return inputs.Delete("servicePrincipal")
 	}
 	if principal.Secret() {
-		userID = userID.WithSecret(true)
+		value = value.WithSecret(true)
 	}
-	return inputs.Set("servicePrincipal", userID.WithDependencies(principal.Dependencies()))
+	return inputs.Delete("servicePrincipal").Set(name, value.WithDependencies(principal.Dependencies()))
 }
 
 func checkImage(inputs property.Map) error {

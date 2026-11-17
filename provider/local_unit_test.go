@@ -55,6 +55,23 @@ func TestTheServiceDecidesTheMode(t *testing.T) {
 	}
 }
 
+func TestALocalPipelineRunsAsItsTeam(t *testing.T) {
+	setMode(t, modeLocal)
+	svc := newLocalService(t)
+	useLocalService(t, svc)
+	req := pipelineRequest(false)
+	req.Inputs = property.NewMap(map[string]property.Value{"servicePrincipal": property.New(property.NewMap(
+		map[string]property.Value{"teamName": property.New("platform")}))})
+
+	_, err := newServer(t).Construct(req)
+	require.NoError(t, err)
+	sent := svc.declared()[0]
+	assert.Equal(t, "local", sent["mode"])
+	inputs := sent["inputs"].(map[string]any)
+	assert.Equal(t, "platform", inputs["team"])
+	assert.NotContains(t, inputs, "servicePrincipal")
+}
+
 func TestOneSessionUnderConcurrentConstructs(t *testing.T) {
 	setMode(t, modeLocal)
 	svc := newLocalService(t)

@@ -20,14 +20,14 @@ public final class PipelineServicePrincipalArgs extends com.pulumi.resources.Res
     public static final PipelineServicePrincipalArgs Empty = new PipelineServicePrincipalArgs();
 
     /**
-     * Name of a team. The pipeline runs as the service principal of the team, with the roles of the team. Not supported yet. Cannot be set together with userId.
+     * Name of a team. The pipeline runs as the team, with the roles of the team. Cannot be set together with userId.
      * 
      */
     @Import(name="teamName")
     private @Nullable Output<String> teamName;
 
     /**
-     * @return Name of a team. The pipeline runs as the service principal of the team, with the roles of the team. Not supported yet. Cannot be set together with userId.
+     * @return Name of a team. The pipeline runs as the team, with the roles of the team. Cannot be set together with userId.
      * 
      */
     public Optional<Output<String>> teamName() {
@@ -75,7 +75,7 @@ public final class PipelineServicePrincipalArgs extends com.pulumi.resources.Res
         }
 
         /**
-         * @param teamName Name of a team. The pipeline runs as the service principal of the team, with the roles of the team. Not supported yet. Cannot be set together with userId.
+         * @param teamName Name of a team. The pipeline runs as the team, with the roles of the team. Cannot be set together with userId.
          * 
          * @return builder
          * 
@@ -86,7 +86,7 @@ public final class PipelineServicePrincipalArgs extends com.pulumi.resources.Res
         }
 
         /**
-         * @param teamName Name of a team. The pipeline runs as the service principal of the team, with the roles of the team. Not supported yet. Cannot be set together with userId.
+         * @param teamName Name of a team. The pipeline runs as the team, with the roles of the team. Cannot be set together with userId.
          * 
          * @return builder
          * 
