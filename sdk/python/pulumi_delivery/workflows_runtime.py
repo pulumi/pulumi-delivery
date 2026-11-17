@@ -50,7 +50,7 @@ class WorkflowsRuntime(pulumi.CustomResource):
                  agent_pool: pulumi.Input[Optional[_builtins.str]] = None,
                  __props__=None):
         """
-        Selects the pool that runs the work of a member. In the private preview, all work runs on the hosted pool, so do not use this resource yet. Agent pools are not available.
+        Selects the pool that runs the work of a member or the pipeline program. In the private preview, all work runs on the hosted pool, so do not use this resource yet. Agent pools are not available.
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
@@ -63,7 +63,7 @@ class WorkflowsRuntime(pulumi.CustomResource):
                  args: WorkflowsRuntimeArgs,
                  opts: Optional[pulumi.ResourceOptions] = None):
         """
-        Selects the pool that runs the work of a member. In the private preview, all work runs on the hosted pool, so do not use this resource yet. Agent pools are not available.
+        Selects the pool that runs the work of a member or the pipeline program. In the private preview, all work runs on the hosted pool, so do not use this resource yet. Agent pools are not available.
 
         :param str resource_name: The name of the resource.
         :param WorkflowsRuntimeArgs args: The arguments to use to populate this resource's properties.

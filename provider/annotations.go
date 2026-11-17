@@ -5,7 +5,7 @@ package main
 import "github.com/pulumi/pulumi-go-provider/infer"
 
 func (r *WorkflowsRuntime) Annotate(a infer.Annotator) {
-	a.Describe(r, "Selects the pool that runs the work of a member. In the private preview, all work runs on the hosted pool, so do not use this resource yet. Agent pools are not available.")
+	a.Describe(r, "Selects the pool that runs the work of a member or the pipeline program. In the private preview, all work runs on the hosted pool, so do not use this resource yet. Agent pools are not available.")
 }
 
 func (r *WorkflowsRuntimeArgs) Annotate(a infer.Annotator) {
@@ -166,6 +166,7 @@ export const release = pipeline.releaseNumber;
 func (r *PipelineArgs) Annotate(a infer.Annotator) {
 	a.Describe(r, "Pipeline settings.")
 	a.Describe(&r.ServicePrincipal, "Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.")
+	a.Describe(&r.Runtime, "Pool that runs the pipeline program. In the private preview, all work runs on the hosted pool, so omit it.")
 }
 
 func (r *PipelineServicePrincipal) Annotate(a infer.Annotator) {

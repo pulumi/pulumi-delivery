@@ -580,6 +580,10 @@
         "releaseNumber"
       ],
       "inputProperties": {
+        "runtime": {
+          "$ref": "#/resources/delivery:index:WorkflowsRuntime",
+          "description": "Pool that runs the pipeline program. In the private preview, all work runs on the hosted pool, so omit it."
+        },
         "servicePrincipal": {
           "$ref": "#/types/delivery:index:PipelineServicePrincipal",
           "description": "Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline."
@@ -692,7 +696,7 @@
       "isComponent": true
     },
     "delivery:index:WorkflowsRuntime": {
-      "description": "Selects the pool that runs the work of a member. In the private preview, all work runs on the hosted pool, so do not use this resource yet. Agent pools are not available.",
+      "description": "Selects the pool that runs the work of a member or the pipeline program. In the private preview, all work runs on the hosted pool, so do not use this resource yet. Agent pools are not available.",
       "properties": {
         "inputs": {
           "$ref": "#/types/delivery:index:WorkflowsRuntimeArgs"

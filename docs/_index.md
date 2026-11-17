@@ -511,7 +511,7 @@ new delivery.Job("smoke", {
 });
 ```
 
-A `Job` also accepts `runtime`, like a `Stacks` entry.
+A `Job` also accepts `runtime`, like a `Stacks` entry. On a `Pipeline`, `runtime` is the pool that runs the pipeline program.
 
 ### Environment variables
 
