@@ -31,6 +31,7 @@ func main() {
 
 func newProvider() (p.Provider, error) {
 	config := &ProviderConfig{}
+	sess := newSession()
 	provider, err := infer.NewProviderBuilder().
 		WithConfig(infer.Config(config)).
 		WithNamespace("delivery").
@@ -51,7 +52,7 @@ func newProvider() (p.Provider, error) {
 		}).
 		WithModuleMap(map[tokens.ModuleName]tokens.ModuleName{"provider": "index"}).
 		WithResources(
-			infer.Resource(&MemberRun{}),
+			infer.Resource(&MemberRun{sess: sess}),
 			infer.Resource(&WorkflowsRuntime{}),
 		).
 		WithComponents(
@@ -78,7 +79,15 @@ func newProvider() (p.Provider, error) {
 		return p.Provider{}, err
 	}
 	provider = unknownOutputsInPreview(provider)
-	provider.Construct = withDeliveryConstruct(config, provider.Construct)
+	provider.Construct = withDeliveryConstruct(config, sess, provider.Construct)
+	cancel := provider.Cancel
+	provider.Cancel = func(ctx context.Context) error {
+		sess.cancel()
+		if cancel == nil {
+			return nil
+		}
+		return cancel(ctx)
+	}
 	provider.GetSchema = withReferences(provider.GetSchema)
 	provider.DiffConfig = diffConfig
 	return provider, nil

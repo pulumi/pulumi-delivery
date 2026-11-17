@@ -4,6 +4,9 @@ package main
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"os"
 	"slices"
@@ -20,8 +23,16 @@ import (
 	"github.com/pulumi/pulumi-delivery/provider/cloudclient"
 )
 
-// declarationMode is "register" when PULUMI_DELIVERY_REGISTER is true. It is read once per provider process.
-var declarationMode = registerModeFromEnvironment()
+// declarationMode is "register" when PULUMI_DELIVERY_REGISTER is true, and "local" otherwise. The
+// service decides the mode of the update: this is the mode that the provider asks for. It is read once per provider process.
+var declarationMode = modeFromEnvironment()
+
+func modeFromEnvironment() string {
+	if mode := registerModeFromEnvironment(); mode != "" {
+		return mode
+	}
+	return modeLocal
+}
 
 func registerModeFromEnvironment() string {
 	if register, err := strconv.ParseBool(os.Getenv("PULUMI_DELIVERY_REGISTER")); err == nil && register {
@@ -137,4 +148,19 @@ func (d declaration) forChild(inputs pulumi.Map) pulumi.Map {
 		"dependencies":         pulumi.ToStringArray(d.dependencies),
 		"propertyDependencies": propertyDependencies,
 	}
+}
+
+// digest identifies the inputs of all entries of a Stacks resource. A group is one unit, so every entry gets it as an
+// input, and all entries change together.
+func (d declaration) digest(ctx context.Context, inputs property.Map) (string, error) {
+	request, err := d.request(ctx, inputs)
+	if err != nil {
+		return "", err
+	}
+	encoded, err := json.Marshal(request.Inputs)
+	if err != nil {
+		return "", fmt.Errorf("encoding the inputs of %s: %w", d.urn, err)
+	}
+	sum := sha256.Sum256(encoded)
+	return hex.EncodeToString(sum[:]), nil
 }

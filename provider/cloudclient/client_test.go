@@ -104,3 +104,82 @@ func TestDeclareReturnsTheMessageAndWarnings(t *testing.T) {
 		t.Fatalf("response = %+v", got)
 	}
 }
+
+// TestLocalRunRequests proves the wire shape of the calls of a local run: the session and the run number, the
+// acknowledgement, the unchanged report, the admission and the interrupt.
+func TestLocalRunRequests(t *testing.T) {
+	var got []string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		body, _ := io.ReadAll(r.Body)
+		got = append(got, r.Method+" "+r.URL.Path+" "+string(body))
+		if strings.HasSuffix(r.URL.Path, "/run/interrupt") {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+		_, _ = w.Write([]byte(`{"status":"waiting","reason":"r","link":"l","mode":"local","runNumber":7,"releaseNumber":3,"consoleUrl":"c"}`))
+	}))
+	defer srv.Close()
+
+	client := New(srv.URL, "org", "proj", "stack", "token")
+	resp, err := client.Declare(context.Background(), Declaration{URN: "u", Mode: "local", Session: "s"})
+	if err != nil || resp.Mode != "local" || resp.RunNumber != 7 || *resp.ReleaseNumber != 3 || resp.ConsoleURL != "c" {
+		t.Fatalf("declare = %+v, %v", resp, err)
+	}
+	run := client.WithRun("s", 7)
+	last := int64(2)
+	steps := []func() error{
+		func() error {
+			_, err := run.Declare(context.Background(), Declaration{URN: "u", Mode: "local"})
+			return err
+		},
+		func() error {
+			_, err := run.AdmitStage(context.Background(), "stage")
+			return err
+		},
+		func() error {
+			_, err := run.PollMember(context.Background(), MemberStart{URN: "m", Entry: "e", ChildURN: "c"})
+			return err
+		},
+		func() error { return run.AckMember(context.Background(), MemberStart{URN: "m", ChildURN: "c"}) },
+		func() error {
+			return run.ReportUnchanged(context.Background(), MemberStart{URN: "m", ChildURN: "c", LastReleaseNumber: &last})
+		},
+		func() error { return run.Interrupt(context.Background()) },
+	}
+	for _, step := range steps {
+		if err := step(); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	const base = "POST /api/stacks/org/proj/stack/delivery/"
+	want := []string{
+		base + `declarations {"protocolVersion":2,"mode":"local","session":"s","urn":"u","type":"","inputs":null,"dependencies":null,"propertyDependencies":null}`,
+		base + `declarations {"protocolVersion":2,"mode":"local","session":"s","runNumber":7,"urn":"u","type":"","inputs":null,"dependencies":null,"propertyDependencies":null}`,
+		base + `stages/admit {"protocolVersion":2,"runNumber":7,"session":"s","urn":"stage"}`,
+		base + `members/start {"protocolVersion":2,"session":"s","runNumber":7,"urn":"m","entry":"e","childUrn":"c"}`,
+		base + `members/start {"protocolVersion":2,"session":"s","runNumber":7,"urn":"m","entry":"","childUrn":"c","ack":true}`,
+		base + `members/start {"protocolVersion":2,"session":"s","runNumber":7,"urn":"m","entry":"","childUrn":"c","unchanged":true,"lastReleaseNumber":2}`,
+		base + `run/interrupt {"protocolVersion":2,"runNumber":7,"session":"s"}`,
+	}
+	if len(got) != len(want) {
+		t.Fatalf("got %d requests, want %d:\n%s", len(got), len(want), strings.Join(got, "\n"))
+	}
+	for i := range want {
+		if got[i] != want[i] {
+			t.Errorf("request %d:\n got %s\nwant %s", i, got[i], want[i])
+		}
+	}
+}
+
+// TestAPollIsNotLimitedByTheTimeoutOfOtherCalls proves that a poll request has its own timeout, and that the
+// client has no timeout of its own that would end a long wait.
+func TestAPollIsNotLimitedByTheTimeoutOfOtherCalls(t *testing.T) {
+	client := New("http://example.test", "org", "proj", "stack", "token")
+	if client.http.Timeout != 0 {
+		t.Fatalf("the http client has a timeout of %s", client.http.Timeout)
+	}
+	if PollTimeout <= requestTimeout {
+		t.Fatalf("PollTimeout %s must exceed the %s of a plain request", PollTimeout, requestTimeout)
+	}
+}

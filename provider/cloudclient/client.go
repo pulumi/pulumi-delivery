@@ -31,6 +31,9 @@ type Client struct {
 	org, project, stack string
 	token               string
 	http                *http.Client
+	// session and runNumber name the local run. They are empty for a client of a registration or a run stack.
+	session   string
+	runNumber int64
 }
 
 // New builds a Client scoped to org/project/stack (the delivery program's own stack
@@ -46,7 +49,7 @@ func New(baseURL, org, project, stack, token string) *Client {
 		project: project,
 		stack:   stack,
 		token:   token,
-		http:    &http.Client{Timeout: requestTimeout},
+		http:    &http.Client{},
 	}
 }
 
@@ -74,6 +77,11 @@ func (e *APIError) Error() string {
 // per the task's "timeouts + one retry on 5xx" -- and otherwise returns
 // immediately, including on 4xx (retrying a client error can't help).
 func (c *Client) do(ctx context.Context, method, path string, query url.Values, body, out any) error {
+	return c.doWithin(ctx, requestTimeout, method, path, query, body, out)
+}
+
+// doWithin is do with the given timeout for each attempt.
+func (c *Client) doWithin(ctx context.Context, timeout time.Duration, method, path string, query url.Values, body, out any) error {
 	var payload []byte
 	if body != nil {
 		var err error
@@ -94,7 +102,9 @@ func (c *Client) do(ctx context.Context, method, path string, query url.Values, 
 		if payload != nil {
 			bodyReader = bytes.NewReader(payload)
 		}
-		req, err := http.NewRequestWithContext(ctx, method, u, bodyReader)
+		attemptCtx, cancel := context.WithTimeout(ctx, timeout)
+		defer cancel()
+		req, err := http.NewRequestWithContext(attemptCtx, method, u, bodyReader)
 		if err != nil {
 			return fmt.Errorf("building %s %s: %w", method, path, err)
 		}
@@ -107,6 +117,9 @@ func (c *Client) do(ctx context.Context, method, path string, query url.Values, 
 		resp, err := c.http.Do(req)
 		if err != nil {
 			lastErr = fmt.Errorf("%s %s: %w", method, path, err)
+			if ctx.Err() != nil {
+				return lastErr
+			}
 			continue
 		}
 
