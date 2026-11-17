@@ -139,6 +139,8 @@ func TestPipelineDeclaresItsServicePrincipal(t *testing.T) {
 		{name: "null", inputs: property.NewMap(map[string]property.Value{"servicePrincipal": property.New(property.Null)})},
 		{name: "userId", inputs: object(map[string]property.Value{"userId": str("service-principal:1")}), want: "service-principal:1"},
 		{name: "teamName", inputs: object(map[string]property.Value{"teamName": str("platform")}), wantTeam: "platform"},
+		{name: "null userId and teamName", inputs: object(map[string]property.Value{
+			"userId": property.New(property.Null), "teamName": str("platform")}), wantTeam: "platform"},
 		{name: "empty teamName", inputs: object(map[string]property.Value{"teamName": str("")}),
 			wantErr: "servicePrincipal needs userId or teamName"},
 		{name: "number teamName", inputs: object(map[string]property.Value{"teamName": property.New(5.0)}),
