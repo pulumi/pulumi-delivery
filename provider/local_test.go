@@ -397,7 +397,7 @@ func TestLocalDependentOfAMemberThatRanRuns(t *testing.T) {
 func TestLocalDependentThatFailedRunsAgain(t *testing.T) {
 	eachLocal(t, func(t *testing.T, lang, parallel string) {
 		svc := newLocalService(t)
-		e := setupLocal(t, lang, svc)
+		e := setupLocal(t, lang, svc, "LOCAL_B_MODE=depends")
 		code, out := e.up(parallel)
 		require.Zero(t, code, out)
 		svc.take()
