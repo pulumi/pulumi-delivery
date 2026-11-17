@@ -28,7 +28,7 @@ public final class Rule {
      */
     private @Nullable String body;
     /**
-     * @return Bounded, non-secret context supplied with a decision rule.
+     * @return Optional JSON-like context for a decision rule. Delivery rejects secret values and limits its encoded size to 16 KiB. Do not use it for credentials or other secrets.
      * 
      */
     private @Nullable Map<String,Object> context;
@@ -114,7 +114,7 @@ public final class Rule {
         return Optional.ofNullable(this.body);
     }
     /**
-     * @return Bounded, non-secret context supplied with a decision rule.
+     * @return Optional JSON-like context for a decision rule. Delivery rejects secret values and limits its encoded size to 16 KiB. Do not use it for credentials or other secrets.
      * 
      */
     public Map<String,Object> context() {

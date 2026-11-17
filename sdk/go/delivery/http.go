@@ -52,7 +52,7 @@ type HttpResult struct {
 	Approvers []string `pulumi:"approvers"`
 	// HTTP request body. Secret values stay secret.
 	Body *string `pulumi:"body"`
-	// Bounded, non-secret context supplied with a decision rule.
+	// Optional JSON-like context for a decision rule. Delivery rejects secret values and limits its encoded size to 16 KiB. Do not use it for credentials or other secrets.
 	Context map[string]interface{} `pulumi:"context"`
 	// Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
 	Count *int `pulumi:"count"`
@@ -138,7 +138,7 @@ func (o HttpResultOutput) Body() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v HttpResult) *string { return v.Body }).(pulumi.StringPtrOutput)
 }
 
-// Bounded, non-secret context supplied with a decision rule.
+// Optional JSON-like context for a decision rule. Delivery rejects secret values and limits its encoded size to 16 KiB. Do not use it for credentials or other secrets.
 func (o HttpResultOutput) Context() pulumi.MapOutput {
 	return o.ApplyT(func(v HttpResult) map[string]interface{} { return v.Context }).(pulumi.MapOutput)
 }

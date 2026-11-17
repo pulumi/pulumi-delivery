@@ -38,7 +38,7 @@ namespace Pulumi.Delivery.Delivery.Inputs
         private Dictionary<string, object>? _context;
 
         /// <summary>
-        /// Bounded, non-secret context supplied with a decision rule.
+        /// Optional JSON-like context for a decision rule. Delivery rejects secret values and limits its encoded size to 16 KiB. Do not use it for credentials or other secrets.
         /// </summary>
         public Dictionary<string, object> Context
         {

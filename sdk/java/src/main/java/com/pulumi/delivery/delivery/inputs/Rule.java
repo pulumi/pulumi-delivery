@@ -55,14 +55,14 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
     }
 
     /**
-     * Bounded, non-secret context supplied with a decision rule.
+     * Optional JSON-like context for a decision rule. Delivery rejects secret values and limits its encoded size to 16 KiB. Do not use it for credentials or other secrets.
      * 
      */
     @Import(name="context")
     private @Nullable Map<String,Object> context;
 
     /**
-     * @return Bounded, non-secret context supplied with a decision rule.
+     * @return Optional JSON-like context for a decision rule. Delivery rejects secret values and limits its encoded size to 16 KiB. Do not use it for credentials or other secrets.
      * 
      */
     public Optional<Map<String,Object>> context() {
@@ -336,7 +336,7 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param context Bounded, non-secret context supplied with a decision rule.
+         * @param context Optional JSON-like context for a decision rule. Delivery rejects secret values and limits its encoded size to 16 KiB. Do not use it for credentials or other secrets.
          * 
          * @return builder
          * 

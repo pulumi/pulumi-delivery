@@ -57,7 +57,7 @@ export interface ManualResult {
      */
     readonly body?: string;
     /**
-     * Bounded, non-secret context supplied with a decision rule.
+     * Optional JSON-like context for a decision rule. Delivery rejects secret values and limits its encoded size to 16 KiB. Do not use it for credentials or other secrets.
      */
     readonly context?: {[key: string]: any};
     /**

@@ -98,7 +98,7 @@ class DecisionResult:
     @pulumi.getter
     def context(self) -> Optional[Mapping[str, Any]]:
         """
-        Bounded, non-secret context supplied with a decision rule.
+        Optional JSON-like context for a decision rule. Delivery rejects secret values and limits its encoded size to 16 KiB. Do not use it for credentials or other secrets.
         """
         return pulumi.get(self, "context")
 
@@ -241,7 +241,7 @@ def decision(context: Optional[Mapping[str, Any]] = None,
 
     ## Example Usage
 
-    :param Mapping[str, Any] context: Optional bounded, non-secret JSON-like context. Delivery labels it as a caller claim and does not fetch URLs or resolve credentials from it.
+    :param Mapping[str, Any] context: Optional JSON-like context. Delivery rejects secret values and limits its encoded size to 16 KiB. It labels the context as a caller claim and does not fetch URLs or resolve credentials from it. Do not use it for credentials or other secrets.
     :param _builtins.str description: Description shown with the gate.
     :param _builtins.str name: Rule name. Omit it to let Delivery assign one.
     :param Mapping[str, Union['DecisionQuestion', 'DecisionQuestionDict', 'outputs.DecisionQuestion']] questions: Named judgments. Every judgment must have instructions and a maximum risk from zero to one.
@@ -281,7 +281,7 @@ def decision_output(context: pulumi.Input[Optional[Optional[Mapping[str, Any]]]]
 
     ## Example Usage
 
-    :param Mapping[str, Any] context: Optional bounded, non-secret JSON-like context. Delivery labels it as a caller claim and does not fetch URLs or resolve credentials from it.
+    :param Mapping[str, Any] context: Optional JSON-like context. Delivery rejects secret values and limits its encoded size to 16 KiB. It labels the context as a caller claim and does not fetch URLs or resolve credentials from it. Do not use it for credentials or other secrets.
     :param _builtins.str description: Description shown with the gate.
     :param _builtins.str name: Rule name. Omit it to let Delivery assign one.
     :param Mapping[str, Union['DecisionQuestion', 'DecisionQuestionDict', 'outputs.DecisionQuestion']] questions: Named judgments. Every judgment must have instructions and a maximum risk from zero to one.

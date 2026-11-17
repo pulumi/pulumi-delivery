@@ -95,7 +95,7 @@ namespace Pulumi.Delivery.Delivery
         private Dictionary<string, object>? _context;
 
         /// <summary>
-        /// Optional bounded, non-secret JSON-like context. Delivery labels it as a caller claim and does not fetch URLs or resolve credentials from it.
+        /// Optional JSON-like context. Delivery rejects secret values and limits its encoded size to 16 KiB. It labels the context as a caller claim and does not fetch URLs or resolve credentials from it. Do not use it for credentials or other secrets.
         /// </summary>
         public Dictionary<string, object> Context
         {
@@ -139,7 +139,7 @@ namespace Pulumi.Delivery.Delivery
         private InputMap<object>? _context;
 
         /// <summary>
-        /// Optional bounded, non-secret JSON-like context. Delivery labels it as a caller claim and does not fetch URLs or resolve credentials from it.
+        /// Optional JSON-like context. Delivery rejects secret values and limits its encoded size to 16 KiB. It labels the context as a caller claim and does not fetch URLs or resolve credentials from it. Do not use it for credentials or other secrets.
         /// </summary>
         public InputMap<object> Context
         {
@@ -190,7 +190,7 @@ namespace Pulumi.Delivery.Delivery
         /// </summary>
         public readonly string? Body;
         /// <summary>
-        /// Bounded, non-secret context supplied with a decision rule.
+        /// Optional JSON-like context for a decision rule. Delivery rejects secret values and limits its encoded size to 16 KiB. Do not use it for credentials or other secrets.
         /// </summary>
         public readonly ImmutableDictionary<string, object>? Context;
         /// <summary>

@@ -20,14 +20,14 @@ public final class DecisionArgs extends com.pulumi.resources.InvokeArgs {
     public static final DecisionArgs Empty = new DecisionArgs();
 
     /**
-     * Optional bounded, non-secret JSON-like context. Delivery labels it as a caller claim and does not fetch URLs or resolve credentials from it.
+     * Optional JSON-like context. Delivery rejects secret values and limits its encoded size to 16 KiB. It labels the context as a caller claim and does not fetch URLs or resolve credentials from it. Do not use it for credentials or other secrets.
      * 
      */
     @Import(name="context")
     private @Nullable Output<Map<String,Object>> context;
 
     /**
-     * @return Optional bounded, non-secret JSON-like context. Delivery labels it as a caller claim and does not fetch URLs or resolve credentials from it.
+     * @return Optional JSON-like context. Delivery rejects secret values and limits its encoded size to 16 KiB. It labels the context as a caller claim and does not fetch URLs or resolve credentials from it. Do not use it for credentials or other secrets.
      * 
      */
     public Optional<Output<Map<String,Object>>> context() {
@@ -107,7 +107,7 @@ public final class DecisionArgs extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param context Optional bounded, non-secret JSON-like context. Delivery labels it as a caller claim and does not fetch URLs or resolve credentials from it.
+         * @param context Optional JSON-like context. Delivery rejects secret values and limits its encoded size to 16 KiB. It labels the context as a caller claim and does not fetch URLs or resolve credentials from it. Do not use it for credentials or other secrets.
          * 
          * @return builder
          * 
@@ -118,7 +118,7 @@ public final class DecisionArgs extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param context Optional bounded, non-secret JSON-like context. Delivery labels it as a caller claim and does not fetch URLs or resolve credentials from it.
+         * @param context Optional JSON-like context. Delivery rejects secret values and limits its encoded size to 16 KiB. It labels the context as a caller claim and does not fetch URLs or resolve credentials from it. Do not use it for credentials or other secrets.
          * 
          * @return builder
          * 

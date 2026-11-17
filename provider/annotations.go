@@ -42,7 +42,7 @@ func (r *Rule) Annotate(a infer.Annotator) {
 	a.Describe(&r.Rules, "Child rules for all and any rules. At least one is required.")
 	a.Describe(&r.Description, "Text for the person who continues a manual gate, for example what to check first.")
 	a.Describe(&r.Questions, "Named judgments and their deterministic risk thresholds for a decision rule.")
-	a.Describe(&r.Context, "Bounded, non-secret context supplied with a decision rule.")
+	a.Describe(&r.Context, "Optional JSON-like context for a decision rule. Delivery rejects secret values and limits its encoded size to 16 KiB. Do not use it for credentials or other secrets.")
 }
 
 func (r *Decision) Annotate(a infer.Annotator) {
@@ -73,7 +73,7 @@ func (r *DecisionArgs) Annotate(a infer.Annotator) {
 	a.Describe(&r.Name, "Rule name. Omit it to let Delivery assign one.")
 	a.Describe(&r.Description, "Description shown with the gate.")
 	a.Describe(&r.Questions, "Named judgments. Every judgment must have instructions and a maximum risk from zero to one.")
-	a.Describe(&r.Context, "Optional bounded, non-secret JSON-like context. Delivery labels it as a caller claim and does not fetch URLs or resolve credentials from it.")
+	a.Describe(&r.Context, "Optional JSON-like context. Delivery rejects secret values and limits its encoded size to 16 KiB. It labels the context as a caller claim and does not fetch URLs or resolve credentials from it. Do not use it for credentials or other secrets.")
 }
 
 func (r *DecisionQuestion) Annotate(a infer.Annotator) {

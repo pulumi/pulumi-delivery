@@ -26,7 +26,7 @@ func Decision(ctx *pulumi.Context, args *DecisionArgs, opts ...pulumi.InvokeOpti
 
 // Decision rule settings.
 type DecisionArgs struct {
-	// Optional bounded, non-secret JSON-like context. Delivery labels it as a caller claim and does not fetch URLs or resolve credentials from it.
+	// Optional JSON-like context. Delivery rejects secret values and limits its encoded size to 16 KiB. It labels the context as a caller claim and does not fetch URLs or resolve credentials from it. Do not use it for credentials or other secrets.
 	Context map[string]interface{} `pulumi:"context"`
 	// Description shown with the gate.
 	Description *string `pulumi:"description"`
@@ -42,7 +42,7 @@ type DecisionResult struct {
 	Approvers []string `pulumi:"approvers"`
 	// HTTP request body. Secret values stay secret.
 	Body *string `pulumi:"body"`
-	// Bounded, non-secret context supplied with a decision rule.
+	// Optional JSON-like context for a decision rule. Delivery rejects secret values and limits its encoded size to 16 KiB. Do not use it for credentials or other secrets.
 	Context map[string]interface{} `pulumi:"context"`
 	// Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
 	Count *int `pulumi:"count"`
@@ -79,7 +79,7 @@ func DecisionOutput(ctx *pulumi.Context, args DecisionOutputArgs, opts ...pulumi
 
 // Decision rule settings.
 type DecisionOutputArgs struct {
-	// Optional bounded, non-secret JSON-like context. Delivery labels it as a caller claim and does not fetch URLs or resolve credentials from it.
+	// Optional JSON-like context. Delivery rejects secret values and limits its encoded size to 16 KiB. It labels the context as a caller claim and does not fetch URLs or resolve credentials from it. Do not use it for credentials or other secrets.
 	Context pulumi.MapInput `pulumi:"context"`
 	// Description shown with the gate.
 	Description pulumi.StringPtrInput `pulumi:"description"`
@@ -118,7 +118,7 @@ func (o DecisionResultOutput) Body() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v DecisionResult) *string { return v.Body }).(pulumi.StringPtrOutput)
 }
 
-// Bounded, non-secret context supplied with a decision rule.
+// Optional JSON-like context for a decision rule. Delivery rejects secret values and limits its encoded size to 16 KiB. Do not use it for credentials or other secrets.
 func (o DecisionResultOutput) Context() pulumi.MapOutput {
 	return o.ApplyT(func(v DecisionResult) map[string]interface{} { return v.Context }).(pulumi.MapOutput)
 }

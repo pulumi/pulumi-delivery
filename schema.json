@@ -158,7 +158,7 @@
           "additionalProperties": {
             "$ref": "pulumi.json#/Any"
           },
-          "description": "Bounded, non-secret context supplied with a decision rule."
+          "description": "Optional JSON-like context for a decision rule. Delivery rejects secret values and limits its encoded size to 16 KiB. Do not use it for credentials or other secrets."
         },
         "count": {
           "type": "integer",
@@ -833,7 +833,7 @@
             "additionalProperties": {
               "$ref": "pulumi.json#/Any"
             },
-            "description": "Bounded, non-secret context supplied with a decision rule.",
+            "description": "Optional JSON-like context for a decision rule. Delivery rejects secret values and limits its encoded size to 16 KiB. Do not use it for credentials or other secrets.",
             "type": "object"
           },
           "count": {
@@ -944,7 +944,7 @@
             "additionalProperties": {
               "$ref": "pulumi.json#/Any"
             },
-            "description": "Bounded, non-secret context supplied with a decision rule.",
+            "description": "Optional JSON-like context for a decision rule. Delivery rejects secret values and limits its encoded size to 16 KiB. Do not use it for credentials or other secrets.",
             "type": "object"
           },
           "count": {
@@ -1056,7 +1056,7 @@
             "additionalProperties": {
               "$ref": "pulumi.json#/Any"
             },
-            "description": "Bounded, non-secret context supplied with a decision rule.",
+            "description": "Optional JSON-like context for a decision rule. Delivery rejects secret values and limits its encoded size to 16 KiB. Do not use it for credentials or other secrets.",
             "type": "object"
           },
           "count": {
@@ -1137,7 +1137,7 @@
             "additionalProperties": {
               "$ref": "pulumi.json#/Any"
             },
-            "description": "Optional bounded, non-secret JSON-like context. Delivery labels it as a caller claim and does not fetch URLs or resolve credentials from it."
+            "description": "Optional JSON-like context. Delivery rejects secret values and limits its encoded size to 16 KiB. It labels the context as a caller claim and does not fetch URLs or resolve credentials from it. Do not use it for credentials or other secrets."
           },
           "description": {
             "type": "string",
@@ -1178,7 +1178,7 @@
             "additionalProperties": {
               "$ref": "pulumi.json#/Any"
             },
-            "description": "Bounded, non-secret context supplied with a decision rule.",
+            "description": "Optional JSON-like context for a decision rule. Delivery rejects secret values and limits its encoded size to 16 KiB. Do not use it for credentials or other secrets.",
             "type": "object"
           },
           "count": {
@@ -1318,7 +1318,7 @@
             "additionalProperties": {
               "$ref": "pulumi.json#/Any"
             },
-            "description": "Bounded, non-secret context supplied with a decision rule.",
+            "description": "Optional JSON-like context for a decision rule. Delivery rejects secret values and limits its encoded size to 16 KiB. Do not use it for credentials or other secrets.",
             "type": "object"
           },
           "count": {
@@ -1423,7 +1423,7 @@
             "additionalProperties": {
               "$ref": "pulumi.json#/Any"
             },
-            "description": "Bounded, non-secret context supplied with a decision rule.",
+            "description": "Optional JSON-like context for a decision rule. Delivery rejects secret values and limits its encoded size to 16 KiB. Do not use it for credentials or other secrets.",
             "type": "object"
           },
           "count": {

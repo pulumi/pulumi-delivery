@@ -43,7 +43,7 @@ export function decision(args: DecisionArgs, opts?: pulumi.InvokeOptions): Promi
  */
 export interface DecisionArgs {
     /**
-     * Optional bounded, non-secret JSON-like context. Delivery labels it as a caller claim and does not fetch URLs or resolve credentials from it.
+     * Optional JSON-like context. Delivery rejects secret values and limits its encoded size to 16 KiB. It labels the context as a caller claim and does not fetch URLs or resolve credentials from it. Do not use it for credentials or other secrets.
      */
     context?: {[key: string]: any};
     /**
@@ -73,7 +73,7 @@ export interface DecisionResult {
      */
     readonly body?: string;
     /**
-     * Bounded, non-secret context supplied with a decision rule.
+     * Optional JSON-like context for a decision rule. Delivery rejects secret values and limits its encoded size to 16 KiB. Do not use it for credentials or other secrets.
      */
     readonly context?: {[key: string]: any};
     /**
@@ -166,7 +166,7 @@ export function decisionOutput(args: DecisionOutputArgs, opts?: pulumi.InvokeOut
  */
 export interface DecisionOutputArgs {
     /**
-     * Optional bounded, non-secret JSON-like context. Delivery labels it as a caller claim and does not fetch URLs or resolve credentials from it.
+     * Optional JSON-like context. Delivery rejects secret values and limits its encoded size to 16 KiB. It labels the context as a caller claim and does not fetch URLs or resolve credentials from it. Do not use it for credentials or other secrets.
      */
     context?: pulumi.Input<{[key: string]: any} | undefined>;
     /**
