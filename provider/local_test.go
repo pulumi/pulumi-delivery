@@ -394,6 +394,29 @@ func TestLocalDependentOfAMemberThatRanRuns(t *testing.T) {
 	}
 }
 
+func TestLocalDependentThatFailedRunsAgain(t *testing.T) {
+	eachLocal(t, func(t *testing.T, lang, parallel string) {
+		svc := newLocalService(t)
+		e := setupLocal(t, lang, svc)
+		code, out := e.up(parallel)
+		require.Zero(t, code, out)
+		svc.take()
+
+		svc.snapshot(func() { svc.members["b"] = &memberScript{fail: true, reason: "exit status 2"} })
+		code, out = e.up(parallel, "LOCAL_A_CMD=a2")
+		assert.NotZero(t, code, out)
+		assert.Contains(t, finals(svc.take()), "a:succeeded")
+
+		svc.snapshot(func() { delete(svc.members, "b") })
+		code, out = e.up(parallel, "LOCAL_A_CMD=a2")
+		require.Zero(t, code, out)
+		events := svc.take()
+		assert.Equal(t, []string{"b:succeeded"}, finals(events), "b runs again, a does not")
+		assert.Equal(t, []string{"a"}, eventsWith(events, "unchanged "))
+		e.requireClean()
+	})
+}
+
 func TestLocalOneChangedEntryRunsTheWholeGroup(t *testing.T) {
 	eachLocal(t, func(t *testing.T, lang, parallel string) {
 		svc := newLocalService(t)

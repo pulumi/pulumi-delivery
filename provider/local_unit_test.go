@@ -26,7 +26,7 @@ func useLocalService(t *testing.T, svc *localService) {
 
 func TestModeFromTheEnvironment(t *testing.T) {
 	for value, want := range map[string]string{
-		"": "local", "true": "register", "1": "register", "TRUE": "register", "false": "", "yes": "",
+		"": "local", "true": "register", "1": "register", "TRUE": "register", "false": "local", "0": "local", "yes": "local",
 	} {
 		t.Setenv("PULUMI_DELIVERY_REGISTER", value)
 		assert.Equal(t, want, modeFromEnvironment(), "PULUMI_DELIVERY_REGISTER=%q", value)
@@ -111,7 +111,11 @@ func TestMemberRunDiff(t *testing.T) {
 		}
 	}
 	local := func(a MemberRunArgs) MemberRunArgs { a.Session, a.Run, a.Release = "s", 8, 4; return a }
-	base := MemberRunArgs{Member: "m", Declaration: declaration("make", "x", "y"), Commits: map[string]string{"src": "c1"}}
+	base := MemberRunArgs{
+		Member: "m", Declaration: declaration("make", "x", "y"), Commits: map[string]string{"src": "c1"},
+		DependencyRuns: map[string]int64{"x": 5},
+	}
+	withRuns := func(a MemberRunArgs, runs map[string]int64) MemberRunArgs { a.DependencyRuns = runs; return a }
 
 	for name, c := range map[string]struct {
 		inputs, state MemberRunArgs
@@ -131,12 +135,16 @@ func TestMemberRunDiff(t *testing.T) {
 			a.Commits = map[string]string{"src": "c1", "lib": "c9"}
 			return a
 		}(), base, 5, true},
-		"no commits in the inputs": {func() MemberRunArgs { a := local(base); a.Commits = nil; return a }(), base, 5, false},
-		"a dependency ran":         {func() MemberRunArgs { a := local(base); a.Ran = []string{"x"}; return a }(), base, 5, true},
-		"another group digest":     {func() MemberRunArgs { a := local(base); a.GroupDigest = "d2"; return a }(), func() MemberRunArgs { a := base; a.GroupDigest = "d1"; return a }(), 5, true},
-		"the same group digest":    {func() MemberRunArgs { a := local(base); a.GroupDigest = "d1"; return a }(), func() MemberRunArgs { a := base; a.GroupDigest = "d1"; return a }(), 5, false},
-		"no local run ran it":      {local(base), base, 0, true},
-		"a registration":           {base, base, 5, true},
+		"no commits in the inputs":       {func() MemberRunArgs { a := local(base); a.Commits = nil; return a }(), base, 5, false},
+		"a dependency ran":               {withRuns(local(base), map[string]int64{"x": 8}), base, 5, true},
+		"the dependency did not":         {withRuns(local(base), map[string]int64{"x": 5}), base, 5, false},
+		"a failed run kept the old runs": {withRuns(local(base), map[string]int64{"x": 7}), withRuns(base, map[string]int64{"x": 4}), 4, true},
+		"no runs saved before":           {local(base), withRuns(base, nil), 5, true},
+		"no dependencies":                {withRuns(local(base), nil), withRuns(base, map[string]int64{}), 5, false},
+		"another group digest":           {func() MemberRunArgs { a := local(base); a.GroupDigest = "d2"; return a }(), func() MemberRunArgs { a := base; a.GroupDigest = "d1"; return a }(), 5, true},
+		"the same group digest":          {func() MemberRunArgs { a := local(base); a.GroupDigest = "d1"; return a }(), func() MemberRunArgs { a := base; a.GroupDigest = "d1"; return a }(), 5, false},
+		"no local run ran it":            {local(base), base, 0, true},
+		"a registration":                 {base, base, 5, true},
 	} {
 		t.Run(name, func(t *testing.T) {
 			resp, err := (&MemberRun{}).Diff(t.Context(), diffOf(c.inputs, c.state, c.lastRun))
@@ -233,7 +241,7 @@ func TestAnOlderServiceGetsNoLocalInputsOnTheChildren(t *testing.T) {
 	require.NoError(t, err)
 	require.Len(t, children, 2)
 	for _, child := range children {
-		for _, key := range []string{"session", "run", "release", "commits", "ran", "groupDigest"} {
+		for _, key := range []string{"session", "run", "release", "commits", "dependencyRuns", "groupDigest"} {
 			assert.NotContains(t, child.AsMap(), key)
 		}
 	}
@@ -302,4 +310,62 @@ func TestAWaitStopsOnAClientError(t *testing.T) {
 	})
 	assert.ErrorContains(t, err, "Stage S is already closed.")
 	assert.Equal(t, 1, calls)
+}
+
+func TestCancelDuringTheFirstDeclarationIsNotLost(t *testing.T) {
+	svc := newLocalService(t)
+	useLocalService(t, svc)
+	release := make(chan struct{})
+	entered := make(chan struct{})
+	svc.beforeDeclare = func() { close(entered); <-release }
+	sess := newSession()
+
+	done := make(chan error, 1)
+	go func() {
+		_, err := sess.declare(t.Context(), "org", urnOf(typeStage, "dev"), cloudclient.Declaration{Mode: modeLocal, URN: string(urnOf(typeStage, "dev"))})
+		done <- err
+	}()
+	<-entered
+	sess.cancel()
+	assert.Zero(t, svc.interruptCount(), "the run is not known yet")
+	close(release)
+	require.NoError(t, <-done)
+	assert.Equal(t, 1, svc.interruptCount(), "the interrupt goes out once the declaration is answered")
+	err := sess.wait(context.Background(), func(context.Context) (bool, error) { return false, nil })
+	assert.ErrorIs(t, err, errInterrupted, "a wait that starts after the interrupt stops at once")
+	assert.Empty(t, svc.violationList())
+}
+
+func TestCancelDuringALaterDeclarationPostsTheInterrupt(t *testing.T) {
+	svc := newLocalService(t)
+	useLocalService(t, svc)
+	sess := newSession()
+	_, err := sess.declare(t.Context(), "org", urnOf(typeStage, "dev"), cloudclient.Declaration{Mode: modeLocal, URN: string(urnOf(typeStage, "dev"))})
+	require.NoError(t, err)
+
+	release := make(chan struct{})
+	entered := make(chan struct{})
+	svc.beforeDeclare = func() { close(entered); <-release }
+	done := make(chan error, 1)
+	go func() {
+		_, err := sess.declare(t.Context(), "org", urnOf(typeStage, "prod"), cloudclient.Declaration{Mode: modeLocal, URN: string(urnOf(typeStage, "prod"))})
+		done <- err
+	}()
+	<-entered
+	sess.cancel()
+	assert.Equal(t, 1, svc.interruptCount())
+	close(release)
+	require.NoError(t, <-done)
+	assert.Equal(t, 1, svc.interruptCount())
+	assert.Empty(t, svc.violationList())
+}
+
+func TestCancelWithNothingInFlightPostsNothingAfterADeclaration(t *testing.T) {
+	svc := newLocalService(t)
+	useLocalService(t, svc)
+	sess := newSession()
+	_, err := sess.declare(t.Context(), "org", urnOf(typeStage, "dev"), cloudclient.Declaration{Mode: modeLocal, URN: string(urnOf(typeStage, "dev"))})
+	require.NoError(t, err)
+	sess.cancel()
+	assert.Zero(t, svc.interruptCount())
 }

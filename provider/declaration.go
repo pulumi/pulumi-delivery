@@ -23,15 +23,15 @@ import (
 	"github.com/pulumi/pulumi-delivery/provider/cloudclient"
 )
 
-// declarationMode is "register" when PULUMI_DELIVERY_REGISTER is true, and "local" when the variable is not set. The
+// declarationMode is "register" when PULUMI_DELIVERY_REGISTER is true, and "local" otherwise. The
 // service decides the mode of the update: this is the mode that the provider asks for. It is read once per provider process.
 var declarationMode = modeFromEnvironment()
 
 func modeFromEnvironment() string {
-	if os.Getenv("PULUMI_DELIVERY_REGISTER") == "" {
-		return modeLocal
+	if mode := registerModeFromEnvironment(); mode != "" {
+		return mode
 	}
-	return registerModeFromEnvironment()
+	return modeLocal
 }
 
 func registerModeFromEnvironment() string {

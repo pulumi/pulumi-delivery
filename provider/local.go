@@ -19,14 +19,14 @@ import (
 const reportTimeout = 30 * time.Second
 
 // memberExtras is what a member component adds to its children in a local run: the pinned commits of its sources,
-// the dependencies that ran, and the digest of its group. It also reports an unchanged child to the service.
+// the last run of each dependency, and the digest of its group. It also reports an unchanged child to the service.
 type memberExtras struct {
-	ctx          context.Context
-	sess         *session
-	organization string
-	commits      map[string]string
-	ran          []string
-	digest       string
+	ctx            context.Context
+	sess           *session
+	organization   string
+	commits        map[string]string
+	dependencyRuns map[string]int64
+	digest         string
 
 	pending sync.WaitGroup
 	mu      sync.Mutex
@@ -42,8 +42,12 @@ func (e *memberExtras) apply(inputs pulumi.Map) pulumi.Map {
 	if len(e.commits) > 0 {
 		inputs["commits"] = pulumi.ToStringMap(e.commits)
 	}
-	if len(e.ran) > 0 {
-		inputs["ran"] = pulumi.ToStringArray(e.ran)
+	if len(e.dependencyRuns) > 0 {
+		runs := pulumi.IntMap{}
+		for dependency, run := range e.dependencyRuns {
+			runs[dependency] = pulumi.Int(int(run))
+		}
+		inputs["dependencyRuns"] = runs
 	}
 	if e.sess.local() {
 		inputs["session"] = pulumi.String(e.sess.id)
@@ -59,7 +63,7 @@ func (e *memberExtras) apply(inputs pulumi.Map) pulumi.Map {
 }
 
 // watch looks at the child once the engine has registered it. A child that did not run in this update is reported
-// to the service as unchanged. One that ran is a dependency that ran, for the components that come after it.
+// to the service as unchanged. Its last run is what the components that come after it record as the run they ran against.
 func (e *memberExtras) watch(child *memberRunResource, member, entry string) {
 	if !e.sess.local() {
 		return
@@ -77,8 +81,8 @@ func (e *memberExtras) watch(child *memberRunResource, member, entry string) {
 }
 
 func (e *memberExtras) report(child, member, entry string, lastRun, lastRelease int64) error {
+	e.sess.setLastRun(lastRun, member, child)
 	if lastRun == e.sess.runNumber() {
-		e.sess.markRan(member, child)
 		return nil
 	}
 	client, err := e.sess.client(e.organization, urn.URN(member))

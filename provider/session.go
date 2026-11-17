@@ -8,7 +8,6 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"slices"
 	"sync"
 	"time"
 
@@ -47,20 +46,24 @@ type session struct {
 	release    *int64
 	consoleURL string
 	commits    map[string]string
-	ran        map[string]bool
+	lastRuns   map[string]int64
 
 	announced sync.Once
 
+	// waits and declaring count the operations in flight that an interrupt must end: the waits, and the declarations of a
+	// local run.
 	waits       int
+	declaring   int
 	interrupted chan struct{}
 	interrupt   sync.Once
+	posted      sync.Once
 }
 
 func newSession() *session {
 	id := make([]byte, 16)
 	_, _ = rand.Read(id)
 	return &session{
-		id: hex.EncodeToString(id), commits: map[string]string{}, ran: map[string]bool{},
+		id: hex.EncodeToString(id), commits: map[string]string{}, lastRuns: map[string]int64{},
 		interrupted: make(chan struct{}),
 	}
 }
@@ -124,6 +127,14 @@ func (s *session) declare(ctx context.Context, organization string, resourceURN 
 		}
 		return client.Declare(ctx, d)
 	}
+	s.mu.Lock()
+	s.declaring++
+	s.mu.Unlock()
+	defer func() {
+		s.mu.Lock()
+		s.declaring--
+		s.mu.Unlock()
+	}()
 	s.first.Lock()
 	s.mu.Lock()
 	known := s.declared
@@ -149,6 +160,11 @@ func (s *session) declare(ctx context.Context, organization string, resourceURN 
 	s.mu.Lock()
 	s.declared, s.mode, s.run, s.release, s.consoleURL = true, resp.Mode, resp.RunNumber, resp.ReleaseNumber, resp.ConsoleURL
 	s.mu.Unlock()
+	select {
+	case <-s.interrupted:
+		s.postInterrupt()
+	default:
+	}
 	return resp, nil
 }
 
@@ -194,26 +210,26 @@ func (s *session) commitsOf(sources []urn.URN) map[string]string {
 	return out
 }
 
-func (s *session) markRan(keys ...string) {
+// setLastRun records the run that last ran a member. The keys are the URNs that name it.
+func (s *session) setLastRun(lastRun int64, keys ...string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	for _, key := range keys {
-		s.ran[key] = true
+		s.lastRuns[key] = max(s.lastRuns[key], lastRun)
 	}
 }
 
-// ranAmong returns the sorted subset of the URNs that a MemberRun executed in this update.
-func (s *session) ranAmong(urns []string) []string {
+// lastRunsOf returns the last run of each of the URNs that a MemberRun reported in this update.
+func (s *session) lastRunsOf(urns []string) map[string]int64 {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	var out []string
+	out := map[string]int64{}
 	for _, u := range urns {
-		if s.ran[u] {
-			out = append(out, u)
+		if run, ok := s.lastRuns[u]; ok {
+			out[u] = run
 		}
 	}
-	slices.Sort(out)
-	return slices.Compact(out)
+	return out
 }
 
 // permanent is an error that ends a wait at once.
@@ -287,20 +303,33 @@ func (s *session) wait(ctx context.Context, poll func(context.Context) (bool, er
 }
 
 // cancel is the Cancel call of the engine. The engine calls it at every end of a provider process, so it only
-// means an interrupt when a wait is in flight: the person stopped the update, and the run must end.
+// means an interrupt when a wait or a declaration of a local run is in flight: the person stopped the update, and the
+// run must end. An interrupt during the first declaration is posted when that declaration is answered.
 func (s *session) cancel() {
 	s.mu.Lock()
-	waiting := s.waits > 0
-	client := s.base
-	if client != nil && s.mode == modeLocal {
-		client = client.WithRun(s.id, s.run)
-	}
+	busy := s.waits > 0 || s.declaring > 0
+	local := s.mode == modeLocal || (!s.declared && s.declaring > 0)
 	s.mu.Unlock()
-	if !waiting || client == nil || !s.local() {
+	if !busy || !local {
 		return
 	}
-	s.interrupt.Do(func() {
-		close(s.interrupted)
+	s.interrupt.Do(func() { close(s.interrupted) })
+	s.postInterrupt()
+}
+
+// postInterrupt tells the service about the interrupt, once, as soon as the run is known.
+func (s *session) postInterrupt() {
+	s.mu.Lock()
+	client := s.base
+	if client != nil {
+		client = client.WithRun(s.id, s.run)
+	}
+	known := s.declared && s.mode == modeLocal
+	s.mu.Unlock()
+	if client == nil || !known {
+		return
+	}
+	s.posted.Do(func() {
 		ctx, cancel := context.WithTimeout(context.Background(), interruptTimeout)
 		defer cancel()
 		_ = client.Interrupt(ctx)

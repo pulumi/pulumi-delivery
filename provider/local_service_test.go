@@ -30,6 +30,8 @@ type localService struct {
 	admit           map[string]func(polls int) (status, reason string)
 	cloudRun        bool
 	rejectDeclareIn string
+	// beforeDeclare runs, without the lock, before a declaration is handled.
+	beforeDeclare func()
 
 	session      string
 	declarations []map[string]any
@@ -90,6 +92,9 @@ func (s *localService) checkRun(path string, body map[string]any) {
 }
 
 func (s *localService) handle(w http.ResponseWriter, r *http.Request) {
+	if strings.HasSuffix(r.URL.Path, "/declarations") && s.beforeDeclare != nil {
+		s.beforeDeclare()
+	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	raw, _ := io.ReadAll(r.Body)

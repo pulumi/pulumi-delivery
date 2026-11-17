@@ -43,11 +43,12 @@ type MemberRunArgs struct {
 	Session string `pulumi:"session,optional"`
 	Run     int64  `pulumi:"run,optional"`
 	Release int64  `pulumi:"release,optional"`
-	// Commits are the pinned commits of the sources of the member, by source URN. Ran are the dependencies of the
-	// member that ran in this update. GroupDigest is the digest of all entries of a Stacks resource.
-	Commits     map[string]string `pulumi:"commits,optional"`
-	Ran         []string          `pulumi:"ran,optional"`
-	GroupDigest string            `pulumi:"groupDigest,optional" provider:"secret"`
+	// Commits are the pinned commits of the sources of the member, by source URN. DependencyRuns is the last run of
+	// each dependency that the member ran against, by URN: a dependency that ran makes the member run, and a member that
+	// failed after it keeps the old runs and runs again. GroupDigest is the digest of all entries of a Stacks resource.
+	Commits        map[string]string `pulumi:"commits,optional"`
+	DependencyRuns map[string]int64  `pulumi:"dependencyRuns,optional"`
+	GroupDigest    string            `pulumi:"groupDigest,optional" provider:"secret"`
 }
 
 type MemberRunState struct {
@@ -254,19 +255,19 @@ func unknownOutputsInPreview(provider p.Provider) p.Provider {
 
 // Diff always reports a change in a registration and in a run, so that every pass goes through Update, where the
 // member is started or polled. In a local run it reports a change when the inputs differ from those of the last
-// run, or when a dependency ran in this update.
+// run. The runs of the dependencies are inputs, so a dependency that ran in this update counts as a difference.
 func (*MemberRun) Diff(_ context.Context, req infer.DiffRequest[MemberRunArgs, MemberRunState]) (infer.DiffResponse, error) {
 	if req.Inputs.Session == "" {
 		return infer.DiffResponse{HasChanges: true}, nil
 	}
 	// A member that no local run ran has no last run to compare with.
-	changed := len(req.Inputs.Ran) > 0 || req.State.LastRun == 0 || !sameArgs(req.Inputs, req.State.MemberRunArgs)
+	changed := req.State.LastRun == 0 || !sameArgs(req.Inputs, req.State.MemberRunArgs)
 	return infer.DiffResponse{HasChanges: changed}, nil
 }
 
 // sameArgs compares the inputs of a MemberRun with the saved ones. The engine lists the dependencies of a
 // resource in no fixed order, so those lists compare as sets. Without commits the saved commits do not count.
-// The run and the dependencies that ran never count here: Diff reads the dependencies on their own.
+// The session and the run never count here.
 func sameArgs(a, b MemberRunArgs) bool {
 	a, b = normalized(a), normalized(b)
 	if len(a.Commits) == 0 {
@@ -276,7 +277,10 @@ func sameArgs(a, b MemberRunArgs) bool {
 }
 
 func normalized(a MemberRunArgs) MemberRunArgs {
-	a.Ran, a.Session, a.Run, a.Release = nil, "", 0, 0
+	a.Session, a.Run, a.Release = "", 0, 0
+	if len(a.DependencyRuns) == 0 {
+		a.DependencyRuns = nil
+	}
 	if len(a.Commits) == 0 {
 		a.Commits = nil
 	}

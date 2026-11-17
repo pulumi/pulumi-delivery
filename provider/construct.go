@@ -108,7 +108,7 @@ func withDeliveryConstruct(config *ProviderConfig, sess *session, inner func(con
 			if local {
 				sess.setCommit(req.Urn, commit)
 				extras.commits = sess.commitsOf(sourceURNs(typ, req.Inputs))
-				extras.ran = sess.ranAmong(decl.dependencies)
+				extras.dependencyRuns = sess.lastRunsOf(decl.dependencies)
 			}
 			if release, err = runRelease(ctx, sess, client, local, req); err != nil {
 				return p.ConstructResponse{}, err
