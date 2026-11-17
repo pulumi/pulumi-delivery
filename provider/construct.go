@@ -163,7 +163,7 @@ func finishState(typ string, state property.Map, commit string, release *int64, 
 		// An unknown value is not secret: the engine rejects a secret without a value.
 		out[key] = out[key].WithSecret(false)
 	} else if (typ == typeArtifact && hasSecret(inputs.Get("value"))) ||
-		(typ == typeAgent && hasSecret(inputs.Get("prompt"))) {
+		(typ == typeAgent && (hasSecret(inputs.Get("prompt")) || hasSecret(inputs.Get("responseSchema")))) {
 		// A known output inherits secrecy from input that can be reflected in it. Unknown outputs cannot be secret.
 		out[key] = out[key].WithSecret(true)
 	}

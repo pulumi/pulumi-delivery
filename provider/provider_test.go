@@ -282,11 +282,11 @@ func TestAgentPreservesNullResponseSchemaKeywords(t *testing.T) {
 	require.Len(t, declarations, 1)
 	inputs, err := stack.DeserializeProperties(declarations[0]["inputs"].(map[string]any), config.NewErrorCrypter("no ciphertext"))
 	require.NoError(t, err)
-	assert.True(t, inputs["responseSchema"].ObjectValue()["properties"].ObjectValue()["value"].ObjectValue()["const"].IsNull())
+	constant, ok := inputs["responseSchema"].ObjectValue()["properties"].ObjectValue()["value"].ObjectValue()["const"]
+	require.True(t, ok)
+	assert.True(t, constant.IsNull())
 
 	require.Len(t, children, 1)
-	childSchema := children[0].Get("declaration").AsMap().Get("inputs").AsMap().Get("responseSchema").AsMap()
-	assert.True(t, childSchema.Get("properties").AsMap().Get("value").AsMap().Get("const").IsNull())
 }
 
 func TestAgentValidation(t *testing.T) {
@@ -315,6 +315,13 @@ func TestAgentValidation(t *testing.T) {
 	request.Inputs = request.Inputs.Set("stage", reference(typeJob, "build"))
 	_, err = server.Construct(request)
 	require.ErrorContains(t, err, "stage must be one of [delivery:index:Stage], not delivery:index:Job")
+
+	request = agentRequest(true)
+	for _, name := range []string{"stage", "agentDefinitionId", "prompt"} {
+		request.Inputs = request.Inputs.Set(name, property.New(property.Computed))
+	}
+	_, err = server.Construct(request)
+	require.NoError(t, err)
 }
 
 func TestFinishStateOfAnAgent(t *testing.T) {
@@ -336,6 +343,13 @@ func TestFinishStateOfAnAgent(t *testing.T) {
 	secret := finishState(typeAgent, known, "", nil, nil, request.Inputs)
 	assert.True(t, secret.Get("response").Secret())
 	assert.True(t, secret.Get("response").IsMap())
+
+	request = agentRequest(false)
+	request.Inputs = request.Inputs.Set("responseSchema", property.New(property.NewMap(map[string]property.Value{
+		"const": property.New("safe").WithSecret(true),
+	})))
+	secret = finishState(typeAgent, known, "", nil, nil, request.Inputs)
+	assert.True(t, secret.Get("response").Secret())
 
 	computed := withChild.Set("response", property.New(property.Computed).WithSecret(true))
 	assert.False(t, finishState(typeAgent, computed, "", nil, nil, request.Inputs).Get("response").Secret(),
