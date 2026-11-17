@@ -151,10 +151,6 @@ namespace Pulumi.Delivery.Delivery
         /// </summary>
         public readonly string? Description;
         /// <summary>
-        /// Selectors for service-owned evidence for a decision rule.
-        /// </summary>
-        public readonly ImmutableArray<Outputs.DecisionEvidence> Evidence;
-        /// <summary>
         /// HTTP request headers. Secret values stay secret.
         /// </summary>
         public readonly ImmutableDictionary<string, string>? Headers;
@@ -211,8 +207,6 @@ namespace Pulumi.Delivery.Delivery
 
             string? description,
 
-            ImmutableArray<Outputs.DecisionEvidence> evidence,
-
             ImmutableDictionary<string, string>? headers,
 
             string? headersEnvironment,
@@ -240,7 +234,6 @@ namespace Pulumi.Delivery.Delivery
             Context = context;
             Count = count;
             Description = description;
-            Evidence = evidence;
             Headers = headers;
             HeadersEnvironment = headersEnvironment;
             Interval = interval;

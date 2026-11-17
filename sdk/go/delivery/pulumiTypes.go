@@ -13,115 +13,6 @@ import (
 
 var _ = internal.GetEnvOrDefault
 
-// A selector for current Delivery preview evidence.
-type DecisionEvidence struct {
-	// Not supported for deliveryPreview.
-	Id *string `pulumi:"id"`
-	// Evidence source: deliveryPreview.
-	Source string `pulumi:"source"`
-}
-
-// DecisionEvidenceInput is an input type that accepts DecisionEvidenceArgs and DecisionEvidenceOutput values.
-// You can construct a concrete instance of `DecisionEvidenceInput` via:
-//
-//	DecisionEvidenceArgs{...}
-type DecisionEvidenceInput interface {
-	pulumi.Input
-
-	ToDecisionEvidenceOutput() DecisionEvidenceOutput
-	ToDecisionEvidenceOutputWithContext(context.Context) DecisionEvidenceOutput
-}
-
-// A selector for current Delivery preview evidence.
-type DecisionEvidenceArgs struct {
-	// Not supported for deliveryPreview.
-	Id pulumi.StringPtrInput `pulumi:"id"`
-	// Evidence source: deliveryPreview.
-	Source pulumi.StringInput `pulumi:"source"`
-}
-
-func (DecisionEvidenceArgs) ElementType() reflect.Type {
-	return reflect.TypeOf((*DecisionEvidence)(nil)).Elem()
-}
-
-func (i DecisionEvidenceArgs) ToDecisionEvidenceOutput() DecisionEvidenceOutput {
-	return i.ToDecisionEvidenceOutputWithContext(context.Background())
-}
-
-func (i DecisionEvidenceArgs) ToDecisionEvidenceOutputWithContext(ctx context.Context) DecisionEvidenceOutput {
-	return pulumi.ToOutputWithContext(ctx, i).(DecisionEvidenceOutput)
-}
-
-// DecisionEvidenceArrayInput is an input type that accepts DecisionEvidenceArray and DecisionEvidenceArrayOutput values.
-// You can construct a concrete instance of `DecisionEvidenceArrayInput` via:
-//
-//	DecisionEvidenceArray{ DecisionEvidenceArgs{...} }
-type DecisionEvidenceArrayInput interface {
-	pulumi.Input
-
-	ToDecisionEvidenceArrayOutput() DecisionEvidenceArrayOutput
-	ToDecisionEvidenceArrayOutputWithContext(context.Context) DecisionEvidenceArrayOutput
-}
-
-type DecisionEvidenceArray []DecisionEvidenceInput
-
-func (DecisionEvidenceArray) ElementType() reflect.Type {
-	return reflect.TypeOf((*[]DecisionEvidence)(nil)).Elem()
-}
-
-func (i DecisionEvidenceArray) ToDecisionEvidenceArrayOutput() DecisionEvidenceArrayOutput {
-	return i.ToDecisionEvidenceArrayOutputWithContext(context.Background())
-}
-
-func (i DecisionEvidenceArray) ToDecisionEvidenceArrayOutputWithContext(ctx context.Context) DecisionEvidenceArrayOutput {
-	return pulumi.ToOutputWithContext(ctx, i).(DecisionEvidenceArrayOutput)
-}
-
-// A selector for current Delivery preview evidence.
-type DecisionEvidenceOutput struct{ *pulumi.OutputState }
-
-func (DecisionEvidenceOutput) ElementType() reflect.Type {
-	return reflect.TypeOf((*DecisionEvidence)(nil)).Elem()
-}
-
-func (o DecisionEvidenceOutput) ToDecisionEvidenceOutput() DecisionEvidenceOutput {
-	return o
-}
-
-func (o DecisionEvidenceOutput) ToDecisionEvidenceOutputWithContext(ctx context.Context) DecisionEvidenceOutput {
-	return o
-}
-
-// Not supported for deliveryPreview.
-func (o DecisionEvidenceOutput) Id() pulumi.StringPtrOutput {
-	return o.ApplyT(func(v DecisionEvidence) *string { return v.Id }).(pulumi.StringPtrOutput)
-}
-
-// Evidence source: deliveryPreview.
-func (o DecisionEvidenceOutput) Source() pulumi.StringOutput {
-	return o.ApplyT(func(v DecisionEvidence) string { return v.Source }).(pulumi.StringOutput)
-}
-
-type DecisionEvidenceArrayOutput struct{ *pulumi.OutputState }
-
-func (DecisionEvidenceArrayOutput) ElementType() reflect.Type {
-	return reflect.TypeOf((*[]DecisionEvidence)(nil)).Elem()
-}
-
-func (o DecisionEvidenceArrayOutput) ToDecisionEvidenceArrayOutput() DecisionEvidenceArrayOutput {
-	return o
-}
-
-func (o DecisionEvidenceArrayOutput) ToDecisionEvidenceArrayOutputWithContext(ctx context.Context) DecisionEvidenceArrayOutput {
-	return o
-}
-
-func (o DecisionEvidenceArrayOutput) Index(i pulumi.IntInput) DecisionEvidenceOutput {
-	return pulumi.All(o, i).ApplyT(func(vs []interface{}) DecisionEvidence {
-		return vs[0].([]DecisionEvidence)[vs[1].(int)]
-	}).(DecisionEvidenceOutput)
-}
-
 // One narrow judgment in a decision rule.
 type DecisionQuestion struct {
 	// Question instructions for Delivery's configured decision engine.
@@ -898,8 +789,6 @@ type Rule struct {
 	Count *int `pulumi:"count"`
 	// Text for the person who continues a manual gate, for example what to check first.
 	Description *string `pulumi:"description"`
-	// Selectors for service-owned evidence for a decision rule.
-	Evidence []DecisionEvidence `pulumi:"evidence"`
 	// HTTP request headers. Secret values stay secret.
 	Headers map[string]string `pulumi:"headers"`
 	// Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
@@ -947,8 +836,6 @@ type RuleArgs struct {
 	Count pulumi.IntPtrInput `pulumi:"count"`
 	// Text for the person who continues a manual gate, for example what to check first.
 	Description pulumi.StringPtrInput `pulumi:"description"`
-	// Selectors for service-owned evidence for a decision rule.
-	Evidence DecisionEvidenceArrayInput `pulumi:"evidence"`
 	// HTTP request headers. Secret values stay secret.
 	Headers pulumi.StringMapInput `pulumi:"headers"`
 	// Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
@@ -1101,11 +988,6 @@ func (o RuleOutput) Description() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v Rule) *string { return v.Description }).(pulumi.StringPtrOutput)
 }
 
-// Selectors for service-owned evidence for a decision rule.
-func (o RuleOutput) Evidence() DecisionEvidenceArrayOutput {
-	return o.ApplyT(func(v Rule) []DecisionEvidence { return v.Evidence }).(DecisionEvidenceArrayOutput)
-}
-
 // HTTP request headers. Secret values stay secret.
 func (o RuleOutput) Headers() pulumi.StringMapOutput {
 	return o.ApplyT(func(v Rule) map[string]string { return v.Headers }).(pulumi.StringMapOutput)
@@ -1233,16 +1115,6 @@ func (o RulePtrOutput) Description() pulumi.StringPtrOutput {
 		}
 		return v.Description
 	}).(pulumi.StringPtrOutput)
-}
-
-// Selectors for service-owned evidence for a decision rule.
-func (o RulePtrOutput) Evidence() DecisionEvidenceArrayOutput {
-	return o.ApplyT(func(v *Rule) []DecisionEvidence {
-		if v == nil {
-			return nil
-		}
-		return v.Evidence
-	}).(DecisionEvidenceArrayOutput)
 }
 
 // HTTP request headers. Secret values stay secret.
@@ -1714,8 +1586,6 @@ func (o WorkflowsRuntimeArgsTypeOutput) AgentPool() pulumi.StringOutput {
 }
 
 func init() {
-	pulumi.RegisterInputType(reflect.TypeOf((*DecisionEvidenceInput)(nil)).Elem(), DecisionEvidenceArgs{})
-	pulumi.RegisterInputType(reflect.TypeOf((*DecisionEvidenceArrayInput)(nil)).Elem(), DecisionEvidenceArray{})
 	pulumi.RegisterInputType(reflect.TypeOf((*DecisionQuestionInput)(nil)).Elem(), DecisionQuestionArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*DecisionQuestionMapInput)(nil)).Elem(), DecisionQuestionMap{})
 	pulumi.RegisterInputType(reflect.TypeOf((*ImageInput)(nil)).Elem(), ImageArgs{})
@@ -1733,8 +1603,6 @@ func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*SourceTriggerPtrInput)(nil)).Elem(), SourceTriggerArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*StacksEntryInput)(nil)).Elem(), StacksEntryArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*StacksEntryMapInput)(nil)).Elem(), StacksEntryMap{})
-	pulumi.RegisterOutputType(DecisionEvidenceOutput{})
-	pulumi.RegisterOutputType(DecisionEvidenceArrayOutput{})
 	pulumi.RegisterOutputType(DecisionQuestionOutput{})
 	pulumi.RegisterOutputType(DecisionQuestionMapOutput{})
 	pulumi.RegisterOutputType(ImageOutput{})

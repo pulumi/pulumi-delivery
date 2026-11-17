@@ -46,8 +46,6 @@ type ApprovalResult struct {
 	Count *int `pulumi:"count"`
 	// Text for the person who continues a manual gate, for example what to check first.
 	Description *string `pulumi:"description"`
-	// Selectors for service-owned evidence for a decision rule.
-	Evidence []DecisionEvidence `pulumi:"evidence"`
 	// HTTP request headers. Secret values stay secret.
 	Headers map[string]string `pulumi:"headers"`
 	// Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
@@ -129,11 +127,6 @@ func (o ApprovalResultOutput) Count() pulumi.IntPtrOutput {
 // Text for the person who continues a manual gate, for example what to check first.
 func (o ApprovalResultOutput) Description() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v ApprovalResult) *string { return v.Description }).(pulumi.StringPtrOutput)
-}
-
-// Selectors for service-owned evidence for a decision rule.
-func (o ApprovalResultOutput) Evidence() DecisionEvidenceArrayOutput {
-	return o.ApplyT(func(v ApprovalResult) []DecisionEvidence { return v.Evidence }).(DecisionEvidenceArrayOutput)
 }
 
 // HTTP request headers. Secret values stay secret.

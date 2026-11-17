@@ -184,7 +184,7 @@ public final class DeliveryFunctions {
         return Deployment.getInstance().invokeAsync("delivery:index:approval", TypeShape.of(ApprovalResult.class), args, Utilities.withVersion(options));
     }
     /**
-     * Builds a decision rule for the when property of a Stage. Delivery resolves the selected evidence from the run, then evaluates the named judgments with its configured decision engine. The engine cannot approve a deployment by itself: Delivery applies the risk threshold of every question.
+     * Builds a decision rule for the when property of a Stage. When the stage contains stacks, Delivery resolves their current previews from the run, then evaluates the named judgments with its configured decision engine. The engine cannot approve a deployment by itself: Delivery applies the risk threshold of every question.
      * 
      * ## Example Usage
      * 
@@ -193,7 +193,7 @@ public final class DeliveryFunctions {
         return decision(args, InvokeOptions.Empty);
     }
     /**
-     * Builds a decision rule for the when property of a Stage. Delivery resolves the selected evidence from the run, then evaluates the named judgments with its configured decision engine. The engine cannot approve a deployment by itself: Delivery applies the risk threshold of every question.
+     * Builds a decision rule for the when property of a Stage. When the stage contains stacks, Delivery resolves their current previews from the run, then evaluates the named judgments with its configured decision engine. The engine cannot approve a deployment by itself: Delivery applies the risk threshold of every question.
      * 
      * ## Example Usage
      * 
@@ -202,7 +202,7 @@ public final class DeliveryFunctions {
         return decisionPlain(args, InvokeOptions.Empty);
     }
     /**
-     * Builds a decision rule for the when property of a Stage. Delivery resolves the selected evidence from the run, then evaluates the named judgments with its configured decision engine. The engine cannot approve a deployment by itself: Delivery applies the risk threshold of every question.
+     * Builds a decision rule for the when property of a Stage. When the stage contains stacks, Delivery resolves their current previews from the run, then evaluates the named judgments with its configured decision engine. The engine cannot approve a deployment by itself: Delivery applies the risk threshold of every question.
      * 
      * ## Example Usage
      * 
@@ -211,7 +211,7 @@ public final class DeliveryFunctions {
         return Deployment.getInstance().invoke("delivery:index:decision", TypeShape.of(DecisionResult.class), args, Utilities.withVersion(options));
     }
     /**
-     * Builds a decision rule for the when property of a Stage. Delivery resolves the selected evidence from the run, then evaluates the named judgments with its configured decision engine. The engine cannot approve a deployment by itself: Delivery applies the risk threshold of every question.
+     * Builds a decision rule for the when property of a Stage. When the stage contains stacks, Delivery resolves their current previews from the run, then evaluates the named judgments with its configured decision engine. The engine cannot approve a deployment by itself: Delivery applies the risk threshold of every question.
      * 
      * ## Example Usage
      * 
@@ -220,7 +220,7 @@ public final class DeliveryFunctions {
         return Deployment.getInstance().invoke("delivery:index:decision", TypeShape.of(DecisionResult.class), args, Utilities.withVersion(options));
     }
     /**
-     * Builds a decision rule for the when property of a Stage. Delivery resolves the selected evidence from the run, then evaluates the named judgments with its configured decision engine. The engine cannot approve a deployment by itself: Delivery applies the risk threshold of every question.
+     * Builds a decision rule for the when property of a Stage. When the stage contains stacks, Delivery resolves their current previews from the run, then evaluates the named judgments with its configured decision engine. The engine cannot approve a deployment by itself: Delivery applies the risk threshold of every question.
      * 
      * ## Example Usage
      * 

@@ -30,7 +30,6 @@ type Rule struct {
 	// Description tells the person who continues a manual gate what to check.
 	Description string                      `pulumi:"description,optional"`
 	Questions   map[string]DecisionQuestion `pulumi:"questions,optional"`
-	Evidence    []DecisionEvidence          `pulumi:"evidence,optional"`
 	Context     map[string]any              `pulumi:"context,optional"`
 }
 
@@ -38,12 +37,6 @@ type Rule struct {
 type DecisionQuestion struct {
 	Instructions string  `pulumi:"instructions"`
 	MaximumRisk  float64 `pulumi:"maximumRisk"`
-}
-
-// DecisionEvidence selects the current Delivery preview evidence for a decision.
-type DecisionEvidence struct {
-	Source string `pulumi:"source"`
-	ID     string `pulumi:"id,optional"`
 }
 
 // validateDuration checks an optional whole-second duration of an http rule.
@@ -183,19 +176,6 @@ func validateDecision(r Rule) error {
 			return fmt.Errorf("decision question %q maximumRisk must be between 0 and 1", name)
 		}
 	}
-	if len(r.Evidence) == 0 {
-		return errors.New("decision needs at least one evidence selector")
-	}
-	for _, evidence := range r.Evidence {
-		switch evidence.Source {
-		case "deliveryPreview":
-			if evidence.ID != "" {
-				return fmt.Errorf("decision evidence source %q does not accept id", evidence.Source)
-			}
-		default:
-			return fmt.Errorf("unsupported decision evidence source %q", evidence.Source)
-		}
-	}
 	return nil
 }
 
@@ -267,13 +247,12 @@ type DecisionArgs struct {
 	Name        string                      `pulumi:"name,optional"`
 	Description string                      `pulumi:"description,optional"`
 	Questions   map[string]DecisionQuestion `pulumi:"questions"`
-	Evidence    []DecisionEvidence          `pulumi:"evidence"`
 	Context     map[string]any              `pulumi:"context,optional"`
 }
 
 func (Decision) Invoke(ctx context.Context, req infer.FunctionRequest[DecisionArgs]) (infer.FunctionResponse[Rule], error) {
 	a := req.Input
-	rule := Rule{Kind: "decision", Name: a.Name, Description: a.Description, Questions: a.Questions, Evidence: a.Evidence, Context: a.Context}
+	rule := Rule{Kind: "decision", Name: a.Name, Description: a.Description, Questions: a.Questions, Context: a.Context}
 	if err := validateRule(rule, 1); err != nil {
 		return infer.FunctionResponse[Rule]{}, err
 	}

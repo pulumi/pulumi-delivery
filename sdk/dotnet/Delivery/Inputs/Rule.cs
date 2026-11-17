@@ -58,18 +58,6 @@ namespace Pulumi.Delivery.Delivery.Inputs
         [Input("description")]
         public string? Description { get; set; }
 
-        [Input("evidence")]
-        private List<Inputs.DecisionEvidence>? _evidence;
-
-        /// <summary>
-        /// Selectors for service-owned evidence for a decision rule.
-        /// </summary>
-        public List<Inputs.DecisionEvidence> Evidence
-        {
-            get => _evidence ?? (_evidence = new List<Inputs.DecisionEvidence>());
-            set => _evidence = value;
-        }
-
         [Input("headers")]
         private Dictionary<string, string>? _headers;
 

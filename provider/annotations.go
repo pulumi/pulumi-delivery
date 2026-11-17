@@ -42,12 +42,11 @@ func (r *Rule) Annotate(a infer.Annotator) {
 	a.Describe(&r.Rules, "Child rules for all and any rules. At least one is required.")
 	a.Describe(&r.Description, "Text for the person who continues a manual gate, for example what to check first.")
 	a.Describe(&r.Questions, "Named judgments and their deterministic risk thresholds for a decision rule.")
-	a.Describe(&r.Evidence, "Selectors for service-owned evidence for a decision rule.")
 	a.Describe(&r.Context, "Bounded, non-secret context supplied with a decision rule.")
 }
 
 func (r *Decision) Annotate(a infer.Annotator) {
-	a.Describe(r, `Builds a decision rule for the when property of a Stage. Delivery resolves the selected evidence from the run, then evaluates the named judgments with its configured decision engine. The engine cannot approve a deployment by itself: Delivery applies the risk threshold of every question.
+	a.Describe(r, `Builds a decision rule for the when property of a Stage. When the stage contains stacks, Delivery resolves their current previews from the run, then evaluates the named judgments with its configured decision engine. The engine cannot approve a deployment by itself: Delivery applies the risk threshold of every question.
 
 ## Example Usage
 
@@ -58,7 +57,6 @@ new delivery.Stage("prod", {
     pipeline,
     from: [dev],
     when: delivery.decision({
-        evidence: [{ source: "deliveryPreview" }],
         questions: {
             unsafe: {
                 instructions: "Does preview.value describe an unsafe change?",
@@ -75,7 +73,6 @@ func (r *DecisionArgs) Annotate(a infer.Annotator) {
 	a.Describe(&r.Name, "Rule name. Omit it to let Delivery assign one.")
 	a.Describe(&r.Description, "Description shown with the gate.")
 	a.Describe(&r.Questions, "Named judgments. Every judgment must have instructions and a maximum risk from zero to one.")
-	a.Describe(&r.Evidence, "Current Delivery preview evidence to resolve.")
 	a.Describe(&r.Context, "Optional bounded, non-secret JSON-like context. Delivery labels it as a caller claim and does not fetch URLs or resolve credentials from it.")
 }
 
@@ -83,12 +80,6 @@ func (r *DecisionQuestion) Annotate(a infer.Annotator) {
 	a.Describe(r, "One narrow judgment in a decision rule.")
 	a.Describe(&r.Instructions, "Question instructions for Delivery's configured decision engine.")
 	a.Describe(&r.MaximumRisk, "Largest permitted probability that the judgment is true, from zero to one.")
-}
-
-func (r *DecisionEvidence) Annotate(a infer.Annotator) {
-	a.Describe(r, "A selector for current Delivery preview evidence.")
-	a.Describe(&r.Source, "Evidence source: deliveryPreview.")
-	a.Describe(&r.ID, "Not supported for deliveryPreview.")
 }
 
 func (r *Approval) Annotate(a infer.Annotator) {

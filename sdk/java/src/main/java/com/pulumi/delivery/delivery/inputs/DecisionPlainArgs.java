@@ -4,12 +4,10 @@
 package com.pulumi.delivery.delivery.inputs;
 
 import com.pulumi.core.annotations.Import;
-import com.pulumi.delivery.delivery.inputs.DecisionEvidence;
 import com.pulumi.delivery.delivery.inputs.DecisionQuestion;
 import com.pulumi.exceptions.MissingRequiredPropertyException;
 import java.lang.Object;
 import java.lang.String;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -51,21 +49,6 @@ public final class DecisionPlainArgs extends com.pulumi.resources.InvokeArgs {
     }
 
     /**
-     * Current Delivery preview evidence to resolve.
-     * 
-     */
-    @Import(name="evidence", required=true)
-    private List<DecisionEvidence> evidence;
-
-    /**
-     * @return Current Delivery preview evidence to resolve.
-     * 
-     */
-    public List<DecisionEvidence> evidence() {
-        return this.evidence;
-    }
-
-    /**
      * Rule name. Omit it to let Delivery assign one.
      * 
      */
@@ -100,7 +83,6 @@ public final class DecisionPlainArgs extends com.pulumi.resources.InvokeArgs {
     private DecisionPlainArgs(DecisionPlainArgs $) {
         this.context = $.context;
         this.description = $.description;
-        this.evidence = $.evidence;
         this.name = $.name;
         this.questions = $.questions;
     }
@@ -146,27 +128,6 @@ public final class DecisionPlainArgs extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param evidence Current Delivery preview evidence to resolve.
-         * 
-         * @return builder
-         * 
-         */
-        public Builder evidence(List<DecisionEvidence> evidence) {
-            $.evidence = evidence;
-            return this;
-        }
-
-        /**
-         * @param evidence Current Delivery preview evidence to resolve.
-         * 
-         * @return builder
-         * 
-         */
-        public Builder evidence(DecisionEvidence... evidence) {
-            return evidence(List.of(evidence));
-        }
-
-        /**
          * @param name Rule name. Omit it to let Delivery assign one.
          * 
          * @return builder
@@ -189,9 +150,6 @@ public final class DecisionPlainArgs extends com.pulumi.resources.InvokeArgs {
         }
 
         public DecisionPlainArgs build() {
-            if ($.evidence == null) {
-                throw new MissingRequiredPropertyException("DecisionPlainArgs", "evidence");
-            }
             if ($.questions == null) {
                 throw new MissingRequiredPropertyException("DecisionPlainArgs", "questions");
             }

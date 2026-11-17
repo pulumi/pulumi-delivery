@@ -4,7 +4,6 @@
 package com.pulumi.delivery.delivery.inputs;
 
 import com.pulumi.core.annotations.Import;
-import com.pulumi.delivery.delivery.inputs.DecisionEvidence;
 import com.pulumi.delivery.delivery.inputs.DecisionQuestion;
 import com.pulumi.exceptions.MissingRequiredPropertyException;
 import java.lang.Integer;
@@ -98,21 +97,6 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
      */
     public Optional<String> description() {
         return Optional.ofNullable(this.description);
-    }
-
-    /**
-     * Selectors for service-owned evidence for a decision rule.
-     * 
-     */
-    @Import(name="evidence")
-    private @Nullable List<DecisionEvidence> evidence;
-
-    /**
-     * @return Selectors for service-owned evidence for a decision rule.
-     * 
-     */
-    public Optional<List<DecisionEvidence>> evidence() {
-        return Optional.ofNullable(this.evidence);
     }
 
     /**
@@ -288,7 +272,6 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
         this.context = $.context;
         this.count = $.count;
         this.description = $.description;
-        this.evidence = $.evidence;
         this.headers = $.headers;
         this.headersEnvironment = $.headersEnvironment;
         this.interval = $.interval;
@@ -383,27 +366,6 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
         public Builder description(@Nullable String description) {
             $.description = description;
             return this;
-        }
-
-        /**
-         * @param evidence Selectors for service-owned evidence for a decision rule.
-         * 
-         * @return builder
-         * 
-         */
-        public Builder evidence(@Nullable List<DecisionEvidence> evidence) {
-            $.evidence = evidence;
-            return this;
-        }
-
-        /**
-         * @param evidence Selectors for service-owned evidence for a decision rule.
-         * 
-         * @return builder
-         * 
-         */
-        public Builder evidence(DecisionEvidence... evidence) {
-            return evidence(List.of(evidence));
         }
 
         /**

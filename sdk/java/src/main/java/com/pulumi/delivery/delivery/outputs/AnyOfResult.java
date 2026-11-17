@@ -4,7 +4,6 @@
 package com.pulumi.delivery.delivery.outputs;
 
 import com.pulumi.core.annotations.CustomType;
-import com.pulumi.delivery.delivery.outputs.DecisionEvidence;
 import com.pulumi.delivery.delivery.outputs.DecisionQuestion;
 import com.pulumi.delivery.delivery.outputs.Rule;
 import com.pulumi.exceptions.MissingRequiredPropertyException;
@@ -44,11 +43,6 @@ public final class AnyOfResult {
      * 
      */
     private @Nullable String description;
-    /**
-     * @return Selectors for service-owned evidence for a decision rule.
-     * 
-     */
-    private @Nullable List<DecisionEvidence> evidence;
     /**
      * @return HTTP request headers. Secret values stay secret.
      * 
@@ -142,13 +136,6 @@ public final class AnyOfResult {
         return Optional.ofNullable(this.description);
     }
     /**
-     * @return Selectors for service-owned evidence for a decision rule.
-     * 
-     */
-    public List<DecisionEvidence> evidence() {
-        return this.evidence == null ? List.of() : this.evidence;
-    }
-    /**
      * @return HTTP request headers. Secret values stay secret.
      * 
      */
@@ -240,7 +227,6 @@ public final class AnyOfResult {
         private @Nullable Map<String,Object> context;
         private @Nullable Integer count;
         private @Nullable String description;
-        private @Nullable List<DecisionEvidence> evidence;
         private @Nullable Map<String,String> headers;
         private @Nullable String headersEnvironment;
         private @Nullable String interval;
@@ -260,7 +246,6 @@ public final class AnyOfResult {
     	      this.context = defaults.context;
     	      this.count = defaults.count;
     	      this.description = defaults.description;
-    	      this.evidence = defaults.evidence;
     	      this.headers = defaults.headers;
     	      this.headersEnvironment = defaults.headersEnvironment;
     	      this.interval = defaults.interval;
@@ -306,15 +291,6 @@ public final class AnyOfResult {
 
             this.description = description;
             return this;
-        }
-        @CustomType.Setter
-        public Builder evidence(@Nullable List<DecisionEvidence> evidence) {
-
-            this.evidence = evidence;
-            return this;
-        }
-        public Builder evidence(DecisionEvidence... evidence) {
-            return evidence(List.of(evidence));
         }
         @CustomType.Setter
         public Builder headers(@Nullable Map<String,String> headers) {
@@ -394,7 +370,6 @@ public final class AnyOfResult {
             _resultValue.context = context;
             _resultValue.count = count;
             _resultValue.description = description;
-            _resultValue.evidence = evidence;
             _resultValue.headers = headers;
             _resultValue.headersEnvironment = headersEnvironment;
             _resultValue.interval = interval;

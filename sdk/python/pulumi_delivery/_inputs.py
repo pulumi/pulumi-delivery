@@ -20,10 +20,6 @@ from .git_lab_source import GitLabSource
 from .workflows_runtime import WorkflowsRuntime
 
 __all__ = [
-    'DecisionEvidence',
-    'DecisionEvidenceDict',
-    'DecisionEvidenceArgs',
-    'DecisionEvidenceArgsDict',
     'DecisionQuestion',
     'DecisionQuestionDict',
     'DecisionQuestionArgs',
@@ -45,112 +41,6 @@ __all__ = [
     'StacksEntryArgs',
     'StacksEntryArgsDict',
 ]
-
-class DecisionEvidenceDict(TypedDict):
-    """
-    A selector for current Delivery preview evidence.
-    """
-    source: _builtins.str
-    """
-    Evidence source: deliveryPreview.
-    """
-    id: NotRequired[_builtins.str]
-    """
-    Not supported for deliveryPreview.
-    """
-
-@pulumi.input_type
-class DecisionEvidence:
-    def __init__(__self__, *,
-                 source: _builtins.str,
-                 id: Optional[_builtins.str] = None):
-        """
-        A selector for current Delivery preview evidence.
-
-        :param _builtins.str source: Evidence source: deliveryPreview.
-        :param _builtins.str id: Not supported for deliveryPreview.
-        """
-        pulumi.set(__self__, "source", source)
-        if id is not None:
-            pulumi.set(__self__, "id", id)
-
-    @_builtins.property
-    @pulumi.getter
-    def source(self) -> _builtins.str:
-        """
-        Evidence source: deliveryPreview.
-        """
-        return pulumi.get(self, "source")
-
-    @source.setter
-    def source(self, value: _builtins.str):
-        pulumi.set(self, "source", value)
-
-    @_builtins.property
-    @pulumi.getter
-    def id(self) -> Optional[_builtins.str]:
-        """
-        Not supported for deliveryPreview.
-        """
-        return pulumi.get(self, "id")
-
-    @id.setter
-    def id(self, value: Optional[_builtins.str]):
-        pulumi.set(self, "id", value)
-
-
-class DecisionEvidenceArgsDict(TypedDict):
-    """
-    A selector for current Delivery preview evidence.
-    """
-    source: pulumi.Input[_builtins.str]
-    """
-    Evidence source: deliveryPreview.
-    """
-    id: NotRequired[pulumi.Input[Optional[_builtins.str]]]
-    """
-    Not supported for deliveryPreview.
-    """
-
-@pulumi.input_type
-class DecisionEvidenceArgs:
-    def __init__(__self__, *,
-                 source: pulumi.Input[_builtins.str],
-                 id: pulumi.Input[Optional[_builtins.str]] = None):
-        """
-        A selector for current Delivery preview evidence.
-
-        :param pulumi.Input[_builtins.str] source: Evidence source: deliveryPreview.
-        :param pulumi.Input[_builtins.str] id: Not supported for deliveryPreview.
-        """
-        pulumi.set(__self__, "source", source)
-        if id is not None:
-            pulumi.set(__self__, "id", id)
-
-    @_builtins.property
-    @pulumi.getter
-    def source(self) -> pulumi.Input[_builtins.str]:
-        """
-        Evidence source: deliveryPreview.
-        """
-        return pulumi.get(self, "source")
-
-    @source.setter
-    def source(self, value: pulumi.Input[_builtins.str]):
-        pulumi.set(self, "source", value)
-
-    @_builtins.property
-    @pulumi.getter
-    def id(self) -> pulumi.Input[Optional[_builtins.str]]:
-        """
-        Not supported for deliveryPreview.
-        """
-        return pulumi.get(self, "id")
-
-    @id.setter
-    def id(self, value: pulumi.Input[Optional[_builtins.str]]):
-        pulumi.set(self, "id", value)
-
 
 class DecisionQuestionDict(TypedDict):
     """
@@ -516,10 +406,6 @@ class RuleDict(TypedDict):
     """
     Text for the person who continues a manual gate, for example what to check first.
     """
-    evidence: NotRequired[Sequence['DecisionEvidenceDict']]
-    """
-    Selectors for service-owned evidence for a decision rule.
-    """
     headers: NotRequired[Mapping[str, _builtins.str]]
     """
     HTTP request headers. Secret values stay secret.
@@ -570,7 +456,6 @@ class Rule:
                  context: Optional[Mapping[str, Any]] = None,
                  count: Optional[_builtins.int] = None,
                  description: Optional[_builtins.str] = None,
-                 evidence: Optional[Sequence['DecisionEvidence']] = None,
                  headers: Optional[Mapping[str, _builtins.str]] = None,
                  headers_environment: Optional[_builtins.str] = None,
                  interval: Optional[_builtins.str] = None,
@@ -590,7 +475,6 @@ class Rule:
         :param Mapping[str, Any] context: Bounded, non-secret context supplied with a decision rule.
         :param _builtins.int count: Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
         :param _builtins.str description: Text for the person who continues a manual gate, for example what to check first.
-        :param Sequence['DecisionEvidence'] evidence: Selectors for service-owned evidence for a decision rule.
         :param Mapping[str, _builtins.str] headers: HTTP request headers. Secret values stay secret.
         :param _builtins.str headers_environment: Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
         :param _builtins.str interval: Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
@@ -613,8 +497,6 @@ class Rule:
             pulumi.set(__self__, "count", count)
         if description is not None:
             pulumi.set(__self__, "description", description)
-        if evidence is not None:
-            pulumi.set(__self__, "evidence", evidence)
         if headers is not None:
             pulumi.set(__self__, "headers", headers)
         if headers_environment is not None:
@@ -707,18 +589,6 @@ class Rule:
     @description.setter
     def description(self, value: Optional[_builtins.str]):
         pulumi.set(self, "description", value)
-
-    @_builtins.property
-    @pulumi.getter
-    def evidence(self) -> Optional[Sequence['DecisionEvidence']]:
-        """
-        Selectors for service-owned evidence for a decision rule.
-        """
-        return pulumi.get(self, "evidence")
-
-    @evidence.setter
-    def evidence(self, value: Optional[Sequence['DecisionEvidence']]):
-        pulumi.set(self, "evidence", value)
 
     @_builtins.property
     @pulumi.getter
@@ -869,10 +739,6 @@ class RuleArgsDict(TypedDict):
     """
     Text for the person who continues a manual gate, for example what to check first.
     """
-    evidence: NotRequired[pulumi.Input[Optional[Sequence[pulumi.Input['DecisionEvidenceArgsDict']]]]]
-    """
-    Selectors for service-owned evidence for a decision rule.
-    """
     headers: NotRequired[pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]]]
     """
     HTTP request headers. Secret values stay secret.
@@ -923,7 +789,6 @@ class RuleArgs:
                  context: pulumi.Input[Optional[Mapping[str, Any]]] = None,
                  count: pulumi.Input[Optional[_builtins.int]] = None,
                  description: pulumi.Input[Optional[_builtins.str]] = None,
-                 evidence: pulumi.Input[Optional[Sequence[pulumi.Input['DecisionEvidenceArgs']]]] = None,
                  headers: pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
                  headers_environment: pulumi.Input[Optional[_builtins.str]] = None,
                  interval: pulumi.Input[Optional[_builtins.str]] = None,
@@ -943,7 +808,6 @@ class RuleArgs:
         :param pulumi.Input[Mapping[str, Any]] context: Bounded, non-secret context supplied with a decision rule.
         :param pulumi.Input[_builtins.int] count: Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
         :param pulumi.Input[_builtins.str] description: Text for the person who continues a manual gate, for example what to check first.
-        :param pulumi.Input[Sequence[pulumi.Input['DecisionEvidenceArgs']]] evidence: Selectors for service-owned evidence for a decision rule.
         :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] headers: HTTP request headers. Secret values stay secret.
         :param pulumi.Input[_builtins.str] headers_environment: Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
         :param pulumi.Input[_builtins.str] interval: Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
@@ -966,8 +830,6 @@ class RuleArgs:
             pulumi.set(__self__, "count", count)
         if description is not None:
             pulumi.set(__self__, "description", description)
-        if evidence is not None:
-            pulumi.set(__self__, "evidence", evidence)
         if headers is not None:
             pulumi.set(__self__, "headers", headers)
         if headers_environment is not None:
@@ -1060,18 +922,6 @@ class RuleArgs:
     @description.setter
     def description(self, value: pulumi.Input[Optional[_builtins.str]]):
         pulumi.set(self, "description", value)
-
-    @_builtins.property
-    @pulumi.getter
-    def evidence(self) -> pulumi.Input[Optional[Sequence[pulumi.Input['DecisionEvidenceArgs']]]]:
-        """
-        Selectors for service-owned evidence for a decision rule.
-        """
-        return pulumi.get(self, "evidence")
-
-    @evidence.setter
-    def evidence(self, value: pulumi.Input[Optional[Sequence[pulumi.Input['DecisionEvidenceArgs']]]]):
-        pulumi.set(self, "evidence", value)
 
     @_builtins.property
     @pulumi.getter

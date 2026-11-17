@@ -5,7 +5,6 @@ package com.pulumi.delivery.delivery.inputs;
 
 import com.pulumi.core.Output;
 import com.pulumi.core.annotations.Import;
-import com.pulumi.delivery.delivery.inputs.DecisionEvidenceArgs;
 import com.pulumi.delivery.delivery.inputs.DecisionQuestionArgs;
 import com.pulumi.exceptions.MissingRequiredPropertyException;
 import java.lang.Integer;
@@ -99,21 +98,6 @@ public final class RuleArgs extends com.pulumi.resources.ResourceArgs {
      */
     public Optional<Output<String>> description() {
         return Optional.ofNullable(this.description);
-    }
-
-    /**
-     * Selectors for service-owned evidence for a decision rule.
-     * 
-     */
-    @Import(name="evidence")
-    private @Nullable Output<List<DecisionEvidenceArgs>> evidence;
-
-    /**
-     * @return Selectors for service-owned evidence for a decision rule.
-     * 
-     */
-    public Optional<Output<List<DecisionEvidenceArgs>>> evidence() {
-        return Optional.ofNullable(this.evidence);
     }
 
     /**
@@ -289,7 +273,6 @@ public final class RuleArgs extends com.pulumi.resources.ResourceArgs {
         this.context = $.context;
         this.count = $.count;
         this.description = $.description;
-        this.evidence = $.evidence;
         this.headers = $.headers;
         this.headersEnvironment = $.headersEnvironment;
         this.interval = $.interval;
@@ -434,37 +417,6 @@ public final class RuleArgs extends com.pulumi.resources.ResourceArgs {
          */
         public Builder description(String description) {
             return description(Output.of(description));
-        }
-
-        /**
-         * @param evidence Selectors for service-owned evidence for a decision rule.
-         * 
-         * @return builder
-         * 
-         */
-        public Builder evidence(@Nullable Output<List<DecisionEvidenceArgs>> evidence) {
-            $.evidence = evidence;
-            return this;
-        }
-
-        /**
-         * @param evidence Selectors for service-owned evidence for a decision rule.
-         * 
-         * @return builder
-         * 
-         */
-        public Builder evidence(List<DecisionEvidenceArgs> evidence) {
-            return evidence(Output.of(evidence));
-        }
-
-        /**
-         * @param evidence Selectors for service-owned evidence for a decision rule.
-         * 
-         * @return builder
-         * 
-         */
-        public Builder evidence(DecisionEvidenceArgs... evidence) {
-            return evidence(List.of(evidence));
         }
 
         /**

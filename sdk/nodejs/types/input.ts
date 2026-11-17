@@ -8,34 +8,6 @@ import * as outputs from "../types/output";
 import {AzureDevOpsSource, BitbucketSource, GitHubSource, GitLabSource, WorkflowsRuntime} from "..";
 
 /**
- * A selector for current Delivery preview evidence.
- */
-export interface DecisionEvidence {
-    /**
-     * Not supported for deliveryPreview.
-     */
-    id?: string;
-    /**
-     * Evidence source: deliveryPreview.
-     */
-    source: string;
-}
-
-/**
- * A selector for current Delivery preview evidence.
- */
-export interface DecisionEvidenceArgs {
-    /**
-     * Not supported for deliveryPreview.
-     */
-    id?: pulumi.Input<string | undefined>;
-    /**
-     * Evidence source: deliveryPreview.
-     */
-    source: pulumi.Input<string>;
-}
-
-/**
  * One narrow judgment in a decision rule.
  */
 export interface DecisionQuestion {
@@ -148,10 +120,6 @@ export interface Rule {
      */
     description?: string;
     /**
-     * Selectors for service-owned evidence for a decision rule.
-     */
-    evidence?: inputs.DecisionEvidence[];
-    /**
      * HTTP request headers. Secret values stay secret.
      */
     headers?: {[key: string]: string};
@@ -221,10 +189,6 @@ export interface RuleArgs {
      * Text for the person who continues a manual gate, for example what to check first.
      */
     description?: pulumi.Input<string | undefined>;
-    /**
-     * Selectors for service-owned evidence for a decision rule.
-     */
-    evidence?: pulumi.Input<pulumi.Input<inputs.DecisionEvidenceArgs>[] | undefined>;
     /**
      * HTTP request headers. Secret values stay secret.
      */

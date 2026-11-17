@@ -28,7 +28,7 @@ class DecisionResult:
     """
     Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.
     """
-    def __init__(__self__, approvers=None, body=None, context=None, count=None, description=None, evidence=None, headers=None, headers_environment=None, interval=None, kind=None, method=None, name=None, questions=None, rules=None, success_expression=None, timeout=None, url=None):
+    def __init__(__self__, approvers=None, body=None, context=None, count=None, description=None, headers=None, headers_environment=None, interval=None, kind=None, method=None, name=None, questions=None, rules=None, success_expression=None, timeout=None, url=None):
         if approvers and not isinstance(approvers, list):
             raise TypeError("Expected argument 'approvers' to be a list")
         pulumi.set(__self__, "approvers", approvers)
@@ -44,9 +44,6 @@ class DecisionResult:
         if description and not isinstance(description, str):
             raise TypeError("Expected argument 'description' to be a str")
         pulumi.set(__self__, "description", description)
-        if evidence and not isinstance(evidence, list):
-            raise TypeError("Expected argument 'evidence' to be a list")
-        pulumi.set(__self__, "evidence", evidence)
         if headers and not isinstance(headers, dict):
             raise TypeError("Expected argument 'headers' to be a dict")
         pulumi.set(__self__, "headers", headers)
@@ -120,14 +117,6 @@ class DecisionResult:
         Text for the person who continues a manual gate, for example what to check first.
         """
         return pulumi.get(self, "description")
-
-    @_builtins.property
-    @pulumi.getter
-    def evidence(self) -> Optional[Sequence['outputs.DecisionEvidence']]:
-        """
-        Selectors for service-owned evidence for a decision rule.
-        """
-        return pulumi.get(self, "evidence")
 
     @_builtins.property
     @pulumi.getter
@@ -229,7 +218,6 @@ class AwaitableDecisionResult(DecisionResult):
             context=self.context,
             count=self.count,
             description=self.description,
-            evidence=self.evidence,
             headers=self.headers,
             headers_environment=self.headers_environment,
             interval=self.interval,
@@ -245,25 +233,22 @@ class AwaitableDecisionResult(DecisionResult):
 
 def decision(context: Optional[Mapping[str, Any]] = None,
              description: Optional[_builtins.str] = None,
-             evidence: Optional[Sequence[Union['DecisionEvidence', 'DecisionEvidenceDict', 'outputs.DecisionEvidence']]] = None,
              name: Optional[_builtins.str] = None,
              questions: Optional[Mapping[str, Union['DecisionQuestion', 'DecisionQuestionDict', 'outputs.DecisionQuestion']]] = None,
              opts: Optional[pulumi.InvokeOptions] = None) -> AwaitableDecisionResult:
     """
-    Builds a decision rule for the when property of a Stage. Delivery resolves the selected evidence from the run, then evaluates the named judgments with its configured decision engine. The engine cannot approve a deployment by itself: Delivery applies the risk threshold of every question.
+    Builds a decision rule for the when property of a Stage. When the stage contains stacks, Delivery resolves their current previews from the run, then evaluates the named judgments with its configured decision engine. The engine cannot approve a deployment by itself: Delivery applies the risk threshold of every question.
 
     ## Example Usage
 
     :param Mapping[str, Any] context: Optional bounded, non-secret JSON-like context. Delivery labels it as a caller claim and does not fetch URLs or resolve credentials from it.
     :param _builtins.str description: Description shown with the gate.
-    :param Sequence[Union['DecisionEvidence', 'DecisionEvidenceDict', 'outputs.DecisionEvidence']] evidence: Current Delivery preview evidence to resolve.
     :param _builtins.str name: Rule name. Omit it to let Delivery assign one.
     :param Mapping[str, Union['DecisionQuestion', 'DecisionQuestionDict', 'outputs.DecisionQuestion']] questions: Named judgments. Every judgment must have instructions and a maximum risk from zero to one.
     """
     __args__ = dict()
     __args__['context'] = context
     __args__['description'] = description
-    __args__['evidence'] = evidence
     __args__['name'] = name
     __args__['questions'] = questions
     opts = pulumi.InvokeOptions.merge(_utilities.get_invoke_opts_defaults(), opts)
@@ -275,7 +260,6 @@ def decision(context: Optional[Mapping[str, Any]] = None,
         context=pulumi.get(__ret__, 'context'),
         count=pulumi.get(__ret__, 'count'),
         description=pulumi.get(__ret__, 'description'),
-        evidence=pulumi.get(__ret__, 'evidence'),
         headers=pulumi.get(__ret__, 'headers'),
         headers_environment=pulumi.get(__ret__, 'headers_environment'),
         interval=pulumi.get(__ret__, 'interval'),
@@ -289,25 +273,22 @@ def decision(context: Optional[Mapping[str, Any]] = None,
         url=pulumi.get(__ret__, 'url'))
 def decision_output(context: pulumi.Input[Optional[Optional[Mapping[str, Any]]]] = None,
                     description: pulumi.Input[Optional[Optional[_builtins.str]]] = None,
-                    evidence: pulumi.Input[Optional[Sequence[Union['DecisionEvidence', 'DecisionEvidenceDict', 'outputs.DecisionEvidence']]]] = None,
                     name: pulumi.Input[Optional[Optional[_builtins.str]]] = None,
                     questions: pulumi.Input[Optional[Mapping[str, Union['DecisionQuestion', 'DecisionQuestionDict', 'outputs.DecisionQuestion']]]] = None,
                     opts: Optional[Union[pulumi.InvokeOptions, pulumi.InvokeOutputOptions]] = None) -> pulumi.Output[DecisionResult]:
     """
-    Builds a decision rule for the when property of a Stage. Delivery resolves the selected evidence from the run, then evaluates the named judgments with its configured decision engine. The engine cannot approve a deployment by itself: Delivery applies the risk threshold of every question.
+    Builds a decision rule for the when property of a Stage. When the stage contains stacks, Delivery resolves their current previews from the run, then evaluates the named judgments with its configured decision engine. The engine cannot approve a deployment by itself: Delivery applies the risk threshold of every question.
 
     ## Example Usage
 
     :param Mapping[str, Any] context: Optional bounded, non-secret JSON-like context. Delivery labels it as a caller claim and does not fetch URLs or resolve credentials from it.
     :param _builtins.str description: Description shown with the gate.
-    :param Sequence[Union['DecisionEvidence', 'DecisionEvidenceDict', 'outputs.DecisionEvidence']] evidence: Current Delivery preview evidence to resolve.
     :param _builtins.str name: Rule name. Omit it to let Delivery assign one.
     :param Mapping[str, Union['DecisionQuestion', 'DecisionQuestionDict', 'outputs.DecisionQuestion']] questions: Named judgments. Every judgment must have instructions and a maximum risk from zero to one.
     """
     __args__ = dict()
     __args__['context'] = context
     __args__['description'] = description
-    __args__['evidence'] = evidence
     __args__['name'] = name
     __args__['questions'] = questions
     opts = pulumi.InvokeOutputOptions.merge(_utilities.get_invoke_opts_defaults(), opts)
@@ -318,7 +299,6 @@ def decision_output(context: pulumi.Input[Optional[Optional[Mapping[str, Any]]]]
         context=pulumi.get(__response__, 'context'),
         count=pulumi.get(__response__, 'count'),
         description=pulumi.get(__response__, 'description'),
-        evidence=pulumi.get(__response__, 'evidence'),
         headers=pulumi.get(__response__, 'headers'),
         headers_environment=pulumi.get(__response__, 'headers_environment'),
         interval=pulumi.get(__response__, 'interval'),

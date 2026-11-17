@@ -11,7 +11,7 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-// Builds a decision rule for the when property of a Stage. Delivery resolves the selected evidence from the run, then evaluates the named judgments with its configured decision engine. The engine cannot approve a deployment by itself: Delivery applies the risk threshold of every question.
+// Builds a decision rule for the when property of a Stage. When the stage contains stacks, Delivery resolves their current previews from the run, then evaluates the named judgments with its configured decision engine. The engine cannot approve a deployment by itself: Delivery applies the risk threshold of every question.
 //
 // ## Example Usage
 func Decision(ctx *pulumi.Context, args *DecisionArgs, opts ...pulumi.InvokeOption) (*DecisionResult, error) {
@@ -30,8 +30,6 @@ type DecisionArgs struct {
 	Context map[string]interface{} `pulumi:"context"`
 	// Description shown with the gate.
 	Description *string `pulumi:"description"`
-	// Current Delivery preview evidence to resolve.
-	Evidence []DecisionEvidence `pulumi:"evidence"`
 	// Rule name. Omit it to let Delivery assign one.
 	Name *string `pulumi:"name"`
 	// Named judgments. Every judgment must have instructions and a maximum risk from zero to one.
@@ -50,8 +48,6 @@ type DecisionResult struct {
 	Count *int `pulumi:"count"`
 	// Text for the person who continues a manual gate, for example what to check first.
 	Description *string `pulumi:"description"`
-	// Selectors for service-owned evidence for a decision rule.
-	Evidence []DecisionEvidence `pulumi:"evidence"`
 	// HTTP request headers. Secret values stay secret.
 	Headers map[string]string `pulumi:"headers"`
 	// Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
@@ -87,8 +83,6 @@ type DecisionOutputArgs struct {
 	Context pulumi.MapInput `pulumi:"context"`
 	// Description shown with the gate.
 	Description pulumi.StringPtrInput `pulumi:"description"`
-	// Current Delivery preview evidence to resolve.
-	Evidence DecisionEvidenceArrayInput `pulumi:"evidence"`
 	// Rule name. Omit it to let Delivery assign one.
 	Name pulumi.StringPtrInput `pulumi:"name"`
 	// Named judgments. Every judgment must have instructions and a maximum risk from zero to one.
@@ -137,11 +131,6 @@ func (o DecisionResultOutput) Count() pulumi.IntPtrOutput {
 // Text for the person who continues a manual gate, for example what to check first.
 func (o DecisionResultOutput) Description() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v DecisionResult) *string { return v.Description }).(pulumi.StringPtrOutput)
-}
-
-// Selectors for service-owned evidence for a decision rule.
-func (o DecisionResultOutput) Evidence() DecisionEvidenceArrayOutput {
-	return o.ApplyT(func(v DecisionResult) []DecisionEvidence { return v.Evidence }).(DecisionEvidenceArrayOutput)
 }
 
 // HTTP request headers. Secret values stay secret.

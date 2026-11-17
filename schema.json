@@ -50,23 +50,6 @@
     }
   },
   "types": {
-    "delivery:index:DecisionEvidence": {
-      "description": "A selector for current Delivery preview evidence.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Not supported for deliveryPreview."
-        },
-        "source": {
-          "type": "string",
-          "description": "Evidence source: deliveryPreview."
-        }
-      },
-      "type": "object",
-      "required": [
-        "source"
-      ]
-    },
     "delivery:index:DecisionQuestion": {
       "description": "One narrow judgment in a decision rule.",
       "properties": {
@@ -184,13 +167,6 @@
         "description": {
           "type": "string",
           "description": "Text for the person who continues a manual gate, for example what to check first."
-        },
-        "evidence": {
-          "type": "array",
-          "items": {
-            "$ref": "#/types/delivery:index:DecisionEvidence"
-          },
-          "description": "Selectors for service-owned evidence for a decision rule."
         },
         "headers": {
           "type": "object",
@@ -868,13 +844,6 @@
             "description": "Text for the person who continues a manual gate, for example what to check first.",
             "type": "string"
           },
-          "evidence": {
-            "description": "Selectors for service-owned evidence for a decision rule.",
-            "items": {
-              "$ref": "#/types/delivery:index:DecisionEvidence"
-            },
-            "type": "array"
-          },
           "headers": {
             "additionalProperties": {
               "type": "string"
@@ -985,13 +954,6 @@
           "description": {
             "description": "Text for the person who continues a manual gate, for example what to check first.",
             "type": "string"
-          },
-          "evidence": {
-            "description": "Selectors for service-owned evidence for a decision rule.",
-            "items": {
-              "$ref": "#/types/delivery:index:DecisionEvidence"
-            },
-            "type": "array"
           },
           "headers": {
             "additionalProperties": {
@@ -1105,13 +1067,6 @@
             "description": "Text for the person who continues a manual gate, for example what to check first.",
             "type": "string"
           },
-          "evidence": {
-            "description": "Selectors for service-owned evidence for a decision rule.",
-            "items": {
-              "$ref": "#/types/delivery:index:DecisionEvidence"
-            },
-            "type": "array"
-          },
           "headers": {
             "additionalProperties": {
               "type": "string"
@@ -1173,7 +1128,7 @@
       }
     },
     "delivery:index:decision": {
-      "description": "Builds a decision rule for the when property of a Stage. Delivery resolves the selected evidence from the run, then evaluates the named judgments with its configured decision engine. The engine cannot approve a deployment by itself: Delivery applies the risk threshold of every question.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nnew delivery.Stage(\"prod\", {\n    pipeline,\n    from: [dev],\n    when: delivery.decision({\n        evidence: [{ source: \"deliveryPreview\" }],\n        questions: {\n            unsafe: {\n                instructions: \"Does preview.value describe an unsafe change?\",\n                maximumRisk: 0.05,\n            },\n        },\n    }),\n});\n```",
+      "description": "Builds a decision rule for the when property of a Stage. When the stage contains stacks, Delivery resolves their current previews from the run, then evaluates the named judgments with its configured decision engine. The engine cannot approve a deployment by itself: Delivery applies the risk threshold of every question.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nnew delivery.Stage(\"prod\", {\n    pipeline,\n    from: [dev],\n    when: delivery.decision({\n        questions: {\n            unsafe: {\n                instructions: \"Does preview.value describe an unsafe change?\",\n                maximumRisk: 0.05,\n            },\n        },\n    }),\n});\n```",
       "inputs": {
         "description": "Decision rule settings.",
         "properties": {
@@ -1187,13 +1142,6 @@
           "description": {
             "type": "string",
             "description": "Description shown with the gate."
-          },
-          "evidence": {
-            "type": "array",
-            "items": {
-              "$ref": "#/types/delivery:index:DecisionEvidence"
-            },
-            "description": "Current Delivery preview evidence to resolve."
           },
           "name": {
             "type": "string",
@@ -1209,8 +1157,7 @@
         },
         "type": "object",
         "required": [
-          "questions",
-          "evidence"
+          "questions"
         ]
       },
       "outputs": {
@@ -1241,13 +1188,6 @@
           "description": {
             "description": "Text for the person who continues a manual gate, for example what to check first.",
             "type": "string"
-          },
-          "evidence": {
-            "description": "Selectors for service-owned evidence for a decision rule.",
-            "items": {
-              "$ref": "#/types/delivery:index:DecisionEvidence"
-            },
-            "type": "array"
           },
           "headers": {
             "additionalProperties": {
@@ -1389,13 +1329,6 @@
             "description": "Text for the person who continues a manual gate, for example what to check first.",
             "type": "string"
           },
-          "evidence": {
-            "description": "Selectors for service-owned evidence for a decision rule.",
-            "items": {
-              "$ref": "#/types/delivery:index:DecisionEvidence"
-            },
-            "type": "array"
-          },
           "headers": {
             "additionalProperties": {
               "type": "string"
@@ -1500,13 +1433,6 @@
           "description": {
             "description": "Text for the person who continues a manual gate, for example what to check first.",
             "type": "string"
-          },
-          "evidence": {
-            "description": "Selectors for service-owned evidence for a decision rule.",
-            "items": {
-              "$ref": "#/types/delivery:index:DecisionEvidence"
-            },
-            "type": "array"
           },
           "headers": {
             "additionalProperties": {

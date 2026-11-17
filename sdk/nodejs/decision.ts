@@ -7,7 +7,7 @@ import * as outputs from "./types/output";
 import * as utilities from "./utilities";
 
 /**
- * Builds a decision rule for the when property of a Stage. Delivery resolves the selected evidence from the run, then evaluates the named judgments with its configured decision engine. The engine cannot approve a deployment by itself: Delivery applies the risk threshold of every question.
+ * Builds a decision rule for the when property of a Stage. When the stage contains stacks, Delivery resolves their current previews from the run, then evaluates the named judgments with its configured decision engine. The engine cannot approve a deployment by itself: Delivery applies the risk threshold of every question.
  *
  * ## Example Usage
  *
@@ -18,7 +18,6 @@ import * as utilities from "./utilities";
  *     pipeline,
  *     from: [dev],
  *     when: delivery.decision({
- *         evidence: [{ source: "deliveryPreview" }],
  *         questions: {
  *             unsafe: {
  *                 instructions: "Does preview.value describe an unsafe change?",
@@ -34,7 +33,6 @@ export function decision(args: DecisionArgs, opts?: pulumi.InvokeOptions): Promi
     return pulumi.runtime.invoke("delivery:index:decision", {
         "context": args.context,
         "description": args.description,
-        "evidence": args.evidence,
         "name": args.name,
         "questions": args.questions,
     }, opts);
@@ -52,10 +50,6 @@ export interface DecisionArgs {
      * Description shown with the gate.
      */
     description?: string;
-    /**
-     * Current Delivery preview evidence to resolve.
-     */
-    evidence: inputs.DecisionEvidence[];
     /**
      * Rule name. Omit it to let Delivery assign one.
      */
@@ -90,10 +84,6 @@ export interface DecisionResult {
      * Text for the person who continues a manual gate, for example what to check first.
      */
     readonly description?: string;
-    /**
-     * Selectors for service-owned evidence for a decision rule.
-     */
-    readonly evidence?: outputs.DecisionEvidence[];
     /**
      * HTTP request headers. Secret values stay secret.
      */
@@ -140,7 +130,7 @@ export interface DecisionResult {
     readonly url?: string;
 }
 /**
- * Builds a decision rule for the when property of a Stage. Delivery resolves the selected evidence from the run, then evaluates the named judgments with its configured decision engine. The engine cannot approve a deployment by itself: Delivery applies the risk threshold of every question.
+ * Builds a decision rule for the when property of a Stage. When the stage contains stacks, Delivery resolves their current previews from the run, then evaluates the named judgments with its configured decision engine. The engine cannot approve a deployment by itself: Delivery applies the risk threshold of every question.
  *
  * ## Example Usage
  *
@@ -151,7 +141,6 @@ export interface DecisionResult {
  *     pipeline,
  *     from: [dev],
  *     when: delivery.decision({
- *         evidence: [{ source: "deliveryPreview" }],
  *         questions: {
  *             unsafe: {
  *                 instructions: "Does preview.value describe an unsafe change?",
@@ -167,7 +156,6 @@ export function decisionOutput(args: DecisionOutputArgs, opts?: pulumi.InvokeOut
     return pulumi.runtime.invokeOutput("delivery:index:decision", {
         "context": args.context,
         "description": args.description,
-        "evidence": args.evidence,
         "name": args.name,
         "questions": args.questions,
     }, opts);
@@ -185,10 +173,6 @@ export interface DecisionOutputArgs {
      * Description shown with the gate.
      */
     description?: pulumi.Input<string | undefined>;
-    /**
-     * Current Delivery preview evidence to resolve.
-     */
-    evidence: pulumi.Input<pulumi.Input<inputs.DecisionEvidenceArgs>[]>;
     /**
      * Rule name. Omit it to let Delivery assign one.
      */

@@ -70,10 +70,6 @@ export interface AnyOfResult {
      */
     readonly description?: string;
     /**
-     * Selectors for service-owned evidence for a decision rule.
-     */
-    readonly evidence?: outputs.DecisionEvidence[];
-    /**
      * HTTP request headers. Secret values stay secret.
      */
     readonly headers?: {[key: string]: string};

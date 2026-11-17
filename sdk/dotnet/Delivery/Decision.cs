@@ -13,7 +13,7 @@ namespace Pulumi.Delivery.Delivery
     public static class Decision
     {
         /// <summary>
-        /// Builds a decision rule for the when property of a Stage. Delivery resolves the selected evidence from the run, then evaluates the named judgments with its configured decision engine. The engine cannot approve a deployment by itself: Delivery applies the risk threshold of every question.
+        /// Builds a decision rule for the when property of a Stage. When the stage contains stacks, Delivery resolves their current previews from the run, then evaluates the named judgments with its configured decision engine. The engine cannot approve a deployment by itself: Delivery applies the risk threshold of every question.
         /// 
         /// ## Example Usage
         /// 
@@ -24,7 +24,6 @@ namespace Pulumi.Delivery.Delivery
         ///     pipeline,
         ///     from: [dev],
         ///     when: delivery.decision({
-        ///         evidence: [{ source: "deliveryPreview" }],
         ///         questions: {
         ///             unsafe: {
         ///                 instructions: "Does preview.value describe an unsafe change?",
@@ -39,7 +38,7 @@ namespace Pulumi.Delivery.Delivery
             => global::Pulumi.Deployment.Instance.InvokeAsync<DecisionResult>("delivery:index:decision", args ?? new DecisionArgs(), options.WithDefaults());
 
         /// <summary>
-        /// Builds a decision rule for the when property of a Stage. Delivery resolves the selected evidence from the run, then evaluates the named judgments with its configured decision engine. The engine cannot approve a deployment by itself: Delivery applies the risk threshold of every question.
+        /// Builds a decision rule for the when property of a Stage. When the stage contains stacks, Delivery resolves their current previews from the run, then evaluates the named judgments with its configured decision engine. The engine cannot approve a deployment by itself: Delivery applies the risk threshold of every question.
         /// 
         /// ## Example Usage
         /// 
@@ -50,7 +49,6 @@ namespace Pulumi.Delivery.Delivery
         ///     pipeline,
         ///     from: [dev],
         ///     when: delivery.decision({
-        ///         evidence: [{ source: "deliveryPreview" }],
         ///         questions: {
         ///             unsafe: {
         ///                 instructions: "Does preview.value describe an unsafe change?",
@@ -65,7 +63,7 @@ namespace Pulumi.Delivery.Delivery
             => global::Pulumi.Deployment.Instance.Invoke<DecisionResult>("delivery:index:decision", args ?? new DecisionInvokeArgs(), options.WithDefaults());
 
         /// <summary>
-        /// Builds a decision rule for the when property of a Stage. Delivery resolves the selected evidence from the run, then evaluates the named judgments with its configured decision engine. The engine cannot approve a deployment by itself: Delivery applies the risk threshold of every question.
+        /// Builds a decision rule for the when property of a Stage. When the stage contains stacks, Delivery resolves their current previews from the run, then evaluates the named judgments with its configured decision engine. The engine cannot approve a deployment by itself: Delivery applies the risk threshold of every question.
         /// 
         /// ## Example Usage
         /// 
@@ -76,7 +74,6 @@ namespace Pulumi.Delivery.Delivery
         ///     pipeline,
         ///     from: [dev],
         ///     when: delivery.decision({
-        ///         evidence: [{ source: "deliveryPreview" }],
         ///         questions: {
         ///             unsafe: {
         ///                 instructions: "Does preview.value describe an unsafe change?",
@@ -111,18 +108,6 @@ namespace Pulumi.Delivery.Delivery
         /// </summary>
         [Input("description")]
         public string? Description { get; set; }
-
-        [Input("evidence", required: true)]
-        private List<Inputs.DecisionEvidence>? _evidence;
-
-        /// <summary>
-        /// Current Delivery preview evidence to resolve.
-        /// </summary>
-        public List<Inputs.DecisionEvidence> Evidence
-        {
-            get => _evidence ?? (_evidence = new List<Inputs.DecisionEvidence>());
-            set => _evidence = value;
-        }
 
         /// <summary>
         /// Rule name. Omit it to let Delivery assign one.
@@ -167,18 +152,6 @@ namespace Pulumi.Delivery.Delivery
         /// </summary>
         [Input("description")]
         public Input<string>? Description { get; set; }
-
-        [Input("evidence", required: true)]
-        private InputList<Inputs.DecisionEvidenceArgs>? _evidence;
-
-        /// <summary>
-        /// Current Delivery preview evidence to resolve.
-        /// </summary>
-        public InputList<Inputs.DecisionEvidenceArgs> Evidence
-        {
-            get => _evidence ?? (_evidence = new InputList<Inputs.DecisionEvidenceArgs>());
-            set => _evidence = value;
-        }
 
         /// <summary>
         /// Rule name. Omit it to let Delivery assign one.
@@ -228,10 +201,6 @@ namespace Pulumi.Delivery.Delivery
         /// Text for the person who continues a manual gate, for example what to check first.
         /// </summary>
         public readonly string? Description;
-        /// <summary>
-        /// Selectors for service-owned evidence for a decision rule.
-        /// </summary>
-        public readonly ImmutableArray<Outputs.DecisionEvidence> Evidence;
         /// <summary>
         /// HTTP request headers. Secret values stay secret.
         /// </summary>
@@ -289,8 +258,6 @@ namespace Pulumi.Delivery.Delivery
 
             string? description,
 
-            ImmutableArray<Outputs.DecisionEvidence> evidence,
-
             ImmutableDictionary<string, string>? headers,
 
             string? headersEnvironment,
@@ -318,7 +285,6 @@ namespace Pulumi.Delivery.Delivery
             Context = context;
             Count = count;
             Description = description;
-            Evidence = evidence;
             Headers = headers;
             HeadersEnvironment = headersEnvironment;
             Interval = interval;

@@ -91,7 +91,6 @@ func TestDecisionRuleOnTheWire(t *testing.T) {
 	server := newServer(t)
 
 	invoked, err := server.Invoke(p.InvokeRequest{Token: "delivery:index:decision", Args: property.NewMap(map[string]property.Value{
-		"evidence": property.New([]property.Value{property.New(map[string]property.Value{"source": property.New("deliveryPreview")})}),
 		"questions": property.New(map[string]property.Value{"unsafe": property.New(map[string]property.Value{
 			"instructions": property.New("Does preview.value describe an unsafe change?"),
 			"maximumRisk":  property.New(0.05),
@@ -109,28 +108,13 @@ func TestDecisionRuleOnTheWire(t *testing.T) {
 	declarations := service.declared()
 	require.Len(t, declarations, 1)
 	assert.Equal(t, map[string]any{
-		"kind":     "decision",
-		"evidence": []any{map[string]any{"source": "deliveryPreview"}},
+		"kind": "decision",
 		"questions": map[string]any{"unsafe": map[string]any{
 			"instructions": "Does preview.value describe an unsafe change?",
 			"maximumRisk":  0.05,
 		}},
 		"context": map[string]any{"changeTicket": "CHG-123"},
 	}, declarations[0]["inputs"].(map[string]any)["when"])
-}
-
-func TestDecisionRejectsUnsupportedEvidence(t *testing.T) {
-	for _, source := range []string{"agentInvocation", "http", "policyFindings"} {
-		t.Run(source, func(t *testing.T) {
-			_, err := Decision{}.Invoke(context.Background(), infer.FunctionRequest[DecisionArgs]{Input: DecisionArgs{
-				Evidence: []DecisionEvidence{{Source: source}},
-				Questions: map[string]DecisionQuestion{
-					"unsafe": {Instructions: "Does the preview show a dangerous change?", MaximumRisk: 0.05},
-				},
-			}})
-			require.ErrorContains(t, err, "unsupported decision evidence source")
-		})
-	}
 }
 
 func TestAllOfAndAnyOfRequireAtLeastOneRule(t *testing.T) {

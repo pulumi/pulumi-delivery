@@ -28,7 +28,7 @@ class AnyOfResult:
     """
     Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.
     """
-    def __init__(__self__, approvers=None, body=None, context=None, count=None, description=None, evidence=None, headers=None, headers_environment=None, interval=None, kind=None, method=None, name=None, questions=None, rules=None, success_expression=None, timeout=None, url=None):
+    def __init__(__self__, approvers=None, body=None, context=None, count=None, description=None, headers=None, headers_environment=None, interval=None, kind=None, method=None, name=None, questions=None, rules=None, success_expression=None, timeout=None, url=None):
         if approvers and not isinstance(approvers, list):
             raise TypeError("Expected argument 'approvers' to be a list")
         pulumi.set(__self__, "approvers", approvers)
@@ -44,9 +44,6 @@ class AnyOfResult:
         if description and not isinstance(description, str):
             raise TypeError("Expected argument 'description' to be a str")
         pulumi.set(__self__, "description", description)
-        if evidence and not isinstance(evidence, list):
-            raise TypeError("Expected argument 'evidence' to be a list")
-        pulumi.set(__self__, "evidence", evidence)
         if headers and not isinstance(headers, dict):
             raise TypeError("Expected argument 'headers' to be a dict")
         pulumi.set(__self__, "headers", headers)
@@ -120,14 +117,6 @@ class AnyOfResult:
         Text for the person who continues a manual gate, for example what to check first.
         """
         return pulumi.get(self, "description")
-
-    @_builtins.property
-    @pulumi.getter
-    def evidence(self) -> Optional[Sequence['outputs.DecisionEvidence']]:
-        """
-        Selectors for service-owned evidence for a decision rule.
-        """
-        return pulumi.get(self, "evidence")
 
     @_builtins.property
     @pulumi.getter
@@ -229,7 +218,6 @@ class AwaitableAnyOfResult(AnyOfResult):
             context=self.context,
             count=self.count,
             description=self.description,
-            evidence=self.evidence,
             headers=self.headers,
             headers_environment=self.headers_environment,
             interval=self.interval,
@@ -266,7 +254,6 @@ def any_of(name: Optional[_builtins.str] = None,
         context=pulumi.get(__ret__, 'context'),
         count=pulumi.get(__ret__, 'count'),
         description=pulumi.get(__ret__, 'description'),
-        evidence=pulumi.get(__ret__, 'evidence'),
         headers=pulumi.get(__ret__, 'headers'),
         headers_environment=pulumi.get(__ret__, 'headers_environment'),
         interval=pulumi.get(__ret__, 'interval'),
@@ -300,7 +287,6 @@ def any_of_output(name: pulumi.Input[Optional[Optional[_builtins.str]]] = None,
         context=pulumi.get(__response__, 'context'),
         count=pulumi.get(__response__, 'count'),
         description=pulumi.get(__response__, 'description'),
-        evidence=pulumi.get(__response__, 'evidence'),
         headers=pulumi.get(__response__, 'headers'),
         headers_environment=pulumi.get(__response__, 'headers_environment'),
         interval=pulumi.get(__response__, 'interval'),
