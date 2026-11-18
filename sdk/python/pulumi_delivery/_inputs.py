@@ -14,11 +14,6 @@ else:
     from typing_extensions import NotRequired, TypedDict, TypeAlias
 from . import _utilities
 from ._enums import *
-from .azure_dev_ops_source import AzureDevOpsSource
-from .bitbucket_source import BitbucketSource
-from .git_hub_source import GitHubSource
-from .git_lab_source import GitLabSource
-from .workflows_runtime import WorkflowsRuntime
 
 __all__ = [
     'DecisionQuestion',
@@ -1086,7 +1081,7 @@ class StacksEntryArgsDict(TypedDict):
     """
     Directory of the stack project, relative to the repository root.
     """
-    source: pulumi.Input[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource']]
+    source: pulumi.Input[Union['_git_hub_source.GitHubSource', '_git_lab_source.GitLabSource', '_bitbucket_source.BitbucketSource', '_azure_dev_ops_source.AzureDevOpsSource']]
     """
     VCS source to check out. The update uses the commit of the run for this source.
     """
@@ -1110,7 +1105,7 @@ class StacksEntryArgsDict(TypedDict):
     """
     Bash commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
     """
-    runtime: NotRequired[pulumi.Input[Optional['WorkflowsRuntime']]]
+    runtime: NotRequired[pulumi.Input[Optional['_workflows_runtime.WorkflowsRuntime']]]
     """
     Pool that runs the update.
     """
@@ -1123,25 +1118,25 @@ class StacksEntryArgsDict(TypedDict):
 class StacksEntryArgs:
     def __init__(__self__, *,
                  directory: pulumi.Input[_builtins.str],
-                 source: pulumi.Input[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource']],
+                 source: pulumi.Input[Union['_git_hub_source.GitHubSource', '_git_lab_source.GitLabSource', '_bitbucket_source.BitbucketSource', '_azure_dev_ops_source.AzureDevOpsSource']],
                  stack: pulumi.Input[_builtins.str],
                  config: pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
                  environment: pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
                  image: pulumi.Input[Optional['ImageArgs']] = None,
                  pre_run_commands: pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]] = None,
-                 runtime: pulumi.Input[Optional['WorkflowsRuntime']] = None,
+                 runtime: pulumi.Input[Optional['_workflows_runtime.WorkflowsRuntime']] = None,
                  timeout: pulumi.Input[Optional[_builtins.str]] = None):
         """
         One target stack that a Stacks resource updates.
 
         :param pulumi.Input[_builtins.str] directory: Directory of the stack project, relative to the repository root.
-        :param pulumi.Input[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource']] source: VCS source to check out. The update uses the commit of the run for this source.
+        :param pulumi.Input[Union['_git_hub_source.GitHubSource', '_git_lab_source.GitLabSource', '_bitbucket_source.BitbucketSource', '_azure_dev_ops_source.AzureDevOpsSource']] source: VCS source to check out. The update uses the commit of the run for this source.
         :param pulumi.Input[_builtins.str] stack: Target stack as project/stack. It must exist before the first run, in the organization of the pipeline.
         :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] config: Config values that Delivery sets on the target stack before the update. Values are plain strings. Delivery rejects secret values. Keep secrets in the config file of the target stack or in an ESC environment.
         :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] environment: Environment variables for the update, for example cloud credentials. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
         :param pulumi.Input['ImageArgs'] image: Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs bash, curl, gzip and the Pulumi CLI on PATH.
         :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] pre_run_commands: Bash commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
-        :param pulumi.Input['WorkflowsRuntime'] runtime: Pool that runs the update.
+        :param pulumi.Input['_workflows_runtime.WorkflowsRuntime'] runtime: Pool that runs the update.
         :param pulumi.Input[_builtins.str] timeout: Maximum run time of the update, as a Go duration such as 30m. It must be from 5m to 24h in whole seconds. The default is 2h.
         """
         pulumi.set(__self__, "directory", directory)
@@ -1174,14 +1169,14 @@ class StacksEntryArgs:
 
     @_builtins.property
     @pulumi.getter
-    def source(self) -> pulumi.Input[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource']]:
+    def source(self) -> pulumi.Input[Union['_git_hub_source.GitHubSource', '_git_lab_source.GitLabSource', '_bitbucket_source.BitbucketSource', '_azure_dev_ops_source.AzureDevOpsSource']]:
         """
         VCS source to check out. The update uses the commit of the run for this source.
         """
         return pulumi.get(self, "source")
 
     @source.setter
-    def source(self, value: pulumi.Input[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource']]):
+    def source(self, value: pulumi.Input[Union['_git_hub_source.GitHubSource', '_git_lab_source.GitLabSource', '_bitbucket_source.BitbucketSource', '_azure_dev_ops_source.AzureDevOpsSource']]):
         pulumi.set(self, "source", value)
 
     @_builtins.property
@@ -1246,14 +1241,14 @@ class StacksEntryArgs:
 
     @_builtins.property
     @pulumi.getter
-    def runtime(self) -> pulumi.Input[Optional['WorkflowsRuntime']]:
+    def runtime(self) -> pulumi.Input[Optional['_workflows_runtime.WorkflowsRuntime']]:
         """
         Pool that runs the update.
         """
         return pulumi.get(self, "runtime")
 
     @runtime.setter
-    def runtime(self, value: pulumi.Input[Optional['WorkflowsRuntime']]):
+    def runtime(self, value: pulumi.Input[Optional['_workflows_runtime.WorkflowsRuntime']]):
         pulumi.set(self, "runtime", value)
 
     @_builtins.property
@@ -1269,3 +1264,8 @@ class StacksEntryArgs:
         pulumi.set(self, "timeout", value)
 
 
+from . import azure_dev_ops_source as _azure_dev_ops_source
+from . import bitbucket_source as _bitbucket_source
+from . import git_hub_source as _git_hub_source
+from . import git_lab_source as _git_lab_source
+from . import workflows_runtime as _workflows_runtime
