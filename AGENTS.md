@@ -35,7 +35,7 @@ PULUMI_IGNORE_AMBIENT_PLUGINS=true mise exec -- make generate
 - `make build`: build the provider and all SDKs.
 - `make generate`: rewrite the schema and all SDKs.
 - `make test_provider`: provider unit tests. Run these after every provider change.
-- `make TESTTAGS=<language> test`: example tests for `go`, `nodejs`, `python`, `dotnet` or `java`. They compile a program against the SDK and run `pulumi preview` on it. Run `make build` first; the tests find the provider in `bin/`. The YAML and HCL previews run with `TESTTAGS=go`.
+- `make TESTTAGS=<language> test`: example tests for `go`, `nodejs`, `python` or `dotnet`. They compile a program against the SDK and run `pulumi preview` on it. Run `make build` first; the tests find the provider in `bin/`. The YAML and HCL previews run with `TESTTAGS=go`. Java has no example test: `make build_java` compiles the Java SDK, and nothing previews a Java program.
 
 A preview sends nothing to Pulumi Cloud, so these tests need no credentials. Use a preview on a file backend (`PULUMI_BACKEND_URL=file://<dir>`) to check a program quickly.
 
@@ -56,7 +56,7 @@ When you change the schema, add or update the schema assertions in `provider/pro
 
 ## Conventions
 
-Hand-written source files start with `// Copyright <year>, Pulumi Corporation. All rights reserved.`
+Hand-written source files start with `Copyright <year>, Pulumi Corporation. All rights reserved.` in the comment syntax of the language (`//` in Go, C# and TypeScript, `#` in Python).
 
 ## Releases
 
