@@ -8,7 +8,7 @@ import * as enums from "./types/enums";
 import * as utilities from "./utilities";
 
 /**
- * Selects the pool that runs the work of a member or the pipeline program. In the preview, all work runs on the hosted pool, so do not use this resource yet. Agent pools are not available.
+ * Selects the pool that runs the work of a member or the pipeline program.
  */
 export class WorkflowsRuntime extends pulumi.CustomResource {
     /**

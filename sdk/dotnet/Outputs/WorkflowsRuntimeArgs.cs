@@ -11,7 +11,7 @@ namespace Pulumi.Delivery.Outputs
 {
 
     /// <summary>
-    /// Pool selection. In the preview, all work runs on the hosted pool.
+    /// Pool selection.
     /// </summary>
     [OutputType]
     public sealed class WorkflowsRuntimeArgs

@@ -251,7 +251,7 @@ class Rule(dict):
 @pulumi.output_type
 class WorkflowsRuntimeArgs(dict):
     """
-    Pool selection. In the preview, all work runs on the hosted pool.
+    Pool selection.
     """
     @staticmethod
     def __key_warning(key: str):
@@ -273,7 +273,7 @@ class WorkflowsRuntimeArgs(dict):
     def __init__(__self__, *,
                  agent_pool: _builtins.str):
         """
-        Pool selection. In the preview, all work runs on the hosted pool.
+        Pool selection.
 
         :param _builtins.str agent_pool: Pool identifier. The resource returns it unchanged as ref.
         """

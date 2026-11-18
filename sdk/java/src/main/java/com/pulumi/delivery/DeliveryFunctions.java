@@ -181,7 +181,7 @@ public final class DeliveryFunctions {
         return Deployment.getInstance().invokeAsync("delivery:index:approval", TypeShape.of(ApprovalResult.class), args, Utilities.withVersion(options));
     }
     /**
-     * Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true. Delivery does not support this rule in the preview. Registration rejects a stage that uses it.
+     * Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true.
      * 
      * ## Example Usage
      * 
@@ -190,7 +190,7 @@ public final class DeliveryFunctions {
         return http(args, InvokeOptions.Empty);
     }
     /**
-     * Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true. Delivery does not support this rule in the preview. Registration rejects a stage that uses it.
+     * Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true.
      * 
      * ## Example Usage
      * 
@@ -199,7 +199,7 @@ public final class DeliveryFunctions {
         return httpPlain(args, InvokeOptions.Empty);
     }
     /**
-     * Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true. Delivery does not support this rule in the preview. Registration rejects a stage that uses it.
+     * Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true.
      * 
      * ## Example Usage
      * 
@@ -208,7 +208,7 @@ public final class DeliveryFunctions {
         return Deployment.getInstance().invoke("delivery:index:http", TypeShape.of(HttpResult.class), args, Utilities.withVersion(options));
     }
     /**
-     * Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true. Delivery does not support this rule in the preview. Registration rejects a stage that uses it.
+     * Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true.
      * 
      * ## Example Usage
      * 
@@ -217,7 +217,7 @@ public final class DeliveryFunctions {
         return Deployment.getInstance().invoke("delivery:index:http", TypeShape.of(HttpResult.class), args, Utilities.withVersion(options));
     }
     /**
-     * Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true. Delivery does not support this rule in the preview. Registration rejects a stage that uses it.
+     * Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true.
      * 
      * ## Example Usage
      * 

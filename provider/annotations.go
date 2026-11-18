@@ -5,11 +5,11 @@ package main
 import "github.com/pulumi/pulumi-go-provider/infer"
 
 func (r *WorkflowsRuntime) Annotate(a infer.Annotator) {
-	a.Describe(r, "Selects the pool that runs the work of a member or the pipeline program. In the preview, all work runs on the hosted pool, so do not use this resource yet. Agent pools are not available.")
+	a.Describe(r, "Selects the pool that runs the work of a member or the pipeline program.")
 }
 
 func (r *WorkflowsRuntimeArgs) Annotate(a infer.Annotator) {
-	a.Describe(r, "Pool selection. In the preview, all work runs on the hosted pool.")
+	a.Describe(r, "Pool selection.")
 	a.Describe(&r.AgentPool, "Pool identifier. The resource returns it unchanged as ref.")
 }
 
@@ -67,7 +67,7 @@ func (r *ApprovalArgs) Annotate(a infer.Annotator) {
 }
 
 func (r *HTTP) Annotate(a infer.Annotator) {
-	a.Describe(r, `Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true. Delivery does not support this rule in the preview. Registration rejects a stage that uses it.
+	a.Describe(r, `Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true.
 
 ## Example Usage
 

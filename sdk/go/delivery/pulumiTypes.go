@@ -1412,13 +1412,13 @@ func (o StacksEntryMapOutput) MapIndex(k pulumi.StringInput) StacksEntryOutput {
 	}).(StacksEntryOutput)
 }
 
-// Pool selection. In the preview, all work runs on the hosted pool.
+// Pool selection.
 type WorkflowsRuntimeArgsType struct {
 	// Pool identifier. The resource returns it unchanged as ref.
 	AgentPool string `pulumi:"agentPool"`
 }
 
-// Pool selection. In the preview, all work runs on the hosted pool.
+// Pool selection.
 type WorkflowsRuntimeArgsTypeOutput struct{ *pulumi.OutputState }
 
 func (WorkflowsRuntimeArgsTypeOutput) ElementType() reflect.Type {
