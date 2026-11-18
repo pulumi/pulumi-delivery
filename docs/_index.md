@@ -627,4 +627,3 @@ Each entry of a `Stacks` group uses one concurrency slot of your organization. A
 - Delivery deletes a run stack without a destroy. Resources in the pipeline program that are not Delivery resources stay in the cloud without state. A run that waits keeps its stack.
 - You cannot delete a pipeline stack while runs are in progress. Deleting a pipeline stack stops the pipeline and deletes its run stacks. After you restore the stack, run `pulumi delivery register` on it to register the pipeline again.
 - You cannot move a pipeline stack to another organization. You cannot rename or move a run stack.
-- The preview has no time-based triggers, no ESC triggers and no dispatch inputs. `pulumi delivery register` is the only `pulumi delivery` command.
