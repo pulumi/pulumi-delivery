@@ -74,7 +74,7 @@ namespace Pulumi.Delivery.Delivery.Inputs
         /// Kind of the rule. Valid values are approval, http, manual, all, and any.
         /// </summary>
         [Input("kind", required: true)]
-        public Input<string> Kind { get; set; } = null!;
+        public InputUnion<string, Pulumi.Delivery.Delivery.RuleKind> Kind { get; set; } = null!;
 
         /// <summary>
         /// HTTP request method. The default is GET.

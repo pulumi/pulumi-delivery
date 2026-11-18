@@ -13,6 +13,7 @@ if sys.version_info >= (3, 11):
 else:
     from typing_extensions import NotRequired, TypedDict, TypeAlias
 from . import _utilities
+from ._enums import *
 from .azure_dev_ops_source import AzureDevOpsSource
 from .bitbucket_source import BitbucketSource
 from .git_hub_source import GitHubSource
@@ -274,7 +275,7 @@ class RuleDict(TypedDict):
     """
     Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.
     """
-    kind: _builtins.str
+    kind: Union[_builtins.str, 'RuleKind']
     """
     Kind of the rule. Valid values are approval, http, manual, all, and any.
     """
@@ -334,7 +335,7 @@ class RuleDict(TypedDict):
 @pulumi.input_type
 class Rule:
     def __init__(__self__, *,
-                 kind: _builtins.str,
+                 kind: Union[_builtins.str, 'RuleKind'],
                  approvers: Optional[Sequence[_builtins.str]] = None,
                  body: Optional[_builtins.str] = None,
                  count: Optional[_builtins.int] = None,
@@ -351,7 +352,7 @@ class Rule:
         """
         Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.
 
-        :param _builtins.str kind: Kind of the rule. Valid values are approval, http, manual, all, and any.
+        :param Union[_builtins.str, 'RuleKind'] kind: Kind of the rule. Valid values are approval, http, manual, all, and any.
         :param Sequence[_builtins.str] approvers: Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
         :param _builtins.str body: HTTP request body. Secret values stay secret.
         :param _builtins.int count: Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
@@ -396,14 +397,14 @@ class Rule:
 
     @_builtins.property
     @pulumi.getter
-    def kind(self) -> _builtins.str:
+    def kind(self) -> Union[_builtins.str, 'RuleKind']:
         """
         Kind of the rule. Valid values are approval, http, manual, all, and any.
         """
         return pulumi.get(self, "kind")
 
     @kind.setter
-    def kind(self, value: _builtins.str):
+    def kind(self, value: Union[_builtins.str, 'RuleKind']):
         pulumi.set(self, "kind", value)
 
     @_builtins.property
@@ -567,7 +568,7 @@ class RuleArgsDict(TypedDict):
     """
     Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.
     """
-    kind: pulumi.Input[_builtins.str]
+    kind: pulumi.Input[Union[_builtins.str, 'RuleKind']]
     """
     Kind of the rule. Valid values are approval, http, manual, all, and any.
     """
@@ -627,7 +628,7 @@ class RuleArgsDict(TypedDict):
 @pulumi.input_type
 class RuleArgs:
     def __init__(__self__, *,
-                 kind: pulumi.Input[_builtins.str],
+                 kind: pulumi.Input[Union[_builtins.str, 'RuleKind']],
                  approvers: pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]] = None,
                  body: pulumi.Input[Optional[_builtins.str]] = None,
                  count: pulumi.Input[Optional[_builtins.int]] = None,
@@ -644,7 +645,7 @@ class RuleArgs:
         """
         Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.
 
-        :param pulumi.Input[_builtins.str] kind: Kind of the rule. Valid values are approval, http, manual, all, and any.
+        :param pulumi.Input[Union[_builtins.str, 'RuleKind']] kind: Kind of the rule. Valid values are approval, http, manual, all, and any.
         :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] approvers: Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
         :param pulumi.Input[_builtins.str] body: HTTP request body. Secret values stay secret.
         :param pulumi.Input[_builtins.int] count: Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
@@ -689,14 +690,14 @@ class RuleArgs:
 
     @_builtins.property
     @pulumi.getter
-    def kind(self) -> pulumi.Input[_builtins.str]:
+    def kind(self) -> pulumi.Input[Union[_builtins.str, 'RuleKind']]:
         """
         Kind of the rule. Valid values are approval, http, manual, all, and any.
         """
         return pulumi.get(self, "kind")
 
     @kind.setter
-    def kind(self, value: pulumi.Input[_builtins.str]):
+    def kind(self, value: pulumi.Input[Union[_builtins.str, 'RuleKind']]):
         pulumi.set(self, "kind", value)
 
     @_builtins.property

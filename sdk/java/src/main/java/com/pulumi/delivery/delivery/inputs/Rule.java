@@ -3,7 +3,9 @@
 
 package com.pulumi.delivery.delivery.inputs;
 
+import com.pulumi.core.Either;
 import com.pulumi.core.annotations.Import;
+import com.pulumi.delivery.delivery.enums.RuleKind;
 import com.pulumi.exceptions.MissingRequiredPropertyException;
 import java.lang.Integer;
 import java.lang.String;
@@ -132,13 +134,13 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
      * 
      */
     @Import(name="kind", required=true)
-    private String kind;
+    private Either<String,RuleKind> kind;
 
     /**
      * @return Kind of the rule. Valid values are approval, http, manual, all, and any.
      * 
      */
-    public String kind() {
+    public Either<String,RuleKind> kind() {
         return this.kind;
     }
 
@@ -362,9 +364,29 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
          * @return builder
          * 
          */
-        public Builder kind(String kind) {
+        public Builder kind(Either<String,RuleKind> kind) {
             $.kind = kind;
             return this;
+        }
+
+        /**
+         * @param kind Kind of the rule. Valid values are approval, http, manual, all, and any.
+         * 
+         * @return builder
+         * 
+         */
+        public Builder kind(String kind) {
+            return kind(Either.ofLeft(kind));
+        }
+
+        /**
+         * @param kind Kind of the rule. Valid values are approval, http, manual, all, and any.
+         * 
+         * @return builder
+         * 
+         */
+        public Builder kind(RuleKind kind) {
+            return kind(Either.ofRight(kind));
         }
 
         /**
