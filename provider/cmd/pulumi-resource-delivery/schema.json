@@ -271,7 +271,7 @@
         },
         "runtime": {
           "$ref": "#/resources/delivery:index:WorkflowsRuntime",
-          "description": "Pool that runs the update. In the private preview, all work runs on the hosted pool, so omit it."
+          "description": "Pool that runs the update."
         },
         "source": {
           "oneOf": [
@@ -307,7 +307,7 @@
       ]
     },
     "delivery:index:WorkflowsRuntimeArgs": {
-      "description": "Pool selection. In the private preview, all work runs on the hosted pool.",
+      "description": "Pool selection.",
       "properties": {
         "agentPool": {
           "type": "string",
@@ -597,7 +597,7 @@
         },
         "runtime": {
           "$ref": "#/resources/delivery:index:WorkflowsRuntime",
-          "description": "Pool that runs the job. In the private preview, all work runs on the hosted pool, so omit it."
+          "description": "Pool that runs the job."
         },
         "source": {
           "oneOf": [
@@ -622,7 +622,7 @@
         },
         "timeout": {
           "type": "string",
-          "description": "Maximum run time as a Go duration, such as 30m. Delivery does not apply this value in the private preview. A job stops after 2 hours."
+          "description": "Maximum run time as a Go duration, such as 30m. Delivery does not apply this value in the preview. A job stops after 2 hours."
         }
       },
       "requiredInputs": [
@@ -634,7 +634,7 @@
       "isComponent": true
     },
     "delivery:index:Pipeline": {
-      "description": "Declares the pipeline. It gives the release number of the run. Set delivery:source in the stack config to tell Delivery where the program lives. A program has one Pipeline.\n\nTo register the pipeline, run PULUMI_DELIVERY_REGISTER=true pulumi up on the pipeline stack. Registration ends with exit code 10, because the members wait for a run.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nconst pipeline = new delivery.Pipeline(\"shop\");\nexport const release = pipeline.releaseNumber;\n```",
+      "description": "Declares the pipeline. It gives the release number of the run. Set delivery:source in the stack config to tell Delivery where the program lives. A program has one Pipeline.\n\nTo register the pipeline, run pulumi delivery register on the pipeline stack. Registering starts no run.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nconst pipeline = new delivery.Pipeline(\"shop\");\nexport const release = pipeline.releaseNumber;\n```",
       "properties": {
         "releaseNumber": {
           "type": "integer",
@@ -647,7 +647,7 @@
       "inputProperties": {
         "runtime": {
           "$ref": "#/resources/delivery:index:WorkflowsRuntime",
-          "description": "Pool that runs the pipeline program. In the private preview, all work runs on the hosted pool, so omit it."
+          "description": "Pool that runs the pipeline program."
         },
         "servicePrincipal": {
           "$ref": "#/types/delivery:index:PipelineServicePrincipal",
@@ -761,7 +761,7 @@
       "isComponent": true
     },
     "delivery:index:WorkflowsRuntime": {
-      "description": "Selects the pool that runs the work of a member or the pipeline program. In the private preview, all work runs on the hosted pool, so do not use this resource yet. Agent pools are not available.",
+      "description": "Selects the pool that runs the work of a member or the pipeline program.",
       "properties": {
         "inputs": {
           "$ref": "#/types/delivery:index:WorkflowsRuntimeArgs"
@@ -1080,7 +1080,7 @@
       }
     },
     "delivery:index:http": {
-      "description": "Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true. Delivery does not support this rule in the private preview. Registration rejects a stage that uses it.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nconst prod = new delivery.Stage(\"prod\", {\n    pipeline,\n    from: [dev],\n    when: delivery.http({ url: \"https://example.com/check\", successExpression: \"status == 'ok'\" }),\n});\n```",
+      "description": "Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nconst prod = new delivery.Stage(\"prod\", {\n    pipeline,\n    from: [dev],\n    when: delivery.http({ url: \"https://example.com/check\", successExpression: \"status == 'ok'\" }),\n});\n```",
       "inputs": {
         "description": "HTTP rule settings.",
         "properties": {

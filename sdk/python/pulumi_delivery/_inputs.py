@@ -919,7 +919,7 @@ class StacksEntryArgsDict(TypedDict):
     """
     runtime: NotRequired[pulumi.Input[Optional['_workflows_runtime.WorkflowsRuntime']]]
     """
-    Pool that runs the update. In the private preview, all work runs on the hosted pool, so omit it.
+    Pool that runs the update.
     """
     timeout: NotRequired[pulumi.Input[Optional[_builtins.int]]]
     """
@@ -948,7 +948,7 @@ class StacksEntryArgs:
         :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] environment: Environment variables for the update, for example cloud credentials. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
         :param pulumi.Input['ImageArgs'] image: Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs bash, curl, gzip and the Pulumi CLI on PATH.
         :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] pre_run_commands: Bash commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
-        :param pulumi.Input['_workflows_runtime.WorkflowsRuntime'] runtime: Pool that runs the update. In the private preview, all work runs on the hosted pool, so omit it.
+        :param pulumi.Input['_workflows_runtime.WorkflowsRuntime'] runtime: Pool that runs the update.
         :param pulumi.Input[_builtins.int] timeout: Maximum run time of the update in seconds. The default is 7200 (2 hours).
         """
         pulumi.set(__self__, "directory", directory)
@@ -1055,7 +1055,7 @@ class StacksEntryArgs:
     @pulumi.getter
     def runtime(self) -> pulumi.Input[Optional['_workflows_runtime.WorkflowsRuntime']]:
         """
-        Pool that runs the update. In the private preview, all work runs on the hosted pool, so omit it.
+        Pool that runs the update.
         """
         return pulumi.get(self, "runtime")
 

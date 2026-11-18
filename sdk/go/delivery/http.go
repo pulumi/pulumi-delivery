@@ -11,7 +11,7 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-// Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true. Delivery does not support this rule in the private preview. Registration rejects a stage that uses it.
+// Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true.
 //
 // ## Example Usage
 func Http(ctx *pulumi.Context, args *HttpArgs, opts ...pulumi.InvokeOption) (*HttpResult, error) {

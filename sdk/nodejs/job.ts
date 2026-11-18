@@ -117,7 +117,7 @@ export interface JobArgs {
      */
     preRunCommands?: pulumi.Input<pulumi.Input<string>[] | undefined>;
     /**
-     * Pool that runs the job. In the private preview, all work runs on the hosted pool, so omit it.
+     * Pool that runs the job.
      */
     runtime?: pulumi.Input<WorkflowsRuntime | undefined>;
     /**
@@ -129,7 +129,7 @@ export interface JobArgs {
      */
     stage: pulumi.Input<Stage>;
     /**
-     * Maximum run time as a Go duration, such as 30m. Delivery does not apply this value in the private preview. A job stops after 2 hours.
+     * Maximum run time as a Go duration, such as 30m. Delivery does not apply this value in the preview. A job stops after 2 hours.
      */
     timeout?: pulumi.Input<string | undefined>;
 }

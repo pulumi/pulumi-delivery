@@ -102,14 +102,14 @@ public final class JobArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * Pool that runs the job. In the private preview, all work runs on the hosted pool, so omit it.
+     * Pool that runs the job.
      * 
      */
     @Import(name="runtime")
     private @Nullable Output<WorkflowsRuntime> runtime;
 
     /**
-     * @return Pool that runs the job. In the private preview, all work runs on the hosted pool, so omit it.
+     * @return Pool that runs the job.
      * 
      */
     public Optional<Output<WorkflowsRuntime>> runtime() {
@@ -147,14 +147,14 @@ public final class JobArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * Maximum run time as a Go duration, such as 30m. Delivery does not apply this value in the private preview. A job stops after 2 hours.
+     * Maximum run time as a Go duration, such as 30m. Delivery does not apply this value in the preview. A job stops after 2 hours.
      * 
      */
     @Import(name="timeout")
     private @Nullable Output<String> timeout;
 
     /**
-     * @return Maximum run time as a Go duration, such as 30m. Delivery does not apply this value in the private preview. A job stops after 2 hours.
+     * @return Maximum run time as a Go duration, such as 30m. Delivery does not apply this value in the preview. A job stops after 2 hours.
      * 
      */
     public Optional<Output<String>> timeout() {
@@ -309,7 +309,7 @@ public final class JobArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param runtime Pool that runs the job. In the private preview, all work runs on the hosted pool, so omit it.
+         * @param runtime Pool that runs the job.
          * 
          * @return builder
          * 
@@ -320,7 +320,7 @@ public final class JobArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param runtime Pool that runs the job. In the private preview, all work runs on the hosted pool, so omit it.
+         * @param runtime Pool that runs the job.
          * 
          * @return builder
          * 
@@ -372,7 +372,7 @@ public final class JobArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param timeout Maximum run time as a Go duration, such as 30m. Delivery does not apply this value in the private preview. A job stops after 2 hours.
+         * @param timeout Maximum run time as a Go duration, such as 30m. Delivery does not apply this value in the preview. A job stops after 2 hours.
          * 
          * @return builder
          * 
@@ -383,7 +383,7 @@ public final class JobArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param timeout Maximum run time as a Go duration, such as 30m. Delivery does not apply this value in the private preview. A job stops after 2 hours.
+         * @param timeout Maximum run time as a Go duration, such as 30m. Delivery does not apply this value in the preview. A job stops after 2 hours.
          * 
          * @return builder
          * 

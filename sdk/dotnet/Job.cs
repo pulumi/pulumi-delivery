@@ -101,7 +101,7 @@ namespace Pulumi.Delivery
         }
 
         /// <summary>
-        /// Pool that runs the job. In the private preview, all work runs on the hosted pool, so omit it.
+        /// Pool that runs the job.
         /// </summary>
         [Input("runtime")]
         public Input<Pulumi.Delivery.WorkflowsRuntime>? Runtime { get; set; }
@@ -119,7 +119,7 @@ namespace Pulumi.Delivery
         public Input<Pulumi.Delivery.Stage> Stage { get; set; } = null!;
 
         /// <summary>
-        /// Maximum run time as a Go duration, such as 30m. Delivery does not apply this value in the private preview. A job stops after 2 hours.
+        /// Maximum run time as a Go duration, such as 30m. Delivery does not apply this value in the preview. A job stops after 2 hours.
         /// </summary>
         [Input("timeout")]
         public Input<string>? Timeout { get; set; }

@@ -14,7 +14,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 /**
- * Selects the pool that runs the work of a member or the pipeline program. In the private preview, all work runs on the hosted pool, so do not use this resource yet. Agent pools are not available.
+ * Selects the pool that runs the work of a member or the pipeline program.
  * 
  */
 @ResourceType(type="delivery:index:WorkflowsRuntime")
