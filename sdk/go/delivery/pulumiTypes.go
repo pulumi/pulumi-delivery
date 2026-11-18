@@ -1252,7 +1252,7 @@ type StacksEntry struct {
 	Image *Image `pulumi:"image"`
 	// Bash commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
 	PreRunCommands []string `pulumi:"preRunCommands"`
-	// Pool that runs the update. In the preview, all work runs on the hosted pool, so omit it.
+	// Pool that runs the update.
 	Runtime *WorkflowsRuntime `pulumi:"runtime"`
 	// VCS source to check out. The update uses the commit of the run for this source.
 	Source interface{} `pulumi:"source"`
@@ -1285,7 +1285,7 @@ type StacksEntryArgs struct {
 	Image ImagePtrInput `pulumi:"image"`
 	// Bash commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
 	PreRunCommands pulumi.StringArrayInput `pulumi:"preRunCommands"`
-	// Pool that runs the update. In the preview, all work runs on the hosted pool, so omit it.
+	// Pool that runs the update.
 	Runtime WorkflowsRuntimeInput `pulumi:"runtime"`
 	// VCS source to check out. The update uses the commit of the run for this source.
 	Source pulumi.Input `pulumi:"source"`
@@ -1372,7 +1372,7 @@ func (o StacksEntryOutput) PreRunCommands() pulumi.StringArrayOutput {
 	return o.ApplyT(func(v StacksEntry) []string { return v.PreRunCommands }).(pulumi.StringArrayOutput)
 }
 
-// Pool that runs the update. In the preview, all work runs on the hosted pool, so omit it.
+// Pool that runs the update.
 func (o StacksEntryOutput) Runtime() WorkflowsRuntimeOutput {
 	return o.ApplyT(func(v StacksEntry) *WorkflowsRuntime { return v.Runtime }).(WorkflowsRuntimeOutput)
 }

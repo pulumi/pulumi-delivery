@@ -70,7 +70,7 @@ export class Pipeline extends pulumi.ComponentResource {
  */
 export interface PipelineArgs {
     /**
-     * Pool that runs the pipeline program. In the preview, all work runs on the hosted pool, so omit it.
+     * Pool that runs the pipeline program.
      */
     runtime?: pulumi.Input<WorkflowsRuntime | undefined>;
     /**

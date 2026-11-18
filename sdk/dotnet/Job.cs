@@ -101,7 +101,7 @@ namespace Pulumi.Delivery
         }
 
         /// <summary>
-        /// Pool that runs the job. In the preview, all work runs on the hosted pool, so omit it.
+        /// Pool that runs the job.
         /// </summary>
         [Input("runtime")]
         public Input<Pulumi.Delivery.WorkflowsRuntime>? Runtime { get; set; }

@@ -178,7 +178,7 @@ export const release = pipeline.releaseNumber;
 func (r *PipelineArgs) Annotate(a infer.Annotator) {
 	a.Describe(r, "Pipeline settings.")
 	a.Describe(&r.ServicePrincipal, "Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.")
-	a.Describe(&r.Runtime, "Pool that runs the pipeline program. In the preview, all work runs on the hosted pool, so omit it.")
+	a.Describe(&r.Runtime, "Pool that runs the pipeline program.")
 }
 
 func (r *PipelineServicePrincipal) Annotate(a infer.Annotator) {
@@ -272,7 +272,7 @@ func (r *JobArgs) Annotate(a infer.Annotator) {
 	a.Describe(&r.Command, "Command to run with sh -c. To publish outputs, the command writes them to the file that DELIVERY_OUTPUTS names.")
 	a.Describe(&r.Environment, "Environment variables for the command. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.")
 	a.Describe(&r.Timeout, "Maximum run time as a Go duration, such as 30m. Delivery does not apply this value in the preview. A job stops after 2 hours.")
-	a.Describe(&r.Runtime, "Pool that runs the job. In the preview, all work runs on the hosted pool, so omit it.")
+	a.Describe(&r.Runtime, "Pool that runs the job.")
 	a.Describe(&r.Image, imageDoc)
 	a.Describe(&r.PreRunCommands, preRunCommandsDoc)
 }
@@ -314,7 +314,7 @@ func (r *StacksEntry) Annotate(a infer.Annotator) {
 	a.Describe(&r.Directory, "Directory of the stack project, relative to the repository root.")
 	a.Describe(&r.Config, "Config values that Delivery sets on the target stack before the update. Values are plain strings. Delivery rejects secret values. Keep secrets in the config file of the target stack or in an ESC environment.")
 	a.Describe(&r.Environment, "Environment variables for the update, for example cloud credentials. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.")
-	a.Describe(&r.Runtime, "Pool that runs the update. In the preview, all work runs on the hosted pool, so omit it.")
+	a.Describe(&r.Runtime, "Pool that runs the update.")
 	a.Describe(&r.Timeout, "Maximum run time of the update in seconds. The default is 7200 (2 hours).")
 	a.Describe(&r.Image, imageDoc)
 	a.Describe(&r.PreRunCommands, preRunCommandsDoc)

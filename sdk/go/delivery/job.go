@@ -67,7 +67,7 @@ type jobArgs struct {
 	Image *Image `pulumi:"image"`
 	// Bash commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
 	PreRunCommands []string `pulumi:"preRunCommands"`
-	// Pool that runs the job. In the preview, all work runs on the hosted pool, so omit it.
+	// Pool that runs the job.
 	Runtime *WorkflowsRuntime `pulumi:"runtime"`
 	// VCS source to check out.
 	Source interface{} `pulumi:"source"`
@@ -89,7 +89,7 @@ type JobArgs struct {
 	Image ImagePtrInput
 	// Bash commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
 	PreRunCommands pulumi.StringArrayInput
-	// Pool that runs the job. In the preview, all work runs on the hosted pool, so omit it.
+	// Pool that runs the job.
 	Runtime WorkflowsRuntimeInput
 	// VCS source to check out.
 	Source pulumi.Input

@@ -271,7 +271,7 @@
         },
         "runtime": {
           "$ref": "#/resources/delivery:index:WorkflowsRuntime",
-          "description": "Pool that runs the update. In the preview, all work runs on the hosted pool, so omit it."
+          "description": "Pool that runs the update."
         },
         "source": {
           "oneOf": [
@@ -597,7 +597,7 @@
         },
         "runtime": {
           "$ref": "#/resources/delivery:index:WorkflowsRuntime",
-          "description": "Pool that runs the job. In the preview, all work runs on the hosted pool, so omit it."
+          "description": "Pool that runs the job."
         },
         "source": {
           "oneOf": [
@@ -647,7 +647,7 @@
       "inputProperties": {
         "runtime": {
           "$ref": "#/resources/delivery:index:WorkflowsRuntime",
-          "description": "Pool that runs the pipeline program. In the preview, all work runs on the hosted pool, so omit it."
+          "description": "Pool that runs the pipeline program."
         },
         "servicePrincipal": {
           "$ref": "#/types/delivery:index:PipelineServicePrincipal",

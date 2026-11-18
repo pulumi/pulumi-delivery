@@ -26,7 +26,7 @@ class PipelineArgs:
         """
         The set of arguments for constructing a Pipeline resource.
 
-        :param pulumi.Input['WorkflowsRuntime'] runtime: Pool that runs the pipeline program. In the preview, all work runs on the hosted pool, so omit it.
+        :param pulumi.Input['WorkflowsRuntime'] runtime: Pool that runs the pipeline program.
         :param pulumi.Input['PipelineServicePrincipalArgs'] service_principal: Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
         """
         if runtime is not None:
@@ -38,7 +38,7 @@ class PipelineArgs:
     @pulumi.getter
     def runtime(self) -> pulumi.Input[Optional['WorkflowsRuntime']]:
         """
-        Pool that runs the pipeline program. In the preview, all work runs on the hosted pool, so omit it.
+        Pool that runs the pipeline program.
         """
         return pulumi.get(self, "runtime")
 
@@ -77,7 +77,7 @@ class Pipeline(pulumi.ComponentResource):
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
-        :param pulumi.Input['WorkflowsRuntime'] runtime: Pool that runs the pipeline program. In the preview, all work runs on the hosted pool, so omit it.
+        :param pulumi.Input['WorkflowsRuntime'] runtime: Pool that runs the pipeline program.
         :param pulumi.Input[Union['PipelineServicePrincipalArgs', 'PipelineServicePrincipalArgsDict']] service_principal: Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
         """
         ...

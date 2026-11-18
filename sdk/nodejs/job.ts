@@ -117,7 +117,7 @@ export interface JobArgs {
      */
     preRunCommands?: pulumi.Input<pulumi.Input<string>[] | undefined>;
     /**
-     * Pool that runs the job. In the preview, all work runs on the hosted pool, so omit it.
+     * Pool that runs the job.
      */
     runtime?: pulumi.Input<WorkflowsRuntime | undefined>;
     /**

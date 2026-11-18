@@ -102,14 +102,14 @@ public final class JobArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * Pool that runs the job. In the preview, all work runs on the hosted pool, so omit it.
+     * Pool that runs the job.
      * 
      */
     @Import(name="runtime")
     private @Nullable Output<WorkflowsRuntime> runtime;
 
     /**
-     * @return Pool that runs the job. In the preview, all work runs on the hosted pool, so omit it.
+     * @return Pool that runs the job.
      * 
      */
     public Optional<Output<WorkflowsRuntime>> runtime() {
@@ -309,7 +309,7 @@ public final class JobArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param runtime Pool that runs the job. In the preview, all work runs on the hosted pool, so omit it.
+         * @param runtime Pool that runs the job.
          * 
          * @return builder
          * 
@@ -320,7 +320,7 @@ public final class JobArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param runtime Pool that runs the job. In the preview, all work runs on the hosted pool, so omit it.
+         * @param runtime Pool that runs the job.
          * 
          * @return builder
          * 
