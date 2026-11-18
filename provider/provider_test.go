@@ -691,6 +691,23 @@ func TestSchemaOfTheTriggersAndTheReleaseNumber(t *testing.T) {
 	}
 }
 
+func TestSchemaOfTheTimeouts(t *testing.T) {
+	resp, err := newServer(t).GetSchema(p.GetSchemaRequest{})
+	require.NoError(t, err)
+	var schema struct {
+		Resources map[string]struct {
+			Inputs map[string]json.RawMessage `json:"inputProperties"`
+		} `json:"resources"`
+		Types map[string]struct {
+			Properties map[string]json.RawMessage `json:"properties"`
+		} `json:"types"`
+	}
+	require.NoError(t, json.Unmarshal([]byte(resp.Schema), &schema))
+	assert.JSONEq(t, `{"type":"string"}`, stripDescription(t, schema.Resources[typeJob].Inputs["timeout"]))
+	assert.JSONEq(t, `{"type":"string"}`,
+		stripDescription(t, schema.Types["delivery:index:StacksEntry"].Properties["timeout"]))
+}
+
 func stripDescription(t *testing.T, raw json.RawMessage) string {
 	t.Helper()
 	var node map[string]any

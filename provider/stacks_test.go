@@ -799,7 +799,7 @@ func TestMemberTimeoutValidation(t *testing.T) {
 	newFakeService(t)
 	server := newServer(t)
 	const message = "timeout must be a duration from 5m to 24h in whole seconds, such as 30m"
-	for _, timeout := range []string{"soon", "90500ms", "4m59s", "24h1s", "-10m"} {
+	for _, timeout := range []string{"soon", "90500ms", "10m0.5s", "4m59s", "24h1s", "-10m"} {
 		job := jobRequest(true)
 		job.Inputs = job.Inputs.Set("timeout", property.New(timeout))
 		_, err := server.Construct(job)
@@ -852,4 +852,31 @@ func TestMemberTimeoutKeepsNumbersAndSecrets(t *testing.T) {
 	got := timeoutsInSeconds(typeJob, inputs).Get("timeout")
 	assert.Equal(t, 600.0, got.AsNumber())
 	assert.True(t, got.Secret())
+
+	entry := property.New(map[string]property.Value{"timeout": property.New("10m")})
+	stacksOf := func(entries property.Value) property.Map {
+		return property.NewMap(map[string]property.Value{"stacks": entries})
+	}
+
+	secretEntry := timeoutsInSeconds(typeStacks, stacksOf(property.New(map[string]property.Value{
+		"a": entry.WithSecret(true),
+	}))).Get("stacks").AsMap().Get("a")
+	assert.True(t, secretEntry.Secret())
+	assert.Equal(t, 600.0, secretEntry.AsMap().Get("timeout").AsNumber())
+
+	secretStacks := timeoutsInSeconds(typeStacks, stacksOf(property.New(map[string]property.Value{
+		"a": entry,
+	}).WithSecret(true))).Get("stacks")
+	assert.True(t, secretStacks.Secret())
+	assert.Equal(t, 600.0, secretStacks.AsMap().Get("a").AsMap().Get("timeout").AsNumber())
+
+	unknownStacks := stacksOf(property.New(property.Computed))
+	assert.Equal(t, unknownStacks, timeoutsInSeconds(typeStacks, unknownStacks))
+
+	unknownEntry := timeoutsInSeconds(typeStacks, stacksOf(property.New(map[string]property.Value{
+		"a": property.New(property.Computed),
+		"b": entry,
+	}))).Get("stacks").AsMap()
+	assert.True(t, unknownEntry.Get("a").IsComputed())
+	assert.Equal(t, 600.0, unknownEntry.Get("b").AsMap().Get("timeout").AsNumber())
 }
