@@ -1,8 +1,81 @@
 # Pulumi Delivery
 
-Delivery needs Pulumi CLI v3.272.0 or later.
+Pulumi Delivery lets you write your release pipeline as a Pulumi program. Pulumi Cloud runs each release through your stages in order: it updates stacks, runs jobs, and waits at the gates you define.
 
-The repository has these directories.
+This repository holds the Delivery provider and its SDKs for TypeScript, Python, Go, C# and Java. You can also write a pipeline in YAML or HCL.
+
+Pulumi Delivery is in public preview. Behavior and the SDK can change before general availability.
+
+- [Documentation](https://www.pulumi.com/docs/delivery/)
+- [Get started](https://www.pulumi.com/docs/delivery/get-started/): register your first pipeline and deploy a release through `dev`, `staging` and `prod`.
+- [Concepts](https://www.pulumi.com/docs/delivery/concepts/): how pipelines, runs, stages, stacks, jobs, artifacts, sources and releases fit together.
+
+## Example
+
+This pipeline deploys an app from the `acme/shop` repository through three environments. Every push to `main` starts a run, and the run pauses before `prod` until someone continues it.
+
+```typescript
+import * as delivery from "@pulumi/delivery";
+
+const repo = new delivery.GitHubSource("repo", {
+    repository: "acme/shop",
+    branch: "main",
+    trigger: true,
+});
+
+const pipeline = new delivery.Pipeline("shop");
+
+const dev = new delivery.Stage("dev", { pipeline });
+const staging = new delivery.Stage("staging", { pipeline, from: [dev] });
+const prod = new delivery.Stage("prod", {
+    pipeline,
+    from: [staging],
+    when: delivery.manual({ description: "Check staging before you ship to prod." }),
+});
+
+for (const [env, stage] of Object.entries({ dev, staging, prod })) {
+    new delivery.Stacks(env, {
+        stage,
+        stacks: {
+            app: { stack: `shop-app/${env}`, source: repo, directory: "app" },
+        },
+    });
+}
+```
+
+`examples/basic` is a program of this kind in TypeScript. `examples/python`, `examples/yaml` and `examples/hcl` have one in Python, YAML and HCL.
+
+## Concepts
+
+- **Pipeline.** A Pulumi project that declares one `Pipeline` resource. It lives in a repository next to the code it deploys.
+- **Stage.** A phase of the pipeline, for example an environment such as `dev`. A stage runs after its upstream stages succeed and its gate passes.
+- **Gate.** A rule in the `when` property of a stage, such as a required approval or a manual step.
+- **Stacks.** Updates one or more existing stacks in a stage. Delivery updates stacks; it does not create them.
+- **Job.** Runs a shell command in a stage, such as a test suite or a script.
+- **Source and trigger.** A source is a repository and a branch. A trigger on a source decides whether a change starts a run.
+- **Run and release.** A run takes one release through the stages. A release pins one commit of each source, so every stage works from the same code.
+- **Artifact.** A named value that a stage publishes for a release. Other pipelines read it with a `PipelineSource`.
+
+## Use it
+
+You need a Pulumi Cloud organization and Pulumi CLI v3.277.0 or later.
+
+Create the pipeline program as a Pulumi project of its own and add the Delivery package:
+
+```sh
+mkdir delivery && cd delivery
+pulumi new typescript --name shop-delivery --stack main --yes
+pulumi package add delivery
+```
+
+Then work with the pipeline in two ways:
+
+- **Register it** with `pulumi delivery register`. Pulumi Cloud stores the pipeline, and from then on its triggers start runs. Run the command from a Git checkout with no uncommitted changes, at a commit that is pushed to the branch the pipeline tracks. If the stack config has no `delivery:source` setting, the command writes the program's location to it. Commit the config file after that.
+- **Run it locally** with `pulumi up`. The pipeline program runs on your machine, and the stack updates and jobs run in Pulumi Cloud. Use this to iterate on a pipeline from a branch.
+
+The [get started guide](https://www.pulumi.com/docs/delivery/get-started/) has every step.
+
+## Repository layout
 
 - `provider/`: Go resource provider. `provider/cmd/pulumi-resource-delivery/schema.json` is the committed schema, written from the built provider.
 - `sdk/`: SDKs for Node.js, Python, .NET, Go and Java, generated from the schema (`make generate`, never edited by hand). `sdk/go.mod` is the Go SDK module and is kept by hand.
