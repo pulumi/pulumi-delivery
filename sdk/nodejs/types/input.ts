@@ -227,7 +227,7 @@ export interface StacksEntryArgs {
      */
     preRunCommands?: pulumi.Input<pulumi.Input<string>[] | undefined>;
     /**
-     * Pool that runs the update. In the private preview, all work runs on the hosted pool, so omit it.
+     * Pool that runs the update. In the preview, all work runs on the hosted pool, so omit it.
      */
     runtime?: pulumi.Input<WorkflowsRuntime | undefined>;
     /**

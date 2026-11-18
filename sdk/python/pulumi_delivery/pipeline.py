@@ -26,7 +26,7 @@ class PipelineArgs:
         """
         The set of arguments for constructing a Pipeline resource.
 
-        :param pulumi.Input['WorkflowsRuntime'] runtime: Pool that runs the pipeline program. In the private preview, all work runs on the hosted pool, so omit it.
+        :param pulumi.Input['WorkflowsRuntime'] runtime: Pool that runs the pipeline program. In the preview, all work runs on the hosted pool, so omit it.
         :param pulumi.Input['PipelineServicePrincipalArgs'] service_principal: Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
         """
         if runtime is not None:
@@ -38,7 +38,7 @@ class PipelineArgs:
     @pulumi.getter
     def runtime(self) -> pulumi.Input[Optional['WorkflowsRuntime']]:
         """
-        Pool that runs the pipeline program. In the private preview, all work runs on the hosted pool, so omit it.
+        Pool that runs the pipeline program. In the preview, all work runs on the hosted pool, so omit it.
         """
         return pulumi.get(self, "runtime")
 
@@ -71,13 +71,13 @@ class Pipeline(pulumi.ComponentResource):
         """
         Declares the pipeline. It gives the release number of the run. Set delivery:source in the stack config to tell Delivery where the program lives. A program has one Pipeline.
 
-        To register the pipeline, run PULUMI_DELIVERY_REGISTER=true pulumi up on the pipeline stack. Registration ends with exit code 10, because the members wait for a run.
+        To register the pipeline, run pulumi delivery register on the pipeline stack. Registering starts no run.
 
         ## Example Usage
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
-        :param pulumi.Input['WorkflowsRuntime'] runtime: Pool that runs the pipeline program. In the private preview, all work runs on the hosted pool, so omit it.
+        :param pulumi.Input['WorkflowsRuntime'] runtime: Pool that runs the pipeline program. In the preview, all work runs on the hosted pool, so omit it.
         :param pulumi.Input[Union['PipelineServicePrincipalArgs', 'PipelineServicePrincipalArgsDict']] service_principal: Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.
         """
         ...
@@ -89,7 +89,7 @@ class Pipeline(pulumi.ComponentResource):
         """
         Declares the pipeline. It gives the release number of the run. Set delivery:source in the stack config to tell Delivery where the program lives. A program has one Pipeline.
 
-        To register the pipeline, run PULUMI_DELIVERY_REGISTER=true pulumi up on the pipeline stack. Registration ends with exit code 10, because the members wait for a run.
+        To register the pipeline, run pulumi delivery register on the pipeline stack. Registering starts no run.
 
         ## Example Usage
 

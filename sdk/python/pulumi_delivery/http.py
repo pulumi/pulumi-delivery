@@ -218,7 +218,7 @@ def http(body: Optional[_builtins.str] = None,
          url: Optional[_builtins.str] = None,
          opts: Optional[pulumi.InvokeOptions] = None) -> AwaitableHttpResult:
     """
-    Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true. Delivery does not support this rule in the private preview. Registration rejects a stage that uses it.
+    Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true. Delivery does not support this rule in the preview. Registration rejects a stage that uses it.
 
     ## Example Usage
 
@@ -271,7 +271,7 @@ def http_output(body: pulumi.Input[Optional[Optional[_builtins.str]]] = None,
                 url: pulumi.Input[Optional[_builtins.str]] = None,
                 opts: Optional[Union[pulumi.InvokeOptions, pulumi.InvokeOutputOptions]] = None) -> pulumi.Output[HttpResult]:
     """
-    Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true. Delivery does not support this rule in the private preview. Registration rejects a stage that uses it.
+    Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true. Delivery does not support this rule in the preview. Registration rejects a stage that uses it.
 
     ## Example Usage
 

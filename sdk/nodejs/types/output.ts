@@ -89,7 +89,7 @@ export interface Rule {
 }
 
 /**
- * Pool selection. In the private preview, all work runs on the hosted pool.
+ * Pool selection. In the preview, all work runs on the hosted pool.
  */
 export interface WorkflowsRuntimeArgs {
     /**

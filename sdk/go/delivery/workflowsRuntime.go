@@ -12,7 +12,7 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-// Selects the pool that runs the work of a member or the pipeline program. In the private preview, all work runs on the hosted pool, so do not use this resource yet. Agent pools are not available.
+// Selects the pool that runs the work of a member or the pipeline program. In the preview, all work runs on the hosted pool, so do not use this resource yet. Agent pools are not available.
 type WorkflowsRuntime struct {
 	pulumi.CustomResourceState
 

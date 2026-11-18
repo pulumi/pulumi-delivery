@@ -15,7 +15,7 @@ import javax.annotation.Nullable;
 /**
  * Declares the pipeline. It gives the release number of the run. Set delivery:source in the stack config to tell Delivery where the program lives. A program has one Pipeline.
  * 
- * To register the pipeline, run PULUMI_DELIVERY_REGISTER=true pulumi up on the pipeline stack. Registration ends with exit code 10, because the members wait for a run.
+ * To register the pipeline, run pulumi delivery register on the pipeline stack. Registering starts no run.
  * 
  * ## Example Usage
  * 

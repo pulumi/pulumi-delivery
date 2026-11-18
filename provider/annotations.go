@@ -5,11 +5,11 @@ package main
 import "github.com/pulumi/pulumi-go-provider/infer"
 
 func (r *WorkflowsRuntime) Annotate(a infer.Annotator) {
-	a.Describe(r, "Selects the pool that runs the work of a member or the pipeline program. In the private preview, all work runs on the hosted pool, so do not use this resource yet. Agent pools are not available.")
+	a.Describe(r, "Selects the pool that runs the work of a member or the pipeline program. In the preview, all work runs on the hosted pool, so do not use this resource yet. Agent pools are not available.")
 }
 
 func (r *WorkflowsRuntimeArgs) Annotate(a infer.Annotator) {
-	a.Describe(r, "Pool selection. In the private preview, all work runs on the hosted pool.")
+	a.Describe(r, "Pool selection. In the preview, all work runs on the hosted pool.")
 	a.Describe(&r.AgentPool, "Pool identifier. The resource returns it unchanged as ref.")
 }
 
@@ -67,7 +67,7 @@ func (r *ApprovalArgs) Annotate(a infer.Annotator) {
 }
 
 func (r *HTTP) Annotate(a infer.Annotator) {
-	a.Describe(r, `Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true. Delivery does not support this rule in the private preview. Registration rejects a stage that uses it.
+	a.Describe(r, `Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true. Delivery does not support this rule in the preview. Registration rejects a stage that uses it.
 
 ## Example Usage
 
@@ -162,7 +162,7 @@ func (r *CombinedRuleArgs) Annotate(a infer.Annotator) {
 func (r *Pipeline) Annotate(a infer.Annotator) {
 	a.Describe(r, `Declares the pipeline. It gives the release number of the run. Set delivery:source in the stack config to tell Delivery where the program lives. A program has one Pipeline.
 
-To register the pipeline, run PULUMI_DELIVERY_REGISTER=true pulumi up on the pipeline stack. Registration ends with exit code 10, because the members wait for a run.
+To register the pipeline, run pulumi delivery register on the pipeline stack. Registering starts no run.
 
 ## Example Usage
 
@@ -178,7 +178,7 @@ export const release = pipeline.releaseNumber;
 func (r *PipelineArgs) Annotate(a infer.Annotator) {
 	a.Describe(r, "Pipeline settings.")
 	a.Describe(&r.ServicePrincipal, "Service principal that the pipeline runs as. Without it, Delivery generates one for the pipeline.")
-	a.Describe(&r.Runtime, "Pool that runs the pipeline program. In the private preview, all work runs on the hosted pool, so omit it.")
+	a.Describe(&r.Runtime, "Pool that runs the pipeline program. In the preview, all work runs on the hosted pool, so omit it.")
 }
 
 func (r *PipelineServicePrincipal) Annotate(a infer.Annotator) {
@@ -271,8 +271,8 @@ func (r *JobArgs) Annotate(a infer.Annotator) {
 	a.Describe(&r.Directory, "Directory to run the command in, relative to the repository root.")
 	a.Describe(&r.Command, "Command to run with sh -c. To publish outputs, the command writes them to the file that DELIVERY_OUTPUTS names.")
 	a.Describe(&r.Environment, "Environment variables for the command. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.")
-	a.Describe(&r.Timeout, "Maximum run time as a Go duration, such as 30m. Delivery does not apply this value in the private preview. A job stops after 2 hours.")
-	a.Describe(&r.Runtime, "Pool that runs the job. In the private preview, all work runs on the hosted pool, so omit it.")
+	a.Describe(&r.Timeout, "Maximum run time as a Go duration, such as 30m. Delivery does not apply this value in the preview. A job stops after 2 hours.")
+	a.Describe(&r.Runtime, "Pool that runs the job. In the preview, all work runs on the hosted pool, so omit it.")
 	a.Describe(&r.Image, imageDoc)
 	a.Describe(&r.PreRunCommands, preRunCommandsDoc)
 }
@@ -314,7 +314,7 @@ func (r *StacksEntry) Annotate(a infer.Annotator) {
 	a.Describe(&r.Directory, "Directory of the stack project, relative to the repository root.")
 	a.Describe(&r.Config, "Config values that Delivery sets on the target stack before the update. Values are plain strings. Delivery rejects secret values. Keep secrets in the config file of the target stack or in an ESC environment.")
 	a.Describe(&r.Environment, "Environment variables for the update, for example cloud credentials. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.")
-	a.Describe(&r.Runtime, "Pool that runs the update. In the private preview, all work runs on the hosted pool, so omit it.")
+	a.Describe(&r.Runtime, "Pool that runs the update. In the preview, all work runs on the hosted pool, so omit it.")
 	a.Describe(&r.Timeout, "Maximum run time of the update in seconds. The default is 7200 (2 hours).")
 	a.Describe(&r.Image, imageDoc)
 	a.Describe(&r.PreRunCommands, preRunCommandsDoc)
