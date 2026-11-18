@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"maps"
+	"math"
 	"os"
 	"regexp"
 	"slices"
@@ -652,14 +653,20 @@ const (
 )
 
 // validateTimeout checks the timeout of a member: a duration in whole seconds from 5m to 24h. An unknown or unset
-// timeout passes.
+// timeout passes. A number is a number of seconds, which the service takes as it is, and has the same range.
 func validateTimeout(inputs property.Map) error {
-	timeout := stringInput(inputs, "timeout")
-	if timeout == "" {
-		return nil
-	}
-	if d, err := time.ParseDuration(timeout); err != nil || d%time.Second != 0 || d < minTimeout || d > maxTimeout {
-		return errors.New("timeout must be a duration from 5m to 24h in whole seconds, such as 30m")
+	invalid := errors.New("timeout must be a duration from 5m to 24h in whole seconds, such as 30m")
+	timeout, _ := inputs.GetOk("timeout")
+	switch {
+	case timeout.IsNumber():
+		seconds := timeout.AsNumber()
+		if seconds != math.Trunc(seconds) || seconds < minTimeout.Seconds() || seconds > maxTimeout.Seconds() {
+			return invalid
+		}
+	case timeout.IsString() && timeout.AsString() != "":
+		if d, err := time.ParseDuration(timeout.AsString()); err != nil || d%time.Second != 0 || d < minTimeout || d > maxTimeout {
+			return invalid
+		}
 	}
 	return nil
 }

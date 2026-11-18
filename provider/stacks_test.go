@@ -810,6 +810,23 @@ func TestMemberTimeoutValidation(t *testing.T) {
 		}))
 		require.ErrorContains(t, err, `stacks["a"]: `+message, timeout)
 	}
+	for _, seconds := range []float64{299, 600.5, 86401} {
+		job := jobRequest(true)
+		job.Inputs = job.Inputs.Set("timeout", property.New(seconds))
+		_, err := server.Construct(job)
+		require.ErrorContains(t, err, message, seconds)
+
+		_, err = server.Construct(stacksRequest("app", true, map[string]property.Value{
+			"a": stacksEntry("org/p/s", map[string]property.Value{"timeout": property.New(seconds)}),
+		}))
+		require.ErrorContains(t, err, `stacks["a"]: `+message, seconds)
+	}
+	for _, seconds := range []float64{300, 86400} {
+		job := jobRequest(true)
+		job.Inputs = job.Inputs.Set("timeout", property.New(seconds))
+		_, err := server.Construct(job)
+		require.NoError(t, err, seconds)
+	}
 	for _, timeout := range []string{"5m", "24h", "90m"} {
 		job := jobRequest(true)
 		job.Inputs = job.Inputs.Set("timeout", property.New(timeout))
