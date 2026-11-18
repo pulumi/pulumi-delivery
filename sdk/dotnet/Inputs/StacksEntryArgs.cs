@@ -82,10 +82,10 @@ namespace Pulumi.Delivery.Inputs
         public Input<string> Stack { get; set; } = null!;
 
         /// <summary>
-        /// Maximum run time of the update in seconds. The default is 7200 (2 hours).
+        /// Maximum run time of the update, as a Go duration such as 30m. It must be from 5m to 24h in whole seconds. The default is 2h.
         /// </summary>
         [Input("timeout")]
-        public Input<int>? Timeout { get; set; }
+        public Input<string>? Timeout { get; set; }
 
         public StacksEntryArgs()
         {

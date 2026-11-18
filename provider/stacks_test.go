@@ -768,3 +768,71 @@ func TestDropNulls(t *testing.T) {
 		"computed": property.New(property.Computed),
 	}), got)
 }
+
+func TestMemberTimeoutsAreSentAsSeconds(t *testing.T) {
+	service := newFakeService(t)
+	var children []property.Map
+	server := newServerCapturing(t, &children)
+
+	job := jobRequest(false)
+	job.Inputs = job.Inputs.Set("timeout", property.New("30m"))
+	_, err := server.Construct(job)
+	require.NoError(t, err)
+	assert.Equal(t, float64(1800), service.declared()[0]["inputs"].(map[string]any)["timeout"])
+	assert.Equal(t, "30m", children[0].Get("declaration").AsMap().Get("inputs").AsMap().Get("timeout").AsString())
+
+	entries := twoEntries()
+	entries["api"] = stacksEntry("org/shop/api", map[string]property.Value{"timeout": property.New("1h")})
+	_, err = server.Construct(stacksRequest("app", false, entries))
+	require.NoError(t, err)
+	stacks := service.declared()[1]["inputs"].(map[string]any)["stacks"].(map[string]any)
+	assert.Equal(t, float64(3600), stacks["api"].(map[string]any)["timeout"])
+	assert.NotContains(t, stacks["worker"], "timeout")
+	for _, child := range children[1:] {
+		if api, ok := child.Get("declaration").AsMap().Get("inputs").AsMap().Get("stacks").AsMap().GetOk("api"); ok {
+			assert.Equal(t, "1h", api.AsMap().Get("timeout").AsString())
+		}
+	}
+}
+
+func TestMemberTimeoutValidation(t *testing.T) {
+	newFakeService(t)
+	server := newServer(t)
+	const message = "timeout must be a duration from 5m to 24h in whole seconds, such as 30m"
+	for _, timeout := range []string{"soon", "90500ms", "4m59s", "24h1s", "-10m"} {
+		job := jobRequest(true)
+		job.Inputs = job.Inputs.Set("timeout", property.New(timeout))
+		_, err := server.Construct(job)
+		require.ErrorContains(t, err, message, timeout)
+
+		_, err = server.Construct(stacksRequest("app", true, map[string]property.Value{
+			"a": stacksEntry("org/p/s", map[string]property.Value{"timeout": property.New(timeout)}),
+		}))
+		require.ErrorContains(t, err, `stacks["a"]: `+message, timeout)
+	}
+	for _, timeout := range []string{"5m", "24h", "90m"} {
+		job := jobRequest(true)
+		job.Inputs = job.Inputs.Set("timeout", property.New(timeout))
+		_, err := server.Construct(job)
+		require.NoError(t, err, timeout)
+	}
+
+	job := jobRequest(true)
+	job.Inputs = job.Inputs.Set("timeout", property.New(property.Computed))
+	_, err := server.Construct(job)
+	require.NoError(t, err)
+	_, err = server.Construct(stacksRequest("app", true, map[string]property.Value{
+		"a": stacksEntry("org/p/s", map[string]property.Value{"timeout": property.New(property.Computed)}),
+	}))
+	require.NoError(t, err)
+}
+
+func TestMemberTimeoutKeepsNumbersAndSecrets(t *testing.T) {
+	inputs := property.NewMap(map[string]property.Value{"timeout": property.New(600.0)})
+	assert.Equal(t, inputs, timeoutsInSeconds(typeJob, inputs))
+
+	inputs = property.NewMap(map[string]property.Value{"timeout": property.New("10m").WithSecret(true)})
+	got := timeoutsInSeconds(typeJob, inputs).Get("timeout")
+	assert.Equal(t, 600.0, got.AsNumber())
+	assert.True(t, got.Secret())
+}

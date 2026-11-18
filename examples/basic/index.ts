@@ -34,7 +34,7 @@ const services = new delivery.Stacks("services", {
             directory: "api",
             config: {clusterEndpoint: platform.artifacts["clusterEndpoint"]},
         },
-        worker: {stack: "shop-worker/dev", source: code, directory: "worker", timeout: 1800},
+        worker: {stack: "shop-worker/dev", source: code, directory: "worker", timeout: "30m"},
     },
 });
 export const release = pipeline.releaseNumber;

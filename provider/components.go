@@ -82,14 +82,14 @@ type Job struct {
 	ChildUrn pulumi.StringOutput `pulumi:"childUrn"`
 }
 
-// StacksEntry is one stack that a Stacks resource updates. Timeout is in seconds.
+// StacksEntry is one stack that a Stacks resource updates.
 type StacksEntry struct {
 	Stack          string            `pulumi:"stack"`
 	Source         any               `pulumi:"source"`
 	Directory      string            `pulumi:"directory"`
 	Config         map[string]string `pulumi:"config,optional"`
 	Environment    map[string]string `pulumi:"environment,optional"`
-	Timeout        int               `pulumi:"timeout,optional"`
+	Timeout        string            `pulumi:"timeout,optional"`
 	Runtime        any               `pulumi:"runtime,optional"`
 	Image          *Image            `pulumi:"image,optional"`
 	PreRunCommands []string          `pulumi:"preRunCommands,optional"`

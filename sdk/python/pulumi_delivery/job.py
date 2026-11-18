@@ -46,7 +46,7 @@ class JobArgs:
         :param pulumi.Input['ImageArgs'] image: Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs bash, curl, gzip and the Pulumi CLI on PATH.
         :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] pre_run_commands: Bash commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
         :param pulumi.Input['WorkflowsRuntime'] runtime: Pool that runs the job.
-        :param pulumi.Input[_builtins.str] timeout: Maximum run time as a Go duration, such as 30m. Delivery does not apply this value in the preview. A job stops after 2 hours.
+        :param pulumi.Input[_builtins.str] timeout: Maximum run time of the job, as a Go duration such as 30m. It must be from 5m to 24h in whole seconds. The default is 2h.
         """
         pulumi.set(__self__, "command", command)
         pulumi.set(__self__, "directory", directory)
@@ -163,7 +163,7 @@ class JobArgs:
     @pulumi.getter
     def timeout(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        Maximum run time as a Go duration, such as 30m. Delivery does not apply this value in the preview. A job stops after 2 hours.
+        Maximum run time of the job, as a Go duration such as 30m. It must be from 5m to 24h in whole seconds. The default is 2h.
         """
         return pulumi.get(self, "timeout")
 
@@ -209,7 +209,7 @@ class Job(pulumi.ComponentResource):
         :param pulumi.Input['WorkflowsRuntime'] runtime: Pool that runs the job.
         :param pulumi.Input[Union['GitHubSource', 'GitLabSource', 'BitbucketSource', 'AzureDevOpsSource']] source: VCS source to check out.
         :param pulumi.Input['Stage'] stage: Stage that the job runs in.
-        :param pulumi.Input[_builtins.str] timeout: Maximum run time as a Go duration, such as 30m. Delivery does not apply this value in the preview. A job stops after 2 hours.
+        :param pulumi.Input[_builtins.str] timeout: Maximum run time of the job, as a Go duration such as 30m. It must be from 5m to 24h in whole seconds. The default is 2h.
         """
         ...
     @overload

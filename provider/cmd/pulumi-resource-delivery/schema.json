@@ -295,8 +295,8 @@
           "description": "Target stack as project/stack. It must exist before the first run, in the organization of the pipeline."
         },
         "timeout": {
-          "type": "integer",
-          "description": "Maximum run time of the update in seconds. The default is 7200 (2 hours)."
+          "type": "string",
+          "description": "Maximum run time of the update, as a Go duration such as 30m. It must be from 5m to 24h in whole seconds. The default is 2h."
         }
       },
       "type": "object",
@@ -622,7 +622,7 @@
         },
         "timeout": {
           "type": "string",
-          "description": "Maximum run time as a Go duration, such as 30m. Delivery does not apply this value in the preview. A job stops after 2 hours."
+          "description": "Maximum run time of the job, as a Go duration such as 30m. It must be from 5m to 24h in whole seconds. The default is 2h."
         }
       },
       "requiredInputs": [

@@ -147,14 +147,14 @@ public final class JobArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * Maximum run time as a Go duration, such as 30m. Delivery does not apply this value in the preview. A job stops after 2 hours.
+     * Maximum run time of the job, as a Go duration such as 30m. It must be from 5m to 24h in whole seconds. The default is 2h.
      * 
      */
     @Import(name="timeout")
     private @Nullable Output<String> timeout;
 
     /**
-     * @return Maximum run time as a Go duration, such as 30m. Delivery does not apply this value in the preview. A job stops after 2 hours.
+     * @return Maximum run time of the job, as a Go duration such as 30m. It must be from 5m to 24h in whole seconds. The default is 2h.
      * 
      */
     public Optional<Output<String>> timeout() {
@@ -372,7 +372,7 @@ public final class JobArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param timeout Maximum run time as a Go duration, such as 30m. Delivery does not apply this value in the preview. A job stops after 2 hours.
+         * @param timeout Maximum run time of the job, as a Go duration such as 30m. It must be from 5m to 24h in whole seconds. The default is 2h.
          * 
          * @return builder
          * 
@@ -383,7 +383,7 @@ public final class JobArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param timeout Maximum run time as a Go duration, such as 30m. Delivery does not apply this value in the preview. A job stops after 2 hours.
+         * @param timeout Maximum run time of the job, as a Go duration such as 30m. It must be from 5m to 24h in whole seconds. The default is 2h.
          * 
          * @return builder
          * 

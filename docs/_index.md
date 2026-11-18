@@ -607,7 +607,7 @@ Do not write the run number into the environment variables of a Lambda function.
 | Config of a member or a `Stacks` entry | 100 keys and 64 KiB |
 | Passes in a run | 5,000, then the run fails |
 | Time limit of a pass | 1 hour |
-| Time limit of a member | 2 hours. Set `timeout` on a `Job` or a `Stacks` entry, in seconds, from 300 (5 minutes) to 86,400 (24 hours). |
+| Time limit of a member | 2 hours. Set `timeout` on a `Job` or a `Stacks` entry, as a Go duration such as `30m`, from 5m to 24h. |
 | Job outputs | 1 MiB |
 | Run stacks | Deleted 90 days after the run ends |
 
