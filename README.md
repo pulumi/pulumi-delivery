@@ -43,7 +43,7 @@ for (const [env, stage] of Object.entries({ dev, staging, prod })) {
 }
 ```
 
-`examples/` has the same kind of program in Python, Go, C#, YAML and HCL.
+`examples/basic` is a program of this kind in TypeScript. `examples/python`, `examples/yaml` and `examples/hcl` have one in Python, YAML and HCL.
 
 ## Concepts
 
@@ -70,7 +70,7 @@ pulumi package add delivery
 
 Then work with the pipeline in two ways:
 
-- **Register it** with `pulumi delivery register`. Pulumi Cloud stores the pipeline, and from then on its triggers start runs. Registering writes the program's location to the `delivery:source` setting of the stack. Commit that config file.
+- **Register it** with `pulumi delivery register`. Pulumi Cloud stores the pipeline, and from then on its triggers start runs. Run the command from a Git checkout with no uncommitted changes, at a commit that is pushed to the branch the pipeline tracks. If the stack config has no `delivery:source` setting, the command writes the program's location to it. Commit the config file after that.
 - **Run it locally** with `pulumi up`. The pipeline program runs on your machine, and the stack updates and jobs run in Pulumi Cloud. Use this to iterate on a pipeline from a branch.
 
 The [get started guide](https://www.pulumi.com/docs/delivery/get-started/) has every step.
