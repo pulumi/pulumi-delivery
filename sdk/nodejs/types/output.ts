@@ -4,6 +4,7 @@
 import * as pulumi from "@pulumi/pulumi";
 import * as inputs from "../types/input";
 import * as outputs from "../types/output";
+import * as enums from "../types/enums";
 
 import {AzureDevOpsSource, BitbucketSource, GitHubSource, GitLabSource, WorkflowsRuntime} from "..";
 
@@ -78,7 +79,7 @@ export interface Rule {
     /**
      * Kind of the rule. Valid values are approval, decision, http, manual, all, and any.
      */
-    kind: string;
+    kind: string | enums.RuleKind;
     /**
      * HTTP request method. The default is GET.
      */
@@ -110,7 +111,7 @@ export interface Rule {
 }
 
 /**
- * Pool selection. In the private preview, all work runs on the hosted pool.
+ * Pool selection.
  */
 export interface WorkflowsRuntimeArgs {
     /**

@@ -4,10 +4,11 @@
 import * as pulumi from "@pulumi/pulumi";
 import * as inputs from "./types/input";
 import * as outputs from "./types/output";
+import * as enums from "./types/enums";
 import * as utilities from "./utilities";
 
 /**
- * Selects the pool that runs the work of a member or the pipeline program. In the private preview, all work runs on the hosted pool, so do not use this resource yet. Agent pools are not available.
+ * Selects the pool that runs the work of a member or the pipeline program.
  */
 export class WorkflowsRuntime extends pulumi.CustomResource {
     /**
@@ -20,6 +21,16 @@ export class WorkflowsRuntime extends pulumi.CustomResource {
      */
     public static get(name: string, id: pulumi.Input<pulumi.ID>, opts?: pulumi.CustomResourceOptions): WorkflowsRuntime {
         return new WorkflowsRuntime(name, undefined as any, { ...opts, id: id });
+    }
+
+    /**
+     * Check whether an existing WorkflowsRuntime resource with the given ID exists.
+     *
+     * @param id The _unique_ provider ID of the resource to check.
+     * @param opts Optional settings to control the behavior of the CustomResource.
+     */
+    public static exists(id: pulumi.Input<string>, opts?: pulumi.CustomResourceOptions): pulumi.Output<boolean> {
+        return pulumi.runtime.existsResource("delivery:index:WorkflowsRuntime", id, {}, { ...opts }, undefined);
     }
 
     /** @internal */

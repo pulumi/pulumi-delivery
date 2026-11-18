@@ -672,6 +672,14 @@ func TestSchemaOfTheTriggersAndTheReleaseNumber(t *testing.T) {
 		assert.Contains(t, schema.Resources[typ].Properties, "commit", typ)
 		assert.Contains(t, schema.Resources[typ].Required, "commit", typ)
 	}
+	var rule struct {
+		Properties map[string]json.RawMessage `json:"properties"`
+	}
+	require.NoError(t, json.Unmarshal(schema.Types["delivery:index:Rule"], &rule))
+	assert.JSONEq(t, `{"oneOf":[{"type":"string"},{"$ref":"#/types/delivery:index:RuleKind"}]}`,
+		stripDescription(t, rule.Properties["kind"]))
+	assert.JSONEq(t, `{"type":"string","enum":[{"value":"approval"},{"value":"decision"},{"value":"http"},{"value":"manual"},{"value":"all"},{"value":"any"}]}`,
+		stripDescription(t, schema.Types["delivery:index:RuleKind"]))
 	assert.Contains(t, schema.Types, "delivery:index:SourceTrigger")
 	assert.NotContains(t, schema.Types, "delivery:index:Trigger")
 	assert.NotContains(t, schema.Resources[typePipeline].Inputs, "triggers")
@@ -681,6 +689,23 @@ func TestSchemaOfTheTriggersAndTheReleaseNumber(t *testing.T) {
 	for _, gone := range []string{"push", "stageConverged", "signal"} {
 		assert.NotContains(t, schema.Functions, "delivery:index:"+gone)
 	}
+}
+
+func TestSchemaOfTheTimeouts(t *testing.T) {
+	resp, err := newServer(t).GetSchema(p.GetSchemaRequest{})
+	require.NoError(t, err)
+	var schema struct {
+		Resources map[string]struct {
+			Inputs map[string]json.RawMessage `json:"inputProperties"`
+		} `json:"resources"`
+		Types map[string]struct {
+			Properties map[string]json.RawMessage `json:"properties"`
+		} `json:"types"`
+	}
+	require.NoError(t, json.Unmarshal([]byte(resp.Schema), &schema))
+	assert.JSONEq(t, `{"type":"string"}`, stripDescription(t, schema.Resources[typeJob].Inputs["timeout"]))
+	assert.JSONEq(t, `{"type":"string"}`,
+		stripDescription(t, schema.Types["delivery:index:StacksEntry"].Properties["timeout"]))
 }
 
 func stripDescription(t *testing.T, raw json.RawMessage) string {

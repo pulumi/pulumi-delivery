@@ -1399,14 +1399,14 @@ type StacksEntry struct {
 	Image *Image `pulumi:"image"`
 	// Bash commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
 	PreRunCommands []string `pulumi:"preRunCommands"`
-	// Pool that runs the update. In the private preview, all work runs on the hosted pool, so omit it.
+	// Pool that runs the update.
 	Runtime *WorkflowsRuntime `pulumi:"runtime"`
 	// VCS source to check out. The update uses the commit of the run for this source.
 	Source interface{} `pulumi:"source"`
 	// Target stack as project/stack. It must exist before the first run, in the organization of the pipeline.
 	Stack string `pulumi:"stack"`
-	// Maximum run time of the update in seconds. The default is 7200 (2 hours).
-	Timeout *int `pulumi:"timeout"`
+	// Maximum run time of the update, as a Go duration such as 30m. It must be from 5m to 24h in whole seconds. The default is 2h.
+	Timeout *string `pulumi:"timeout"`
 }
 
 // StacksEntryInput is an input type that accepts StacksEntryArgs and StacksEntryOutput values.
@@ -1432,14 +1432,14 @@ type StacksEntryArgs struct {
 	Image ImagePtrInput `pulumi:"image"`
 	// Bash commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
 	PreRunCommands pulumi.StringArrayInput `pulumi:"preRunCommands"`
-	// Pool that runs the update. In the private preview, all work runs on the hosted pool, so omit it.
+	// Pool that runs the update.
 	Runtime WorkflowsRuntimeInput `pulumi:"runtime"`
 	// VCS source to check out. The update uses the commit of the run for this source.
 	Source pulumi.Input `pulumi:"source"`
 	// Target stack as project/stack. It must exist before the first run, in the organization of the pipeline.
 	Stack pulumi.StringInput `pulumi:"stack"`
-	// Maximum run time of the update in seconds. The default is 7200 (2 hours).
-	Timeout pulumi.IntPtrInput `pulumi:"timeout"`
+	// Maximum run time of the update, as a Go duration such as 30m. It must be from 5m to 24h in whole seconds. The default is 2h.
+	Timeout pulumi.StringPtrInput `pulumi:"timeout"`
 }
 
 func (StacksEntryArgs) ElementType() reflect.Type {
@@ -1519,7 +1519,7 @@ func (o StacksEntryOutput) PreRunCommands() pulumi.StringArrayOutput {
 	return o.ApplyT(func(v StacksEntry) []string { return v.PreRunCommands }).(pulumi.StringArrayOutput)
 }
 
-// Pool that runs the update. In the private preview, all work runs on the hosted pool, so omit it.
+// Pool that runs the update.
 func (o StacksEntryOutput) Runtime() WorkflowsRuntimeOutput {
 	return o.ApplyT(func(v StacksEntry) *WorkflowsRuntime { return v.Runtime }).(WorkflowsRuntimeOutput)
 }
@@ -1534,9 +1534,9 @@ func (o StacksEntryOutput) Stack() pulumi.StringOutput {
 	return o.ApplyT(func(v StacksEntry) string { return v.Stack }).(pulumi.StringOutput)
 }
 
-// Maximum run time of the update in seconds. The default is 7200 (2 hours).
-func (o StacksEntryOutput) Timeout() pulumi.IntPtrOutput {
-	return o.ApplyT(func(v StacksEntry) *int { return v.Timeout }).(pulumi.IntPtrOutput)
+// Maximum run time of the update, as a Go duration such as 30m. It must be from 5m to 24h in whole seconds. The default is 2h.
+func (o StacksEntryOutput) Timeout() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v StacksEntry) *string { return v.Timeout }).(pulumi.StringPtrOutput)
 }
 
 type StacksEntryMapOutput struct{ *pulumi.OutputState }
@@ -1559,13 +1559,13 @@ func (o StacksEntryMapOutput) MapIndex(k pulumi.StringInput) StacksEntryOutput {
 	}).(StacksEntryOutput)
 }
 
-// Pool selection. In the private preview, all work runs on the hosted pool.
+// Pool selection.
 type WorkflowsRuntimeArgsType struct {
 	// Pool identifier. The resource returns it unchanged as ref.
 	AgentPool string `pulumi:"agentPool"`
 }
 
-// Pool selection. In the private preview, all work runs on the hosted pool.
+// Pool selection.
 type WorkflowsRuntimeArgsTypeOutput struct{ *pulumi.OutputState }
 
 func (WorkflowsRuntimeArgsTypeOutput) ElementType() reflect.Type {

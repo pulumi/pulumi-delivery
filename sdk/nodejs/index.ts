@@ -101,6 +101,9 @@ export const WorkflowsRuntime: typeof import("./workflowsRuntime").WorkflowsRunt
 utilities.lazyLoad(exports, ["WorkflowsRuntime"], () => require("./workflowsRuntime"));
 
 
+// Export enums:
+export * from "./types/enums";
+
 // Export sub-modules:
 import * as config from "./config";
 import * as types from "./types";

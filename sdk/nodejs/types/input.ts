@@ -4,6 +4,7 @@
 import * as pulumi from "@pulumi/pulumi";
 import * as inputs from "../types/input";
 import * as outputs from "../types/output";
+import * as enums from "../types/enums";
 
 import {AzureDevOpsSource, BitbucketSource, GitHubSource, GitLabSource, WorkflowsRuntime} from "..";
 
@@ -134,7 +135,7 @@ export interface Rule {
     /**
      * Kind of the rule. Valid values are approval, decision, http, manual, all, and any.
      */
-    kind: string;
+    kind: string | enums.RuleKind;
     /**
      * HTTP request method. The default is GET.
      */
@@ -204,7 +205,7 @@ export interface RuleArgs {
     /**
      * Kind of the rule. Valid values are approval, decision, http, manual, all, and any.
      */
-    kind: pulumi.Input<string>;
+    kind: pulumi.Input<string | enums.RuleKind>;
     /**
      * HTTP request method. The default is GET.
      */
@@ -270,7 +271,7 @@ export interface StacksEntryArgs {
      */
     preRunCommands?: pulumi.Input<pulumi.Input<string>[] | undefined>;
     /**
-     * Pool that runs the update. In the private preview, all work runs on the hosted pool, so omit it.
+     * Pool that runs the update.
      */
     runtime?: pulumi.Input<WorkflowsRuntime | undefined>;
     /**
@@ -282,8 +283,8 @@ export interface StacksEntryArgs {
      */
     stack: pulumi.Input<string>;
     /**
-     * Maximum run time of the update in seconds. The default is 7200 (2 hours).
+     * Maximum run time of the update, as a Go duration such as 30m. It must be from 5m to 24h in whole seconds. The default is 2h.
      */
-    timeout?: pulumi.Input<number | undefined>;
+    timeout?: pulumi.Input<string | undefined>;
 }
 

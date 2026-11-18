@@ -1,7 +1,7 @@
 {
   "private": true,
   "dependencies": {
-    "@pulumi/delivery": "file:../../sdk/nodejs",
+    "@pulumi/delivery": "file:../../sdk/nodejs/bin",
     "@pulumi/pulumi": "^3.258.0"
   },
   "devDependencies": {

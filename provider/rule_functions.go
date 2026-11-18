@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"sort"
+	"slices"
 	"time"
 
 	"github.com/pulumi/pulumi-go-provider/infer"
@@ -82,6 +83,9 @@ func validateRuleValue(value property.Value, depth int) error {
 	if !known {
 		return nil
 	}
+	if !slices.Contains(ruleKinds, kind) {
+		return fmt.Errorf("unsupported rule kind %q", kind)
+	}
 	switch kind {
 	case "approval":
 		if count := rule.Get("count"); count.IsNumber() && count.AsNumber() < 0 {
@@ -127,6 +131,9 @@ func validateRuleValue(value property.Value, depth int) error {
 func validateRule(r Rule, d int) error {
 	if d > 3 {
 		return fmt.Errorf("rules may nest at most three levels")
+	}
+	if !slices.Contains(ruleKinds, r.Kind) {
+		return fmt.Errorf("unsupported rule kind %q", r.Kind)
 	}
 	switch r.Kind {
 	case "approval":

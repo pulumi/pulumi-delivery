@@ -5,6 +5,8 @@ package main
 import (
 	"context"
 	"math"
+	"slices"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -237,5 +239,18 @@ func TestAllOfAndAnyOfRequireAtLeastOneRule(t *testing.T) {
 	}
 	if resp.Output.Kind != "any" {
 		t.Fatalf("rule = %#v", resp.Output)
+	}
+}
+
+func TestTheValidatorsSupportExactlyTheRuleKinds(t *testing.T) {
+	for _, kind := range append(slices.Clone(ruleKinds), "unknown") {
+		errs := []error{
+			validateRule(Rule{Kind: kind}, 1),
+			validateRuleValue(property.New(map[string]property.Value{"kind": property.New(kind)}), 1),
+		}
+		for _, err := range errs {
+			unsupported := err != nil && strings.Contains(err.Error(), "unsupported rule kind")
+			assert.Equal(t, kind == "unknown", unsupported, "%s: %v", kind, err)
+		}
 	}
 }

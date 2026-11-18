@@ -4,10 +4,11 @@
 import * as pulumi from "@pulumi/pulumi";
 import * as inputs from "./types/input";
 import * as outputs from "./types/output";
+import * as enums from "./types/enums";
 import * as utilities from "./utilities";
 
 /**
- * Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true. Delivery does not support this rule in the private preview. Registration rejects a stage that uses it.
+ * Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true.
  *
  * ## Example Usage
  *
@@ -148,7 +149,7 @@ export interface HttpResult {
     readonly url?: string;
 }
 /**
- * Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true. Delivery does not support this rule in the private preview. Registration rejects a stage that uses it.
+ * Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true.
  *
  * ## Example Usage
  *

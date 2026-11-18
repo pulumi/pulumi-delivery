@@ -1,9 +1,24 @@
-provider/bin/
-!provider/bin/.gitkeep
+# Build outputs of the generated Makefile
+.make/
+/bin/
+.pulumi/
+/nuget/
+coverage.txt
 node_modules/
+yarn.lock
 **/sdks/delivery-delivery/
-dist/
 sdk/dotnet/bin/
 sdk/dotnet/obj/
+# Holds the build version, which CI changes on every run; the worktree-clean check does not allow that.
+sdk/dotnet/version.txt
+sdk/nodejs/bin/
+sdk/python/bin/
+sdk/python/venv/
+sdk/java/build/
+sdk/java/.gradle/
 examples/compile/dotnet/bin/
 examples/compile/dotnet/obj/
+# Written by the preview tests
+examples/**/Pulumi.test.yaml
+examples/python/venv/
+__pycache__/

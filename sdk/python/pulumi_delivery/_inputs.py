@@ -13,6 +13,7 @@ if sys.version_info >= (3, 11):
 else:
     from typing_extensions import NotRequired, TypedDict, TypeAlias
 from . import _utilities
+from ._enums import *
 from .azure_dev_ops_source import AzureDevOpsSource
 from .bitbucket_source import BitbucketSource
 from .git_hub_source import GitHubSource
@@ -382,7 +383,7 @@ class RuleDict(TypedDict):
     """
     Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.
     """
-    kind: _builtins.str
+    kind: Union[_builtins.str, 'RuleKind']
     """
     Kind of the rule. Valid values are approval, decision, http, manual, all, and any.
     """
@@ -450,7 +451,7 @@ class RuleDict(TypedDict):
 @pulumi.input_type
 class Rule:
     def __init__(__self__, *,
-                 kind: _builtins.str,
+                 kind: Union[_builtins.str, 'RuleKind'],
                  approvers: Optional[Sequence[_builtins.str]] = None,
                  body: Optional[_builtins.str] = None,
                  context: Optional[Mapping[str, Any]] = None,
@@ -469,7 +470,7 @@ class Rule:
         """
         Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.
 
-        :param _builtins.str kind: Kind of the rule. Valid values are approval, decision, http, manual, all, and any.
+        :param Union[_builtins.str, 'RuleKind'] kind: Kind of the rule. Valid values are approval, decision, http, manual, all, and any.
         :param Sequence[_builtins.str] approvers: Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
         :param _builtins.str body: HTTP request body. Secret values stay secret.
         :param Mapping[str, Any] context: Optional JSON-like context for a decision rule. Delivery rejects secret values and limits its encoded size to 16 KiB. Do not use it for credentials or other secrets.
@@ -520,14 +521,14 @@ class Rule:
 
     @_builtins.property
     @pulumi.getter
-    def kind(self) -> _builtins.str:
+    def kind(self) -> Union[_builtins.str, 'RuleKind']:
         """
         Kind of the rule. Valid values are approval, decision, http, manual, all, and any.
         """
         return pulumi.get(self, "kind")
 
     @kind.setter
-    def kind(self, value: _builtins.str):
+    def kind(self, value: Union[_builtins.str, 'RuleKind']):
         pulumi.set(self, "kind", value)
 
     @_builtins.property
@@ -715,7 +716,7 @@ class RuleArgsDict(TypedDict):
     """
     Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.
     """
-    kind: pulumi.Input[_builtins.str]
+    kind: pulumi.Input[Union[_builtins.str, 'RuleKind']]
     """
     Kind of the rule. Valid values are approval, decision, http, manual, all, and any.
     """
@@ -783,7 +784,7 @@ class RuleArgsDict(TypedDict):
 @pulumi.input_type
 class RuleArgs:
     def __init__(__self__, *,
-                 kind: pulumi.Input[_builtins.str],
+                 kind: pulumi.Input[Union[_builtins.str, 'RuleKind']],
                  approvers: pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]] = None,
                  body: pulumi.Input[Optional[_builtins.str]] = None,
                  context: pulumi.Input[Optional[Mapping[str, Any]]] = None,
@@ -802,7 +803,7 @@ class RuleArgs:
         """
         Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.
 
-        :param pulumi.Input[_builtins.str] kind: Kind of the rule. Valid values are approval, decision, http, manual, all, and any.
+        :param pulumi.Input[Union[_builtins.str, 'RuleKind']] kind: Kind of the rule. Valid values are approval, decision, http, manual, all, and any.
         :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] approvers: Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
         :param pulumi.Input[_builtins.str] body: HTTP request body. Secret values stay secret.
         :param pulumi.Input[Mapping[str, Any]] context: Optional JSON-like context for a decision rule. Delivery rejects secret values and limits its encoded size to 16 KiB. Do not use it for credentials or other secrets.
@@ -853,14 +854,14 @@ class RuleArgs:
 
     @_builtins.property
     @pulumi.getter
-    def kind(self) -> pulumi.Input[_builtins.str]:
+    def kind(self) -> pulumi.Input[Union[_builtins.str, 'RuleKind']]:
         """
         Kind of the rule. Valid values are approval, decision, http, manual, all, and any.
         """
         return pulumi.get(self, "kind")
 
     @kind.setter
-    def kind(self, value: pulumi.Input[_builtins.str]):
+    def kind(self, value: pulumi.Input[Union[_builtins.str, 'RuleKind']]):
         pulumi.set(self, "kind", value)
 
     @_builtins.property
@@ -1111,11 +1112,11 @@ class StacksEntryArgsDict(TypedDict):
     """
     runtime: NotRequired[pulumi.Input[Optional['WorkflowsRuntime']]]
     """
-    Pool that runs the update. In the private preview, all work runs on the hosted pool, so omit it.
+    Pool that runs the update.
     """
-    timeout: NotRequired[pulumi.Input[Optional[_builtins.int]]]
+    timeout: NotRequired[pulumi.Input[Optional[_builtins.str]]]
     """
-    Maximum run time of the update in seconds. The default is 7200 (2 hours).
+    Maximum run time of the update, as a Go duration such as 30m. It must be from 5m to 24h in whole seconds. The default is 2h.
     """
 
 @pulumi.input_type
@@ -1129,7 +1130,7 @@ class StacksEntryArgs:
                  image: pulumi.Input[Optional['ImageArgs']] = None,
                  pre_run_commands: pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]] = None,
                  runtime: pulumi.Input[Optional['WorkflowsRuntime']] = None,
-                 timeout: pulumi.Input[Optional[_builtins.int]] = None):
+                 timeout: pulumi.Input[Optional[_builtins.str]] = None):
         """
         One target stack that a Stacks resource updates.
 
@@ -1140,8 +1141,8 @@ class StacksEntryArgs:
         :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] environment: Environment variables for the update, for example cloud credentials. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
         :param pulumi.Input['ImageArgs'] image: Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs bash, curl, gzip and the Pulumi CLI on PATH.
         :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] pre_run_commands: Bash commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
-        :param pulumi.Input['WorkflowsRuntime'] runtime: Pool that runs the update. In the private preview, all work runs on the hosted pool, so omit it.
-        :param pulumi.Input[_builtins.int] timeout: Maximum run time of the update in seconds. The default is 7200 (2 hours).
+        :param pulumi.Input['WorkflowsRuntime'] runtime: Pool that runs the update.
+        :param pulumi.Input[_builtins.str] timeout: Maximum run time of the update, as a Go duration such as 30m. It must be from 5m to 24h in whole seconds. The default is 2h.
         """
         pulumi.set(__self__, "directory", directory)
         pulumi.set(__self__, "source", source)
@@ -1247,7 +1248,7 @@ class StacksEntryArgs:
     @pulumi.getter
     def runtime(self) -> pulumi.Input[Optional['WorkflowsRuntime']]:
         """
-        Pool that runs the update. In the private preview, all work runs on the hosted pool, so omit it.
+        Pool that runs the update.
         """
         return pulumi.get(self, "runtime")
 
@@ -1257,14 +1258,14 @@ class StacksEntryArgs:
 
     @_builtins.property
     @pulumi.getter
-    def timeout(self) -> pulumi.Input[Optional[_builtins.int]]:
+    def timeout(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        Maximum run time of the update in seconds. The default is 7200 (2 hours).
+        Maximum run time of the update, as a Go duration such as 30m. It must be from 5m to 24h in whole seconds. The default is 2h.
         """
         return pulumi.get(self, "timeout")
 
     @timeout.setter
-    def timeout(self, value: pulumi.Input[Optional[_builtins.int]]):
+    def timeout(self, value: pulumi.Input[Optional[_builtins.str]]):
         pulumi.set(self, "timeout", value)
 
 

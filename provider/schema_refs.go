@@ -49,6 +49,29 @@ var referencePatches = []struct {
 	{[]string{"resources", typePipeline, "inputProperties", "runtime"}, func() map[string]any { return ref("delivery:index:WorkflowsRuntime") }},
 	{[]string{"resources", typeJob, "inputProperties", "runtime"}, func() map[string]any { return ref("delivery:index:WorkflowsRuntime") }},
 	{[]string{"types", "delivery:index:StacksEntry", "properties", "runtime"}, func() map[string]any { return ref("delivery:index:WorkflowsRuntime") }},
+	{[]string{"types", "delivery:index:Rule", "properties", "kind"}, ruleKind},
+}
+
+// ruleKinds are the valid values of the kind of a rule. The validators reject every other kind, so a new kind
+// must be added here to work, and then it also gets a constant in the SDKs.
+var ruleKinds = []string{"approval", "decision", "http", "manual", "all", "any"}
+
+// ruleKind is the schema type of the kind of a rule: a string, with the RuleKind enum for its valid values.
+// The SDKs then accept a plain string and also have a constant for each kind.
+func ruleKind() map[string]any {
+	return map[string]any{"oneOf": []map[string]any{{"type": "string"}, {"$ref": "#/types/delivery:index:RuleKind"}}}
+}
+
+// addRuleKindEnum adds the RuleKind enum that ruleKind refers to.
+func addRuleKindEnum(doc map[string]any) {
+	values := make([]map[string]any, len(ruleKinds))
+	for i, kind := range ruleKinds {
+		values[i] = map[string]any{"value": kind}
+	}
+	types, _ := doc["types"].(map[string]any)
+	types["delivery:index:RuleKind"] = map[string]any{
+		"type": "string", "description": "Kind of a rule.", "enum": values,
+	}
 }
 
 // sourceTrigger is the schema type of the trigger of a source: true, or the paths that limit it.
@@ -77,6 +100,7 @@ func withReferences(
 				return p.GetSchemaResponse{}, err
 			}
 		}
+		addRuleKindEnum(doc)
 		unplainInputs(doc)
 		hideInternals(doc)
 		out, err := json.Marshal(doc)

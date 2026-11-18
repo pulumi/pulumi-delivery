@@ -1,6 +1,6 @@
 // Copyright 2026, Pulumi Corporation. All rights reserved.
 
-// Command compile checks that a Go program builds against the generated SDK. It is never run.
+// Command compile checks that a Go program builds against the generated SDK and previews.
 package main
 
 import (
@@ -39,7 +39,7 @@ func main() {
 		_, _ = delivery.Manual(ctx, &delivery.ManualArgs{Name: pulumi.StringRef("dashboards"), Description: pulumi.StringRef("Check the dashboards first.")})
 		prod, err := delivery.NewStage(ctx, "prod", &delivery.StageArgs{
 			Pipeline: pipeline,
-			When:     delivery.RuleArgs{Kind: pulumi.String("manual"), Name: pulumi.String("dashboards"), Description: pulumi.String("Check the dashboards first.")},
+			When:     delivery.RuleArgs{Kind: pulumi.String(delivery.RuleKindManual), Name: pulumi.String("dashboards"), Description: pulumi.String("Check the dashboards first.")},
 		})
 		if err != nil {
 			return err

@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"maps"
+	"math"
 	"os"
 	"regexp"
 	"slices"
@@ -578,10 +579,8 @@ func validateInputs(typ string, inputs property.Map) error {
 				return err
 			}
 		}
-		if timeout := stringInput(inputs, "timeout"); timeout != "" {
-			if d, err := time.ParseDuration(timeout); err != nil || d <= 0 {
-				return fmt.Errorf("timeout must be a positive duration, such as 30m")
-			}
+		if err := validateTimeout(inputs); err != nil {
+			return err
 		}
 		if _, ok := inputs.GetOk("runtime"); ok {
 			if err := requireRef(inputs, "runtime", "delivery:index:WorkflowsRuntime"); err != nil {
@@ -648,6 +647,30 @@ func principalForService(inputs property.Map) property.Map {
 	return inputs.Delete("servicePrincipal").Set(name, value.WithDependencies(principal.Dependencies()))
 }
 
+const (
+	minTimeout = 5 * time.Minute
+	maxTimeout = 24 * time.Hour
+)
+
+// validateTimeout checks the timeout of a member: a duration in whole seconds from 5m to 24h. An unknown or unset
+// timeout passes. A number is a number of seconds, which the service takes as it is, and has the same range.
+func validateTimeout(inputs property.Map) error {
+	invalid := errors.New("timeout must be a duration from 5m to 24h in whole seconds, such as 30m")
+	timeout, _ := inputs.GetOk("timeout")
+	switch {
+	case timeout.IsNumber():
+		seconds := timeout.AsNumber()
+		if seconds != math.Trunc(seconds) || seconds < minTimeout.Seconds() || seconds > maxTimeout.Seconds() {
+			return invalid
+		}
+	case timeout.IsString() && timeout.AsString() != "":
+		if d, err := time.ParseDuration(timeout.AsString()); err != nil || d%time.Second != 0 || d < minTimeout || d > maxTimeout {
+			return invalid
+		}
+	}
+	return nil
+}
+
 func checkImage(inputs property.Map) error {
 	if _, ok := inputs.GetOk("image"); !ok || unknown(inputs, "image") {
 		return nil
@@ -711,6 +734,9 @@ func validateStacks(inputs property.Map) error {
 			if err := requireRef(entry, "runtime", "delivery:index:WorkflowsRuntime"); err != nil {
 				return fail(err)
 			}
+		}
+		if err := validateTimeout(entry); err != nil {
+			return fail(err)
 		}
 		if err := checkImage(entry); err != nil {
 			return fail(err)

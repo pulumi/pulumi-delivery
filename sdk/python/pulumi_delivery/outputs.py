@@ -14,6 +14,7 @@ else:
     from typing_extensions import NotRequired, TypedDict, TypeAlias
 from . import _utilities
 from . import outputs
+from ._enums import *
 
 __all__ = [
     'DecisionQuestion',
@@ -128,7 +129,7 @@ class Rule(dict):
         """
         Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.
 
-        :param _builtins.str kind: Kind of the rule. Valid values are approval, decision, http, manual, all, and any.
+        :param Union[_builtins.str, 'RuleKind'] kind: Kind of the rule. Valid values are approval, decision, http, manual, all, and any.
         :param Sequence[_builtins.str] approvers: Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
         :param _builtins.str body: HTTP request body. Secret values stay secret.
         :param Mapping[str, Any] context: Optional JSON-like context for a decision rule. Delivery rejects secret values and limits its encoded size to 16 KiB. Do not use it for credentials or other secrets.
@@ -309,7 +310,7 @@ class Rule(dict):
 @pulumi.output_type
 class WorkflowsRuntimeArgs(dict):
     """
-    Pool selection. In the private preview, all work runs on the hosted pool.
+    Pool selection.
     """
     @staticmethod
     def __key_warning(key: str):
@@ -331,7 +332,7 @@ class WorkflowsRuntimeArgs(dict):
     def __init__(__self__, *,
                  agent_pool: _builtins.str):
         """
-        Pool selection. In the private preview, all work runs on the hosted pool.
+        Pool selection.
 
         :param _builtins.str agent_pool: Pool identifier. The resource returns it unchanged as ref.
         """
