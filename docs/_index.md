@@ -4,14 +4,14 @@ Pulumi Delivery runs your delivery pipeline as a Pulumi program. The program dec
 
 ## Status
 
-Pulumi Delivery is in private preview. Behavior, the SDK, the API and the routes under `preview` can change.
+Pulumi Delivery is in public preview. Behavior, the SDK, the API and the routes under `preview` can change before general availability.
 
 ## Setup
 
 ### What you need
 
-- Pulumi enables Delivery for your organization. Ask your Pulumi contact.
-- Pulumi CLI v3.272.0 or later.
+- A Pulumi Cloud organization on any edition.
+- Pulumi CLI v3.277.0 or later.
 - Linux, macOS or Windows.
 - A Pulumi Cloud backend. Delivery does not work with a file backend or with self-hosted Pulumi Cloud.
 
