@@ -60,13 +60,15 @@ for (const [env, stage] of Object.entries({ dev, staging, prod })) {
 
 You need a Pulumi Cloud organization and Pulumi CLI v3.277.0 or later.
 
-Create the pipeline program as a Pulumi project of its own and add the Delivery package:
+Create the pipeline program as a Pulumi project of its own and install the Delivery SDK:
 
 ```sh
 mkdir delivery && cd delivery
 pulumi new typescript --name shop-delivery --stack main --yes
-pulumi package add delivery
+npm install @pulumi/delivery
 ```
+
+The SDKs for the other languages are `pulumi_delivery` on PyPI, `Pulumi.Delivery` on NuGet, `com.pulumi:delivery` on Maven and the Go module `github.com/pulumi/pulumi-delivery/sdk`. The installed SDK brings the matching provider plugin with it.
 
 Then work with the pipeline in two ways:
 

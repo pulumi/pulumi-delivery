@@ -37,15 +37,19 @@ Write the `repository` of a source like this:
 - Bitbucket: `workspace/repo`
 - Azure DevOps: `org/project/repo`
 
-### Add the SDK
+### Install the SDK
 
-Run this command in the directory of the pipeline program:
+Install the SDK in the directory of the pipeline program, with the package manager of your language:
 
-```sh
-pulumi package add delivery
-```
+- TypeScript: `npm install @pulumi/delivery`
+- Python: add `pulumi_delivery` to `requirements.txt`, then run `pulumi install`
+- Go: `go get github.com/pulumi/pulumi-delivery/sdk/go/delivery`
+- C#: `dotnet add package Pulumi.Delivery`
+- Java: add the dependency `com.pulumi:delivery` to `pom.xml`
 
-The command adds the latest version of the SDK and writes it to the `packages` section of `Pulumi.yaml`, for example `delivery: delivery@<version>`. Keep that entry. The hosted runner reads it and runs `pulumi install` for your program. To add a specific version, run `pulumi package add delivery@<version>`.
+A YAML or HCL program needs no SDK.
+
+Commit the dependency file that the command changes, such as `package.json` and its lock file. The hosted runner runs `pulumi install` for your program and installs the SDK from that file.
 
 The Pulumi CLI downloads the provider plugin when a program needs it.
 
@@ -124,7 +128,7 @@ pulumi stack init acme/shop-infra/prod
 
 ### The pipeline program
 
-`delivery/Pulumi.yaml` names the project. Run `pulumi package add` in this directory to add the `packages` entry.
+`delivery/Pulumi.yaml` names the project.
 
 ```yaml
 name: shop-delivery
@@ -138,6 +142,7 @@ runtime: nodejs
   "name": "shop-delivery",
   "private": true,
   "dependencies": {
+    "@pulumi/delivery": "^0.1.0",
     "@pulumi/pulumi": "^3.0.0"
   },
   "devDependencies": {
