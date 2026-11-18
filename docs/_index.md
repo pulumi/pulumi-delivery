@@ -1,4 +1,8 @@
-# Pulumi Delivery
+---
+title: Pulumi Delivery
+meta_desc: Pulumi Delivery lets you write your release pipeline as a Pulumi program and promote each release through stages, stacks, jobs and approval gates.
+layout: package
+---
 
 Pulumi Delivery runs your delivery pipeline as a Pulumi program. The program declares sources, stages, stacks, jobs and approval gates. Pulumi Cloud runs each release through the stages in order.
 
@@ -624,4 +628,4 @@ Each entry of a `Stacks` group uses one concurrency slot of your organization. A
 - You cannot delete a pipeline stack while runs are in progress. Deleting a pipeline stack stops the pipeline and deletes its run stacks. After you restore the stack, run `pulumi delivery register` on it to register the pipeline again.
 - You cannot move a pipeline stack to another organization. You cannot rename or move a run stack.
 - The `http()` rule is not available in the preview. Registration rejects a stage with an `http()` rule.
-- The preview has no time-based triggers, no ESC triggers, no dispatch inputs and no `pulumi delivery` command.
+- The preview has no time-based triggers, no ESC triggers and no dispatch inputs. `pulumi delivery register` is the only `pulumi delivery` command.
