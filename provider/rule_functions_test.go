@@ -148,11 +148,14 @@ func TestDecisionValidation(t *testing.T) {
 }
 
 func TestLiteralDecisionRuleValidation(t *testing.T) {
-	decision := func(questions map[string]property.Value) property.Value {
+	decisionValue := func(questions property.Value) property.Value {
 		return property.New(property.NewMap(map[string]property.Value{
 			"kind":      property.New("decision"),
-			"questions": property.New(property.NewMap(questions)),
+			"questions": questions,
 		}))
+	}
+	decision := func(questions map[string]property.Value) property.Value {
+		return decisionValue(property.New(property.NewMap(questions)))
 	}
 	question := func(instructions string, maximumRisk float64) property.Value {
 		return property.New(property.NewMap(map[string]property.Value{
@@ -180,6 +183,20 @@ func TestLiteralDecisionRuleValidation(t *testing.T) {
 		{name: "risk above one", when: decision(map[string]property.Value{"risk": question("Is this safe?", 5)}), wantErr: `question "risk" maximumRisk must be between 0 and 1`},
 		{name: "nested all", when: nested("all", decision(map[string]property.Value{"risk": question("Is this safe?", -0.1)})), wantErr: `question "risk" maximumRisk must be between 0 and 1`},
 		{name: "nested any", when: nested("any", decision(map[string]property.Value{"risk": question("Is this safe?", math.NaN())})), wantErr: `question "risk" maximumRisk must be between 0 and 1`},
+		{name: "unknown questions", when: decisionValue(property.New(property.Computed))},
+		{name: "unknown question", when: decision(map[string]property.Value{"risk": property.New(property.Computed)})},
+		{name: "unknown instructions", when: decision(map[string]property.Value{"risk": property.New(property.NewMap(map[string]property.Value{
+			"instructions": property.New(property.Computed),
+			"maximumRisk":  property.New(0.5),
+		}))})},
+		{name: "unknown maximum risk", when: decision(map[string]property.Value{"risk": property.New(property.NewMap(map[string]property.Value{
+			"instructions": property.New("Is this safe?"),
+			"maximumRisk":  property.New(property.Computed),
+		}))})},
+		{name: "unknown question does not hide invalid question", when: decision(map[string]property.Value{
+			"unknown": property.New(property.Computed),
+			"invalid": question("Is this safe?", 5),
+		}), wantErr: `question "invalid" maximumRisk must be between 0 and 1`},
 		{name: "boundary values", when: decision(map[string]property.Value{
 			"always deny":  question("Is this safe?", 0),
 			"always allow": question("Is this safe?", 1),
