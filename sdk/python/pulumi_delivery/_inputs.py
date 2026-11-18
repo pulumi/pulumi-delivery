@@ -921,9 +921,9 @@ class StacksEntryArgsDict(TypedDict):
     """
     Pool that runs the update.
     """
-    timeout: NotRequired[pulumi.Input[Optional[_builtins.int]]]
+    timeout: NotRequired[pulumi.Input[Optional[_builtins.str]]]
     """
-    Maximum run time of the update in seconds. The default is 7200 (2 hours).
+    Maximum run time of the update, as a Go duration such as 30m. It must be from 5m to 24h in whole seconds. The default is 2h.
     """
 
 @pulumi.input_type
@@ -937,7 +937,7 @@ class StacksEntryArgs:
                  image: pulumi.Input[Optional['ImageArgs']] = None,
                  pre_run_commands: pulumi.Input[Optional[Sequence[pulumi.Input[_builtins.str]]]] = None,
                  runtime: pulumi.Input[Optional['_workflows_runtime.WorkflowsRuntime']] = None,
-                 timeout: pulumi.Input[Optional[_builtins.int]] = None):
+                 timeout: pulumi.Input[Optional[_builtins.str]] = None):
         """
         One target stack that a Stacks resource updates.
 
@@ -949,7 +949,7 @@ class StacksEntryArgs:
         :param pulumi.Input['ImageArgs'] image: Container image that the member runs in. The default is the Pulumi image. Use it to pin the Pulumi CLI or language versions, for example pulumi/pulumi-nodejs:3.272.0. The image needs bash, curl, gzip and the Pulumi CLI on PATH.
         :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] pre_run_commands: Bash commands that run in the project directory after the dependencies are installed and before the Pulumi command or the command of the job. Each command runs as its own step, so environment changes do not carry over to the next step.
         :param pulumi.Input['_workflows_runtime.WorkflowsRuntime'] runtime: Pool that runs the update.
-        :param pulumi.Input[_builtins.int] timeout: Maximum run time of the update in seconds. The default is 7200 (2 hours).
+        :param pulumi.Input[_builtins.str] timeout: Maximum run time of the update, as a Go duration such as 30m. It must be from 5m to 24h in whole seconds. The default is 2h.
         """
         pulumi.set(__self__, "directory", directory)
         pulumi.set(__self__, "source", source)
@@ -1065,14 +1065,14 @@ class StacksEntryArgs:
 
     @_builtins.property
     @pulumi.getter
-    def timeout(self) -> pulumi.Input[Optional[_builtins.int]]:
+    def timeout(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        Maximum run time of the update in seconds. The default is 7200 (2 hours).
+        Maximum run time of the update, as a Go duration such as 30m. It must be from 5m to 24h in whole seconds. The default is 2h.
         """
         return pulumi.get(self, "timeout")
 
     @timeout.setter
-    def timeout(self, value: pulumi.Input[Optional[_builtins.int]]):
+    def timeout(self, value: pulumi.Input[Optional[_builtins.str]]):
         pulumi.set(self, "timeout", value)
 
 

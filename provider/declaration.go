@@ -11,6 +11,7 @@ import (
 	"os"
 	"slices"
 	"strconv"
+	"time"
 
 	p "github.com/pulumi/pulumi-go-provider"
 	"github.com/pulumi/pulumi/pkg/v3/resource/stack"
@@ -123,7 +124,7 @@ func collectDependencies(value property.Value, add func(urn.URN)) {
 // request is the body of the declaration route: the raw inputs in the Pulumi JSON property encoding, with
 // secrets in plaintext and unknowns as the unknown marker.
 func (d declaration) request(ctx context.Context, inputs property.Map) (cloudclient.Declaration, error) {
-	encoded, err := stack.SerializeProperties(ctx, resource.ToResourcePropertyMap(inputs), config.NopEncrypter, true)
+	encoded, err := stack.SerializeProperties(ctx, resource.ToResourcePropertyMap(timeoutsInSeconds(d.typ, inputs)), config.NopEncrypter, true)
 	if err != nil {
 		return cloudclient.Declaration{}, fmt.Errorf("encoding the inputs of %s: %w", d.urn, err)
 	}
@@ -131,6 +132,41 @@ func (d declaration) request(ctx context.Context, inputs property.Map) (cloudcli
 		ProtocolVersion: cloudclient.ProtocolVersion, Mode: declarationMode, URN: d.urn, Type: d.typ, Inputs: encoded,
 		Dependencies: d.dependencies, PropertyDependencies: d.propertyDependencies,
 	}, nil
+}
+
+// timeoutsInSeconds replaces the timeout of a Job, and of each entry of a Stacks resource, with the number of seconds
+// that the service reads. Only the request changes: the component keeps the duration the user wrote.
+func timeoutsInSeconds(typ string, inputs property.Map) property.Map {
+	switch typ {
+	case typeJob:
+		return withSeconds(inputs)
+	case typeStacks:
+		stacks, ok := inputs.GetOk("stacks")
+		if !ok || !stacks.IsMap() {
+			return inputs
+		}
+		entries := map[string]property.Value{}
+		for name, entry := range stacks.AsMap().AsMap() {
+			if entry.IsMap() {
+				entry = property.New(withSeconds(entry.AsMap())).WithSecret(entry.Secret()).WithDependencies(entry.Dependencies())
+			}
+			entries[name] = entry
+		}
+		return inputs.Set("stacks", property.New(property.NewMap(entries)).WithSecret(stacks.Secret()).WithDependencies(stacks.Dependencies()))
+	}
+	return inputs
+}
+
+func withSeconds(member property.Map) property.Map {
+	timeout, ok := member.GetOk("timeout")
+	if !ok || !timeout.IsString() || timeout.AsString() == "" {
+		return member
+	}
+	d, err := time.ParseDuration(timeout.AsString())
+	if err != nil {
+		return member
+	}
+	return member.Set("timeout", property.New(d.Seconds()).WithSecret(timeout.Secret()).WithDependencies(timeout.Dependencies()))
 }
 
 // forChild is the same declaration as inputs of the child resource. The inputs keep their secrets, so the

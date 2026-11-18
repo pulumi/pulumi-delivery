@@ -12,7 +12,6 @@ import com.pulumi.delivery.GitLabSource;
 import com.pulumi.delivery.WorkflowsRuntime;
 import com.pulumi.delivery.inputs.ImageArgs;
 import com.pulumi.exceptions.MissingRequiredPropertyException;
-import java.lang.Integer;
 import java.lang.Object;
 import java.lang.String;
 import java.util.List;
@@ -151,17 +150,17 @@ public final class StacksEntryArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * Maximum run time of the update in seconds. The default is 7200 (2 hours).
+     * Maximum run time of the update, as a Go duration such as 30m. It must be from 5m to 24h in whole seconds. The default is 2h.
      * 
      */
     @Import(name="timeout")
-    private @Nullable Output<Integer> timeout;
+    private @Nullable Output<String> timeout;
 
     /**
-     * @return Maximum run time of the update in seconds. The default is 7200 (2 hours).
+     * @return Maximum run time of the update, as a Go duration such as 30m. It must be from 5m to 24h in whole seconds. The default is 2h.
      * 
      */
-    public Optional<Output<Integer>> timeout() {
+    public Optional<Output<String>> timeout() {
         return Optional.ofNullable(this.timeout);
     }
 
@@ -376,23 +375,23 @@ public final class StacksEntryArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param timeout Maximum run time of the update in seconds. The default is 7200 (2 hours).
+         * @param timeout Maximum run time of the update, as a Go duration such as 30m. It must be from 5m to 24h in whole seconds. The default is 2h.
          * 
          * @return builder
          * 
          */
-        public Builder timeout(@Nullable Output<Integer> timeout) {
+        public Builder timeout(@Nullable Output<String> timeout) {
             $.timeout = timeout;
             return this;
         }
 
         /**
-         * @param timeout Maximum run time of the update in seconds. The default is 7200 (2 hours).
+         * @param timeout Maximum run time of the update, as a Go duration such as 30m. It must be from 5m to 24h in whole seconds. The default is 2h.
          * 
          * @return builder
          * 
          */
-        public Builder timeout(Integer timeout) {
+        public Builder timeout(String timeout) {
             return timeout(Output.of(timeout));
         }
 

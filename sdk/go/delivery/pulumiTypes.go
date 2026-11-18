@@ -1258,8 +1258,8 @@ type StacksEntry struct {
 	Source interface{} `pulumi:"source"`
 	// Target stack as project/stack. It must exist before the first run, in the organization of the pipeline.
 	Stack string `pulumi:"stack"`
-	// Maximum run time of the update in seconds. The default is 7200 (2 hours).
-	Timeout *int `pulumi:"timeout"`
+	// Maximum run time of the update, as a Go duration such as 30m. It must be from 5m to 24h in whole seconds. The default is 2h.
+	Timeout *string `pulumi:"timeout"`
 }
 
 // StacksEntryInput is an input type that accepts StacksEntryArgs and StacksEntryOutput values.
@@ -1291,8 +1291,8 @@ type StacksEntryArgs struct {
 	Source pulumi.Input `pulumi:"source"`
 	// Target stack as project/stack. It must exist before the first run, in the organization of the pipeline.
 	Stack pulumi.StringInput `pulumi:"stack"`
-	// Maximum run time of the update in seconds. The default is 7200 (2 hours).
-	Timeout pulumi.IntPtrInput `pulumi:"timeout"`
+	// Maximum run time of the update, as a Go duration such as 30m. It must be from 5m to 24h in whole seconds. The default is 2h.
+	Timeout pulumi.StringPtrInput `pulumi:"timeout"`
 }
 
 func (StacksEntryArgs) ElementType() reflect.Type {
@@ -1387,9 +1387,9 @@ func (o StacksEntryOutput) Stack() pulumi.StringOutput {
 	return o.ApplyT(func(v StacksEntry) string { return v.Stack }).(pulumi.StringOutput)
 }
 
-// Maximum run time of the update in seconds. The default is 7200 (2 hours).
-func (o StacksEntryOutput) Timeout() pulumi.IntPtrOutput {
-	return o.ApplyT(func(v StacksEntry) *int { return v.Timeout }).(pulumi.IntPtrOutput)
+// Maximum run time of the update, as a Go duration such as 30m. It must be from 5m to 24h in whole seconds. The default is 2h.
+func (o StacksEntryOutput) Timeout() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v StacksEntry) *string { return v.Timeout }).(pulumi.StringPtrOutput)
 }
 
 type StacksEntryMapOutput struct{ *pulumi.OutputState }
