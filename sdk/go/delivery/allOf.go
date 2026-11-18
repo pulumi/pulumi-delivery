@@ -38,6 +38,8 @@ type AllOfResult struct {
 	Approvers []string `pulumi:"approvers"`
 	// HTTP request body. Secret values stay secret.
 	Body *string `pulumi:"body"`
+	// Optional JSON-like context for a decision rule. Delivery rejects secret values and limits its encoded size to 16 KiB. Do not use it for credentials or other secrets.
+	Context map[string]interface{} `pulumi:"context"`
 	// Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
 	Count *int `pulumi:"count"`
 	// Text for the person who continues a manual gate, for example what to check first.
@@ -48,12 +50,14 @@ type AllOfResult struct {
 	HeadersEnvironment *string `pulumi:"headersEnvironment"`
 	// Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
 	Interval *string `pulumi:"interval"`
-	// Kind of the rule. Valid values are approval, http, manual, all, and any.
+	// Kind of the rule. Valid values are approval, decision, http, manual, all, and any.
 	Kind string `pulumi:"kind"`
 	// HTTP request method. The default is GET.
 	Method *string `pulumi:"method"`
 	// Rule name. Omit it to let Delivery assign one.
 	Name *string `pulumi:"name"`
+	// Named judgments and their deterministic risk thresholds for a decision rule.
+	Questions map[string]DecisionQuestion `pulumi:"questions"`
 	// Child rules for all and any rules. At least one is required.
 	Rules []Rule `pulumi:"rules"`
 	// JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
@@ -106,6 +110,11 @@ func (o AllOfResultOutput) Body() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v AllOfResult) *string { return v.Body }).(pulumi.StringPtrOutput)
 }
 
+// Optional JSON-like context for a decision rule. Delivery rejects secret values and limits its encoded size to 16 KiB. Do not use it for credentials or other secrets.
+func (o AllOfResultOutput) Context() pulumi.MapOutput {
+	return o.ApplyT(func(v AllOfResult) map[string]interface{} { return v.Context }).(pulumi.MapOutput)
+}
+
 // Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
 func (o AllOfResultOutput) Count() pulumi.IntPtrOutput {
 	return o.ApplyT(func(v AllOfResult) *int { return v.Count }).(pulumi.IntPtrOutput)
@@ -131,7 +140,7 @@ func (o AllOfResultOutput) Interval() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v AllOfResult) *string { return v.Interval }).(pulumi.StringPtrOutput)
 }
 
-// Kind of the rule. Valid values are approval, http, manual, all, and any.
+// Kind of the rule. Valid values are approval, decision, http, manual, all, and any.
 func (o AllOfResultOutput) Kind() pulumi.StringOutput {
 	return o.ApplyT(func(v AllOfResult) string { return v.Kind }).(pulumi.StringOutput)
 }
@@ -144,6 +153,11 @@ func (o AllOfResultOutput) Method() pulumi.StringPtrOutput {
 // Rule name. Omit it to let Delivery assign one.
 func (o AllOfResultOutput) Name() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v AllOfResult) *string { return v.Name }).(pulumi.StringPtrOutput)
+}
+
+// Named judgments and their deterministic risk thresholds for a decision rule.
+func (o AllOfResultOutput) Questions() DecisionQuestionMapOutput {
+	return o.ApplyT(func(v AllOfResult) map[string]DecisionQuestion { return v.Questions }).(DecisionQuestionMapOutput)
 }
 
 // Child rules for all and any rules. At least one is required.

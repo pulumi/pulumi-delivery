@@ -40,6 +40,11 @@ export type BitbucketSource = import("./bitbucketSource").BitbucketSource;
 export const BitbucketSource: typeof import("./bitbucketSource").BitbucketSource = null as any;
 utilities.lazyLoad(exports, ["BitbucketSource"], () => require("./bitbucketSource"));
 
+export { DecisionArgs, DecisionResult, DecisionOutputArgs } from "./decision";
+export const decision: typeof import("./decision").decision = null as any;
+export const decisionOutput: typeof import("./decision").decisionOutput = null as any;
+utilities.lazyLoad(exports, ["decision","decisionOutput"], () => require("./decision"));
+
 export { GitHubSourceArgs } from "./gitHubSource";
 export type GitHubSource = import("./gitHubSource").GitHubSource;
 export const GitHubSource: typeof import("./gitHubSource").GitHubSource = null as any;

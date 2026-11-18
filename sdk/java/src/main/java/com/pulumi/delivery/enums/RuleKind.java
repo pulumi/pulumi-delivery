@@ -15,6 +15,7 @@ import java.util.StringJoiner;
     @EnumType
     public enum RuleKind {
         Approval("approval"),
+        Decision("decision"),
         Http("http"),
         Manual("manual"),
         All("all"),

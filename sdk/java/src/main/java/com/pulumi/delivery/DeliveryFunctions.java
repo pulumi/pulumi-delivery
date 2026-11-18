@@ -12,6 +12,8 @@ import com.pulumi.delivery.inputs.AnyOfArgs;
 import com.pulumi.delivery.inputs.AnyOfPlainArgs;
 import com.pulumi.delivery.inputs.ApprovalArgs;
 import com.pulumi.delivery.inputs.ApprovalPlainArgs;
+import com.pulumi.delivery.inputs.DecisionArgs;
+import com.pulumi.delivery.inputs.DecisionPlainArgs;
 import com.pulumi.delivery.inputs.HttpArgs;
 import com.pulumi.delivery.inputs.HttpPlainArgs;
 import com.pulumi.delivery.inputs.ManualArgs;
@@ -19,6 +21,7 @@ import com.pulumi.delivery.inputs.ManualPlainArgs;
 import com.pulumi.delivery.outputs.AllOfResult;
 import com.pulumi.delivery.outputs.AnyOfResult;
 import com.pulumi.delivery.outputs.ApprovalResult;
+import com.pulumi.delivery.outputs.DecisionResult;
 import com.pulumi.delivery.outputs.HttpResult;
 import com.pulumi.delivery.outputs.ManualResult;
 import com.pulumi.deployment.Deployment;
@@ -179,6 +182,51 @@ public final class DeliveryFunctions {
      */
     public static CompletableFuture<ApprovalResult> approvalPlain(ApprovalPlainArgs args, InvokeOptions options) {
         return Deployment.getInstance().invokeAsync("delivery:index:approval", TypeShape.of(ApprovalResult.class), args, Utilities.withVersion(options));
+    }
+    /**
+     * Builds a decision rule for the when property of a Stage. When the stage contains stacks, Delivery resolves their current previews from the run, then evaluates the named judgments with its configured decision engine. The engine cannot approve a deployment by itself: Delivery applies the risk threshold of every question.
+     * 
+     * ## Example Usage
+     * 
+     */
+    public static Output<DecisionResult> decision(DecisionArgs args) {
+        return decision(args, InvokeOptions.Empty);
+    }
+    /**
+     * Builds a decision rule for the when property of a Stage. When the stage contains stacks, Delivery resolves their current previews from the run, then evaluates the named judgments with its configured decision engine. The engine cannot approve a deployment by itself: Delivery applies the risk threshold of every question.
+     * 
+     * ## Example Usage
+     * 
+     */
+    public static CompletableFuture<DecisionResult> decisionPlain(DecisionPlainArgs args) {
+        return decisionPlain(args, InvokeOptions.Empty);
+    }
+    /**
+     * Builds a decision rule for the when property of a Stage. When the stage contains stacks, Delivery resolves their current previews from the run, then evaluates the named judgments with its configured decision engine. The engine cannot approve a deployment by itself: Delivery applies the risk threshold of every question.
+     * 
+     * ## Example Usage
+     * 
+     */
+    public static Output<DecisionResult> decision(DecisionArgs args, InvokeOptions options) {
+        return Deployment.getInstance().invoke("delivery:index:decision", TypeShape.of(DecisionResult.class), args, Utilities.withVersion(options));
+    }
+    /**
+     * Builds a decision rule for the when property of a Stage. When the stage contains stacks, Delivery resolves their current previews from the run, then evaluates the named judgments with its configured decision engine. The engine cannot approve a deployment by itself: Delivery applies the risk threshold of every question.
+     * 
+     * ## Example Usage
+     * 
+     */
+    public static Output<DecisionResult> decision(DecisionArgs args, InvokeOutputOptions options) {
+        return Deployment.getInstance().invoke("delivery:index:decision", TypeShape.of(DecisionResult.class), args, Utilities.withVersion(options));
+    }
+    /**
+     * Builds a decision rule for the when property of a Stage. When the stage contains stacks, Delivery resolves their current previews from the run, then evaluates the named judgments with its configured decision engine. The engine cannot approve a deployment by itself: Delivery applies the risk threshold of every question.
+     * 
+     * ## Example Usage
+     * 
+     */
+    public static CompletableFuture<DecisionResult> decisionPlain(DecisionPlainArgs args, InvokeOptions options) {
+        return Deployment.getInstance().invokeAsync("delivery:index:decision", TypeShape.of(DecisionResult.class), args, Utilities.withVersion(options));
     }
     /**
      * Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true.

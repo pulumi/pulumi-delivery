@@ -17,6 +17,7 @@ class RuleKind(_builtins.str, Enum):
     Kind of a rule.
     """
     APPROVAL = "approval"
+    DECISION = "decision"
     HTTP = "http"
     MANUAL = "manual"
     ALL = "all"

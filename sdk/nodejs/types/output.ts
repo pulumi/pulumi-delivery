@@ -9,6 +9,20 @@ import * as enums from "../types/enums";
 import {AzureDevOpsSource, BitbucketSource, GitHubSource, GitLabSource, WorkflowsRuntime} from "..";
 
 /**
+ * One narrow judgment in a decision rule.
+ */
+export interface DecisionQuestion {
+    /**
+     * Question instructions for Delivery's configured decision engine.
+     */
+    instructions: string;
+    /**
+     * Largest permitted probability that the judgment is true, from zero to one.
+     */
+    maximumRisk: number;
+}
+
+/**
  * Location of the pipeline program in a repository.
  */
 export interface ProgramSource {
@@ -39,6 +53,10 @@ export interface Rule {
      */
     body?: string;
     /**
+     * Optional JSON-like context for a decision rule. Delivery rejects secret values and limits its encoded size to 16 KiB. Do not use it for credentials or other secrets.
+     */
+    context?: {[key: string]: any};
+    /**
      * Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
      */
     count?: number;
@@ -59,7 +77,7 @@ export interface Rule {
      */
     interval?: string;
     /**
-     * Kind of the rule. Valid values are approval, http, manual, all, and any.
+     * Kind of the rule. Valid values are approval, decision, http, manual, all, and any.
      */
     kind: string | enums.RuleKind;
     /**
@@ -70,6 +88,10 @@ export interface Rule {
      * Rule name. Omit it to let Delivery assign one.
      */
     name?: string;
+    /**
+     * Named judgments and their deterministic risk thresholds for a decision rule.
+     */
+    questions?: {[key: string]: outputs.DecisionQuestion};
     /**
      * Child rules for all and any rules. At least one is required.
      */

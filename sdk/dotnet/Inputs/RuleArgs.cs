@@ -33,6 +33,18 @@ namespace Pulumi.Delivery.Inputs
         [Input("body")]
         public Input<string>? Body { get; set; }
 
+        [Input("context")]
+        private InputMap<object>? _context;
+
+        /// <summary>
+        /// Optional JSON-like context for a decision rule. Delivery rejects secret values and limits its encoded size to 16 KiB. Do not use it for credentials or other secrets.
+        /// </summary>
+        public InputMap<object> Context
+        {
+            get => _context ?? (_context = new InputMap<object>());
+            set => _context = value;
+        }
+
         /// <summary>
         /// Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
         /// </summary>
@@ -70,7 +82,7 @@ namespace Pulumi.Delivery.Inputs
         public Input<string>? Interval { get; set; }
 
         /// <summary>
-        /// Kind of the rule. Valid values are approval, http, manual, all, and any.
+        /// Kind of the rule. Valid values are approval, decision, http, manual, all, and any.
         /// </summary>
         [Input("kind", required: true)]
         public InputUnion<string, Pulumi.Delivery.RuleKind> Kind { get; set; } = null!;
@@ -86,6 +98,18 @@ namespace Pulumi.Delivery.Inputs
         /// </summary>
         [Input("name")]
         public Input<string>? Name { get; set; }
+
+        [Input("questions")]
+        private InputMap<Inputs.DecisionQuestionArgs>? _questions;
+
+        /// <summary>
+        /// Named judgments and their deterministic risk thresholds for a decision rule.
+        /// </summary>
+        public InputMap<Inputs.DecisionQuestionArgs> Questions
+        {
+            get => _questions ?? (_questions = new InputMap<Inputs.DecisionQuestionArgs>());
+            set => _questions = value;
+        }
 
         [Input("rules")]
         private InputList<Inputs.RuleArgs>? _rules;

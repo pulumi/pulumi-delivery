@@ -4,9 +4,11 @@
 package com.pulumi.delivery.outputs;
 
 import com.pulumi.core.annotations.CustomType;
+import com.pulumi.delivery.outputs.DecisionQuestion;
 import com.pulumi.delivery.outputs.Rule;
 import com.pulumi.exceptions.MissingRequiredPropertyException;
 import java.lang.Integer;
+import java.lang.Object;
 import java.lang.String;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +28,11 @@ public final class AllOfResult {
      * 
      */
     private @Nullable String body;
+    /**
+     * @return Optional JSON-like context for a decision rule. Delivery rejects secret values and limits its encoded size to 16 KiB. Do not use it for credentials or other secrets.
+     * 
+     */
+    private @Nullable Map<String,Object> context;
     /**
      * @return Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
      * 
@@ -52,7 +59,7 @@ public final class AllOfResult {
      */
     private @Nullable String interval;
     /**
-     * @return Kind of the rule. Valid values are approval, http, manual, all, and any.
+     * @return Kind of the rule. Valid values are approval, decision, http, manual, all, and any.
      * 
      */
     private String kind;
@@ -66,6 +73,11 @@ public final class AllOfResult {
      * 
      */
     private @Nullable String name;
+    /**
+     * @return Named judgments and their deterministic risk thresholds for a decision rule.
+     * 
+     */
+    private @Nullable Map<String,DecisionQuestion> questions;
     /**
      * @return Child rules for all and any rules. At least one is required.
      * 
@@ -103,6 +115,13 @@ public final class AllOfResult {
         return Optional.ofNullable(this.body);
     }
     /**
+     * @return Optional JSON-like context for a decision rule. Delivery rejects secret values and limits its encoded size to 16 KiB. Do not use it for credentials or other secrets.
+     * 
+     */
+    public Map<String,Object> context() {
+        return this.context == null ? Map.of() : this.context;
+    }
+    /**
      * @return Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
      * 
      */
@@ -138,7 +157,7 @@ public final class AllOfResult {
         return Optional.ofNullable(this.interval);
     }
     /**
-     * @return Kind of the rule. Valid values are approval, http, manual, all, and any.
+     * @return Kind of the rule. Valid values are approval, decision, http, manual, all, and any.
      * 
      */
     public String kind() {
@@ -157,6 +176,13 @@ public final class AllOfResult {
      */
     public Optional<String> name() {
         return Optional.ofNullable(this.name);
+    }
+    /**
+     * @return Named judgments and their deterministic risk thresholds for a decision rule.
+     * 
+     */
+    public Map<String,DecisionQuestion> questions() {
+        return this.questions == null ? Map.of() : this.questions;
     }
     /**
      * @return Child rules for all and any rules. At least one is required.
@@ -198,6 +224,7 @@ public final class AllOfResult {
     public static final class Builder {
         private @Nullable List<String> approvers;
         private @Nullable String body;
+        private @Nullable Map<String,Object> context;
         private @Nullable Integer count;
         private @Nullable String description;
         private @Nullable Map<String,String> headers;
@@ -206,6 +233,7 @@ public final class AllOfResult {
         private String kind;
         private @Nullable String method;
         private @Nullable String name;
+        private @Nullable Map<String,DecisionQuestion> questions;
         private @Nullable List<Rule> rules;
         private @Nullable String successExpression;
         private @Nullable String timeout;
@@ -215,6 +243,7 @@ public final class AllOfResult {
     	      Objects.requireNonNull(defaults);
     	      this.approvers = defaults.approvers;
     	      this.body = defaults.body;
+    	      this.context = defaults.context;
     	      this.count = defaults.count;
     	      this.description = defaults.description;
     	      this.headers = defaults.headers;
@@ -223,6 +252,7 @@ public final class AllOfResult {
     	      this.kind = defaults.kind;
     	      this.method = defaults.method;
     	      this.name = defaults.name;
+    	      this.questions = defaults.questions;
     	      this.rules = defaults.rules;
     	      this.successExpression = defaults.successExpression;
     	      this.timeout = defaults.timeout;
@@ -242,6 +272,12 @@ public final class AllOfResult {
         public Builder body(@Nullable String body) {
 
             this.body = body;
+            return this;
+        }
+        @CustomType.Setter
+        public Builder context(@Nullable Map<String,Object> context) {
+
+            this.context = context;
             return this;
         }
         @CustomType.Setter
@@ -295,6 +331,12 @@ public final class AllOfResult {
             return this;
         }
         @CustomType.Setter
+        public Builder questions(@Nullable Map<String,DecisionQuestion> questions) {
+
+            this.questions = questions;
+            return this;
+        }
+        @CustomType.Setter
         public Builder rules(@Nullable List<Rule> rules) {
 
             this.rules = rules;
@@ -325,6 +367,7 @@ public final class AllOfResult {
             final var _resultValue = new AllOfResult();
             _resultValue.approvers = approvers;
             _resultValue.body = body;
+            _resultValue.context = context;
             _resultValue.count = count;
             _resultValue.description = description;
             _resultValue.headers = headers;
@@ -333,6 +376,7 @@ public final class AllOfResult {
             _resultValue.kind = kind;
             _resultValue.method = method;
             _resultValue.name = name;
+            _resultValue.questions = questions;
             _resultValue.rules = rules;
             _resultValue.successExpression = successExpression;
             _resultValue.timeout = timeout;

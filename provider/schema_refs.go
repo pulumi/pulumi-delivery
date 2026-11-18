@@ -54,7 +54,7 @@ var referencePatches = []struct {
 
 // ruleKinds are the valid values of the kind of a rule. The validators reject every other kind, so a new kind
 // must be added here to work, and then it also gets a constant in the SDKs.
-var ruleKinds = []string{"approval", "http", "manual", "all", "any"}
+var ruleKinds = []string{"approval", "decision", "http", "manual", "all", "any"}
 
 // ruleKind is the schema type of the kind of a rule: a string, with the RuleKind enum for its valid values.
 // The SDKs then accept a plain string and also have a constant for each kind.

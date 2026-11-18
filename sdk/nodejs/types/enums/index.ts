@@ -4,6 +4,7 @@
 
 export const RuleKind = {
     Approval: "approval",
+    Decision: "decision",
     Http: "http",
     Manual: "manual",
     All: "all",

@@ -48,6 +48,24 @@
     }
   },
   "types": {
+    "delivery:index:DecisionQuestion": {
+      "description": "One narrow judgment in a decision rule.",
+      "properties": {
+        "instructions": {
+          "type": "string",
+          "description": "Question instructions for Delivery's configured decision engine."
+        },
+        "maximumRisk": {
+          "type": "number",
+          "description": "Largest permitted probability that the judgment is true, from zero to one."
+        }
+      },
+      "type": "object",
+      "required": [
+        "instructions",
+        "maximumRisk"
+      ]
+    },
     "delivery:index:Image": {
       "description": "Container image that a member runs in.",
       "properties": {
@@ -133,6 +151,13 @@
           "type": "string",
           "description": "HTTP request body. Secret values stay secret."
         },
+        "context": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "pulumi.json#/Any"
+          },
+          "description": "Optional JSON-like context for a decision rule. Delivery rejects secret values and limits its encoded size to 16 KiB. Do not use it for credentials or other secrets."
+        },
         "count": {
           "type": "integer",
           "description": "Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules."
@@ -165,7 +190,7 @@
               "$ref": "#/types/delivery:index:RuleKind"
             }
           ],
-          "description": "Kind of the rule. Valid values are approval, http, manual, all, and any."
+          "description": "Kind of the rule. Valid values are approval, decision, http, manual, all, and any."
         },
         "method": {
           "type": "string",
@@ -174,6 +199,13 @@
         "name": {
           "type": "string",
           "description": "Rule name. Omit it to let Delivery assign one."
+        },
+        "questions": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/types/delivery:index:DecisionQuestion"
+          },
+          "description": "Named judgments and their deterministic risk thresholds for a decision rule."
         },
         "rules": {
           "type": "array",
@@ -206,6 +238,9 @@
       "enum": [
         {
           "value": "approval"
+        },
+        {
+          "value": "decision"
         },
         {
           "value": "http"
@@ -823,6 +858,13 @@
             "description": "HTTP request body. Secret values stay secret.",
             "type": "string"
           },
+          "context": {
+            "additionalProperties": {
+              "$ref": "pulumi.json#/Any"
+            },
+            "description": "Optional JSON-like context for a decision rule. Delivery rejects secret values and limits its encoded size to 16 KiB. Do not use it for credentials or other secrets.",
+            "type": "object"
+          },
           "count": {
             "description": "Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.",
             "type": "integer"
@@ -847,7 +889,7 @@
             "type": "string"
           },
           "kind": {
-            "description": "Kind of the rule. Valid values are approval, http, manual, all, and any.",
+            "description": "Kind of the rule. Valid values are approval, decision, http, manual, all, and any.",
             "type": "string"
           },
           "method": {
@@ -857,6 +899,13 @@
           "name": {
             "description": "Rule name. Omit it to let Delivery assign one.",
             "type": "string"
+          },
+          "questions": {
+            "additionalProperties": {
+              "$ref": "#/types/delivery:index:DecisionQuestion"
+            },
+            "description": "Named judgments and their deterministic risk thresholds for a decision rule.",
+            "type": "object"
           },
           "rules": {
             "description": "Child rules for all and any rules. At least one is required.",
@@ -920,6 +969,13 @@
             "description": "HTTP request body. Secret values stay secret.",
             "type": "string"
           },
+          "context": {
+            "additionalProperties": {
+              "$ref": "pulumi.json#/Any"
+            },
+            "description": "Optional JSON-like context for a decision rule. Delivery rejects secret values and limits its encoded size to 16 KiB. Do not use it for credentials or other secrets.",
+            "type": "object"
+          },
           "count": {
             "description": "Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.",
             "type": "integer"
@@ -944,7 +1000,7 @@
             "type": "string"
           },
           "kind": {
-            "description": "Kind of the rule. Valid values are approval, http, manual, all, and any.",
+            "description": "Kind of the rule. Valid values are approval, decision, http, manual, all, and any.",
             "type": "string"
           },
           "method": {
@@ -954,6 +1010,13 @@
           "name": {
             "description": "Rule name. Omit it to let Delivery assign one.",
             "type": "string"
+          },
+          "questions": {
+            "additionalProperties": {
+              "$ref": "#/types/delivery:index:DecisionQuestion"
+            },
+            "description": "Named judgments and their deterministic risk thresholds for a decision rule.",
+            "type": "object"
           },
           "rules": {
             "description": "Child rules for all and any rules. At least one is required.",
@@ -1018,6 +1081,13 @@
             "description": "HTTP request body. Secret values stay secret.",
             "type": "string"
           },
+          "context": {
+            "additionalProperties": {
+              "$ref": "pulumi.json#/Any"
+            },
+            "description": "Optional JSON-like context for a decision rule. Delivery rejects secret values and limits its encoded size to 16 KiB. Do not use it for credentials or other secrets.",
+            "type": "object"
+          },
           "count": {
             "description": "Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.",
             "type": "integer"
@@ -1042,7 +1112,7 @@
             "type": "string"
           },
           "kind": {
-            "description": "Kind of the rule. Valid values are approval, http, manual, all, and any.",
+            "description": "Kind of the rule. Valid values are approval, decision, http, manual, all, and any.",
             "type": "string"
           },
           "method": {
@@ -1052,6 +1122,135 @@
           "name": {
             "description": "Rule name. Omit it to let Delivery assign one.",
             "type": "string"
+          },
+          "questions": {
+            "additionalProperties": {
+              "$ref": "#/types/delivery:index:DecisionQuestion"
+            },
+            "description": "Named judgments and their deterministic risk thresholds for a decision rule.",
+            "type": "object"
+          },
+          "rules": {
+            "description": "Child rules for all and any rules. At least one is required.",
+            "items": {
+              "$ref": "#/types/delivery:index:Rule"
+            },
+            "type": "array"
+          },
+          "successExpression": {
+            "description": "JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.",
+            "type": "string"
+          },
+          "url": {
+            "description": "URL to call. Required for http rules.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind"
+        ],
+        "type": "object"
+      }
+    },
+    "delivery:index:decision": {
+      "description": "Builds a decision rule for the when property of a Stage. When the stage contains stacks, Delivery resolves their current previews from the run, then evaluates the named judgments with its configured decision engine. The engine cannot approve a deployment by itself: Delivery applies the risk threshold of every question.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nnew delivery.Stage(\"prod\", {\n    pipeline,\n    from: [dev],\n    when: delivery.decision({\n        questions: {\n            unsafe: {\n                instructions: \"Does preview.value describe an unsafe change?\",\n                maximumRisk: 0.05,\n            },\n        },\n    }),\n});\n```",
+      "inputs": {
+        "description": "Decision rule settings.",
+        "properties": {
+          "context": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "pulumi.json#/Any"
+            },
+            "description": "Optional JSON-like context. Delivery rejects secret values and limits its encoded size to 16 KiB. It labels the context as a caller claim and does not fetch URLs or resolve credentials from it. Do not use it for credentials or other secrets."
+          },
+          "description": {
+            "type": "string",
+            "description": "Description shown with the gate."
+          },
+          "name": {
+            "type": "string",
+            "description": "Rule name. Omit it to let Delivery assign one."
+          },
+          "questions": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/types/delivery:index:DecisionQuestion"
+            },
+            "description": "Named judgments. Every judgment must have instructions and a maximum risk from zero to one."
+          }
+        },
+        "type": "object",
+        "required": [
+          "questions"
+        ]
+      },
+      "outputs": {
+        "description": "Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.",
+        "properties": {
+          "approvers": {
+            "description": "Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "body": {
+            "description": "HTTP request body. Secret values stay secret.",
+            "type": "string"
+          },
+          "context": {
+            "additionalProperties": {
+              "$ref": "pulumi.json#/Any"
+            },
+            "description": "Optional JSON-like context for a decision rule. Delivery rejects secret values and limits its encoded size to 16 KiB. Do not use it for credentials or other secrets.",
+            "type": "object"
+          },
+          "count": {
+            "description": "Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.",
+            "type": "integer"
+          },
+          "description": {
+            "description": "Text for the person who continues a manual gate, for example what to check first.",
+            "type": "string"
+          },
+          "headers": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "HTTP request headers. Secret values stay secret.",
+            "type": "object"
+          },
+          "headersEnvironment": {
+            "description": "Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.",
+            "type": "string"
+          },
+          "interval": {
+            "description": "Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.",
+            "type": "string"
+          },
+          "kind": {
+            "description": "Kind of the rule. Valid values are approval, decision, http, manual, all, and any.",
+            "type": "string"
+          },
+          "method": {
+            "description": "HTTP request method. The default is GET.",
+            "type": "string"
+          },
+          "name": {
+            "description": "Rule name. Omit it to let Delivery assign one.",
+            "type": "string"
+          },
+          "questions": {
+            "additionalProperties": {
+              "$ref": "#/types/delivery:index:DecisionQuestion"
+            },
+            "description": "Named judgments and their deterministic risk thresholds for a decision rule.",
+            "type": "object"
           },
           "rules": {
             "description": "Child rules for all and any rules. At least one is required.",
@@ -1144,6 +1343,13 @@
             "description": "HTTP request body. Secret values stay secret.",
             "type": "string"
           },
+          "context": {
+            "additionalProperties": {
+              "$ref": "pulumi.json#/Any"
+            },
+            "description": "Optional JSON-like context for a decision rule. Delivery rejects secret values and limits its encoded size to 16 KiB. Do not use it for credentials or other secrets.",
+            "type": "object"
+          },
           "count": {
             "description": "Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.",
             "type": "integer"
@@ -1168,7 +1374,7 @@
             "type": "string"
           },
           "kind": {
-            "description": "Kind of the rule. Valid values are approval, http, manual, all, and any.",
+            "description": "Kind of the rule. Valid values are approval, decision, http, manual, all, and any.",
             "type": "string"
           },
           "method": {
@@ -1178,6 +1384,13 @@
           "name": {
             "description": "Rule name. Omit it to let Delivery assign one.",
             "type": "string"
+          },
+          "questions": {
+            "additionalProperties": {
+              "$ref": "#/types/delivery:index:DecisionQuestion"
+            },
+            "description": "Named judgments and their deterministic risk thresholds for a decision rule.",
+            "type": "object"
           },
           "rules": {
             "description": "Child rules for all and any rules. At least one is required.",
@@ -1235,6 +1448,13 @@
             "description": "HTTP request body. Secret values stay secret.",
             "type": "string"
           },
+          "context": {
+            "additionalProperties": {
+              "$ref": "pulumi.json#/Any"
+            },
+            "description": "Optional JSON-like context for a decision rule. Delivery rejects secret values and limits its encoded size to 16 KiB. Do not use it for credentials or other secrets.",
+            "type": "object"
+          },
           "count": {
             "description": "Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.",
             "type": "integer"
@@ -1259,7 +1479,7 @@
             "type": "string"
           },
           "kind": {
-            "description": "Kind of the rule. Valid values are approval, http, manual, all, and any.",
+            "description": "Kind of the rule. Valid values are approval, decision, http, manual, all, and any.",
             "type": "string"
           },
           "method": {
@@ -1269,6 +1489,13 @@
           "name": {
             "description": "Rule name. Omit it to let Delivery assign one.",
             "type": "string"
+          },
+          "questions": {
+            "additionalProperties": {
+              "$ref": "#/types/delivery:index:DecisionQuestion"
+            },
+            "description": "Named judgments and their deterministic risk thresholds for a decision rule.",
+            "type": "object"
           },
           "rules": {
             "description": "Child rules for all and any rules. At least one is required.",

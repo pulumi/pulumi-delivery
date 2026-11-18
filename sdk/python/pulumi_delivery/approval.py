@@ -28,13 +28,16 @@ class ApprovalResult:
     """
     Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.
     """
-    def __init__(__self__, approvers=None, body=None, count=None, description=None, headers=None, headers_environment=None, interval=None, kind=None, method=None, name=None, rules=None, success_expression=None, timeout=None, url=None):
+    def __init__(__self__, approvers=None, body=None, context=None, count=None, description=None, headers=None, headers_environment=None, interval=None, kind=None, method=None, name=None, questions=None, rules=None, success_expression=None, timeout=None, url=None):
         if approvers and not isinstance(approvers, list):
             raise TypeError("Expected argument 'approvers' to be a list")
         pulumi.set(__self__, "approvers", approvers)
         if body and not isinstance(body, str):
             raise TypeError("Expected argument 'body' to be a str")
         pulumi.set(__self__, "body", body)
+        if context and not isinstance(context, dict):
+            raise TypeError("Expected argument 'context' to be a dict")
+        pulumi.set(__self__, "context", context)
         if count and not isinstance(count, int):
             raise TypeError("Expected argument 'count' to be a int")
         pulumi.set(__self__, "count", count)
@@ -59,6 +62,9 @@ class ApprovalResult:
         if name and not isinstance(name, str):
             raise TypeError("Expected argument 'name' to be a str")
         pulumi.set(__self__, "name", name)
+        if questions and not isinstance(questions, dict):
+            raise TypeError("Expected argument 'questions' to be a dict")
+        pulumi.set(__self__, "questions", questions)
         if rules and not isinstance(rules, list):
             raise TypeError("Expected argument 'rules' to be a list")
         pulumi.set(__self__, "rules", rules)
@@ -87,6 +93,14 @@ class ApprovalResult:
         HTTP request body. Secret values stay secret.
         """
         return pulumi.get(self, "body")
+
+    @_builtins.property
+    @pulumi.getter
+    def context(self) -> Optional[Mapping[str, Any]]:
+        """
+        Optional JSON-like context for a decision rule. Delivery rejects secret values and limits its encoded size to 16 KiB. Do not use it for credentials or other secrets.
+        """
+        return pulumi.get(self, "context")
 
     @_builtins.property
     @pulumi.getter
@@ -132,7 +146,7 @@ class ApprovalResult:
     @pulumi.getter
     def kind(self) -> _builtins.str:
         """
-        Kind of the rule. Valid values are approval, http, manual, all, and any.
+        Kind of the rule. Valid values are approval, decision, http, manual, all, and any.
         """
         return pulumi.get(self, "kind")
 
@@ -151,6 +165,14 @@ class ApprovalResult:
         Rule name. Omit it to let Delivery assign one.
         """
         return pulumi.get(self, "name")
+
+    @_builtins.property
+    @pulumi.getter
+    def questions(self) -> Optional[Mapping[str, 'outputs.DecisionQuestion']]:
+        """
+        Named judgments and their deterministic risk thresholds for a decision rule.
+        """
+        return pulumi.get(self, "questions")
 
     @_builtins.property
     @pulumi.getter
@@ -193,6 +215,7 @@ class AwaitableApprovalResult(ApprovalResult):
         return ApprovalResult(
             approvers=self.approvers,
             body=self.body,
+            context=self.context,
             count=self.count,
             description=self.description,
             headers=self.headers,
@@ -201,6 +224,7 @@ class AwaitableApprovalResult(ApprovalResult):
             kind=self.kind,
             method=self.method,
             name=self.name,
+            questions=self.questions,
             rules=self.rules,
             success_expression=self.success_expression,
             timeout=self.timeout,
@@ -230,6 +254,7 @@ def approval(approvers: Optional[Sequence[_builtins.str]] = None,
     return AwaitableApprovalResult(
         approvers=pulumi.get(__ret__, 'approvers'),
         body=pulumi.get(__ret__, 'body'),
+        context=pulumi.get(__ret__, 'context'),
         count=pulumi.get(__ret__, 'count'),
         description=pulumi.get(__ret__, 'description'),
         headers=pulumi.get(__ret__, 'headers'),
@@ -238,6 +263,7 @@ def approval(approvers: Optional[Sequence[_builtins.str]] = None,
         kind=pulumi.get(__ret__, 'kind'),
         method=pulumi.get(__ret__, 'method'),
         name=pulumi.get(__ret__, 'name'),
+        questions=pulumi.get(__ret__, 'questions'),
         rules=pulumi.get(__ret__, 'rules'),
         success_expression=pulumi.get(__ret__, 'success_expression'),
         timeout=pulumi.get(__ret__, 'timeout'),
@@ -264,6 +290,7 @@ def approval_output(approvers: pulumi.Input[Optional[Optional[Sequence[_builtins
     return __ret__.apply(lambda __response__: ApprovalResult(
         approvers=pulumi.get(__response__, 'approvers'),
         body=pulumi.get(__response__, 'body'),
+        context=pulumi.get(__response__, 'context'),
         count=pulumi.get(__response__, 'count'),
         description=pulumi.get(__response__, 'description'),
         headers=pulumi.get(__response__, 'headers'),
@@ -272,6 +299,7 @@ def approval_output(approvers: pulumi.Input[Optional[Optional[Sequence[_builtins
         kind=pulumi.get(__response__, 'kind'),
         method=pulumi.get(__response__, 'method'),
         name=pulumi.get(__response__, 'name'),
+        questions=pulumi.get(__response__, 'questions'),
         rules=pulumi.get(__response__, 'rules'),
         success_expression=pulumi.get(__response__, 'success_expression'),
         timeout=pulumi.get(__response__, 'timeout'),

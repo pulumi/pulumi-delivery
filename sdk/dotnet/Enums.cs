@@ -21,6 +21,7 @@ namespace Pulumi.Delivery
         }
 
         public static RuleKind Approval { get; } = new RuleKind("approval");
+        public static RuleKind Decision { get; } = new RuleKind("decision");
         public static RuleKind Http { get; } = new RuleKind("http");
         public static RuleKind Manual { get; } = new RuleKind("manual");
         public static RuleKind All { get; } = new RuleKind("all");

@@ -15,6 +15,7 @@ type RuleKind string
 
 const (
 	RuleKindApproval = RuleKind("approval")
+	RuleKindDecision = RuleKind("decision")
 	RuleKindHttp     = RuleKind("http")
 	RuleKindManual   = RuleKind("manual")
 	RuleKindAll      = RuleKind("all")
@@ -144,6 +145,7 @@ func (o RuleKindPtrOutput) ToStringPtrOutputWithContext(ctx context.Context) pul
 // A concrete instance of `RuleKindInput` can be one of the following:
 //
 //	RuleKindApproval
+//	RuleKindDecision
 //	RuleKindHttp
 //	RuleKindManual
 //	RuleKindAll

@@ -138,6 +138,10 @@ namespace Pulumi.Delivery
         /// </summary>
         public readonly string? Body;
         /// <summary>
+        /// Optional JSON-like context for a decision rule. Delivery rejects secret values and limits its encoded size to 16 KiB. Do not use it for credentials or other secrets.
+        /// </summary>
+        public readonly ImmutableDictionary<string, object>? Context;
+        /// <summary>
         /// Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
         /// </summary>
         public readonly int? Count;
@@ -158,7 +162,7 @@ namespace Pulumi.Delivery
         /// </summary>
         public readonly string? Interval;
         /// <summary>
-        /// Kind of the rule. Valid values are approval, http, manual, all, and any.
+        /// Kind of the rule. Valid values are approval, decision, http, manual, all, and any.
         /// </summary>
         public readonly string Kind;
         /// <summary>
@@ -169,6 +173,10 @@ namespace Pulumi.Delivery
         /// Rule name. Omit it to let Delivery assign one.
         /// </summary>
         public readonly string? Name;
+        /// <summary>
+        /// Named judgments and their deterministic risk thresholds for a decision rule.
+        /// </summary>
+        public readonly ImmutableDictionary<string, Outputs.DecisionQuestion>? Questions;
         /// <summary>
         /// Child rules for all and any rules. At least one is required.
         /// </summary>
@@ -192,6 +200,8 @@ namespace Pulumi.Delivery
 
             string? body,
 
+            ImmutableDictionary<string, object>? context,
+
             int? count,
 
             string? description,
@@ -208,6 +218,8 @@ namespace Pulumi.Delivery
 
             string? name,
 
+            ImmutableDictionary<string, Outputs.DecisionQuestion>? questions,
+
             ImmutableArray<Outputs.Rule> rules,
 
             string? successExpression,
@@ -218,6 +230,7 @@ namespace Pulumi.Delivery
         {
             Approvers = approvers;
             Body = body;
+            Context = context;
             Count = count;
             Description = description;
             Headers = headers;
@@ -226,6 +239,7 @@ namespace Pulumi.Delivery
             Kind = kind;
             Method = method;
             Name = name;
+            Questions = questions;
             Rules = rules;
             SuccessExpression = successExpression;
             Timeout = timeout;

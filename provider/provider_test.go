@@ -678,7 +678,7 @@ func TestSchemaOfTheTriggersAndTheReleaseNumber(t *testing.T) {
 	require.NoError(t, json.Unmarshal(schema.Types["delivery:index:Rule"], &rule))
 	assert.JSONEq(t, `{"oneOf":[{"type":"string"},{"$ref":"#/types/delivery:index:RuleKind"}]}`,
 		stripDescription(t, rule.Properties["kind"]))
-	assert.JSONEq(t, `{"type":"string","enum":[{"value":"approval"},{"value":"http"},{"value":"manual"},{"value":"all"},{"value":"any"}]}`,
+	assert.JSONEq(t, `{"type":"string","enum":[{"value":"approval"},{"value":"decision"},{"value":"http"},{"value":"manual"},{"value":"all"},{"value":"any"}]}`,
 		stripDescription(t, schema.Types["delivery:index:RuleKind"]))
 	assert.Contains(t, schema.Types, "delivery:index:SourceTrigger")
 	assert.NotContains(t, schema.Types, "delivery:index:Trigger")

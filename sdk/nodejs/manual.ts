@@ -58,6 +58,10 @@ export interface ManualResult {
      */
     readonly body?: string;
     /**
+     * Optional JSON-like context for a decision rule. Delivery rejects secret values and limits its encoded size to 16 KiB. Do not use it for credentials or other secrets.
+     */
+    readonly context?: {[key: string]: any};
+    /**
      * Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
      */
     readonly count?: number;
@@ -78,7 +82,7 @@ export interface ManualResult {
      */
     readonly interval?: string;
     /**
-     * Kind of the rule. Valid values are approval, http, manual, all, and any.
+     * Kind of the rule. Valid values are approval, decision, http, manual, all, and any.
      */
     readonly kind: string;
     /**
@@ -89,6 +93,10 @@ export interface ManualResult {
      * Rule name. Omit it to let Delivery assign one.
      */
     readonly name?: string;
+    /**
+     * Named judgments and their deterministic risk thresholds for a decision rule.
+     */
+    readonly questions?: {[key: string]: outputs.DecisionQuestion};
     /**
      * Child rules for all and any rules. At least one is required.
      */
