@@ -18,3 +18,7 @@ sdk/java/build/
 sdk/java/.gradle/
 examples/compile/dotnet/bin/
 examples/compile/dotnet/obj/
+# Written by the preview tests
+examples/**/Pulumi.test.yaml
+examples/python/venv/
+__pycache__/

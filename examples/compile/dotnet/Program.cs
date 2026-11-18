@@ -1,7 +1,8 @@
 // Copyright 2026, Pulumi Corporation. All rights reserved.
 
-// Checks that a .NET program builds against the generated SDK. It is never run.
+// Checks that a .NET program builds against the generated SDK and previews.
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Pulumi;
 using Pulumi.Delivery;
 using Pulumi.Delivery.Delivery;
@@ -9,6 +10,8 @@ using Pulumi.Delivery.Delivery.Inputs;
 
 public static class Compile
 {
+    public static Task<int> Main() => Deployment.RunAsync(Program);
+
     public static void Program()
     {
         var code = new GitHubSource("code", new GitHubSourceArgs

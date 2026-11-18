@@ -6,8 +6,8 @@ The repository has these directories.
 
 - `provider/`: Go resource provider. `provider/cmd/pulumi-resource-delivery/schema.json` is the committed schema, written from the built provider.
 - `sdk/`: SDKs for Node.js, Python, .NET, Go and Java, generated from the schema (`make generate`, never edited by hand). `sdk/go.mod` is the Go SDK module and is kept by hand.
-- `examples/basic/`: a small pipeline program.
-- `examples/compile/`: programs that check the generated SDKs compile. `examples/*_test.go` runs those checks, one file per language.
+- `examples/basic/`, `examples/python/`, `examples/yaml/`, `examples/hcl/`: a small pipeline program in TypeScript, Python, YAML and HCL.
+- `examples/compile/`: Go and .NET programs that check the generated SDKs compile. `examples/*_test.go` runs those checks and a `pulumi preview` of every program, one file per language. A preview sends nothing to Pulumi Cloud, so the tests need no credentials.
 - `docs/`: `_index.md` is the registry guide. `ONBOARDING.md` is the onboarding guide.
 
 ## Develop

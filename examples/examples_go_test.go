@@ -8,3 +8,7 @@ import "testing"
 func TestGoCompile(t *testing.T) {
 	run(t, "compile/go", "go", "vet", "./...")
 }
+
+func TestGoPreview(t *testing.T) {
+	preview(t, "compile/go")
+}

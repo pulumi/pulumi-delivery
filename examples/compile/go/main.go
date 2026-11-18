@@ -1,6 +1,6 @@
 // Copyright 2026, Pulumi Corporation. All rights reserved.
 
-// Command compile checks that a Go program builds against the generated SDK. It is never run.
+// Command compile checks that a Go program builds against the generated SDK and previews.
 package main
 
 import (

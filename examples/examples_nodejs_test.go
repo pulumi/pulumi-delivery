@@ -12,3 +12,8 @@ func TestNodejsTypecheck(t *testing.T) {
 	run(t, "basic", "npx", "tsc", "--noEmit", "--skipLibCheck", "--target", "es2020", "--module", "commonjs",
 		"--moduleResolution", "node", "--strict", "index.ts")
 }
+
+func TestNodejsPreview(t *testing.T) {
+	run(t, "basic", "npm", "install", "--install-links")
+	preview(t, "basic")
+}
