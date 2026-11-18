@@ -1,3 +1,0 @@
-name: delivery-compile-go
-runtime: go
-description: Checks that a Go program builds against the generated SDK and previews.

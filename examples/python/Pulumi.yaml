@@ -1,7 +1,0 @@
-name: delivery-python
-runtime:
-  name: python
-  options:
-    toolchain: pip
-    virtualenv: venv
-description: A Delivery pipeline in Python.

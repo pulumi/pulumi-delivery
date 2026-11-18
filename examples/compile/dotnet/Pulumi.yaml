@@ -1,3 +1,0 @@
-name: delivery-compile-dotnet
-runtime: dotnet
-description: Checks that a .NET program builds against the generated SDK and previews.
