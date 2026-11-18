@@ -14,6 +14,7 @@ else:
     from typing_extensions import NotRequired, TypedDict, TypeAlias
 from . import _utilities
 from . import outputs
+from ._enums import *
 
 __all__ = [
     'ProgramSource',
@@ -91,7 +92,7 @@ class Rule(dict):
         """
         Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.
 
-        :param _builtins.str kind: Kind of the rule. Valid values are approval, http, manual, all, and any.
+        :param Union[_builtins.str, 'RuleKind'] kind: Kind of the rule. Valid values are approval, http, manual, all, and any.
         :param Sequence[_builtins.str] approvers: Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
         :param _builtins.str body: HTTP request body. Secret values stay secret.
         :param _builtins.int count: Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.

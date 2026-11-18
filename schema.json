@@ -159,7 +159,14 @@
           "description": "Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds."
         },
         "kind": {
-          "type": "string",
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/types/delivery:index:RuleKind"
+            }
+          ],
           "description": "Kind of the rule. Valid values are approval, http, manual, all, and any."
         },
         "method": {
@@ -193,6 +200,27 @@
       "type": "object",
       "required": [
         "kind"
+      ]
+    },
+    "delivery:index:RuleKind": {
+      "description": "Kind of a rule.",
+      "type": "string",
+      "enum": [
+        {
+          "value": "approval"
+        },
+        {
+          "value": "http"
+        },
+        {
+          "value": "manual"
+        },
+        {
+          "value": "all"
+        },
+        {
+          "value": "any"
+        }
       ]
     },
     "delivery:index:SourceTrigger": {
