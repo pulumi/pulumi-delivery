@@ -1,6 +1,0 @@
-{
-  "resource": true,
-  "name": "delivery",
-  "version": "0.0.0-alpha.0+dev",
-  "server": "https://get.pulumi.com/releases/plugins/"
-}
