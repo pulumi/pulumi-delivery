@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Immutable;
 
-namespace Pulumi.Delivery.Delivery
+namespace Pulumi.Delivery
 {
     public static class Config
     {

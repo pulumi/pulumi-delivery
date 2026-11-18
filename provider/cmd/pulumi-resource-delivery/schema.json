@@ -9,17 +9,15 @@
     "kind/native"
   ],
   "homepage": "https://github.com/pulumi/pulumi-delivery",
+  "license": "Apache-2.0",
   "repository": "https://github.com/pulumi/pulumi-delivery",
   "pluginDownloadURL": "https://get.pulumi.com/releases/plugins/",
   "publisher": "pulumi",
   "namespace": "delivery",
-  "meta": {
-    "supportPack": true
-  },
   "language": {
     "csharp": {
       "respectSchemaVersion": true,
-      "rootNamespace": "Pulumi.Delivery"
+      "rootNamespace": "Pulumi"
     },
     "go": {
       "generateResourceContainerTypes": true,
@@ -27,7 +25,7 @@
       "respectSchemaVersion": true
     },
     "java": {
-      "basePackage": "com.pulumi.delivery"
+      "basePackage": "com.pulumi"
     },
     "nodejs": {
       "packageName": "@pulumi/delivery",

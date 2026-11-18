@@ -12,7 +12,7 @@ Pulumi Delivery is in private preview. Behavior, the SDK, the API and the routes
 
 - Pulumi enables Delivery for your organization. Ask your Pulumi contact.
 - Pulumi CLI v3.272.0 or later.
-- Linux or macOS. The provider has no Windows build.
+- Linux, macOS or Windows.
 - A Pulumi Cloud backend. Delivery does not work with a file backend or with self-hosted Pulumi Cloud.
 
 ### Connect your version control

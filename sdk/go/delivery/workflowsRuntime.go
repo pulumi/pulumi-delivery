@@ -66,6 +66,12 @@ func (WorkflowsRuntimeState) ElementType() reflect.Type {
 	return reflect.TypeOf((*workflowsRuntimeState)(nil)).Elem()
 }
 
+// WorkflowsRuntimeExists checks whether an existing WorkflowsRuntime resource with the given ID exists.
+func WorkflowsRuntimeExists(ctx *pulumi.Context,
+	id pulumi.StringInput, state *WorkflowsRuntimeState, opts ...pulumi.ResourceOption) pulumi.BoolOutput {
+	return ctx.ExistsResource("delivery:index:WorkflowsRuntime", id, state, "", opts...)
+}
+
 type workflowsRuntimeArgs struct {
 	// Pool identifier. The resource returns it unchanged as ref.
 	AgentPool string `pulumi:"agentPool"`
