@@ -619,7 +619,6 @@ Each entry of a `Stacks` group uses one concurrency slot of your organization. A
 
 - `CustomVCSSource` and forges without webhooks are not available.
 - No Windows runners.
-- Passes get no policy packs. Target stacks keep their own policy groups.
 - The config of the pipeline stack comes from its config file in the repository. Commit it. Only the default Pulumi Cloud secrets provider is tested.
 - Delivery does not detect a cycle between stages. Such a run waits until you cancel it.
 - The `artifacts` map of a `PipelineSource` is secret as a whole when one artifact is secret.
