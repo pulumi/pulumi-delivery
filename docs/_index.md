@@ -43,7 +43,7 @@ Install the SDK in the directory of the pipeline program, with the package manag
 
 - TypeScript: `npm install @pulumi/delivery`
 - Python: add `pulumi_delivery` to `requirements.txt`, then run `pulumi install`
-- Go: `go get github.com/pulumi/pulumi-delivery/sdk/go/delivery`
+- Go: `go get github.com/pulumi/pulumi-delivery/sdk`
 - C#: `dotnet add package Pulumi.Delivery`
 - Java: add the dependency `com.pulumi:delivery` to `pom.xml`
 
