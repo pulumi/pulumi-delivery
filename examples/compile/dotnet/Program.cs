@@ -5,8 +5,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Pulumi;
 using Pulumi.Delivery;
-using Pulumi.Delivery.Delivery;
-using Pulumi.Delivery.Delivery.Inputs;
+using Pulumi.Delivery.Inputs;
 
 public static class Compile
 {

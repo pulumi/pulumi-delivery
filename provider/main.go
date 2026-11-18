@@ -47,8 +47,8 @@ func newProvider() (p.Provider, error) {
 			"nodejs": map[string]any{"packageName": "@pulumi/delivery", "respectSchemaVersion": true},
 			"python": map[string]any{"packageName": "pulumi_delivery", "respectSchemaVersion": true, "pyproject": map[string]any{"enabled": true}},
 			"go":     map[string]any{"importBasePath": "github.com/pulumi/pulumi-delivery/sdk/go/delivery", "generateResourceContainerTypes": true, "respectSchemaVersion": true},
-			"csharp": map[string]any{"rootNamespace": "Pulumi.Delivery", "respectSchemaVersion": true},
-			"java":   map[string]any{"basePackage": "com.pulumi.delivery"},
+			"csharp": map[string]any{"rootNamespace": "Pulumi", "respectSchemaVersion": true},
+			"java":   map[string]any{"basePackage": "com.pulumi"},
 		}).
 		WithModuleMap(map[tokens.ModuleName]tokens.ModuleName{"provider": "index"}).
 		WithResources(

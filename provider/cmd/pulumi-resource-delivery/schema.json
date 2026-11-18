@@ -17,7 +17,7 @@
   "language": {
     "csharp": {
       "respectSchemaVersion": true,
-      "rootNamespace": "Pulumi.Delivery"
+      "rootNamespace": "Pulumi"
     },
     "go": {
       "generateResourceContainerTypes": true,
@@ -25,7 +25,7 @@
       "respectSchemaVersion": true
     },
     "java": {
-      "basePackage": "com.pulumi.delivery"
+      "basePackage": "com.pulumi"
     },
     "nodejs": {
       "packageName": "@pulumi/delivery",
