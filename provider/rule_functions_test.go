@@ -46,7 +46,7 @@ func TestHTTPRequiresURLAndSuccessExpression(t *testing.T) {
 		t.Fatal("expected an error for a missing successExpression")
 	}
 	resp, err := HTTP{}.Invoke(context.Background(), infer.FunctionRequest[HTTPArgs]{
-		Input: HTTPArgs{URL: "https://example.com", SuccessExpression: "status == 'ok'"},
+		Input: HTTPArgs{URL: "https://example.com", SuccessExpression: "status == 200 && body.status == \"ok\""},
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -253,4 +253,122 @@ func TestTheValidatorsSupportExactlyTheRuleKinds(t *testing.T) {
 			assert.Equal(t, kind == "unknown", unsupported, "%s: %v", kind, err)
 		}
 	}
+}
+
+func ptr[T any](v T) *T { return &v }
+
+func invokeHTTP(args HTTPArgs) (Rule, error) {
+	args.URL, args.SuccessExpression = "https://example.com", "status == 200 && body.status == \"ok\""
+	resp, err := HTTP{}.Invoke(context.Background(), infer.FunctionRequest[HTTPArgs]{Input: args})
+	return resp.Output, err
+}
+
+func TestHTTPDefaults(t *testing.T) {
+	rule, err := invokeHTTP(HTTPArgs{})
+	require.NoError(t, err)
+	assert.Equal(t, HTTPMethod("GET"), *rule.Method)
+	assert.Equal(t, "1m", rule.Interval)
+	assert.Equal(t, "10s", rule.RequestTimeout)
+	assert.Equal(t, "24h", rule.Timeout)
+
+	rule, err = invokeHTTP(HTTPArgs{Method: ptr(HTTPMethod("POST")), Interval: "5m", RequestTimeout: "3s", Timeout: "2h"})
+	require.NoError(t, err)
+	assert.Equal(t, HTTPMethod("POST"), *rule.Method)
+	assert.Equal(t, "5m", rule.Interval)
+	assert.Equal(t, "3s", rule.RequestTimeout)
+	assert.Equal(t, "2h", rule.Timeout)
+}
+
+func TestHTTPLimits(t *testing.T) {
+	for _, tc := range []struct {
+		name, interval, requestTimeout, timeout, method, wantErr string
+	}{
+		{name: "interval 59s", interval: "59s", wantErr: "at least 60 seconds"},
+		{name: "interval 60s", interval: "60s"},
+		{name: "interval 1h", interval: "1h"},
+		{name: "interval 61m", interval: "61m", wantErr: "at most 1 hour"},
+		{name: "interval 90.5s", interval: "90.5s", wantErr: "whole-second"},
+		{name: "requestTimeout 0", requestTimeout: "0s", wantErr: "positive whole-second"},
+		{name: "requestTimeout 1s", requestTimeout: "1s"},
+		{name: "requestTimeout 20s", requestTimeout: "20s"},
+		{name: "requestTimeout 21s", requestTimeout: "21s", wantErr: "at most 20 seconds"},
+		{name: "timeout 59s", timeout: "59s", wantErr: "at least 1 minute"},
+		{name: "timeout 1m", timeout: "1m"},
+		{name: "timeout 168h", timeout: "168h"},
+		{name: "timeout 169h", timeout: "169h", wantErr: "at most 168 hours"},
+		{name: "timeout below interval", interval: "10m", timeout: "5m", wantErr: "at least the interval"},
+		{name: "timeout equals interval", interval: "10m", timeout: "10m"},
+		{name: "method PATCH", method: "PATCH"},
+		{name: "method HEAD", method: "HEAD"},
+		{name: "method DELETE", method: "DELETE", wantErr: "rule.method must be one of"},
+		{name: "method lowercase", method: "get", wantErr: "rule.method must be one of"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			var method *HTTPMethod
+			if tc.method != "" {
+				method = ptr(HTTPMethod(tc.method))
+			}
+			rule := Rule{Kind: "http", URL: "https://example.com", SuccessExpression: "status == 200",
+				Interval: tc.interval, RequestTimeout: tc.requestTimeout, Timeout: tc.timeout, Method: method}
+			fields := map[string]property.Value{
+				"kind":              property.New("http"),
+				"url":               property.New("https://example.com"),
+				"successExpression": property.New("status == 200"),
+			}
+			for k, v := range map[string]string{"interval": tc.interval, "requestTimeout": tc.requestTimeout, "timeout": tc.timeout, "method": tc.method} {
+				if v != "" {
+					fields[k] = property.New(v)
+				}
+			}
+			raw := property.New(property.NewMap(fields))
+			for name, err := range map[string]error{"validateRule": validateRule(rule, 1), "validateRuleValue": validateRuleValue(raw, 1)} {
+				if tc.wantErr == "" {
+					assert.NoError(t, err, name)
+				} else {
+					assert.ErrorContains(t, err, tc.wantErr, name)
+				}
+			}
+			_, err := invokeHTTP(HTTPArgs{Method: method, Interval: tc.interval, RequestTimeout: tc.requestTimeout, Timeout: tc.timeout})
+			if tc.wantErr == "" {
+				assert.NoError(t, err)
+			} else {
+				assert.ErrorContains(t, err, tc.wantErr)
+			}
+		})
+	}
+}
+
+func TestRawHTTPRuleRejectsEmptyDurations(t *testing.T) {
+	httpRule := func(extra map[string]property.Value) property.Value {
+		fields := map[string]property.Value{
+			"kind":              property.New("http"),
+			"url":               property.New("https://example.com"),
+			"successExpression": property.New("status == 200"),
+		}
+		for k, v := range extra {
+			fields[k] = v
+		}
+		return property.New(property.NewMap(fields))
+	}
+	for _, name := range []string{"interval", "requestTimeout", "timeout"} {
+		empty := map[string]property.Value{name: property.New("")}
+		assert.ErrorContains(t, validateRuleValue(httpRule(empty), 1), "rule."+name+" must be a positive whole-second")
+		nested := property.New(property.NewMap(map[string]property.Value{
+			"kind":  property.New("all"),
+			"rules": property.New(property.NewArray([]property.Value{httpRule(empty)})),
+		}))
+		assert.ErrorContains(t, validateRuleValue(nested, 1), "rule."+name+" must be a positive whole-second")
+		assert.NoError(t, validateRuleValue(httpRule(map[string]property.Value{name: property.New(property.Null)}), 1))
+	}
+	assert.NoError(t, validateRuleValue(httpRule(nil), 1))
+}
+
+func TestHTTPMethodSkipsUnknown(t *testing.T) {
+	raw := property.New(property.NewMap(map[string]property.Value{
+		"kind":              property.New("http"),
+		"url":               property.New("https://example.com"),
+		"successExpression": property.New("status == 200"),
+		"method":            property.New(property.Computed),
+	}))
+	assert.NoError(t, validateRuleValue(raw, 1))
 }

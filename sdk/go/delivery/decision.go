@@ -40,7 +40,7 @@ type DecisionArgs struct {
 type DecisionResult struct {
 	// Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
 	Approvers []string `pulumi:"approvers"`
-	// HTTP request body. Secret values stay secret.
+	// HTTP request body, at most 16 KiB. A secret value stays secret.
 	Body *string `pulumi:"body"`
 	// Optional JSON-like context for a decision rule. Delivery rejects secret values and limits its encoded size to 16 KiB. Do not use it for credentials or other secrets.
 	Context map[string]interface{} `pulumi:"context"`
@@ -48,27 +48,27 @@ type DecisionResult struct {
 	Count *int `pulumi:"count"`
 	// Text for the person who continues a manual gate, for example what to check first.
 	Description *string `pulumi:"description"`
-	// HTTP request headers. Secret values stay secret.
+	// HTTP request headers: at most 50 and 8 KiB in total, each name once. Delivery refuses headers that the client sets itself, such as Host, Content-Length and Transfer-Encoding. Secret values stay secret.
 	Headers map[string]string `pulumi:"headers"`
-	// Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
-	HeadersEnvironment *string `pulumi:"headersEnvironment"`
-	// Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
+	// Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds and the maximum is 1 hour. The default is 1m.
 	Interval *string `pulumi:"interval"`
 	// Kind of the rule. Valid values are approval, decision, http, manual, all, and any.
 	Kind string `pulumi:"kind"`
-	// HTTP request method. The default is GET.
-	Method *string `pulumi:"method"`
+	// HTTP request method. Valid values are GET, POST, PUT, PATCH, and HEAD. The default is GET.
+	Method *HTTPMethod `pulumi:"method"`
 	// Rule name. Omit it to let Delivery assign one.
 	Name *string `pulumi:"name"`
 	// Named judgments and their deterministic risk thresholds for a decision rule.
 	Questions map[string]DecisionQuestion `pulumi:"questions"`
+	// Time allowed for each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+	RequestTimeout *string `pulumi:"requestTimeout"`
 	// Child rules for all and any rules. At least one is required.
 	Rules []Rule `pulumi:"rules"`
-	// JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
+	// CEL expression that decides whether the gate passes. It must return a boolean. It can use `status` (the HTTP status code), `headers` (response header names in lower case) and `body` (the parsed JSON, or the text when the body is not JSON), for example `status == 200 && body.status == "ok"`. At most 1024 bytes. A field that the response lacks keeps the gate waiting; guard optional fields with `has()`. Required for http rules.
 	SuccessExpression *string `pulumi:"successExpression"`
-	// Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
+	// How long the gate may wait in total, counted from when the gate opens for a run, as a Go duration, such as 24h. Use a whole number of seconds from 1m to 168h (7 days), and at least the interval. The default is 24h. When the time passes without a check passing, the run fails.
 	Timeout *string `pulumi:"timeout"`
-	// URL to call. Required for http rules.
+	// URL to call. Required for http rules. It must use https, contain no credentials, be at most 2048 bytes and point to a public address. Redirects are not followed.
 	Url *string `pulumi:"url"`
 }
 
@@ -113,7 +113,7 @@ func (o DecisionResultOutput) Approvers() pulumi.StringArrayOutput {
 	return o.ApplyT(func(v DecisionResult) []string { return v.Approvers }).(pulumi.StringArrayOutput)
 }
 
-// HTTP request body. Secret values stay secret.
+// HTTP request body, at most 16 KiB. A secret value stays secret.
 func (o DecisionResultOutput) Body() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v DecisionResult) *string { return v.Body }).(pulumi.StringPtrOutput)
 }
@@ -133,17 +133,12 @@ func (o DecisionResultOutput) Description() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v DecisionResult) *string { return v.Description }).(pulumi.StringPtrOutput)
 }
 
-// HTTP request headers. Secret values stay secret.
+// HTTP request headers: at most 50 and 8 KiB in total, each name once. Delivery refuses headers that the client sets itself, such as Host, Content-Length and Transfer-Encoding. Secret values stay secret.
 func (o DecisionResultOutput) Headers() pulumi.StringMapOutput {
 	return o.ApplyT(func(v DecisionResult) map[string]string { return v.Headers }).(pulumi.StringMapOutput)
 }
 
-// Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
-func (o DecisionResultOutput) HeadersEnvironment() pulumi.StringPtrOutput {
-	return o.ApplyT(func(v DecisionResult) *string { return v.HeadersEnvironment }).(pulumi.StringPtrOutput)
-}
-
-// Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
+// Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds and the maximum is 1 hour. The default is 1m.
 func (o DecisionResultOutput) Interval() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v DecisionResult) *string { return v.Interval }).(pulumi.StringPtrOutput)
 }
@@ -153,9 +148,9 @@ func (o DecisionResultOutput) Kind() pulumi.StringOutput {
 	return o.ApplyT(func(v DecisionResult) string { return v.Kind }).(pulumi.StringOutput)
 }
 
-// HTTP request method. The default is GET.
-func (o DecisionResultOutput) Method() pulumi.StringPtrOutput {
-	return o.ApplyT(func(v DecisionResult) *string { return v.Method }).(pulumi.StringPtrOutput)
+// HTTP request method. Valid values are GET, POST, PUT, PATCH, and HEAD. The default is GET.
+func (o DecisionResultOutput) Method() HTTPMethodPtrOutput {
+	return o.ApplyT(func(v DecisionResult) *HTTPMethod { return v.Method }).(HTTPMethodPtrOutput)
 }
 
 // Rule name. Omit it to let Delivery assign one.
@@ -168,22 +163,27 @@ func (o DecisionResultOutput) Questions() DecisionQuestionMapOutput {
 	return o.ApplyT(func(v DecisionResult) map[string]DecisionQuestion { return v.Questions }).(DecisionQuestionMapOutput)
 }
 
+// Time allowed for each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+func (o DecisionResultOutput) RequestTimeout() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v DecisionResult) *string { return v.RequestTimeout }).(pulumi.StringPtrOutput)
+}
+
 // Child rules for all and any rules. At least one is required.
 func (o DecisionResultOutput) Rules() RuleArrayOutput {
 	return o.ApplyT(func(v DecisionResult) []Rule { return v.Rules }).(RuleArrayOutput)
 }
 
-// JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
+// CEL expression that decides whether the gate passes. It must return a boolean. It can use `status` (the HTTP status code), `headers` (response header names in lower case) and `body` (the parsed JSON, or the text when the body is not JSON), for example `status == 200 && body.status == "ok"`. At most 1024 bytes. A field that the response lacks keeps the gate waiting; guard optional fields with `has()`. Required for http rules.
 func (o DecisionResultOutput) SuccessExpression() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v DecisionResult) *string { return v.SuccessExpression }).(pulumi.StringPtrOutput)
 }
 
-// Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
+// How long the gate may wait in total, counted from when the gate opens for a run, as a Go duration, such as 24h. Use a whole number of seconds from 1m to 168h (7 days), and at least the interval. The default is 24h. When the time passes without a check passing, the run fails.
 func (o DecisionResultOutput) Timeout() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v DecisionResult) *string { return v.Timeout }).(pulumi.StringPtrOutput)
 }
 
-// URL to call. Required for http rules.
+// URL to call. Required for http rules. It must use https, contain no credentials, be at most 2048 bytes and point to a public address. Redirects are not followed.
 func (o DecisionResultOutput) Url() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v DecisionResult) *string { return v.Url }).(pulumi.StringPtrOutput)
 }

@@ -66,6 +66,31 @@
         "maximumRisk"
       ]
     },
+    "delivery:index:HTTPMethod": {
+      "type": "string",
+      "enum": [
+        {
+          "name": "GET",
+          "value": "GET"
+        },
+        {
+          "name": "POST",
+          "value": "POST"
+        },
+        {
+          "name": "PUT",
+          "value": "PUT"
+        },
+        {
+          "name": "PATCH",
+          "value": "PATCH"
+        },
+        {
+          "name": "HEAD",
+          "value": "HEAD"
+        }
+      ]
+    },
     "delivery:index:Image": {
       "description": "Container image that a member runs in.",
       "properties": {
@@ -149,7 +174,7 @@
         },
         "body": {
           "type": "string",
-          "description": "HTTP request body. Secret values stay secret."
+          "description": "HTTP request body, at most 16 KiB. A secret value stays secret."
         },
         "context": {
           "type": "object",
@@ -171,15 +196,11 @@
           "additionalProperties": {
             "type": "string"
           },
-          "description": "HTTP request headers. Secret values stay secret."
-        },
-        "headersEnvironment": {
-          "type": "string",
-          "description": "Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule."
+          "description": "HTTP request headers: at most 50 and 8 KiB in total, each name once. Delivery refuses headers that the client sets itself, such as Host, Content-Length and Transfer-Encoding. Secret values stay secret."
         },
         "interval": {
           "type": "string",
-          "description": "Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds."
+          "description": "Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds and the maximum is 1 hour. The default is 1m."
         },
         "kind": {
           "oneOf": [
@@ -193,8 +214,8 @@
           "description": "Kind of the rule. Valid values are approval, decision, http, manual, all, and any."
         },
         "method": {
-          "type": "string",
-          "description": "HTTP request method. The default is GET."
+          "$ref": "#/types/delivery:index:HTTPMethod",
+          "description": "HTTP request method. Valid values are GET, POST, PUT, PATCH, and HEAD. The default is GET."
         },
         "name": {
           "type": "string",
@@ -207,6 +228,10 @@
           },
           "description": "Named judgments and their deterministic risk thresholds for a decision rule."
         },
+        "requestTimeout": {
+          "type": "string",
+          "description": "Time allowed for each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s."
+        },
         "rules": {
           "type": "array",
           "items": {
@@ -216,15 +241,15 @@
         },
         "successExpression": {
           "type": "string",
-          "description": "JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules."
+          "description": "CEL expression that decides whether the gate passes. It must return a boolean. It can use `status` (the HTTP status code), `headers` (response header names in lower case) and `body` (the parsed JSON, or the text when the body is not JSON), for example `status == 200 && body.status == \"ok\"`. At most 1024 bytes. A field that the response lacks keeps the gate waiting; guard optional fields with `has()`. Required for http rules."
         },
         "timeout": {
           "type": "string",
-          "description": "Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20."
+          "description": "How long the gate may wait in total, counted from when the gate opens for a run, as a Go duration, such as 24h. Use a whole number of seconds from 1m to 168h (7 days), and at least the interval. The default is 24h. When the time passes without a check passing, the run fails."
         },
         "url": {
           "type": "string",
-          "description": "URL to call. Required for http rules."
+          "description": "URL to call. Required for http rules. It must use https, contain no credentials, be at most 2048 bytes and point to a public address. Redirects are not followed."
         }
       },
       "type": "object",
@@ -855,7 +880,7 @@
             "type": "array"
           },
           "body": {
-            "description": "HTTP request body. Secret values stay secret.",
+            "description": "HTTP request body, at most 16 KiB. A secret value stays secret.",
             "type": "string"
           },
           "context": {
@@ -877,15 +902,11 @@
             "additionalProperties": {
               "type": "string"
             },
-            "description": "HTTP request headers. Secret values stay secret.",
+            "description": "HTTP request headers: at most 50 and 8 KiB in total, each name once. Delivery refuses headers that the client sets itself, such as Host, Content-Length and Transfer-Encoding. Secret values stay secret.",
             "type": "object"
           },
-          "headersEnvironment": {
-            "description": "Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.",
-            "type": "string"
-          },
           "interval": {
-            "description": "Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.",
+            "description": "Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds and the maximum is 1 hour. The default is 1m.",
             "type": "string"
           },
           "kind": {
@@ -893,8 +914,8 @@
             "type": "string"
           },
           "method": {
-            "description": "HTTP request method. The default is GET.",
-            "type": "string"
+            "$ref": "#/types/delivery:index:HTTPMethod",
+            "description": "HTTP request method. Valid values are GET, POST, PUT, PATCH, and HEAD. The default is GET."
           },
           "name": {
             "description": "Rule name. Omit it to let Delivery assign one.",
@@ -907,6 +928,10 @@
             "description": "Named judgments and their deterministic risk thresholds for a decision rule.",
             "type": "object"
           },
+          "requestTimeout": {
+            "description": "Time allowed for each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.",
+            "type": "string"
+          },
           "rules": {
             "description": "Child rules for all and any rules. At least one is required.",
             "items": {
@@ -915,15 +940,15 @@
             "type": "array"
           },
           "successExpression": {
-            "description": "JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.",
+            "description": "CEL expression that decides whether the gate passes. It must return a boolean. It can use `status` (the HTTP status code), `headers` (response header names in lower case) and `body` (the parsed JSON, or the text when the body is not JSON), for example `status == 200 && body.status == \"ok\"`. At most 1024 bytes. A field that the response lacks keeps the gate waiting; guard optional fields with `has()`. Required for http rules.",
             "type": "string"
           },
           "timeout": {
-            "description": "Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.",
+            "description": "How long the gate may wait in total, counted from when the gate opens for a run, as a Go duration, such as 24h. Use a whole number of seconds from 1m to 168h (7 days), and at least the interval. The default is 24h. When the time passes without a check passing, the run fails.",
             "type": "string"
           },
           "url": {
-            "description": "URL to call. Required for http rules.",
+            "description": "URL to call. Required for http rules. It must use https, contain no credentials, be at most 2048 bytes and point to a public address. Redirects are not followed.",
             "type": "string"
           }
         },
@@ -966,7 +991,7 @@
             "type": "array"
           },
           "body": {
-            "description": "HTTP request body. Secret values stay secret.",
+            "description": "HTTP request body, at most 16 KiB. A secret value stays secret.",
             "type": "string"
           },
           "context": {
@@ -988,15 +1013,11 @@
             "additionalProperties": {
               "type": "string"
             },
-            "description": "HTTP request headers. Secret values stay secret.",
+            "description": "HTTP request headers: at most 50 and 8 KiB in total, each name once. Delivery refuses headers that the client sets itself, such as Host, Content-Length and Transfer-Encoding. Secret values stay secret.",
             "type": "object"
           },
-          "headersEnvironment": {
-            "description": "Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.",
-            "type": "string"
-          },
           "interval": {
-            "description": "Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.",
+            "description": "Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds and the maximum is 1 hour. The default is 1m.",
             "type": "string"
           },
           "kind": {
@@ -1004,8 +1025,8 @@
             "type": "string"
           },
           "method": {
-            "description": "HTTP request method. The default is GET.",
-            "type": "string"
+            "$ref": "#/types/delivery:index:HTTPMethod",
+            "description": "HTTP request method. Valid values are GET, POST, PUT, PATCH, and HEAD. The default is GET."
           },
           "name": {
             "description": "Rule name. Omit it to let Delivery assign one.",
@@ -1018,6 +1039,10 @@
             "description": "Named judgments and their deterministic risk thresholds for a decision rule.",
             "type": "object"
           },
+          "requestTimeout": {
+            "description": "Time allowed for each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.",
+            "type": "string"
+          },
           "rules": {
             "description": "Child rules for all and any rules. At least one is required.",
             "items": {
@@ -1026,15 +1051,15 @@
             "type": "array"
           },
           "successExpression": {
-            "description": "JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.",
+            "description": "CEL expression that decides whether the gate passes. It must return a boolean. It can use `status` (the HTTP status code), `headers` (response header names in lower case) and `body` (the parsed JSON, or the text when the body is not JSON), for example `status == 200 && body.status == \"ok\"`. At most 1024 bytes. A field that the response lacks keeps the gate waiting; guard optional fields with `has()`. Required for http rules.",
             "type": "string"
           },
           "timeout": {
-            "description": "Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.",
+            "description": "How long the gate may wait in total, counted from when the gate opens for a run, as a Go duration, such as 24h. Use a whole number of seconds from 1m to 168h (7 days), and at least the interval. The default is 24h. When the time passes without a check passing, the run fails.",
             "type": "string"
           },
           "url": {
-            "description": "URL to call. Required for http rules.",
+            "description": "URL to call. Required for http rules. It must use https, contain no credentials, be at most 2048 bytes and point to a public address. Redirects are not followed.",
             "type": "string"
           }
         },
@@ -1078,7 +1103,7 @@
             "type": "array"
           },
           "body": {
-            "description": "HTTP request body. Secret values stay secret.",
+            "description": "HTTP request body, at most 16 KiB. A secret value stays secret.",
             "type": "string"
           },
           "context": {
@@ -1100,15 +1125,11 @@
             "additionalProperties": {
               "type": "string"
             },
-            "description": "HTTP request headers. Secret values stay secret.",
+            "description": "HTTP request headers: at most 50 and 8 KiB in total, each name once. Delivery refuses headers that the client sets itself, such as Host, Content-Length and Transfer-Encoding. Secret values stay secret.",
             "type": "object"
           },
-          "headersEnvironment": {
-            "description": "Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.",
-            "type": "string"
-          },
           "interval": {
-            "description": "Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.",
+            "description": "Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds and the maximum is 1 hour. The default is 1m.",
             "type": "string"
           },
           "kind": {
@@ -1116,8 +1137,8 @@
             "type": "string"
           },
           "method": {
-            "description": "HTTP request method. The default is GET.",
-            "type": "string"
+            "$ref": "#/types/delivery:index:HTTPMethod",
+            "description": "HTTP request method. Valid values are GET, POST, PUT, PATCH, and HEAD. The default is GET."
           },
           "name": {
             "description": "Rule name. Omit it to let Delivery assign one.",
@@ -1130,6 +1151,10 @@
             "description": "Named judgments and their deterministic risk thresholds for a decision rule.",
             "type": "object"
           },
+          "requestTimeout": {
+            "description": "Time allowed for each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.",
+            "type": "string"
+          },
           "rules": {
             "description": "Child rules for all and any rules. At least one is required.",
             "items": {
@@ -1138,15 +1163,15 @@
             "type": "array"
           },
           "successExpression": {
-            "description": "JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.",
+            "description": "CEL expression that decides whether the gate passes. It must return a boolean. It can use `status` (the HTTP status code), `headers` (response header names in lower case) and `body` (the parsed JSON, or the text when the body is not JSON), for example `status == 200 && body.status == \"ok\"`. At most 1024 bytes. A field that the response lacks keeps the gate waiting; guard optional fields with `has()`. Required for http rules.",
             "type": "string"
           },
           "timeout": {
-            "description": "Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.",
+            "description": "How long the gate may wait in total, counted from when the gate opens for a run, as a Go duration, such as 24h. Use a whole number of seconds from 1m to 168h (7 days), and at least the interval. The default is 24h. When the time passes without a check passing, the run fails.",
             "type": "string"
           },
           "url": {
-            "description": "URL to call. Required for http rules.",
+            "description": "URL to call. Required for http rules. It must use https, contain no credentials, be at most 2048 bytes and point to a public address. Redirects are not followed.",
             "type": "string"
           }
         },
@@ -1200,7 +1225,7 @@
             "type": "array"
           },
           "body": {
-            "description": "HTTP request body. Secret values stay secret.",
+            "description": "HTTP request body, at most 16 KiB. A secret value stays secret.",
             "type": "string"
           },
           "context": {
@@ -1222,15 +1247,11 @@
             "additionalProperties": {
               "type": "string"
             },
-            "description": "HTTP request headers. Secret values stay secret.",
+            "description": "HTTP request headers: at most 50 and 8 KiB in total, each name once. Delivery refuses headers that the client sets itself, such as Host, Content-Length and Transfer-Encoding. Secret values stay secret.",
             "type": "object"
           },
-          "headersEnvironment": {
-            "description": "Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.",
-            "type": "string"
-          },
           "interval": {
-            "description": "Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.",
+            "description": "Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds and the maximum is 1 hour. The default is 1m.",
             "type": "string"
           },
           "kind": {
@@ -1238,8 +1259,8 @@
             "type": "string"
           },
           "method": {
-            "description": "HTTP request method. The default is GET.",
-            "type": "string"
+            "$ref": "#/types/delivery:index:HTTPMethod",
+            "description": "HTTP request method. Valid values are GET, POST, PUT, PATCH, and HEAD. The default is GET."
           },
           "name": {
             "description": "Rule name. Omit it to let Delivery assign one.",
@@ -1252,6 +1273,10 @@
             "description": "Named judgments and their deterministic risk thresholds for a decision rule.",
             "type": "object"
           },
+          "requestTimeout": {
+            "description": "Time allowed for each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.",
+            "type": "string"
+          },
           "rules": {
             "description": "Child rules for all and any rules. At least one is required.",
             "items": {
@@ -1260,15 +1285,15 @@
             "type": "array"
           },
           "successExpression": {
-            "description": "JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.",
+            "description": "CEL expression that decides whether the gate passes. It must return a boolean. It can use `status` (the HTTP status code), `headers` (response header names in lower case) and `body` (the parsed JSON, or the text when the body is not JSON), for example `status == 200 && body.status == \"ok\"`. At most 1024 bytes. A field that the response lacks keeps the gate waiting; guard optional fields with `has()`. Required for http rules.",
             "type": "string"
           },
           "timeout": {
-            "description": "Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.",
+            "description": "How long the gate may wait in total, counted from when the gate opens for a run, as a Go duration, such as 24h. Use a whole number of seconds from 1m to 168h (7 days), and at least the interval. The default is 24h. When the time passes without a check passing, the run fails.",
             "type": "string"
           },
           "url": {
-            "description": "URL to call. Required for http rules.",
+            "description": "URL to call. Required for http rules. It must use https, contain no credentials, be at most 2048 bytes and point to a public address. Redirects are not followed.",
             "type": "string"
           }
         },
@@ -1279,48 +1304,48 @@
       }
     },
     "delivery:index:http": {
-      "description": "Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nconst prod = new delivery.Stage(\"prod\", {\n    pipeline,\n    from: [dev],\n    when: delivery.http({ url: \"https://example.com/check\", successExpression: \"status == 'ok'\" }),\n});\n```",
+      "description": "Builds an http rule for the when property of a Stage. Delivery calls the URL at an interval, and the gate passes when the success expression is true. A request error or a check that does not pass never fails the run by itself. The gate keeps waiting until a check passes or the timeout (24h by default) ends the run. You can also cancel the run. A request can repeat, so the endpoint must be safe to call more than once. The console shows the result of the last check, not the URL, headers, body or expression. Do not put secrets in the name or description, because the console shows them. See the Gates section of the guide for the expression syntax.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nconst prod = new delivery.Stage(\"prod\", {\n    pipeline,\n    from: [dev],\n    when: delivery.http({ url: \"https://example.com/check\", successExpression: \"status == 200 && body.status == \\\"ok\\\"\" }),\n});\n```",
       "inputs": {
         "description": "HTTP rule settings.",
         "properties": {
           "body": {
             "type": "string",
-            "description": "HTTP request body. Secret values stay secret."
+            "description": "HTTP request body, at most 16 KiB. A secret value stays secret."
           },
           "headers": {
             "type": "object",
             "additionalProperties": {
               "type": "string"
             },
-            "description": "HTTP request headers. Secret values stay secret."
-          },
-          "headersEnvironment": {
-            "type": "string",
-            "description": "Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule."
+            "description": "HTTP request headers: at most 50 and 8 KiB in total, each name once. Delivery refuses headers that the client sets itself, such as Host, Content-Length and Transfer-Encoding. Secret values stay secret."
           },
           "interval": {
             "type": "string",
-            "description": "Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds."
+            "description": "Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds and the maximum is 1 hour. The default is 1m."
           },
           "method": {
-            "type": "string",
-            "description": "HTTP request method. The default is GET."
+            "$ref": "#/types/delivery:index:HTTPMethod",
+            "description": "HTTP request method. Valid values are GET, POST, PUT, PATCH, and HEAD. The default is GET."
           },
           "name": {
             "type": "string",
-            "description": "Rule name. Omit it to let Delivery assign one."
+            "description": "Rule name. Omit it to let Delivery assign one. The console shows the name, so do not put a secret in it."
+          },
+          "requestTimeout": {
+            "type": "string",
+            "description": "Time allowed for each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s."
           },
           "successExpression": {
             "type": "string",
-            "description": "JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required."
+            "description": "CEL expression that decides whether the gate passes. It must return a boolean. It can use `status` (the HTTP status code), `headers` (response header names in lower case) and `body` (the parsed JSON, or the text when the body is not JSON), for example `status == 200 && body.status == \"ok\"`. At most 1024 bytes. A field that the response lacks keeps the gate waiting; guard optional fields with `has()`. Required."
           },
           "timeout": {
             "type": "string",
-            "description": "Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20."
+            "description": "How long the gate may wait in total, counted from when the gate opens for a run, as a Go duration, such as 24h. Use a whole number of seconds from 1m to 168h (7 days), and at least the interval. The default is 24h. When the time passes without a check passing, the run fails."
           },
           "url": {
             "type": "string",
-            "description": "URL to call. Required."
+            "description": "URL to call. Required. It must use https, contain no credentials, be at most 2048 bytes and point to a public address. Redirects are not followed."
           }
         },
         "type": "object",
@@ -1340,7 +1365,7 @@
             "type": "array"
           },
           "body": {
-            "description": "HTTP request body. Secret values stay secret.",
+            "description": "HTTP request body, at most 16 KiB. A secret value stays secret.",
             "type": "string"
           },
           "context": {
@@ -1362,15 +1387,11 @@
             "additionalProperties": {
               "type": "string"
             },
-            "description": "HTTP request headers. Secret values stay secret.",
+            "description": "HTTP request headers: at most 50 and 8 KiB in total, each name once. Delivery refuses headers that the client sets itself, such as Host, Content-Length and Transfer-Encoding. Secret values stay secret.",
             "type": "object"
           },
-          "headersEnvironment": {
-            "description": "Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.",
-            "type": "string"
-          },
           "interval": {
-            "description": "Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.",
+            "description": "Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds and the maximum is 1 hour. The default is 1m.",
             "type": "string"
           },
           "kind": {
@@ -1378,8 +1399,8 @@
             "type": "string"
           },
           "method": {
-            "description": "HTTP request method. The default is GET.",
-            "type": "string"
+            "$ref": "#/types/delivery:index:HTTPMethod",
+            "description": "HTTP request method. Valid values are GET, POST, PUT, PATCH, and HEAD. The default is GET."
           },
           "name": {
             "description": "Rule name. Omit it to let Delivery assign one.",
@@ -1392,6 +1413,10 @@
             "description": "Named judgments and their deterministic risk thresholds for a decision rule.",
             "type": "object"
           },
+          "requestTimeout": {
+            "description": "Time allowed for each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.",
+            "type": "string"
+          },
           "rules": {
             "description": "Child rules for all and any rules. At least one is required.",
             "items": {
@@ -1400,15 +1425,15 @@
             "type": "array"
           },
           "successExpression": {
-            "description": "JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.",
+            "description": "CEL expression that decides whether the gate passes. It must return a boolean. It can use `status` (the HTTP status code), `headers` (response header names in lower case) and `body` (the parsed JSON, or the text when the body is not JSON), for example `status == 200 && body.status == \"ok\"`. At most 1024 bytes. A field that the response lacks keeps the gate waiting; guard optional fields with `has()`. Required for http rules.",
             "type": "string"
           },
           "timeout": {
-            "description": "Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.",
+            "description": "How long the gate may wait in total, counted from when the gate opens for a run, as a Go duration, such as 24h. Use a whole number of seconds from 1m to 168h (7 days), and at least the interval. The default is 24h. When the time passes without a check passing, the run fails.",
             "type": "string"
           },
           "url": {
-            "description": "URL to call. Required for http rules.",
+            "description": "URL to call. Required for http rules. It must use https, contain no credentials, be at most 2048 bytes and point to a public address. Redirects are not followed.",
             "type": "string"
           }
         },
@@ -1445,7 +1470,7 @@
             "type": "array"
           },
           "body": {
-            "description": "HTTP request body. Secret values stay secret.",
+            "description": "HTTP request body, at most 16 KiB. A secret value stays secret.",
             "type": "string"
           },
           "context": {
@@ -1467,15 +1492,11 @@
             "additionalProperties": {
               "type": "string"
             },
-            "description": "HTTP request headers. Secret values stay secret.",
+            "description": "HTTP request headers: at most 50 and 8 KiB in total, each name once. Delivery refuses headers that the client sets itself, such as Host, Content-Length and Transfer-Encoding. Secret values stay secret.",
             "type": "object"
           },
-          "headersEnvironment": {
-            "description": "Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.",
-            "type": "string"
-          },
           "interval": {
-            "description": "Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.",
+            "description": "Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds and the maximum is 1 hour. The default is 1m.",
             "type": "string"
           },
           "kind": {
@@ -1483,8 +1504,8 @@
             "type": "string"
           },
           "method": {
-            "description": "HTTP request method. The default is GET.",
-            "type": "string"
+            "$ref": "#/types/delivery:index:HTTPMethod",
+            "description": "HTTP request method. Valid values are GET, POST, PUT, PATCH, and HEAD. The default is GET."
           },
           "name": {
             "description": "Rule name. Omit it to let Delivery assign one.",
@@ -1497,6 +1518,10 @@
             "description": "Named judgments and their deterministic risk thresholds for a decision rule.",
             "type": "object"
           },
+          "requestTimeout": {
+            "description": "Time allowed for each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.",
+            "type": "string"
+          },
           "rules": {
             "description": "Child rules for all and any rules. At least one is required.",
             "items": {
@@ -1505,15 +1530,15 @@
             "type": "array"
           },
           "successExpression": {
-            "description": "JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.",
+            "description": "CEL expression that decides whether the gate passes. It must return a boolean. It can use `status` (the HTTP status code), `headers` (response header names in lower case) and `body` (the parsed JSON, or the text when the body is not JSON), for example `status == 200 && body.status == \"ok\"`. At most 1024 bytes. A field that the response lacks keeps the gate waiting; guard optional fields with `has()`. Required for http rules.",
             "type": "string"
           },
           "timeout": {
-            "description": "Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.",
+            "description": "How long the gate may wait in total, counted from when the gate opens for a run, as a Go duration, such as 24h. Use a whole number of seconds from 1m to 168h (7 days), and at least the interval. The default is 24h. When the time passes without a check passing, the run fails.",
             "type": "string"
           },
           "url": {
-            "description": "URL to call. Required for http rules.",
+            "description": "URL to call. Required for http rules. It must use https, contain no credentials, be at most 2048 bytes and point to a public address. Redirects are not followed.",
             "type": "string"
           }
         },

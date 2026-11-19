@@ -7,6 +7,37 @@ using Pulumi;
 
 namespace Pulumi.Delivery
 {
+    [EnumType]
+    public readonly struct HTTPMethod : IEquatable<HTTPMethod>
+    {
+        private readonly string _value;
+
+        private HTTPMethod(string value)
+        {
+            _value = value ?? throw new ArgumentNullException(nameof(value));
+        }
+
+        public static HTTPMethod GET { get; } = new HTTPMethod("GET");
+        public static HTTPMethod POST { get; } = new HTTPMethod("POST");
+        public static HTTPMethod PUT { get; } = new HTTPMethod("PUT");
+        public static HTTPMethod PATCH { get; } = new HTTPMethod("PATCH");
+        public static HTTPMethod HEAD { get; } = new HTTPMethod("HEAD");
+
+        public static bool operator ==(HTTPMethod left, HTTPMethod right) => left.Equals(right);
+        public static bool operator !=(HTTPMethod left, HTTPMethod right) => !left.Equals(right);
+
+        public static explicit operator string(HTTPMethod value) => value._value;
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override bool Equals(object? obj) => obj is HTTPMethod other && Equals(other);
+        public bool Equals(HTTPMethod other) => string.Equals(_value, other._value, StringComparison.Ordinal);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override int GetHashCode() => _value?.GetHashCode() ?? 0;
+
+        public override string ToString() => _value;
+    }
+
     /// <summary>
     /// Kind of a rule.
     /// </summary>

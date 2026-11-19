@@ -545,11 +545,77 @@ Gates are rules in `when`.
 
 - `approval()` needs approvals and the Approvals feature.
 - `manual()` waits until someone continues the gate. It works on every plan.
+- `http()` calls a URL at an interval and waits until the response passes a check. See [HTTP gates](#http-gates).
 - `allOf()` and `anyOf()` combine rules. You can nest them up to three levels.
 
 `approval()` takes `approvers` (user names or team names) and `count`. Anyone eligible can approve, including the person who started the run or pushed the commit. If you name no approvers, anyone with the `pipeline:approve` permission on the pipeline stack can approve, which Stack Write and Stack Admin grant. Only someone the approval accepts can reject it. A name that matches no user or team keeps the gate waiting. An approval gate shows a preview of the stack updates. The preview can be partial, and "Not available" is not the same as "no changes".
 
 `manual()` takes an optional `name` and `description`, as the other rules do. The default name is `manual`. Names are unique within a gate. The console shows the description to the person who continues the gate. Use `approval()` when named people must approve or you need several approvals. Otherwise use `manual()`.
+
+#### HTTP gates
+
+`http()` makes Pulumi Cloud call a URL on an interval. The gate passes when the `successExpression` is true. A request error or a check that does not pass never fails the run by itself. The gate keeps waiting until a check passes or the `timeout` ends the wait. **The `timeout` defaults to 24 hours**, so a gate that never passes fails its run after one day. Cancelling the run or a newer run that replaces it also ends the wait. Requests can repeat, so the endpoint must be safe to call more than once.
+
+```typescript
+const prod = new delivery.Stage("prod", {
+    pipeline,
+    from: [staging],
+    when: delivery.http({
+        url: "https://status.example.com/api/health",
+        successExpression: 'status == 200 && body.status == "ok"',
+    }),
+});
+```
+
+Use `httpOutput()` when a header or the body is a secret, for example `headers: { Authorization: config.requireSecret("token") }`. The whole rule is then a secret `Output`. Use it inside `allOfOutput()` or `anyOfOutput()` like the other rules.
+
+| Input | Meaning |
+|---|---|
+| `url` | Required. It must use `https`, contain no credentials and be at most 2048 bytes. Pulumi Cloud calls public addresses only, and refuses private, loopback, link-local and cloud-metadata addresses. It does not follow redirects, so a 3xx response is the answer. |
+| `method` | `GET` (default), `POST`, `PUT`, `PATCH` or `HEAD`. |
+| `headers` | At most 50 headers and 8 KiB in total. Each name can appear once, and names compare without case. Pulumi Cloud sets some headers itself and refuses them: `Host`, `Content-Length`, `Connection`, `Keep-Alive`, `Proxy-Authenticate`, `Proxy-Authorization`, `TE`, `Trailer`, `Transfer-Encoding` and `Upgrade`. Values can be secrets. |
+| `body` | At most 16 KiB. It can be a secret. |
+| `interval` | Time between checks, a Go duration of whole seconds from `60s` to `1h`. The default is `1m`. |
+| `requestTimeout` | Time allowed for one request, a Go duration of whole seconds from `1s` to `20s`. The default is `10s`. |
+| `timeout` | How long the gate may wait in total, counted from when the gate opens for a run. A Go duration of whole seconds from `1m` to `168h` (7 days), and at least `interval`. The default is `24h`. When it passes without a check passing, the run fails with a message such as `The HTTP check "probe" did not pass within 24h.` |
+| `successExpression` | Required. A [CEL](https://cel.dev) expression of at most 1024 bytes that returns a boolean. |
+
+The expression can use these variables:
+
+- `status` is the HTTP status code, an integer.
+- `headers` maps the names of the response headers, in lower case, to their values. Several values of one header are joined with `, `.
+- `body` is the parsed JSON when the response body is valid JSON, and the body as a string otherwise. A response body can be at most 64 KiB. A larger response is an error.
+
+Supported:
+
+- Field and index access: `body.status`, `body.items[0]`, `headers["content-type"]`.
+- `has(body.field)`, and the macros `all` and `exists`.
+- `&&`, `||`, `!`, the conditional `a ? b : c`, and comparisons.
+- `in` with a list of constants: `status in [200, 204]`.
+- `size()`, `contains()`, `startsWith()` and `endsWith()`.
+- The conversions `int()`, `uint()`, `double()`, `bool()` and `string()`, and arithmetic on numbers.
+
+Not supported:
+
+- The macros `map`, `filter` and `exists_one`, and `matches` (regular expressions).
+- Concatenation of strings or lists, timestamps and durations, and `dyn()`.
+- A comparison of two response fields: one side must be a plain value. `body.status == "ok"` works, `body.a == body.b` does not.
+- Arithmetic on values that are not numbers. Convert response fields first: `double(body.errors) / double(body.total) < 0.01`.
+- Lists and maps that contain anything but constants.
+
+A field that the response lacks makes the evaluation fail, and the gate keeps waiting. Guard optional fields with `has()`: `has(body.status) && body.status == "ok"`.
+
+Numbers in a JSON body are read as floating point. Integers above 2^53 lose precision, so return such values as strings and compare them as strings.
+
+More examples:
+
+- `status in [200, 204]`
+- `body.checks.all(c, c.status == "ok")`
+- `!body.checks.exists(c, c.status != "ok")`
+- `size(body.items) >= 3`
+- `headers["content-type"].contains("json")`
+
+The console shows the result of the last check on the gate: the status code, whether it passed, or an error such as a timeout or a refused address. It never shows the URL, the headers, the body or the expression. The `name` and `description` of a rule are visible in the console, and an http rule does not accept a secret there, so keep secrets out of them.
 
 #### Continue a manual gate
 

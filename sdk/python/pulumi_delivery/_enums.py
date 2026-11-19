@@ -7,8 +7,18 @@ import pulumi
 from enum import Enum
 
 __all__ = [
+    'HTTPMethod',
     'RuleKind',
 ]
+
+
+@pulumi.type_token("delivery:index:HTTPMethod")
+class HTTPMethod(_builtins.str, Enum):
+    GET = "GET"
+    POST = "POST"
+    PUT = "PUT"
+    PATCH = "PATCH"
+    HEAD = "HEAD"
 
 
 @pulumi.type_token("delivery:index:RuleKind")

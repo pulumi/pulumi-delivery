@@ -4,6 +4,7 @@
 package com.pulumi.delivery.outputs;
 
 import com.pulumi.core.annotations.CustomType;
+import com.pulumi.delivery.enums.HTTPMethod;
 import com.pulumi.delivery.outputs.DecisionQuestion;
 import com.pulumi.delivery.outputs.Rule;
 import com.pulumi.exceptions.MissingRequiredPropertyException;
@@ -24,7 +25,7 @@ public final class ApprovalResult {
      */
     private @Nullable List<String> approvers;
     /**
-     * @return HTTP request body. Secret values stay secret.
+     * @return HTTP request body, at most 16 KiB. A secret value stays secret.
      * 
      */
     private @Nullable String body;
@@ -44,17 +45,12 @@ public final class ApprovalResult {
      */
     private @Nullable String description;
     /**
-     * @return HTTP request headers. Secret values stay secret.
+     * @return HTTP request headers: at most 50 and 8 KiB in total, each name once. Delivery refuses headers that the client sets itself, such as Host, Content-Length and Transfer-Encoding. Secret values stay secret.
      * 
      */
     private @Nullable Map<String,String> headers;
     /**
-     * @return Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
-     * 
-     */
-    private @Nullable String headersEnvironment;
-    /**
-     * @return Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
+     * @return Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds and the maximum is 1 hour. The default is 1m.
      * 
      */
     private @Nullable String interval;
@@ -64,10 +60,10 @@ public final class ApprovalResult {
      */
     private String kind;
     /**
-     * @return HTTP request method. The default is GET.
+     * @return HTTP request method. Valid values are GET, POST, PUT, PATCH, and HEAD. The default is GET.
      * 
      */
-    private @Nullable String method;
+    private @Nullable HTTPMethod method;
     /**
      * @return Rule name. Omit it to let Delivery assign one.
      * 
@@ -79,22 +75,27 @@ public final class ApprovalResult {
      */
     private @Nullable Map<String,DecisionQuestion> questions;
     /**
+     * @return Time allowed for each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+     * 
+     */
+    private @Nullable String requestTimeout;
+    /**
      * @return Child rules for all and any rules. At least one is required.
      * 
      */
     private @Nullable List<Rule> rules;
     /**
-     * @return JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
+     * @return CEL expression that decides whether the gate passes. It must return a boolean. It can use `status` (the HTTP status code), `headers` (response header names in lower case) and `body` (the parsed JSON, or the text when the body is not JSON), for example `status == 200 &amp;&amp; body.status == &#34;ok&#34;`. At most 1024 bytes. A field that the response lacks keeps the gate waiting; guard optional fields with `has()`. Required for http rules.
      * 
      */
     private @Nullable String successExpression;
     /**
-     * @return Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
+     * @return How long the gate may wait in total, counted from when the gate opens for a run, as a Go duration, such as 24h. Use a whole number of seconds from 1m to 168h (7 days), and at least the interval. The default is 24h. When the time passes without a check passing, the run fails.
      * 
      */
     private @Nullable String timeout;
     /**
-     * @return URL to call. Required for http rules.
+     * @return URL to call. Required for http rules. It must use https, contain no credentials, be at most 2048 bytes and point to a public address. Redirects are not followed.
      * 
      */
     private @Nullable String url;
@@ -108,7 +109,7 @@ public final class ApprovalResult {
         return this.approvers == null ? List.of() : this.approvers;
     }
     /**
-     * @return HTTP request body. Secret values stay secret.
+     * @return HTTP request body, at most 16 KiB. A secret value stays secret.
      * 
      */
     public Optional<String> body() {
@@ -136,21 +137,14 @@ public final class ApprovalResult {
         return Optional.ofNullable(this.description);
     }
     /**
-     * @return HTTP request headers. Secret values stay secret.
+     * @return HTTP request headers: at most 50 and 8 KiB in total, each name once. Delivery refuses headers that the client sets itself, such as Host, Content-Length and Transfer-Encoding. Secret values stay secret.
      * 
      */
     public Map<String,String> headers() {
         return this.headers == null ? Map.of() : this.headers;
     }
     /**
-     * @return Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
-     * 
-     */
-    public Optional<String> headersEnvironment() {
-        return Optional.ofNullable(this.headersEnvironment);
-    }
-    /**
-     * @return Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
+     * @return Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds and the maximum is 1 hour. The default is 1m.
      * 
      */
     public Optional<String> interval() {
@@ -164,10 +158,10 @@ public final class ApprovalResult {
         return this.kind;
     }
     /**
-     * @return HTTP request method. The default is GET.
+     * @return HTTP request method. Valid values are GET, POST, PUT, PATCH, and HEAD. The default is GET.
      * 
      */
-    public Optional<String> method() {
+    public Optional<HTTPMethod> method() {
         return Optional.ofNullable(this.method);
     }
     /**
@@ -185,6 +179,13 @@ public final class ApprovalResult {
         return this.questions == null ? Map.of() : this.questions;
     }
     /**
+     * @return Time allowed for each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+     * 
+     */
+    public Optional<String> requestTimeout() {
+        return Optional.ofNullable(this.requestTimeout);
+    }
+    /**
      * @return Child rules for all and any rules. At least one is required.
      * 
      */
@@ -192,21 +193,21 @@ public final class ApprovalResult {
         return this.rules == null ? List.of() : this.rules;
     }
     /**
-     * @return JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
+     * @return CEL expression that decides whether the gate passes. It must return a boolean. It can use `status` (the HTTP status code), `headers` (response header names in lower case) and `body` (the parsed JSON, or the text when the body is not JSON), for example `status == 200 &amp;&amp; body.status == &#34;ok&#34;`. At most 1024 bytes. A field that the response lacks keeps the gate waiting; guard optional fields with `has()`. Required for http rules.
      * 
      */
     public Optional<String> successExpression() {
         return Optional.ofNullable(this.successExpression);
     }
     /**
-     * @return Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
+     * @return How long the gate may wait in total, counted from when the gate opens for a run, as a Go duration, such as 24h. Use a whole number of seconds from 1m to 168h (7 days), and at least the interval. The default is 24h. When the time passes without a check passing, the run fails.
      * 
      */
     public Optional<String> timeout() {
         return Optional.ofNullable(this.timeout);
     }
     /**
-     * @return URL to call. Required for http rules.
+     * @return URL to call. Required for http rules. It must use https, contain no credentials, be at most 2048 bytes and point to a public address. Redirects are not followed.
      * 
      */
     public Optional<String> url() {
@@ -228,12 +229,12 @@ public final class ApprovalResult {
         private @Nullable Integer count;
         private @Nullable String description;
         private @Nullable Map<String,String> headers;
-        private @Nullable String headersEnvironment;
         private @Nullable String interval;
         private String kind;
-        private @Nullable String method;
+        private @Nullable HTTPMethod method;
         private @Nullable String name;
         private @Nullable Map<String,DecisionQuestion> questions;
+        private @Nullable String requestTimeout;
         private @Nullable List<Rule> rules;
         private @Nullable String successExpression;
         private @Nullable String timeout;
@@ -247,12 +248,12 @@ public final class ApprovalResult {
     	      this.count = defaults.count;
     	      this.description = defaults.description;
     	      this.headers = defaults.headers;
-    	      this.headersEnvironment = defaults.headersEnvironment;
     	      this.interval = defaults.interval;
     	      this.kind = defaults.kind;
     	      this.method = defaults.method;
     	      this.name = defaults.name;
     	      this.questions = defaults.questions;
+    	      this.requestTimeout = defaults.requestTimeout;
     	      this.rules = defaults.rules;
     	      this.successExpression = defaults.successExpression;
     	      this.timeout = defaults.timeout;
@@ -299,12 +300,6 @@ public final class ApprovalResult {
             return this;
         }
         @CustomType.Setter
-        public Builder headersEnvironment(@Nullable String headersEnvironment) {
-
-            this.headersEnvironment = headersEnvironment;
-            return this;
-        }
-        @CustomType.Setter
         public Builder interval(@Nullable String interval) {
 
             this.interval = interval;
@@ -319,7 +314,7 @@ public final class ApprovalResult {
             return this;
         }
         @CustomType.Setter
-        public Builder method(@Nullable String method) {
+        public Builder method(@Nullable HTTPMethod method) {
 
             this.method = method;
             return this;
@@ -334,6 +329,12 @@ public final class ApprovalResult {
         public Builder questions(@Nullable Map<String,DecisionQuestion> questions) {
 
             this.questions = questions;
+            return this;
+        }
+        @CustomType.Setter
+        public Builder requestTimeout(@Nullable String requestTimeout) {
+
+            this.requestTimeout = requestTimeout;
             return this;
         }
         @CustomType.Setter
@@ -371,12 +372,12 @@ public final class ApprovalResult {
             _resultValue.count = count;
             _resultValue.description = description;
             _resultValue.headers = headers;
-            _resultValue.headersEnvironment = headersEnvironment;
             _resultValue.interval = interval;
             _resultValue.kind = kind;
             _resultValue.method = method;
             _resultValue.name = name;
             _resultValue.questions = questions;
+            _resultValue.requestTimeout = requestTimeout;
             _resultValue.rules = rules;
             _resultValue.successExpression = successExpression;
             _resultValue.timeout = timeout;
