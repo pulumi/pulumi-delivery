@@ -36,6 +36,8 @@ __all__ = [
     'SourceTriggerArgsDict',
     'StacksEntryArgs',
     'StacksEntryArgsDict',
+    'WebhookSigningArgs',
+    'WebhookSigningArgsDict',
 ]
 
 class DecisionQuestionDict(TypedDict):
@@ -1262,6 +1264,58 @@ class StacksEntryArgs:
     @timeout.setter
     def timeout(self, value: pulumi.Input[Optional[_builtins.str]]):
         pulumi.set(self, "timeout", value)
+
+
+class WebhookSigningArgsDict(TypedDict):
+    """
+    How the service verifies a post to a webhook source.
+    """
+    kind: pulumi.Input[_builtins.str]
+    """
+    Kind of signature: hmac-sha256 (an HMAC over the raw body) or token (a shared secret).
+    """
+    secret: pulumi.Input[_builtins.str]
+    """
+    Secret that the external system signs with. It stays secret.
+    """
+
+@pulumi.input_type
+class WebhookSigningArgs:
+    def __init__(__self__, *,
+                 kind: pulumi.Input[_builtins.str],
+                 secret: pulumi.Input[_builtins.str]):
+        """
+        How the service verifies a post to a webhook source.
+
+        :param pulumi.Input[_builtins.str] kind: Kind of signature: hmac-sha256 (an HMAC over the raw body) or token (a shared secret).
+        :param pulumi.Input[_builtins.str] secret: Secret that the external system signs with. It stays secret.
+        """
+        pulumi.set(__self__, "kind", kind)
+        pulumi.set(__self__, "secret", secret)
+
+    @_builtins.property
+    @pulumi.getter
+    def kind(self) -> pulumi.Input[_builtins.str]:
+        """
+        Kind of signature: hmac-sha256 (an HMAC over the raw body) or token (a shared secret).
+        """
+        return pulumi.get(self, "kind")
+
+    @kind.setter
+    def kind(self, value: pulumi.Input[_builtins.str]):
+        pulumi.set(self, "kind", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def secret(self) -> pulumi.Input[_builtins.str]:
+        """
+        Secret that the external system signs with. It stays secret.
+        """
+        return pulumi.get(self, "secret")
+
+    @secret.setter
+    def secret(self, value: pulumi.Input[_builtins.str]):
+        pulumi.set(self, "secret", value)
 
 
 from . import azure_dev_ops_source as _azure_dev_ops_source

@@ -1559,6 +1559,165 @@ func (o StacksEntryMapOutput) MapIndex(k pulumi.StringInput) StacksEntryOutput {
 	}).(StacksEntryOutput)
 }
 
+// How the service verifies a post to a webhook source.
+type WebhookSigning struct {
+	// Kind of signature: hmac-sha256 (an HMAC over the raw body) or token (a shared secret).
+	Kind string `pulumi:"kind"`
+	// Secret that the external system signs with. It stays secret.
+	Secret string `pulumi:"secret"`
+}
+
+// WebhookSigningInput is an input type that accepts WebhookSigningArgs and WebhookSigningOutput values.
+// You can construct a concrete instance of `WebhookSigningInput` via:
+//
+//	WebhookSigningArgs{...}
+type WebhookSigningInput interface {
+	pulumi.Input
+
+	ToWebhookSigningOutput() WebhookSigningOutput
+	ToWebhookSigningOutputWithContext(context.Context) WebhookSigningOutput
+}
+
+// How the service verifies a post to a webhook source.
+type WebhookSigningArgs struct {
+	// Kind of signature: hmac-sha256 (an HMAC over the raw body) or token (a shared secret).
+	Kind pulumi.StringInput `pulumi:"kind"`
+	// Secret that the external system signs with. It stays secret.
+	Secret pulumi.StringInput `pulumi:"secret"`
+}
+
+func (WebhookSigningArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*WebhookSigning)(nil)).Elem()
+}
+
+func (i WebhookSigningArgs) ToWebhookSigningOutput() WebhookSigningOutput {
+	return i.ToWebhookSigningOutputWithContext(context.Background())
+}
+
+func (i WebhookSigningArgs) ToWebhookSigningOutputWithContext(ctx context.Context) WebhookSigningOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(WebhookSigningOutput)
+}
+
+func (i WebhookSigningArgs) ToWebhookSigningPtrOutput() WebhookSigningPtrOutput {
+	return i.ToWebhookSigningPtrOutputWithContext(context.Background())
+}
+
+func (i WebhookSigningArgs) ToWebhookSigningPtrOutputWithContext(ctx context.Context) WebhookSigningPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(WebhookSigningOutput).ToWebhookSigningPtrOutputWithContext(ctx)
+}
+
+// WebhookSigningPtrInput is an input type that accepts WebhookSigningArgs, WebhookSigningPtr and WebhookSigningPtrOutput values.
+// You can construct a concrete instance of `WebhookSigningPtrInput` via:
+//
+//	        WebhookSigningArgs{...}
+//
+//	or:
+//
+//	        nil
+type WebhookSigningPtrInput interface {
+	pulumi.Input
+
+	ToWebhookSigningPtrOutput() WebhookSigningPtrOutput
+	ToWebhookSigningPtrOutputWithContext(context.Context) WebhookSigningPtrOutput
+}
+
+type webhookSigningPtrType WebhookSigningArgs
+
+func WebhookSigningPtr(v *WebhookSigningArgs) WebhookSigningPtrInput {
+	return (*webhookSigningPtrType)(v)
+}
+
+func (*webhookSigningPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**WebhookSigning)(nil)).Elem()
+}
+
+func (i *webhookSigningPtrType) ToWebhookSigningPtrOutput() WebhookSigningPtrOutput {
+	return i.ToWebhookSigningPtrOutputWithContext(context.Background())
+}
+
+func (i *webhookSigningPtrType) ToWebhookSigningPtrOutputWithContext(ctx context.Context) WebhookSigningPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(WebhookSigningPtrOutput)
+}
+
+// How the service verifies a post to a webhook source.
+type WebhookSigningOutput struct{ *pulumi.OutputState }
+
+func (WebhookSigningOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*WebhookSigning)(nil)).Elem()
+}
+
+func (o WebhookSigningOutput) ToWebhookSigningOutput() WebhookSigningOutput {
+	return o
+}
+
+func (o WebhookSigningOutput) ToWebhookSigningOutputWithContext(ctx context.Context) WebhookSigningOutput {
+	return o
+}
+
+func (o WebhookSigningOutput) ToWebhookSigningPtrOutput() WebhookSigningPtrOutput {
+	return o.ToWebhookSigningPtrOutputWithContext(context.Background())
+}
+
+func (o WebhookSigningOutput) ToWebhookSigningPtrOutputWithContext(ctx context.Context) WebhookSigningPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v WebhookSigning) *WebhookSigning {
+		return &v
+	}).(WebhookSigningPtrOutput)
+}
+
+// Kind of signature: hmac-sha256 (an HMAC over the raw body) or token (a shared secret).
+func (o WebhookSigningOutput) Kind() pulumi.StringOutput {
+	return o.ApplyT(func(v WebhookSigning) string { return v.Kind }).(pulumi.StringOutput)
+}
+
+// Secret that the external system signs with. It stays secret.
+func (o WebhookSigningOutput) Secret() pulumi.StringOutput {
+	return o.ApplyT(func(v WebhookSigning) string { return v.Secret }).(pulumi.StringOutput)
+}
+
+type WebhookSigningPtrOutput struct{ *pulumi.OutputState }
+
+func (WebhookSigningPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**WebhookSigning)(nil)).Elem()
+}
+
+func (o WebhookSigningPtrOutput) ToWebhookSigningPtrOutput() WebhookSigningPtrOutput {
+	return o
+}
+
+func (o WebhookSigningPtrOutput) ToWebhookSigningPtrOutputWithContext(ctx context.Context) WebhookSigningPtrOutput {
+	return o
+}
+
+func (o WebhookSigningPtrOutput) Elem() WebhookSigningOutput {
+	return o.ApplyT(func(v *WebhookSigning) WebhookSigning {
+		if v != nil {
+			return *v
+		}
+		var ret WebhookSigning
+		return ret
+	}).(WebhookSigningOutput)
+}
+
+// Kind of signature: hmac-sha256 (an HMAC over the raw body) or token (a shared secret).
+func (o WebhookSigningPtrOutput) Kind() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *WebhookSigning) *string {
+		if v == nil {
+			return nil
+		}
+		return &v.Kind
+	}).(pulumi.StringPtrOutput)
+}
+
+// Secret that the external system signs with. It stays secret.
+func (o WebhookSigningPtrOutput) Secret() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *WebhookSigning) *string {
+		if v == nil {
+			return nil
+		}
+		return &v.Secret
+	}).(pulumi.StringPtrOutput)
+}
+
 // Pool selection.
 type WorkflowsRuntimeArgsType struct {
 	// Pool identifier. The resource returns it unchanged as ref.
@@ -1603,6 +1762,8 @@ func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*SourceTriggerPtrInput)(nil)).Elem(), SourceTriggerArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*StacksEntryInput)(nil)).Elem(), StacksEntryArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*StacksEntryMapInput)(nil)).Elem(), StacksEntryMap{})
+	pulumi.RegisterInputType(reflect.TypeOf((*WebhookSigningInput)(nil)).Elem(), WebhookSigningArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*WebhookSigningPtrInput)(nil)).Elem(), WebhookSigningArgs{})
 	pulumi.RegisterOutputType(DecisionQuestionOutput{})
 	pulumi.RegisterOutputType(DecisionQuestionMapOutput{})
 	pulumi.RegisterOutputType(ImageOutput{})
@@ -1620,5 +1781,7 @@ func init() {
 	pulumi.RegisterOutputType(SourceTriggerPtrOutput{})
 	pulumi.RegisterOutputType(StacksEntryOutput{})
 	pulumi.RegisterOutputType(StacksEntryMapOutput{})
+	pulumi.RegisterOutputType(WebhookSigningOutput{})
+	pulumi.RegisterOutputType(WebhookSigningPtrOutput{})
 	pulumi.RegisterOutputType(WorkflowsRuntimeArgsTypeOutput{})
 }

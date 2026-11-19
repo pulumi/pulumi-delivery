@@ -43,6 +43,8 @@ func (m *module) Construct(ctx *pulumi.Context, name, typ, urn string) (r pulumi
 		r = &Stacks{}
 	case "delivery:index:Stage":
 		r = &Stage{}
+	case "delivery:index:WebhookSource":
+		r = &WebhookSource{}
 	case "delivery:index:WorkflowsRuntime":
 		r = &WorkflowsRuntime{}
 	default:

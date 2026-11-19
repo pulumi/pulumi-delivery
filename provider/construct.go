@@ -41,7 +41,7 @@ func clientFor(organization string, resourceURN urn.URN) (*cloudclient.Client, e
 func isDeliveryComponent(typ string) bool {
 	_, source := sourceKinds[typ]
 	return source || typ == typePipeline || typ == typeAgent || typ == typeStage || typ == typeJob || typ == typeStacks ||
-		typ == typeArtifact || typ == typePipelineSource
+		typ == typeArtifact || typ == typePipelineSource || typ == typeWebhookSource
 }
 
 // withDeliveryConstruct wraps the Construct of the provider. For a Delivery component it
@@ -80,9 +80,12 @@ func withDeliveryConstruct(config *ProviderConfig, sess *session, inner func(con
 		commit := ""
 		var release *int64
 		var upstream *pipelineValue
+		var webhook *webhookValue
 		extras := newMemberExtras(ctx, sess, req.Organization)
 		local := false
-		if !req.DryRun {
+		if req.DryRun {
+			webhook = previewWebhookSource(req)
+		} else {
 			inputs := req.Inputs
 			if typ == typePipeline && config.Source != nil {
 				inputs = inputs.Set("programSource", property.New(config.Source.value()))
@@ -125,6 +128,9 @@ func withDeliveryConstruct(config *ProviderConfig, sess *session, inner func(con
 			if upstream, err = readPipelineSource(ctx, client, local, req); err != nil {
 				return p.ConstructResponse{}, err
 			}
+			if webhook, err = readWebhookSource(ctx, client, req); err != nil {
+				return p.ConstructResponse{}, err
+			}
 		}
 
 		if typ == typeStacks && local {
@@ -146,7 +152,7 @@ func withDeliveryConstruct(config *ProviderConfig, sess *session, inner func(con
 		if err := extras.wait(); err != nil {
 			return resp, err
 		}
-		resp.State = finishState(typ, resp.State, commit, release, upstream, req.Inputs)
+		resp.State = finishState(typ, resp.State, commit, release, upstream, webhook, req.Inputs)
 		logConstruct(req.Urn, resp)
 		return resp, nil
 	}
@@ -155,7 +161,9 @@ func withDeliveryConstruct(config *ProviderConfig, sess *session, inner func(con
 // finishState makes the outputs of a Job or an Artifact depend on its child (and drops the child URN), gives a
 // source without a value an unknown commit, sets the release number of a Pipeline, and sets the outputs of a
 // PipelineSource. The Go SDK does not carry any of them in its response.
-func finishState(typ string, state property.Map, commit string, release *int64, upstream *pipelineValue, inputs property.Map) property.Map {
+func finishState(typ string, state property.Map, commit string, release *int64, upstream *pipelineValue,
+	webhook *webhookValue, inputs property.Map,
+) property.Map {
 	if typ == typePipeline {
 		if release == nil {
 			return state.Set("releaseNumber", property.New(property.Computed))
@@ -164,6 +172,9 @@ func finishState(typ string, state property.Map, commit string, release *int64, 
 	}
 	if typ == typePipelineSource {
 		return upstream.state(state)
+	}
+	if typ == typeWebhookSource {
+		return webhook.state(state)
 	}
 	if _, isSource := sourceKinds[typ]; isSource {
 		if commit == "" {
@@ -561,6 +572,8 @@ func validateInputs(typ string, inputs property.Map) error {
 		if _, ok := inputs.GetOk("value"); !ok {
 			return errors.New("value is required")
 		}
+	case typeWebhookSource:
+		return validateWebhookSource(inputs)
 	case typeAgent:
 		if err := requireRef(inputs, "stage", typeStage); err != nil {
 			return err

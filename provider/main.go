@@ -63,6 +63,7 @@ func newProvider() (p.Provider, error) {
 			infer.ComponentF(notInferred[StacksArgs, *Stacks]),
 			infer.ComponentF(notInferred[ArtifactArgs, *Artifact]),
 			infer.ComponentF(notInferred[PipelineSourceArgs, *PipelineSource]),
+			infer.ComponentF(notInferred[WebhookSourceArgs, *WebhookSource]),
 			infer.ComponentF(notInferred[SourceArgs, *GitHubSource]),
 			infer.ComponentF(notInferred[SourceArgs, *GitLabSource]),
 			infer.ComponentF(notInferred[SourceArgs, *BitbucketSource]),

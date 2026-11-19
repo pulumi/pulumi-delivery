@@ -33,6 +33,8 @@ func buildComponent(ctx *pulumi.Context, typ, name string, inputs comProvider.Co
 	case typePipelineSource:
 		// The wrapper sets the outputs.
 		return register(ctx, typ, name, inputs, &PipelineSource{}, opts, pulumi.Map{})
+	case typeWebhookSource:
+		return buildWebhookSource(ctx, name, inputs, opts)
 	}
 	// A source. Its commit output is replaced by the wrapper when the commit is unknown.
 	source := &GitHubSource{}

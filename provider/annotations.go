@@ -472,3 +472,44 @@ func (r *ArtifactArgs) Annotate(a infer.Annotator) {
 	a.Describe(&r.Stage, "Stage that publishes the artifact.")
 	a.Describe(&r.Value, "Value to publish. It can be any value, including a secret or a structure.")
 }
+
+func (r *WebhookSource) Annotate(a infer.Annotator) {
+	a.Describe(r, `Declares a source that an external system posts to. The url output is where it posts. The service verifies each post with signing, checks it against when, and maps it with map to the subject, version and data of the run that the post starts. Every stage of the run sees that value.
+
+The subject, version and data outputs are what the map expression yielded for the post that started the run. They are unknown during registration and preview.
+
+A webhook source is not a checkout source: a job cannot check it out.
+
+## Example Usage
+
+`+"```"+`typescript
+import * as delivery from "@pulumi/delivery";
+
+const orders = new delivery.WebhookSource("orders", {
+    signing: { kind: "hmac-sha256", secret: config.requireSecret("ordersSecret") },
+    when: "event == 'order.created'",
+    map: "{subject: order.id, version: order.updatedAt, data: order}",
+});
+export const ordersUrl = orders.url;
+`+"```")
+	a.Describe(&r.Ref, "Identifier of the source, as webhook:<name>.")
+	a.Describe(&r.URL, "URL where the external system posts. It is <backend>/api/preview/delivery/webhooks/<organization>/<project>/<pipeline stack>/<name>.")
+	a.Describe(&r.Subject, "Subject that the map expression yielded for the post that started the run. It is unknown during registration and preview.")
+	a.Describe(&r.Version, "Version that the map expression yielded for the post that started the run. It is unknown during registration and preview.")
+	a.Describe(&r.Data, "Data that the map expression yielded for the post that started the run. It is unknown during registration and preview.")
+}
+
+func (r *WebhookSourceArgs) Annotate(a infer.Annotator) {
+	a.Describe(r, "Webhook source settings.")
+	a.Describe(&r.Signing, "How the service verifies a post. Omit it for a source that accepts every post.")
+	a.Describe(&r.Map, "JMESPath expression over the JSON body of a post. It must yield an object { subject: string, version: string, data: object }.")
+	a.Describe(&r.When, "JMESPath expression over the JSON body of a post. A post starts a run only when it is truthy. Omit it to accept every post.")
+	a.Describe(&r.Trigger, "Starts a run on a matching post. The default is true. Set false for a source that is part of the release but never starts a run.")
+	a.SetDefault(&r.Trigger, true)
+}
+
+func (r *WebhookSigning) Annotate(a infer.Annotator) {
+	a.Describe(r, "How the service verifies a post to a webhook source.")
+	a.Describe(&r.Kind, "Kind of signature: hmac-sha256 (an HMAC over the raw body) or token (a shared secret).")
+	a.Describe(&r.Secret, "Secret that the external system signs with. It stays secret.")
+}

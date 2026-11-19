@@ -341,6 +341,25 @@
         "directory"
       ]
     },
+    "delivery:index:WebhookSigning": {
+      "description": "How the service verifies a post to a webhook source.",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "description": "Kind of signature: hmac-sha256 (an HMAC over the raw body) or token (a shared secret)."
+        },
+        "secret": {
+          "type": "string",
+          "description": "Secret that the external system signs with. It stays secret.",
+          "secret": true
+        }
+      },
+      "type": "object",
+      "required": [
+        "kind",
+        "secret"
+      ]
+    },
     "delivery:index:WorkflowsRuntimeArgs": {
       "description": "Pool selection.",
       "properties": {
@@ -792,6 +811,64 @@
       },
       "requiredInputs": [
         "pipeline"
+      ],
+      "isComponent": true
+    },
+    "delivery:index:WebhookSource": {
+      "description": "Declares a source that an external system posts to. The url output is where it posts. The service verifies each post with signing, checks it against when, and maps it with map to the subject, version and data of the run that the post starts. Every stage of the run sees that value.\n\nThe subject, version and data outputs are what the map expression yielded for the post that started the run. They are unknown during registration and preview.\n\nA webhook source is not a checkout source: a job cannot check it out.\n\n## Example Usage\n\n```typescript\nimport * as delivery from \"@pulumi/delivery\";\n\nconst orders = new delivery.WebhookSource(\"orders\", {\n    signing: { kind: \"hmac-sha256\", secret: config.requireSecret(\"ordersSecret\") },\n    when: \"event == 'order.created'\",\n    map: \"{subject: order.id, version: order.updatedAt, data: order}\",\n});\nexport const ordersUrl = orders.url;\n```",
+      "properties": {
+        "data": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "pulumi.json#/Any"
+          },
+          "description": "Data that the map expression yielded for the post that started the run. It is unknown during registration and preview."
+        },
+        "ref": {
+          "type": "string",
+          "description": "Identifier of the source, as webhook:<name>."
+        },
+        "subject": {
+          "type": "string",
+          "description": "Subject that the map expression yielded for the post that started the run. It is unknown during registration and preview."
+        },
+        "url": {
+          "type": "string",
+          "description": "URL where the external system posts. It is <backend>/api/preview/delivery/webhooks/<organization>/<project>/<pipeline stack>/<name>."
+        },
+        "version": {
+          "type": "string",
+          "description": "Version that the map expression yielded for the post that started the run. It is unknown during registration and preview."
+        }
+      },
+      "required": [
+        "ref",
+        "url",
+        "subject",
+        "version",
+        "data"
+      ],
+      "inputProperties": {
+        "map": {
+          "type": "string",
+          "description": "JMESPath expression over the JSON body of a post. It must yield an object { subject: string, version: string, data: object }."
+        },
+        "signing": {
+          "$ref": "#/types/delivery:index:WebhookSigning",
+          "description": "How the service verifies a post. Omit it for a source that accepts every post."
+        },
+        "trigger": {
+          "type": "boolean",
+          "description": "Starts a run on a matching post. The default is true. Set false for a source that is part of the release but never starts a run.",
+          "default": true
+        },
+        "when": {
+          "type": "string",
+          "description": "JMESPath expression over the JSON body of a post. A post starts a run only when it is truthy. Omit it to accept every post."
+        }
+      },
+      "requiredInputs": [
+        "map"
       ],
       "isComponent": true
     },

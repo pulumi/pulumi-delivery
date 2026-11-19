@@ -288,3 +288,17 @@ export interface StacksEntryArgs {
     timeout?: pulumi.Input<string | undefined>;
 }
 
+/**
+ * How the service verifies a post to a webhook source.
+ */
+export interface WebhookSigningArgs {
+    /**
+     * Kind of signature: hmac-sha256 (an HMAC over the raw body) or token (a shared secret).
+     */
+    kind: pulumi.Input<string>;
+    /**
+     * Secret that the external system signs with. It stays secret.
+     */
+    secret: pulumi.Input<string>;
+}
+

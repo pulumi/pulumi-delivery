@@ -95,6 +95,11 @@ export type Stage = import("./stage").Stage;
 export const Stage: typeof import("./stage").Stage = null as any;
 utilities.lazyLoad(exports, ["Stage"], () => require("./stage"));
 
+export { WebhookSourceArgs } from "./webhookSource";
+export type WebhookSource = import("./webhookSource").WebhookSource;
+export const WebhookSource: typeof import("./webhookSource").WebhookSource = null as any;
+utilities.lazyLoad(exports, ["WebhookSource"], () => require("./webhookSource"));
+
 export { WorkflowsRuntimeArgs } from "./workflowsRuntime";
 export type WorkflowsRuntime = import("./workflowsRuntime").WorkflowsRuntime;
 export const WorkflowsRuntime: typeof import("./workflowsRuntime").WorkflowsRuntime = null as any;
@@ -139,6 +144,8 @@ const _module = {
                 return new Stacks(name, <any>undefined, { urn })
             case "delivery:index:Stage":
                 return new Stage(name, <any>undefined, { urn })
+            case "delivery:index:WebhookSource":
+                return new WebhookSource(name, <any>undefined, { urn })
             case "delivery:index:WorkflowsRuntime":
                 return new WorkflowsRuntime(name, <any>undefined, { urn })
             default:

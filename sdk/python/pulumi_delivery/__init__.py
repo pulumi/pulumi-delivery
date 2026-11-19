@@ -25,6 +25,7 @@ from .pipeline_source import *
 from .provider import *
 from .stacks import *
 from .stage import *
+from .webhook_source import *
 from .workflows_runtime import *
 from ._inputs import *
 from . import outputs
@@ -55,6 +56,7 @@ _utilities.register(
    "delivery:index:PipelineSource": "PipelineSource",
    "delivery:index:Stacks": "Stacks",
    "delivery:index:Stage": "Stage",
+   "delivery:index:WebhookSource": "WebhookSource",
    "delivery:index:WorkflowsRuntime": "WorkflowsRuntime"
   }
  }

@@ -45,6 +45,7 @@
         "types/input.ts",
         "types/output.ts",
         "utilities.ts",
+        "webhookSource.ts",
         "workflowsRuntime.ts"
     ]
 }

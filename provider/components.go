@@ -41,6 +41,31 @@ type Pipeline struct {
 	ReleaseNumber pulumi.IntOutput `pulumi:"releaseNumber"`
 }
 
+// WebhookSigning is how the service verifies a post to a webhook source.
+type WebhookSigning struct {
+	Kind   string `pulumi:"kind"`
+	Secret string `pulumi:"secret" provider:"secret"`
+}
+
+type WebhookSourceArgs struct {
+	Signing *WebhookSigning `pulumi:"signing,optional"`
+	Map     string          `pulumi:"map"`
+	When    string          `pulumi:"when,optional"`
+	// Trigger starts a run on a matching post. The default is true.
+	Trigger bool `pulumi:"trigger,optional"`
+}
+type WebhookSource struct {
+	pulumi.ResourceState
+	// Ref is the identifier of the source, as webhook:<name>.
+	Ref pulumi.StringOutput `pulumi:"ref"`
+	// URL is where the external system posts.
+	URL pulumi.StringOutput `pulumi:"url"`
+	// Subject, Version and Data are what the map expression yielded for the post that started the run.
+	Subject pulumi.StringOutput `pulumi:"subject"`
+	Version pulumi.StringOutput `pulumi:"version"`
+	Data    pulumi.MapOutput    `pulumi:"data"`
+}
+
 type AgentArgs struct {
 	Stage             any            `pulumi:"stage"`
 	AgentDefinitionID string         `pulumi:"agentDefinitionId"`
@@ -195,6 +220,7 @@ var sourceKinds = map[string]string{
 const (
 	typePipeline = "delivery:index:Pipeline"
 	typeAgent    = "delivery:index:Agent"
+	typeWebhookSource     = "delivery:index:WebhookSource"
 	typeStage    = "delivery:index:Stage"
 	typeJob      = "delivery:index:Job"
 	typeStacks   = "delivery:index:Stacks"

@@ -43,10 +43,11 @@ type fakeService struct {
 	// status code and the body. A member without an answer is waiting.
 	memberStarts  []map[string]any
 	memberAnswers map[string]memberAnswer
-	// valueRequests are the bodies of the run value requests. pipelineAnswer is the answer to the kind
-	// "pipeline"; without one the value is the commit of a source.
+	// valueRequests are the bodies of the run value requests. pipelineAnswer and webhookAnswer are the answers to
+	// the kinds "pipeline" and "webhook"; without one the value is the commit of a source.
 	valueRequests  []map[string]any
 	pipelineAnswer *memberAnswer
+	webhookAnswer  *memberAnswer
 }
 
 type memberAnswer struct {
@@ -100,6 +101,11 @@ func newFakeService(t *testing.T) *fakeService {
 			if request["kind"] == "pipeline" && s.pipelineAnswer != nil {
 				w.WriteHeader(s.pipelineAnswer.code)
 				_, _ = w.Write([]byte(s.pipelineAnswer.body))
+				return
+			}
+			if request["kind"] == "webhook" && s.webhookAnswer != nil {
+				w.WriteHeader(s.webhookAnswer.code)
+				_, _ = w.Write([]byte(s.webhookAnswer.body))
 				return
 			}
 			_, _ = w.Write([]byte(`{"value":{"commit":"abc123"}}`))
@@ -328,19 +334,19 @@ func TestFinishStateOfAnAgent(t *testing.T) {
 	child := string(urnOf(typeAgent+"$"+typeMemberRun, "risk-review"))
 	withChild := property.NewMap(map[string]property.Value{"childUrn": property.New(child)})
 
-	missing := finishState(typeAgent, withChild, "", nil, nil, agentRequest(false).Inputs)
+	missing := finishState(typeAgent, withChild, "", nil, nil, nil, agentRequest(false).Inputs)
 	assert.True(t, missing.Get("response").IsComputed())
 	assert.False(t, missing.Get("response").Secret(), "an unknown value is not secret")
 	assert.Equal(t, []resource.URN{resource.URN(child)}, missing.Get("response").Dependencies())
 
 	known := withChild.Set("response", property.New(property.NewMap(map[string]property.Value{"summary": property.New("safe")})))
-	plain := finishState(typeAgent, known, "", nil, nil, agentRequest(false).Inputs)
+	plain := finishState(typeAgent, known, "", nil, nil, nil, agentRequest(false).Inputs)
 	assert.False(t, plain.Get("response").Secret())
 	assert.True(t, plain.Get("response").IsMap())
 
 	request := agentRequest(false)
 	request.Inputs = request.Inputs.Set("prompt", property.New("Summarize the release risk.").WithSecret(true))
-	secret := finishState(typeAgent, known, "", nil, nil, request.Inputs)
+	secret := finishState(typeAgent, known, "", nil, nil, nil, request.Inputs)
 	assert.True(t, secret.Get("response").Secret())
 	assert.True(t, secret.Get("response").IsMap())
 
@@ -348,11 +354,11 @@ func TestFinishStateOfAnAgent(t *testing.T) {
 	request.Inputs = request.Inputs.Set("responseSchema", property.New(property.NewMap(map[string]property.Value{
 		"const": property.New("safe").WithSecret(true),
 	})))
-	secret = finishState(typeAgent, known, "", nil, nil, request.Inputs)
+	secret = finishState(typeAgent, known, "", nil, nil, nil, request.Inputs)
 	assert.True(t, secret.Get("response").Secret())
 
 	computed := withChild.Set("response", property.New(property.Computed).WithSecret(true))
-	assert.False(t, finishState(typeAgent, computed, "", nil, nil, request.Inputs).Get("response").Secret(),
+	assert.False(t, finishState(typeAgent, computed, "", nil, nil, nil, request.Inputs).Get("response").Secret(),
 		"an unknown output is not secret, also when the prompt is")
 }
 

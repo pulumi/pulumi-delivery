@@ -3,11 +3,13 @@
 package cloudclient
 
 import (
+	"fmt"
 	"context"
 	"errors"
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -101,6 +103,11 @@ type PipelineIdentity struct {
 	Stage    string `json:"stage"`
 }
 
+// WebhookIdentity identifies a webhook source by its name.
+type WebhookIdentity struct {
+	Name string `json:"name"`
+}
+
 type runValueRequest struct {
 	ProtocolVersion int    `json:"protocolVersion"`
 	Session         string `json:"session,omitempty"`
@@ -124,6 +131,23 @@ func (c *Client) RunValue(ctx context.Context, kind string, identity any) (map[s
 // SourceValue returns the value that the run recorded for a source, for example its commit.
 func (c *Client) SourceValue(ctx context.Context, identity SourceIdentity) (map[string]any, error) {
 	return c.RunValue(ctx, "source", identity)
+}
+
+// WebhookValue returns the value that the run recorded for a webhook source: the subject, version and data that
+// its map expression yielded for the post that started the run.
+func (c *Client) WebhookValue(ctx context.Context, name string) (map[string]any, error) {
+	return c.RunValue(ctx, "webhook", WebhookIdentity{Name: name})
+}
+
+// WebhookURL is where an external system posts to a webhook source of the pipeline. The pipeline stack is the
+// stack of the client, or for a run stack the stack without its -r<run number> suffix.
+func (c *Client) WebhookURL(source string, run *RunInfo) string {
+	stack := c.stack
+	if run != nil {
+		stack = strings.TrimSuffix(stack, fmt.Sprintf("-r%d", run.Number))
+	}
+	return c.baseURL + "/api/preview/delivery/webhooks/" + url.PathEscape(c.org) + "/" + url.PathEscape(c.project) +
+		"/" + url.PathEscape(stack) + "/" + url.PathEscape(source)
 }
 
 // MemberStart is the body of POST {stack}/delivery/members/start.
