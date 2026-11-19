@@ -36,7 +36,7 @@ type ManualArgs struct {
 type ManualResult struct {
 	// Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
 	Approvers []string `pulumi:"approvers"`
-	// HTTP request body. Secret values stay secret.
+	// HTTP request body, at most 16 KiB. A secret value stays secret.
 	Body *string `pulumi:"body"`
 	// Optional JSON-like context for a decision rule. Delivery rejects secret values and limits its encoded size to 16 KiB. Do not use it for credentials or other secrets.
 	Context map[string]interface{} `pulumi:"context"`
@@ -44,27 +44,25 @@ type ManualResult struct {
 	Count *int `pulumi:"count"`
 	// Text for the person who continues a manual gate, for example what to check first.
 	Description *string `pulumi:"description"`
-	// HTTP request headers. Secret values stay secret.
+	// HTTP request headers: at most 50 and 8 KiB in total, each name once. Delivery refuses headers that the client sets itself, such as Host, Content-Length and Transfer-Encoding. Secret values stay secret.
 	Headers map[string]string `pulumi:"headers"`
-	// Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
-	HeadersEnvironment *string `pulumi:"headersEnvironment"`
-	// Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
+	// Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds and the maximum is 1 hour. The default is 1m.
 	Interval *string `pulumi:"interval"`
 	// Kind of the rule. Valid values are approval, decision, http, manual, all, and any.
 	Kind string `pulumi:"kind"`
-	// HTTP request method. The default is GET.
-	Method *string `pulumi:"method"`
+	// HTTP request method. Valid values are GET, POST, PUT, PATCH, and HEAD. The default is GET.
+	Method *HTTPMethod `pulumi:"method"`
 	// Rule name. Omit it to let Delivery assign one.
 	Name *string `pulumi:"name"`
 	// Named judgments and their deterministic risk thresholds for a decision rule.
 	Questions map[string]DecisionQuestion `pulumi:"questions"`
 	// Child rules for all and any rules. At least one is required.
 	Rules []Rule `pulumi:"rules"`
-	// JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
+	// CEL expression that decides whether the gate passes. It must return a boolean. It can use `status` (the HTTP status code), `headers` (response header names in lower case) and `body` (the parsed JSON, or the text when the body is not JSON), for example `status == 200 && body.status == "ok"`. At most 1024 bytes. A field that the response lacks keeps the gate waiting; guard optional fields with `has()`. Required for http rules.
 	SuccessExpression *string `pulumi:"successExpression"`
-	// Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
+	// Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
 	Timeout *string `pulumi:"timeout"`
-	// URL to call. Required for http rules.
+	// URL to call. Required for http rules. It must use https, contain no credentials, be at most 2048 bytes and point to a public address. Redirects are not followed.
 	Url *string `pulumi:"url"`
 }
 
@@ -105,7 +103,7 @@ func (o ManualResultOutput) Approvers() pulumi.StringArrayOutput {
 	return o.ApplyT(func(v ManualResult) []string { return v.Approvers }).(pulumi.StringArrayOutput)
 }
 
-// HTTP request body. Secret values stay secret.
+// HTTP request body, at most 16 KiB. A secret value stays secret.
 func (o ManualResultOutput) Body() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v ManualResult) *string { return v.Body }).(pulumi.StringPtrOutput)
 }
@@ -125,17 +123,12 @@ func (o ManualResultOutput) Description() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v ManualResult) *string { return v.Description }).(pulumi.StringPtrOutput)
 }
 
-// HTTP request headers. Secret values stay secret.
+// HTTP request headers: at most 50 and 8 KiB in total, each name once. Delivery refuses headers that the client sets itself, such as Host, Content-Length and Transfer-Encoding. Secret values stay secret.
 func (o ManualResultOutput) Headers() pulumi.StringMapOutput {
 	return o.ApplyT(func(v ManualResult) map[string]string { return v.Headers }).(pulumi.StringMapOutput)
 }
 
-// Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
-func (o ManualResultOutput) HeadersEnvironment() pulumi.StringPtrOutput {
-	return o.ApplyT(func(v ManualResult) *string { return v.HeadersEnvironment }).(pulumi.StringPtrOutput)
-}
-
-// Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
+// Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds and the maximum is 1 hour. The default is 1m.
 func (o ManualResultOutput) Interval() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v ManualResult) *string { return v.Interval }).(pulumi.StringPtrOutput)
 }
@@ -145,9 +138,9 @@ func (o ManualResultOutput) Kind() pulumi.StringOutput {
 	return o.ApplyT(func(v ManualResult) string { return v.Kind }).(pulumi.StringOutput)
 }
 
-// HTTP request method. The default is GET.
-func (o ManualResultOutput) Method() pulumi.StringPtrOutput {
-	return o.ApplyT(func(v ManualResult) *string { return v.Method }).(pulumi.StringPtrOutput)
+// HTTP request method. Valid values are GET, POST, PUT, PATCH, and HEAD. The default is GET.
+func (o ManualResultOutput) Method() HTTPMethodPtrOutput {
+	return o.ApplyT(func(v ManualResult) *HTTPMethod { return v.Method }).(HTTPMethodPtrOutput)
 }
 
 // Rule name. Omit it to let Delivery assign one.
@@ -165,17 +158,17 @@ func (o ManualResultOutput) Rules() RuleArrayOutput {
 	return o.ApplyT(func(v ManualResult) []Rule { return v.Rules }).(RuleArrayOutput)
 }
 
-// JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
+// CEL expression that decides whether the gate passes. It must return a boolean. It can use `status` (the HTTP status code), `headers` (response header names in lower case) and `body` (the parsed JSON, or the text when the body is not JSON), for example `status == 200 && body.status == "ok"`. At most 1024 bytes. A field that the response lacks keeps the gate waiting; guard optional fields with `has()`. Required for http rules.
 func (o ManualResultOutput) SuccessExpression() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v ManualResult) *string { return v.SuccessExpression }).(pulumi.StringPtrOutput)
 }
 
-// Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
+// Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
 func (o ManualResultOutput) Timeout() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v ManualResult) *string { return v.Timeout }).(pulumi.StringPtrOutput)
 }
 
-// URL to call. Required for http rules.
+// URL to call. Required for http rules. It must use https, contain no credentials, be at most 2048 bytes and point to a public address. Redirects are not followed.
 func (o ManualResultOutput) Url() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v ManualResult) *string { return v.Url }).(pulumi.StringPtrOutput)
 }

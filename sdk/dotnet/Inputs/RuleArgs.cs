@@ -28,7 +28,7 @@ namespace Pulumi.Delivery.Inputs
         }
 
         /// <summary>
-        /// HTTP request body. Secret values stay secret.
+        /// HTTP request body, at most 16 KiB. A secret value stays secret.
         /// </summary>
         [Input("body")]
         public Input<string>? Body { get; set; }
@@ -61,7 +61,7 @@ namespace Pulumi.Delivery.Inputs
         private InputMap<string>? _headers;
 
         /// <summary>
-        /// HTTP request headers. Secret values stay secret.
+        /// HTTP request headers: at most 50 and 8 KiB in total, each name once. Delivery refuses headers that the client sets itself, such as Host, Content-Length and Transfer-Encoding. Secret values stay secret.
         /// </summary>
         public InputMap<string> Headers
         {
@@ -70,13 +70,7 @@ namespace Pulumi.Delivery.Inputs
         }
 
         /// <summary>
-        /// Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
-        /// </summary>
-        [Input("headersEnvironment")]
-        public Input<string>? HeadersEnvironment { get; set; }
-
-        /// <summary>
-        /// Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
+        /// Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds and the maximum is 1 hour. The default is 1m.
         /// </summary>
         [Input("interval")]
         public Input<string>? Interval { get; set; }
@@ -88,10 +82,10 @@ namespace Pulumi.Delivery.Inputs
         public InputUnion<string, Pulumi.Delivery.RuleKind> Kind { get; set; } = null!;
 
         /// <summary>
-        /// HTTP request method. The default is GET.
+        /// HTTP request method. Valid values are GET, POST, PUT, PATCH, and HEAD. The default is GET.
         /// </summary>
         [Input("method")]
-        public Input<string>? Method { get; set; }
+        public Input<Pulumi.Delivery.HTTPMethod>? Method { get; set; }
 
         /// <summary>
         /// Rule name. Omit it to let Delivery assign one.
@@ -124,19 +118,19 @@ namespace Pulumi.Delivery.Inputs
         }
 
         /// <summary>
-        /// JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
+        /// CEL expression that decides whether the gate passes. It must return a boolean. It can use `status` (the HTTP status code), `headers` (response header names in lower case) and `body` (the parsed JSON, or the text when the body is not JSON), for example `status == 200 &amp;&amp; body.status == "ok"`. At most 1024 bytes. A field that the response lacks keeps the gate waiting; guard optional fields with `has()`. Required for http rules.
         /// </summary>
         [Input("successExpression")]
         public Input<string>? SuccessExpression { get; set; }
 
         /// <summary>
-        /// Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
+        /// Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
         /// </summary>
         [Input("timeout")]
         public Input<string>? Timeout { get; set; }
 
         /// <summary>
-        /// URL to call. Required for http rules.
+        /// URL to call. Required for http rules. It must use https, contain no credentials, be at most 2048 bytes and point to a public address. Redirects are not followed.
         /// </summary>
         [Input("url")]
         public Input<string>? Url { get; set; }

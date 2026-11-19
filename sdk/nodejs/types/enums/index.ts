@@ -2,6 +2,16 @@
 // *** Do not edit by hand unless you're certain you know what you are doing! ***
 
 
+export const HTTPMethod = {
+    GET: "GET",
+    POST: "POST",
+    PUT: "PUT",
+    PATCH: "PATCH",
+    HEAD: "HEAD",
+} as const;
+
+export type HTTPMethod = (typeof HTTPMethod)[keyof typeof HTTPMethod];
+
 export const RuleKind = {
     Approval: "approval",
     Decision: "decision",

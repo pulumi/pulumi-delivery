@@ -134,7 +134,7 @@ namespace Pulumi.Delivery
         /// </summary>
         public readonly ImmutableArray<string> Approvers;
         /// <summary>
-        /// HTTP request body. Secret values stay secret.
+        /// HTTP request body, at most 16 KiB. A secret value stays secret.
         /// </summary>
         public readonly string? Body;
         /// <summary>
@@ -150,15 +150,11 @@ namespace Pulumi.Delivery
         /// </summary>
         public readonly string? Description;
         /// <summary>
-        /// HTTP request headers. Secret values stay secret.
+        /// HTTP request headers: at most 50 and 8 KiB in total, each name once. Delivery refuses headers that the client sets itself, such as Host, Content-Length and Transfer-Encoding. Secret values stay secret.
         /// </summary>
         public readonly ImmutableDictionary<string, string>? Headers;
         /// <summary>
-        /// Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
-        /// </summary>
-        public readonly string? HeadersEnvironment;
-        /// <summary>
-        /// Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
+        /// Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds and the maximum is 1 hour. The default is 1m.
         /// </summary>
         public readonly string? Interval;
         /// <summary>
@@ -166,9 +162,9 @@ namespace Pulumi.Delivery
         /// </summary>
         public readonly string Kind;
         /// <summary>
-        /// HTTP request method. The default is GET.
+        /// HTTP request method. Valid values are GET, POST, PUT, PATCH, and HEAD. The default is GET.
         /// </summary>
-        public readonly string? Method;
+        public readonly Pulumi.Delivery.HTTPMethod? Method;
         /// <summary>
         /// Rule name. Omit it to let Delivery assign one.
         /// </summary>
@@ -182,15 +178,15 @@ namespace Pulumi.Delivery
         /// </summary>
         public readonly ImmutableArray<Outputs.Rule> Rules;
         /// <summary>
-        /// JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
+        /// CEL expression that decides whether the gate passes. It must return a boolean. It can use `status` (the HTTP status code), `headers` (response header names in lower case) and `body` (the parsed JSON, or the text when the body is not JSON), for example `status == 200 &amp;&amp; body.status == "ok"`. At most 1024 bytes. A field that the response lacks keeps the gate waiting; guard optional fields with `has()`. Required for http rules.
         /// </summary>
         public readonly string? SuccessExpression;
         /// <summary>
-        /// Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
+        /// Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
         /// </summary>
         public readonly string? Timeout;
         /// <summary>
-        /// URL to call. Required for http rules.
+        /// URL to call. Required for http rules. It must use https, contain no credentials, be at most 2048 bytes and point to a public address. Redirects are not followed.
         /// </summary>
         public readonly string? Url;
 
@@ -208,13 +204,11 @@ namespace Pulumi.Delivery
 
             ImmutableDictionary<string, string>? headers,
 
-            string? headersEnvironment,
-
             string? interval,
 
             string kind,
 
-            string? method,
+            Pulumi.Delivery.HTTPMethod? method,
 
             string? name,
 
@@ -234,7 +228,6 @@ namespace Pulumi.Delivery
             Count = count;
             Description = description;
             Headers = headers;
-            HeadersEnvironment = headersEnvironment;
             Interval = interval;
             Kind = kind;
             Method = method;

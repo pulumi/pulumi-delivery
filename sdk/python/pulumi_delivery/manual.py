@@ -28,7 +28,7 @@ class ManualResult:
     """
     Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.
     """
-    def __init__(__self__, approvers=None, body=None, context=None, count=None, description=None, headers=None, headers_environment=None, interval=None, kind=None, method=None, name=None, questions=None, rules=None, success_expression=None, timeout=None, url=None):
+    def __init__(__self__, approvers=None, body=None, context=None, count=None, description=None, headers=None, interval=None, kind=None, method=None, name=None, questions=None, rules=None, success_expression=None, timeout=None, url=None):
         if approvers and not isinstance(approvers, list):
             raise TypeError("Expected argument 'approvers' to be a list")
         pulumi.set(__self__, "approvers", approvers)
@@ -47,9 +47,6 @@ class ManualResult:
         if headers and not isinstance(headers, dict):
             raise TypeError("Expected argument 'headers' to be a dict")
         pulumi.set(__self__, "headers", headers)
-        if headers_environment and not isinstance(headers_environment, str):
-            raise TypeError("Expected argument 'headers_environment' to be a str")
-        pulumi.set(__self__, "headers_environment", headers_environment)
         if interval and not isinstance(interval, str):
             raise TypeError("Expected argument 'interval' to be a str")
         pulumi.set(__self__, "interval", interval)
@@ -90,7 +87,7 @@ class ManualResult:
     @pulumi.getter
     def body(self) -> Optional[_builtins.str]:
         """
-        HTTP request body. Secret values stay secret.
+        HTTP request body, at most 16 KiB. A secret value stays secret.
         """
         return pulumi.get(self, "body")
 
@@ -122,23 +119,15 @@ class ManualResult:
     @pulumi.getter
     def headers(self) -> Optional[Mapping[str, _builtins.str]]:
         """
-        HTTP request headers. Secret values stay secret.
+        HTTP request headers: at most 50 and 8 KiB in total, each name once. Delivery refuses headers that the client sets itself, such as Host, Content-Length and Transfer-Encoding. Secret values stay secret.
         """
         return pulumi.get(self, "headers")
-
-    @_builtins.property
-    @pulumi.getter(name="headersEnvironment")
-    def headers_environment(self) -> Optional[_builtins.str]:
-        """
-        Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
-        """
-        return pulumi.get(self, "headers_environment")
 
     @_builtins.property
     @pulumi.getter
     def interval(self) -> Optional[_builtins.str]:
         """
-        Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
+        Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds and the maximum is 1 hour. The default is 1m.
         """
         return pulumi.get(self, "interval")
 
@@ -152,9 +141,9 @@ class ManualResult:
 
     @_builtins.property
     @pulumi.getter
-    def method(self) -> Optional[_builtins.str]:
+    def method(self) -> Optional['HTTPMethod']:
         """
-        HTTP request method. The default is GET.
+        HTTP request method. Valid values are GET, POST, PUT, PATCH, and HEAD. The default is GET.
         """
         return pulumi.get(self, "method")
 
@@ -186,7 +175,7 @@ class ManualResult:
     @pulumi.getter(name="successExpression")
     def success_expression(self) -> Optional[_builtins.str]:
         """
-        JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
+        CEL expression that decides whether the gate passes. It must return a boolean. It can use `status` (the HTTP status code), `headers` (response header names in lower case) and `body` (the parsed JSON, or the text when the body is not JSON), for example `status == 200 && body.status == "ok"`. At most 1024 bytes. A field that the response lacks keeps the gate waiting; guard optional fields with `has()`. Required for http rules.
         """
         return pulumi.get(self, "success_expression")
 
@@ -194,7 +183,7 @@ class ManualResult:
     @pulumi.getter
     def timeout(self) -> Optional[_builtins.str]:
         """
-        Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
+        Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
         """
         return pulumi.get(self, "timeout")
 
@@ -202,7 +191,7 @@ class ManualResult:
     @pulumi.getter
     def url(self) -> Optional[_builtins.str]:
         """
-        URL to call. Required for http rules.
+        URL to call. Required for http rules. It must use https, contain no credentials, be at most 2048 bytes and point to a public address. Redirects are not followed.
         """
         return pulumi.get(self, "url")
 
@@ -219,7 +208,6 @@ class AwaitableManualResult(ManualResult):
             count=self.count,
             description=self.description,
             headers=self.headers,
-            headers_environment=self.headers_environment,
             interval=self.interval,
             kind=self.kind,
             method=self.method,
@@ -255,7 +243,6 @@ def manual(description: Optional[_builtins.str] = None,
         count=pulumi.get(__ret__, 'count'),
         description=pulumi.get(__ret__, 'description'),
         headers=pulumi.get(__ret__, 'headers'),
-        headers_environment=pulumi.get(__ret__, 'headers_environment'),
         interval=pulumi.get(__ret__, 'interval'),
         kind=pulumi.get(__ret__, 'kind'),
         method=pulumi.get(__ret__, 'method'),
@@ -288,7 +275,6 @@ def manual_output(description: pulumi.Input[Optional[Optional[_builtins.str]]] =
         count=pulumi.get(__response__, 'count'),
         description=pulumi.get(__response__, 'description'),
         headers=pulumi.get(__response__, 'headers'),
-        headers_environment=pulumi.get(__response__, 'headers_environment'),
         interval=pulumi.get(__response__, 'interval'),
         kind=pulumi.get(__response__, 'kind'),
         method=pulumi.get(__response__, 'method'),

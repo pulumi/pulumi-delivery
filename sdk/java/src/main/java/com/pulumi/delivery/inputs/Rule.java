@@ -5,6 +5,7 @@ package com.pulumi.delivery.inputs;
 
 import com.pulumi.core.Either;
 import com.pulumi.core.annotations.Import;
+import com.pulumi.delivery.enums.HTTPMethod;
 import com.pulumi.delivery.enums.RuleKind;
 import com.pulumi.delivery.inputs.DecisionQuestion;
 import com.pulumi.exceptions.MissingRequiredPropertyException;
@@ -42,14 +43,14 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
     }
 
     /**
-     * HTTP request body. Secret values stay secret.
+     * HTTP request body, at most 16 KiB. A secret value stays secret.
      * 
      */
     @Import(name="body")
     private @Nullable String body;
 
     /**
-     * @return HTTP request body. Secret values stay secret.
+     * @return HTTP request body, at most 16 KiB. A secret value stays secret.
      * 
      */
     public Optional<String> body() {
@@ -102,14 +103,14 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
     }
 
     /**
-     * HTTP request headers. Secret values stay secret.
+     * HTTP request headers: at most 50 and 8 KiB in total, each name once. Delivery refuses headers that the client sets itself, such as Host, Content-Length and Transfer-Encoding. Secret values stay secret.
      * 
      */
     @Import(name="headers")
     private @Nullable Map<String,String> headers;
 
     /**
-     * @return HTTP request headers. Secret values stay secret.
+     * @return HTTP request headers: at most 50 and 8 KiB in total, each name once. Delivery refuses headers that the client sets itself, such as Host, Content-Length and Transfer-Encoding. Secret values stay secret.
      * 
      */
     public Optional<Map<String,String>> headers() {
@@ -117,29 +118,14 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
     }
 
     /**
-     * Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
-     * 
-     */
-    @Import(name="headersEnvironment")
-    private @Nullable String headersEnvironment;
-
-    /**
-     * @return Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
-     * 
-     */
-    public Optional<String> headersEnvironment() {
-        return Optional.ofNullable(this.headersEnvironment);
-    }
-
-    /**
-     * Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
+     * Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds and the maximum is 1 hour. The default is 1m.
      * 
      */
     @Import(name="interval")
     private @Nullable String interval;
 
     /**
-     * @return Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
+     * @return Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds and the maximum is 1 hour. The default is 1m.
      * 
      */
     public Optional<String> interval() {
@@ -162,17 +148,17 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
     }
 
     /**
-     * HTTP request method. The default is GET.
+     * HTTP request method. Valid values are GET, POST, PUT, PATCH, and HEAD. The default is GET.
      * 
      */
     @Import(name="method")
-    private @Nullable String method;
+    private @Nullable HTTPMethod method;
 
     /**
-     * @return HTTP request method. The default is GET.
+     * @return HTTP request method. Valid values are GET, POST, PUT, PATCH, and HEAD. The default is GET.
      * 
      */
-    public Optional<String> method() {
+    public Optional<HTTPMethod> method() {
         return Optional.ofNullable(this.method);
     }
 
@@ -222,14 +208,14 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
     }
 
     /**
-     * JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
+     * CEL expression that decides whether the gate passes. It must return a boolean. It can use `status` (the HTTP status code), `headers` (response header names in lower case) and `body` (the parsed JSON, or the text when the body is not JSON), for example `status == 200 &amp;&amp; body.status == &#34;ok&#34;`. At most 1024 bytes. A field that the response lacks keeps the gate waiting; guard optional fields with `has()`. Required for http rules.
      * 
      */
     @Import(name="successExpression")
     private @Nullable String successExpression;
 
     /**
-     * @return JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
+     * @return CEL expression that decides whether the gate passes. It must return a boolean. It can use `status` (the HTTP status code), `headers` (response header names in lower case) and `body` (the parsed JSON, or the text when the body is not JSON), for example `status == 200 &amp;&amp; body.status == &#34;ok&#34;`. At most 1024 bytes. A field that the response lacks keeps the gate waiting; guard optional fields with `has()`. Required for http rules.
      * 
      */
     public Optional<String> successExpression() {
@@ -237,14 +223,14 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
     }
 
     /**
-     * Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
+     * Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
      * 
      */
     @Import(name="timeout")
     private @Nullable String timeout;
 
     /**
-     * @return Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
+     * @return Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
      * 
      */
     public Optional<String> timeout() {
@@ -252,14 +238,14 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
     }
 
     /**
-     * URL to call. Required for http rules.
+     * URL to call. Required for http rules. It must use https, contain no credentials, be at most 2048 bytes and point to a public address. Redirects are not followed.
      * 
      */
     @Import(name="url")
     private @Nullable String url;
 
     /**
-     * @return URL to call. Required for http rules.
+     * @return URL to call. Required for http rules. It must use https, contain no credentials, be at most 2048 bytes and point to a public address. Redirects are not followed.
      * 
      */
     public Optional<String> url() {
@@ -275,7 +261,6 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
         this.count = $.count;
         this.description = $.description;
         this.headers = $.headers;
-        this.headersEnvironment = $.headersEnvironment;
         this.interval = $.interval;
         this.kind = $.kind;
         this.method = $.method;
@@ -327,7 +312,7 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param body HTTP request body. Secret values stay secret.
+         * @param body HTTP request body, at most 16 KiB. A secret value stays secret.
          * 
          * @return builder
          * 
@@ -371,7 +356,7 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param headers HTTP request headers. Secret values stay secret.
+         * @param headers HTTP request headers: at most 50 and 8 KiB in total, each name once. Delivery refuses headers that the client sets itself, such as Host, Content-Length and Transfer-Encoding. Secret values stay secret.
          * 
          * @return builder
          * 
@@ -382,18 +367,7 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param headersEnvironment Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
-         * 
-         * @return builder
-         * 
-         */
-        public Builder headersEnvironment(@Nullable String headersEnvironment) {
-            $.headersEnvironment = headersEnvironment;
-            return this;
-        }
-
-        /**
-         * @param interval Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
+         * @param interval Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds and the maximum is 1 hour. The default is 1m.
          * 
          * @return builder
          * 
@@ -435,12 +409,12 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param method HTTP request method. The default is GET.
+         * @param method HTTP request method. Valid values are GET, POST, PUT, PATCH, and HEAD. The default is GET.
          * 
          * @return builder
          * 
          */
-        public Builder method(@Nullable String method) {
+        public Builder method(@Nullable HTTPMethod method) {
             $.method = method;
             return this;
         }
@@ -489,7 +463,7 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param successExpression JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
+         * @param successExpression CEL expression that decides whether the gate passes. It must return a boolean. It can use `status` (the HTTP status code), `headers` (response header names in lower case) and `body` (the parsed JSON, or the text when the body is not JSON), for example `status == 200 &amp;&amp; body.status == &#34;ok&#34;`. At most 1024 bytes. A field that the response lacks keeps the gate waiting; guard optional fields with `has()`. Required for http rules.
          * 
          * @return builder
          * 
@@ -500,7 +474,7 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param timeout Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
+         * @param timeout Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
          * 
          * @return builder
          * 
@@ -511,7 +485,7 @@ public final class Rule extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param url URL to call. Required for http rules.
+         * @param url URL to call. Required for http rules. It must use https, contain no credentials, be at most 2048 bytes and point to a public address. Redirects are not followed.
          * 
          * @return builder
          * 

@@ -46,7 +46,7 @@ func TestHTTPRequiresURLAndSuccessExpression(t *testing.T) {
 		t.Fatal("expected an error for a missing successExpression")
 	}
 	resp, err := HTTP{}.Invoke(context.Background(), infer.FunctionRequest[HTTPArgs]{
-		Input: HTTPArgs{URL: "https://example.com", SuccessExpression: "status == 'ok'"},
+		Input: HTTPArgs{URL: "https://example.com", SuccessExpression: "status == 200 && body.status == \"ok\""},
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -258,7 +258,7 @@ func TestTheValidatorsSupportExactlyTheRuleKinds(t *testing.T) {
 func ptr[T any](v T) *T { return &v }
 
 func invokeHTTP(args HTTPArgs) (Rule, error) {
-	args.URL, args.SuccessExpression = "https://example.com", "status == 'ok'"
+	args.URL, args.SuccessExpression = "https://example.com", "status == 200 && body.status == \"ok\""
 	resp, err := HTTP{}.Invoke(context.Background(), infer.FunctionRequest[HTTPArgs]{Input: args})
 	return resp.Output, err
 }
@@ -300,12 +300,12 @@ func TestHTTPLimits(t *testing.T) {
 			if tc.method != "" {
 				method = ptr(HTTPMethod(tc.method))
 			}
-			rule := Rule{Kind: "http", URL: "https://example.com", SuccessExpression: "x",
+			rule := Rule{Kind: "http", URL: "https://example.com", SuccessExpression: "status == 200",
 				Interval: tc.interval, Timeout: tc.timeout, Method: method}
 			fields := map[string]property.Value{
 				"kind":              property.New("http"),
 				"url":               property.New("https://example.com"),
-				"successExpression": property.New("x"),
+				"successExpression": property.New("status == 200"),
 			}
 			for k, v := range map[string]string{"interval": tc.interval, "timeout": tc.timeout, "method": tc.method} {
 				if v != "" {
@@ -334,7 +334,7 @@ func TestHTTPMethodSkipsUnknown(t *testing.T) {
 	raw := property.New(property.NewMap(map[string]property.Value{
 		"kind":              property.New("http"),
 		"url":               property.New("https://example.com"),
-		"successExpression": property.New("x"),
+		"successExpression": property.New("status == 200"),
 		"method":            property.New(property.Computed),
 	}))
 	assert.NoError(t, validateRuleValue(raw, 1))

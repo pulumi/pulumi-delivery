@@ -528,7 +528,7 @@ func TestNestedDependenciesBelongToTheirProperty(t *testing.T) {
 	request := jobRequest(false)
 	request.Dependencies = nil
 	request.Inputs = request.Inputs.Set("environment", property.New(property.NewMap(map[string]property.Value{
-		"A": property.New("x").WithDependencies([]resource.URN{other}),
+		"A": property.New("status == 200").WithDependencies([]resource.URN{other}),
 		"B": property.New(property.NewArray([]property.Value{property.New("y").WithDependencies([]resource.URN{other})})),
 	})))
 
@@ -560,7 +560,7 @@ func TestStageRulesWithSecretsAndUnknowns(t *testing.T) {
 	_, err := server.Construct(stageRequest(rule(map[string]property.Value{
 		"kind":              property.New("http"),
 		"url":               property.New("https://example.com"),
-		"successExpression": property.New("ok"),
+		"successExpression": property.New("status == 200"),
 		"headers": property.New(property.NewMap(map[string]property.Value{
 			"Authorization": property.New("secret").WithSecret(true),
 		})),
@@ -577,7 +577,7 @@ func TestStageRulesWithSecretsAndUnknowns(t *testing.T) {
 	_, err = server.Construct(stageRequest(property.New(property.Computed)))
 	require.NoError(t, err)
 	_, err = server.Construct(stageRequest(rule(map[string]property.Value{
-		"kind": property.New("http"), "url": property.New(property.Computed), "successExpression": property.New("ok"),
+		"kind": property.New("http"), "url": property.New(property.Computed), "successExpression": property.New("status == 200"),
 	})))
 	require.NoError(t, err)
 }

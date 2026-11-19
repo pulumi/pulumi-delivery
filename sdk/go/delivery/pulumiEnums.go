@@ -10,6 +10,177 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
+type HTTPMethod string
+
+const (
+	HTTPMethodGET   = HTTPMethod("GET")
+	HTTPMethodPOST  = HTTPMethod("POST")
+	HTTPMethodPUT   = HTTPMethod("PUT")
+	HTTPMethodPATCH = HTTPMethod("PATCH")
+	HTTPMethodHEAD  = HTTPMethod("HEAD")
+)
+
+func (HTTPMethod) ElementType() reflect.Type {
+	return reflect.TypeOf((*HTTPMethod)(nil)).Elem()
+}
+
+func (e HTTPMethod) ToHTTPMethodOutput() HTTPMethodOutput {
+	return pulumi.ToOutput(e).(HTTPMethodOutput)
+}
+
+func (e HTTPMethod) ToHTTPMethodOutputWithContext(ctx context.Context) HTTPMethodOutput {
+	return pulumi.ToOutputWithContext(ctx, e).(HTTPMethodOutput)
+}
+
+func (e HTTPMethod) ToHTTPMethodPtrOutput() HTTPMethodPtrOutput {
+	return e.ToHTTPMethodPtrOutputWithContext(context.Background())
+}
+
+func (e HTTPMethod) ToHTTPMethodPtrOutputWithContext(ctx context.Context) HTTPMethodPtrOutput {
+	return HTTPMethod(e).ToHTTPMethodOutputWithContext(ctx).ToHTTPMethodPtrOutputWithContext(ctx)
+}
+
+func (e HTTPMethod) ToStringOutput() pulumi.StringOutput {
+	return pulumi.ToOutput(pulumi.String(e)).(pulumi.StringOutput)
+}
+
+func (e HTTPMethod) ToStringOutputWithContext(ctx context.Context) pulumi.StringOutput {
+	return pulumi.ToOutputWithContext(ctx, pulumi.String(e)).(pulumi.StringOutput)
+}
+
+func (e HTTPMethod) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return pulumi.String(e).ToStringPtrOutputWithContext(context.Background())
+}
+
+func (e HTTPMethod) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return pulumi.String(e).ToStringOutputWithContext(ctx).ToStringPtrOutputWithContext(ctx)
+}
+
+type HTTPMethodOutput struct{ *pulumi.OutputState }
+
+func (HTTPMethodOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*HTTPMethod)(nil)).Elem()
+}
+
+func (o HTTPMethodOutput) ToHTTPMethodOutput() HTTPMethodOutput {
+	return o
+}
+
+func (o HTTPMethodOutput) ToHTTPMethodOutputWithContext(ctx context.Context) HTTPMethodOutput {
+	return o
+}
+
+func (o HTTPMethodOutput) ToHTTPMethodPtrOutput() HTTPMethodPtrOutput {
+	return o.ToHTTPMethodPtrOutputWithContext(context.Background())
+}
+
+func (o HTTPMethodOutput) ToHTTPMethodPtrOutputWithContext(ctx context.Context) HTTPMethodPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v HTTPMethod) *HTTPMethod {
+		return &v
+	}).(HTTPMethodPtrOutput)
+}
+
+func (o HTTPMethodOutput) ToStringOutput() pulumi.StringOutput {
+	return o.ToStringOutputWithContext(context.Background())
+}
+
+func (o HTTPMethodOutput) ToStringOutputWithContext(ctx context.Context) pulumi.StringOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e HTTPMethod) string {
+		return string(e)
+	}).(pulumi.StringOutput)
+}
+
+func (o HTTPMethodOutput) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return o.ToStringPtrOutputWithContext(context.Background())
+}
+
+func (o HTTPMethodOutput) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e HTTPMethod) *string {
+		v := string(e)
+		return &v
+	}).(pulumi.StringPtrOutput)
+}
+
+type HTTPMethodPtrOutput struct{ *pulumi.OutputState }
+
+func (HTTPMethodPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**HTTPMethod)(nil)).Elem()
+}
+
+func (o HTTPMethodPtrOutput) ToHTTPMethodPtrOutput() HTTPMethodPtrOutput {
+	return o
+}
+
+func (o HTTPMethodPtrOutput) ToHTTPMethodPtrOutputWithContext(ctx context.Context) HTTPMethodPtrOutput {
+	return o
+}
+
+func (o HTTPMethodPtrOutput) Elem() HTTPMethodOutput {
+	return o.ApplyT(func(v *HTTPMethod) HTTPMethod {
+		if v != nil {
+			return *v
+		}
+		var ret HTTPMethod
+		return ret
+	}).(HTTPMethodOutput)
+}
+
+func (o HTTPMethodPtrOutput) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return o.ToStringPtrOutputWithContext(context.Background())
+}
+
+func (o HTTPMethodPtrOutput) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e *HTTPMethod) *string {
+		if e == nil {
+			return nil
+		}
+		v := string(*e)
+		return &v
+	}).(pulumi.StringPtrOutput)
+}
+
+// HTTPMethodInput is an input type that accepts values of the HTTPMethod enum
+// A concrete instance of `HTTPMethodInput` can be one of the following:
+//
+//	HTTPMethodGET
+//	HTTPMethodPOST
+//	HTTPMethodPUT
+//	HTTPMethodPATCH
+//	HTTPMethodHEAD
+type HTTPMethodInput interface {
+	pulumi.Input
+
+	ToHTTPMethodOutput() HTTPMethodOutput
+	ToHTTPMethodOutputWithContext(context.Context) HTTPMethodOutput
+}
+
+var httpmethodPtrType = reflect.TypeOf((**HTTPMethod)(nil)).Elem()
+
+type HTTPMethodPtrInput interface {
+	pulumi.Input
+
+	ToHTTPMethodPtrOutput() HTTPMethodPtrOutput
+	ToHTTPMethodPtrOutputWithContext(context.Context) HTTPMethodPtrOutput
+}
+
+type httpmethodPtr string
+
+func HTTPMethodPtr(v string) HTTPMethodPtrInput {
+	return (*httpmethodPtr)(&v)
+}
+
+func (*httpmethodPtr) ElementType() reflect.Type {
+	return httpmethodPtrType
+}
+
+func (in *httpmethodPtr) ToHTTPMethodPtrOutput() HTTPMethodPtrOutput {
+	return pulumi.ToOutput(in).(HTTPMethodPtrOutput)
+}
+
+func (in *httpmethodPtr) ToHTTPMethodPtrOutputWithContext(ctx context.Context) HTTPMethodPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, in).(HTTPMethodPtrOutput)
+}
+
 // Kind of a rule.
 type RuleKind string
 
@@ -185,8 +356,12 @@ func (in *ruleKindPtr) ToRuleKindPtrOutputWithContext(ctx context.Context) RuleK
 }
 
 func init() {
+	pulumi.RegisterInputType(reflect.TypeOf((*HTTPMethodInput)(nil)).Elem(), HTTPMethod("GET"))
+	pulumi.RegisterInputType(reflect.TypeOf((*HTTPMethodPtrInput)(nil)).Elem(), HTTPMethod("GET"))
 	pulumi.RegisterInputType(reflect.TypeOf((*RuleKindInput)(nil)).Elem(), RuleKind("approval"))
 	pulumi.RegisterInputType(reflect.TypeOf((*RuleKindPtrInput)(nil)).Elem(), RuleKind("approval"))
+	pulumi.RegisterOutputType(HTTPMethodOutput{})
+	pulumi.RegisterOutputType(HTTPMethodPtrOutput{})
 	pulumi.RegisterOutputType(RuleKindOutput{})
 	pulumi.RegisterOutputType(RuleKindPtrOutput{})
 }

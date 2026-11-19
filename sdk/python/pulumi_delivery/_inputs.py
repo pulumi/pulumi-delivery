@@ -388,7 +388,7 @@ class RuleDict(TypedDict):
     """
     body: NotRequired[_builtins.str]
     """
-    HTTP request body. Secret values stay secret.
+    HTTP request body, at most 16 KiB. A secret value stays secret.
     """
     context: NotRequired[Mapping[str, Any]]
     """
@@ -404,19 +404,15 @@ class RuleDict(TypedDict):
     """
     headers: NotRequired[Mapping[str, _builtins.str]]
     """
-    HTTP request headers. Secret values stay secret.
-    """
-    headers_environment: NotRequired[_builtins.str]
-    """
-    Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
+    HTTP request headers: at most 50 and 8 KiB in total, each name once. Delivery refuses headers that the client sets itself, such as Host, Content-Length and Transfer-Encoding. Secret values stay secret.
     """
     interval: NotRequired[_builtins.str]
     """
-    Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
+    Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds and the maximum is 1 hour. The default is 1m.
     """
-    method: NotRequired[_builtins.str]
+    method: NotRequired['HTTPMethod']
     """
-    HTTP request method. The default is GET.
+    HTTP request method. Valid values are GET, POST, PUT, PATCH, and HEAD. The default is GET.
     """
     name: NotRequired[_builtins.str]
     """
@@ -432,15 +428,15 @@ class RuleDict(TypedDict):
     """
     success_expression: NotRequired[_builtins.str]
     """
-    JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
+    CEL expression that decides whether the gate passes. It must return a boolean. It can use `status` (the HTTP status code), `headers` (response header names in lower case) and `body` (the parsed JSON, or the text when the body is not JSON), for example `status == 200 && body.status == "ok"`. At most 1024 bytes. A field that the response lacks keeps the gate waiting; guard optional fields with `has()`. Required for http rules.
     """
     timeout: NotRequired[_builtins.str]
     """
-    Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
+    Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
     """
     url: NotRequired[_builtins.str]
     """
-    URL to call. Required for http rules.
+    URL to call. Required for http rules. It must use https, contain no credentials, be at most 2048 bytes and point to a public address. Redirects are not followed.
     """
 
 @pulumi.input_type
@@ -453,9 +449,8 @@ class Rule:
                  count: Optional[_builtins.int] = None,
                  description: Optional[_builtins.str] = None,
                  headers: Optional[Mapping[str, _builtins.str]] = None,
-                 headers_environment: Optional[_builtins.str] = None,
                  interval: Optional[_builtins.str] = None,
-                 method: Optional[_builtins.str] = None,
+                 method: Optional['HTTPMethod'] = None,
                  name: Optional[_builtins.str] = None,
                  questions: Optional[Mapping[str, 'DecisionQuestion']] = None,
                  rules: Optional[Sequence['Rule']] = None,
@@ -467,20 +462,19 @@ class Rule:
 
         :param Union[_builtins.str, 'RuleKind'] kind: Kind of the rule. Valid values are approval, decision, http, manual, all, and any.
         :param Sequence[_builtins.str] approvers: Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
-        :param _builtins.str body: HTTP request body. Secret values stay secret.
+        :param _builtins.str body: HTTP request body, at most 16 KiB. A secret value stays secret.
         :param Mapping[str, Any] context: Optional JSON-like context for a decision rule. Delivery rejects secret values and limits its encoded size to 16 KiB. Do not use it for credentials or other secrets.
         :param _builtins.int count: Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
         :param _builtins.str description: Text for the person who continues a manual gate, for example what to check first.
-        :param Mapping[str, _builtins.str] headers: HTTP request headers. Secret values stay secret.
-        :param _builtins.str headers_environment: Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
-        :param _builtins.str interval: Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
-        :param _builtins.str method: HTTP request method. The default is GET.
+        :param Mapping[str, _builtins.str] headers: HTTP request headers: at most 50 and 8 KiB in total, each name once. Delivery refuses headers that the client sets itself, such as Host, Content-Length and Transfer-Encoding. Secret values stay secret.
+        :param _builtins.str interval: Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds and the maximum is 1 hour. The default is 1m.
+        :param 'HTTPMethod' method: HTTP request method. Valid values are GET, POST, PUT, PATCH, and HEAD. The default is GET.
         :param _builtins.str name: Rule name. Omit it to let Delivery assign one.
         :param Mapping[str, 'DecisionQuestion'] questions: Named judgments and their deterministic risk thresholds for a decision rule.
         :param Sequence['Rule'] rules: Child rules for all and any rules. At least one is required.
-        :param _builtins.str success_expression: JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
-        :param _builtins.str timeout: Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
-        :param _builtins.str url: URL to call. Required for http rules.
+        :param _builtins.str success_expression: CEL expression that decides whether the gate passes. It must return a boolean. It can use `status` (the HTTP status code), `headers` (response header names in lower case) and `body` (the parsed JSON, or the text when the body is not JSON), for example `status == 200 && body.status == "ok"`. At most 1024 bytes. A field that the response lacks keeps the gate waiting; guard optional fields with `has()`. Required for http rules.
+        :param _builtins.str timeout: Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+        :param _builtins.str url: URL to call. Required for http rules. It must use https, contain no credentials, be at most 2048 bytes and point to a public address. Redirects are not followed.
         """
         pulumi.set(__self__, "kind", kind)
         if approvers is not None:
@@ -495,8 +489,6 @@ class Rule:
             pulumi.set(__self__, "description", description)
         if headers is not None:
             pulumi.set(__self__, "headers", headers)
-        if headers_environment is not None:
-            pulumi.set(__self__, "headers_environment", headers_environment)
         if interval is not None:
             pulumi.set(__self__, "interval", interval)
         if method is not None:
@@ -542,7 +534,7 @@ class Rule:
     @pulumi.getter
     def body(self) -> Optional[_builtins.str]:
         """
-        HTTP request body. Secret values stay secret.
+        HTTP request body, at most 16 KiB. A secret value stays secret.
         """
         return pulumi.get(self, "body")
 
@@ -590,7 +582,7 @@ class Rule:
     @pulumi.getter
     def headers(self) -> Optional[Mapping[str, _builtins.str]]:
         """
-        HTTP request headers. Secret values stay secret.
+        HTTP request headers: at most 50 and 8 KiB in total, each name once. Delivery refuses headers that the client sets itself, such as Host, Content-Length and Transfer-Encoding. Secret values stay secret.
         """
         return pulumi.get(self, "headers")
 
@@ -599,22 +591,10 @@ class Rule:
         pulumi.set(self, "headers", value)
 
     @_builtins.property
-    @pulumi.getter(name="headersEnvironment")
-    def headers_environment(self) -> Optional[_builtins.str]:
-        """
-        Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
-        """
-        return pulumi.get(self, "headers_environment")
-
-    @headers_environment.setter
-    def headers_environment(self, value: Optional[_builtins.str]):
-        pulumi.set(self, "headers_environment", value)
-
-    @_builtins.property
     @pulumi.getter
     def interval(self) -> Optional[_builtins.str]:
         """
-        Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
+        Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds and the maximum is 1 hour. The default is 1m.
         """
         return pulumi.get(self, "interval")
 
@@ -624,14 +604,14 @@ class Rule:
 
     @_builtins.property
     @pulumi.getter
-    def method(self) -> Optional[_builtins.str]:
+    def method(self) -> Optional['HTTPMethod']:
         """
-        HTTP request method. The default is GET.
+        HTTP request method. Valid values are GET, POST, PUT, PATCH, and HEAD. The default is GET.
         """
         return pulumi.get(self, "method")
 
     @method.setter
-    def method(self, value: Optional[_builtins.str]):
+    def method(self, value: Optional['HTTPMethod']):
         pulumi.set(self, "method", value)
 
     @_builtins.property
@@ -674,7 +654,7 @@ class Rule:
     @pulumi.getter(name="successExpression")
     def success_expression(self) -> Optional[_builtins.str]:
         """
-        JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
+        CEL expression that decides whether the gate passes. It must return a boolean. It can use `status` (the HTTP status code), `headers` (response header names in lower case) and `body` (the parsed JSON, or the text when the body is not JSON), for example `status == 200 && body.status == "ok"`. At most 1024 bytes. A field that the response lacks keeps the gate waiting; guard optional fields with `has()`. Required for http rules.
         """
         return pulumi.get(self, "success_expression")
 
@@ -686,7 +666,7 @@ class Rule:
     @pulumi.getter
     def timeout(self) -> Optional[_builtins.str]:
         """
-        Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
+        Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
         """
         return pulumi.get(self, "timeout")
 
@@ -698,7 +678,7 @@ class Rule:
     @pulumi.getter
     def url(self) -> Optional[_builtins.str]:
         """
-        URL to call. Required for http rules.
+        URL to call. Required for http rules. It must use https, contain no credentials, be at most 2048 bytes and point to a public address. Redirects are not followed.
         """
         return pulumi.get(self, "url")
 
@@ -721,7 +701,7 @@ class RuleArgsDict(TypedDict):
     """
     body: NotRequired[pulumi.Input[Optional[_builtins.str]]]
     """
-    HTTP request body. Secret values stay secret.
+    HTTP request body, at most 16 KiB. A secret value stays secret.
     """
     context: NotRequired[pulumi.Input[Optional[Mapping[str, Any]]]]
     """
@@ -737,19 +717,15 @@ class RuleArgsDict(TypedDict):
     """
     headers: NotRequired[pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]]]
     """
-    HTTP request headers. Secret values stay secret.
-    """
-    headers_environment: NotRequired[pulumi.Input[Optional[_builtins.str]]]
-    """
-    Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
+    HTTP request headers: at most 50 and 8 KiB in total, each name once. Delivery refuses headers that the client sets itself, such as Host, Content-Length and Transfer-Encoding. Secret values stay secret.
     """
     interval: NotRequired[pulumi.Input[Optional[_builtins.str]]]
     """
-    Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
+    Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds and the maximum is 1 hour. The default is 1m.
     """
-    method: NotRequired[pulumi.Input[Optional[_builtins.str]]]
+    method: NotRequired[pulumi.Input[Optional['HTTPMethod']]]
     """
-    HTTP request method. The default is GET.
+    HTTP request method. Valid values are GET, POST, PUT, PATCH, and HEAD. The default is GET.
     """
     name: NotRequired[pulumi.Input[Optional[_builtins.str]]]
     """
@@ -765,15 +741,15 @@ class RuleArgsDict(TypedDict):
     """
     success_expression: NotRequired[pulumi.Input[Optional[_builtins.str]]]
     """
-    JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
+    CEL expression that decides whether the gate passes. It must return a boolean. It can use `status` (the HTTP status code), `headers` (response header names in lower case) and `body` (the parsed JSON, or the text when the body is not JSON), for example `status == 200 && body.status == "ok"`. At most 1024 bytes. A field that the response lacks keeps the gate waiting; guard optional fields with `has()`. Required for http rules.
     """
     timeout: NotRequired[pulumi.Input[Optional[_builtins.str]]]
     """
-    Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
+    Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
     """
     url: NotRequired[pulumi.Input[Optional[_builtins.str]]]
     """
-    URL to call. Required for http rules.
+    URL to call. Required for http rules. It must use https, contain no credentials, be at most 2048 bytes and point to a public address. Redirects are not followed.
     """
 
 @pulumi.input_type
@@ -786,9 +762,8 @@ class RuleArgs:
                  count: pulumi.Input[Optional[_builtins.int]] = None,
                  description: pulumi.Input[Optional[_builtins.str]] = None,
                  headers: pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
-                 headers_environment: pulumi.Input[Optional[_builtins.str]] = None,
                  interval: pulumi.Input[Optional[_builtins.str]] = None,
-                 method: pulumi.Input[Optional[_builtins.str]] = None,
+                 method: pulumi.Input[Optional['HTTPMethod']] = None,
                  name: pulumi.Input[Optional[_builtins.str]] = None,
                  questions: pulumi.Input[Optional[Mapping[str, pulumi.Input['DecisionQuestionArgs']]]] = None,
                  rules: pulumi.Input[Optional[Sequence[pulumi.Input['RuleArgs']]]] = None,
@@ -800,20 +775,19 @@ class RuleArgs:
 
         :param pulumi.Input[Union[_builtins.str, 'RuleKind']] kind: Kind of the rule. Valid values are approval, decision, http, manual, all, and any.
         :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] approvers: Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.
-        :param pulumi.Input[_builtins.str] body: HTTP request body. Secret values stay secret.
+        :param pulumi.Input[_builtins.str] body: HTTP request body, at most 16 KiB. A secret value stays secret.
         :param pulumi.Input[Mapping[str, Any]] context: Optional JSON-like context for a decision rule. Delivery rejects secret values and limits its encoded size to 16 KiB. Do not use it for credentials or other secrets.
         :param pulumi.Input[_builtins.int] count: Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.
         :param pulumi.Input[_builtins.str] description: Text for the person who continues a manual gate, for example what to check first.
-        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] headers: HTTP request headers. Secret values stay secret.
-        :param pulumi.Input[_builtins.str] headers_environment: Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
-        :param pulumi.Input[_builtins.str] interval: Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
-        :param pulumi.Input[_builtins.str] method: HTTP request method. The default is GET.
+        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] headers: HTTP request headers: at most 50 and 8 KiB in total, each name once. Delivery refuses headers that the client sets itself, such as Host, Content-Length and Transfer-Encoding. Secret values stay secret.
+        :param pulumi.Input[_builtins.str] interval: Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds and the maximum is 1 hour. The default is 1m.
+        :param pulumi.Input['HTTPMethod'] method: HTTP request method. Valid values are GET, POST, PUT, PATCH, and HEAD. The default is GET.
         :param pulumi.Input[_builtins.str] name: Rule name. Omit it to let Delivery assign one.
         :param pulumi.Input[Mapping[str, pulumi.Input['DecisionQuestionArgs']]] questions: Named judgments and their deterministic risk thresholds for a decision rule.
         :param pulumi.Input[Sequence[pulumi.Input['RuleArgs']]] rules: Child rules for all and any rules. At least one is required.
-        :param pulumi.Input[_builtins.str] success_expression: JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
-        :param pulumi.Input[_builtins.str] timeout: Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
-        :param pulumi.Input[_builtins.str] url: URL to call. Required for http rules.
+        :param pulumi.Input[_builtins.str] success_expression: CEL expression that decides whether the gate passes. It must return a boolean. It can use `status` (the HTTP status code), `headers` (response header names in lower case) and `body` (the parsed JSON, or the text when the body is not JSON), for example `status == 200 && body.status == "ok"`. At most 1024 bytes. A field that the response lacks keeps the gate waiting; guard optional fields with `has()`. Required for http rules.
+        :param pulumi.Input[_builtins.str] timeout: Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+        :param pulumi.Input[_builtins.str] url: URL to call. Required for http rules. It must use https, contain no credentials, be at most 2048 bytes and point to a public address. Redirects are not followed.
         """
         pulumi.set(__self__, "kind", kind)
         if approvers is not None:
@@ -828,8 +802,6 @@ class RuleArgs:
             pulumi.set(__self__, "description", description)
         if headers is not None:
             pulumi.set(__self__, "headers", headers)
-        if headers_environment is not None:
-            pulumi.set(__self__, "headers_environment", headers_environment)
         if interval is not None:
             pulumi.set(__self__, "interval", interval)
         if method is not None:
@@ -875,7 +847,7 @@ class RuleArgs:
     @pulumi.getter
     def body(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        HTTP request body. Secret values stay secret.
+        HTTP request body, at most 16 KiB. A secret value stays secret.
         """
         return pulumi.get(self, "body")
 
@@ -923,7 +895,7 @@ class RuleArgs:
     @pulumi.getter
     def headers(self) -> pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]]:
         """
-        HTTP request headers. Secret values stay secret.
+        HTTP request headers: at most 50 and 8 KiB in total, each name once. Delivery refuses headers that the client sets itself, such as Host, Content-Length and Transfer-Encoding. Secret values stay secret.
         """
         return pulumi.get(self, "headers")
 
@@ -932,22 +904,10 @@ class RuleArgs:
         pulumi.set(self, "headers", value)
 
     @_builtins.property
-    @pulumi.getter(name="headersEnvironment")
-    def headers_environment(self) -> pulumi.Input[Optional[_builtins.str]]:
-        """
-        Name of an ESC environment that exports values.headers. Delivery sends these headers first, then the headers of the rule.
-        """
-        return pulumi.get(self, "headers_environment")
-
-    @headers_environment.setter
-    def headers_environment(self, value: pulumi.Input[Optional[_builtins.str]]):
-        pulumi.set(self, "headers_environment", value)
-
-    @_builtins.property
     @pulumi.getter
     def interval(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds.
+        Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds and the maximum is 1 hour. The default is 1m.
         """
         return pulumi.get(self, "interval")
 
@@ -957,14 +917,14 @@ class RuleArgs:
 
     @_builtins.property
     @pulumi.getter
-    def method(self) -> pulumi.Input[Optional[_builtins.str]]:
+    def method(self) -> pulumi.Input[Optional['HTTPMethod']]:
         """
-        HTTP request method. The default is GET.
+        HTTP request method. Valid values are GET, POST, PUT, PATCH, and HEAD. The default is GET.
         """
         return pulumi.get(self, "method")
 
     @method.setter
-    def method(self, value: pulumi.Input[Optional[_builtins.str]]):
+    def method(self, value: pulumi.Input[Optional['HTTPMethod']]):
         pulumi.set(self, "method", value)
 
     @_builtins.property
@@ -1007,7 +967,7 @@ class RuleArgs:
     @pulumi.getter(name="successExpression")
     def success_expression(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.
+        CEL expression that decides whether the gate passes. It must return a boolean. It can use `status` (the HTTP status code), `headers` (response header names in lower case) and `body` (the parsed JSON, or the text when the body is not JSON), for example `status == 200 && body.status == "ok"`. At most 1024 bytes. A field that the response lacks keeps the gate waiting; guard optional fields with `has()`. Required for http rules.
         """
         return pulumi.get(self, "success_expression")
 
@@ -1019,7 +979,7 @@ class RuleArgs:
     @pulumi.getter
     def timeout(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20.
+        Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
         """
         return pulumi.get(self, "timeout")
 
@@ -1031,7 +991,7 @@ class RuleArgs:
     @pulumi.getter
     def url(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        URL to call. Required for http rules.
+        URL to call. Required for http rules. It must use https, contain no credentials, be at most 2048 bytes and point to a public address. Redirects are not followed.
         """
         return pulumi.get(self, "url")
 

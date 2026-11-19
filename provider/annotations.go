@@ -31,11 +31,11 @@ func (r *Rule) Annotate(a infer.Annotator) {
 	a.Describe(&r.Name, "Rule name. Omit it to let Delivery assign one.")
 	a.Describe(&r.Approvers, "Pulumi usernames or team names in the organization. If the list is empty, anyone with the pipeline:approve permission on the pipeline stack can approve.")
 	a.Describe(&r.Count, "Number of approvals required. If you omit it or set it to zero, one approval is required. Applies to approval rules.")
-	a.Describe(&r.URL, "URL to call. Required for http rules.")
+	a.Describe(&r.URL, "URL to call. Required for http rules. It must use https, contain no credentials, be at most 2048 bytes and point to a public address. Redirects are not followed.")
 	a.Describe(&r.Method, "HTTP request method. Valid values are GET, POST, PUT, PATCH, and HEAD. The default is GET.")
-	a.Describe(&r.Headers, "HTTP request headers. Secret values stay secret.")
-	a.Describe(&r.Body, "HTTP request body. Secret values stay secret.")
-	a.Describe(&r.SuccessExpression, "JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required for http rules.")
+	a.Describe(&r.Headers, "HTTP request headers: at most 50 and 8 KiB in total, each name once. Delivery refuses headers that the client sets itself, such as Host, Content-Length and Transfer-Encoding. Secret values stay secret.")
+	a.Describe(&r.Body, "HTTP request body, at most 16 KiB. A secret value stays secret.")
+	a.Describe(&r.SuccessExpression, "CEL expression that decides whether the gate passes. It must return a boolean. It can use `status` (the HTTP status code), `headers` (response header names in lower case) and `body` (the parsed JSON, or the text when the body is not JSON), for example `status == 200 && body.status == \"ok\"`. At most 1024 bytes. A field that the response lacks keeps the gate waiting; guard optional fields with `has()`. Required for http rules.")
 	a.Describe(&r.Interval, "Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds and the maximum is 1 hour. The default is 1m.")
 	a.Describe(&r.Timeout, "Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.")
 	a.Describe(&r.Rules, "Child rules for all and any rules. At least one is required.")
@@ -105,7 +105,7 @@ func (r *ApprovalArgs) Annotate(a infer.Annotator) {
 }
 
 func (r *HTTP) Annotate(a infer.Annotator) {
-	a.Describe(r, `Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true.
+	a.Describe(r, `Builds an http rule for the when property of a Stage. Delivery calls the URL at an interval, and the gate passes when the success expression is true. A check that does not pass never fails the run, so the gate keeps waiting until you cancel the run. A request can repeat, so the endpoint must be safe to call more than once. The console shows the result of the last check, not the URL, headers, body or expression. Do not put secrets in the name or description, because the console shows them. See the Gates section of the guide for the expression syntax.
 
 ## Example Usage
 
@@ -115,19 +115,19 @@ import * as delivery from "@pulumi/delivery";
 const prod = new delivery.Stage("prod", {
     pipeline,
     from: [dev],
-    when: delivery.http({ url: "https://example.com/check", successExpression: "status == 'ok'" }),
+    when: delivery.http({ url: "https://example.com/check", successExpression: "status == 200 && body.status == \"ok\"" }),
 });
 `+"```")
 }
 
 func (r *HTTPArgs) Annotate(a infer.Annotator) {
 	a.Describe(r, "HTTP rule settings.")
-	a.Describe(&r.Name, "Rule name. Omit it to let Delivery assign one.")
-	a.Describe(&r.URL, "URL to call. Required.")
+	a.Describe(&r.Name, "Rule name. Omit it to let Delivery assign one. The console shows the name, so do not put a secret in it.")
+	a.Describe(&r.URL, "URL to call. Required. It must use https, contain no credentials, be at most 2048 bytes and point to a public address. Redirects are not followed.")
 	a.Describe(&r.Method, "HTTP request method. Valid values are GET, POST, PUT, PATCH, and HEAD. The default is GET.")
-	a.Describe(&r.Headers, "HTTP request headers. Secret values stay secret.")
-	a.Describe(&r.Body, "HTTP request body. Secret values stay secret.")
-	a.Describe(&r.SuccessExpression, "JMESPath expression that Delivery evaluates on the status, headers and body of the HTTP response. The rule passes when the result is true. Required.")
+	a.Describe(&r.Headers, "HTTP request headers: at most 50 and 8 KiB in total, each name once. Delivery refuses headers that the client sets itself, such as Host, Content-Length and Transfer-Encoding. Secret values stay secret.")
+	a.Describe(&r.Body, "HTTP request body, at most 16 KiB. A secret value stays secret.")
+	a.Describe(&r.SuccessExpression, "CEL expression that decides whether the gate passes. It must return a boolean. It can use `status` (the HTTP status code), `headers` (response header names in lower case) and `body` (the parsed JSON, or the text when the body is not JSON), for example `status == 200 && body.status == \"ok\"`. At most 1024 bytes. A field that the response lacks keeps the gate waiting; guard optional fields with `has()`. Required.")
 	a.Describe(&r.Interval, "Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds and the maximum is 1 hour. The default is 1m.")
 	a.Describe(&r.Timeout, "Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.")
 }

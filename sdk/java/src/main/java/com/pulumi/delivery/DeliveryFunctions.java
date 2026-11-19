@@ -229,7 +229,7 @@ public final class DeliveryFunctions {
         return Deployment.getInstance().invokeAsync("delivery:index:decision", TypeShape.of(DecisionResult.class), args, Utilities.withVersion(options));
     }
     /**
-     * Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true.
+     * Builds an http rule for the when property of a Stage. Delivery calls the URL at an interval, and the gate passes when the success expression is true. A check that does not pass never fails the run, so the gate keeps waiting until you cancel the run. A request can repeat, so the endpoint must be safe to call more than once. The console shows the result of the last check, not the URL, headers, body or expression. Do not put secrets in the name or description, because the console shows them. See the Gates section of the guide for the expression syntax.
      * 
      * ## Example Usage
      * 
@@ -238,7 +238,7 @@ public final class DeliveryFunctions {
         return http(args, InvokeOptions.Empty);
     }
     /**
-     * Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true.
+     * Builds an http rule for the when property of a Stage. Delivery calls the URL at an interval, and the gate passes when the success expression is true. A check that does not pass never fails the run, so the gate keeps waiting until you cancel the run. A request can repeat, so the endpoint must be safe to call more than once. The console shows the result of the last check, not the URL, headers, body or expression. Do not put secrets in the name or description, because the console shows them. See the Gates section of the guide for the expression syntax.
      * 
      * ## Example Usage
      * 
@@ -247,7 +247,7 @@ public final class DeliveryFunctions {
         return httpPlain(args, InvokeOptions.Empty);
     }
     /**
-     * Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true.
+     * Builds an http rule for the when property of a Stage. Delivery calls the URL at an interval, and the gate passes when the success expression is true. A check that does not pass never fails the run, so the gate keeps waiting until you cancel the run. A request can repeat, so the endpoint must be safe to call more than once. The console shows the result of the last check, not the URL, headers, body or expression. Do not put secrets in the name or description, because the console shows them. See the Gates section of the guide for the expression syntax.
      * 
      * ## Example Usage
      * 
@@ -256,7 +256,7 @@ public final class DeliveryFunctions {
         return Deployment.getInstance().invoke("delivery:index:http", TypeShape.of(HttpResult.class), args, Utilities.withVersion(options));
     }
     /**
-     * Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true.
+     * Builds an http rule for the when property of a Stage. Delivery calls the URL at an interval, and the gate passes when the success expression is true. A check that does not pass never fails the run, so the gate keeps waiting until you cancel the run. A request can repeat, so the endpoint must be safe to call more than once. The console shows the result of the last check, not the URL, headers, body or expression. Do not put secrets in the name or description, because the console shows them. See the Gates section of the guide for the expression syntax.
      * 
      * ## Example Usage
      * 
@@ -265,7 +265,7 @@ public final class DeliveryFunctions {
         return Deployment.getInstance().invoke("delivery:index:http", TypeShape.of(HttpResult.class), args, Utilities.withVersion(options));
     }
     /**
-     * Builds an http rule for the when property of a Stage. The gate calls the URL until the success expression is true.
+     * Builds an http rule for the when property of a Stage. Delivery calls the URL at an interval, and the gate passes when the success expression is true. A check that does not pass never fails the run, so the gate keeps waiting until you cancel the run. A request can repeat, so the endpoint must be safe to call more than once. The console shows the result of the last check, not the URL, headers, body or expression. Do not put secrets in the name or description, because the console shows them. See the Gates section of the guide for the expression syntax.
      * 
      * ## Example Usage
      * 
