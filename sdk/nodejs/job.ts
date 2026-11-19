@@ -7,7 +7,7 @@ import * as outputs from "./types/output";
 import * as enums from "./types/enums";
 import * as utilities from "./utilities";
 
-import {AzureDevOpsSource, BitbucketSource, GitHubSource, GitLabSource, Stage, WorkflowsRuntime} from "./index";
+import {AzureDevOpsSource, BitbucketSource, EntireSource, GitHubSource, GitLabSource, Stage, WorkflowsRuntime} from "./index";
 
 /**
  * Declares a command that a run executes in a stage. Delivery checks out the source at the commit of the run and runs the command in directory.
@@ -123,7 +123,7 @@ export interface JobArgs {
     /**
      * VCS source to check out.
      */
-    source: pulumi.Input<GitHubSource | GitLabSource | BitbucketSource | AzureDevOpsSource>;
+    source: pulumi.Input<GitHubSource | GitLabSource | BitbucketSource | AzureDevOpsSource | EntireSource>;
     /**
      * Stage that the job runs in.
      */

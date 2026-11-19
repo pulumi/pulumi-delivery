@@ -6,7 +6,7 @@ import * as inputs from "../types/input";
 import * as outputs from "../types/output";
 import * as enums from "../types/enums";
 
-import {AzureDevOpsSource, BitbucketSource, GitHubSource, GitLabSource, WorkflowsRuntime} from "..";
+import {AzureDevOpsSource, BitbucketSource, EntireSource, GitHubSource, GitLabSource, WorkflowsRuntime} from "..";
 
 /**
  * One narrow judgment in a decision rule.
@@ -277,7 +277,7 @@ export interface StacksEntryArgs {
     /**
      * VCS source to check out. The update uses the commit of the run for this source.
      */
-    source: pulumi.Input<GitHubSource | GitLabSource | BitbucketSource | AzureDevOpsSource>;
+    source: pulumi.Input<GitHubSource | GitLabSource | BitbucketSource | AzureDevOpsSource | EntireSource>;
     /**
      * Target stack as project/stack. It must exist before the first run, in the organization of the pipeline.
      */

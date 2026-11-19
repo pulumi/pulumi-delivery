@@ -27,8 +27,9 @@ Set up the Pulumi integration for your forge.
 - [GitLab](https://www.pulumi.com/docs/integrations/version-control/gitlab/)
 - [Bitbucket](https://www.pulumi.com/docs/integrations/version-control/bitbucket/)
 - [Azure DevOps](https://www.pulumi.com/docs/integrations/version-control/azure-devops-integration/)
+- Entire
 
-Give the integration access to each repository that a source names and to the repository of the pipeline program. Pulumi Cloud picks the integration of your organization whose account (GitHub), group (GitLab), workspace (Bitbucket) or organization and project (Azure DevOps) holds the repository.
+Give the integration access to each repository that a source names and to the repository of the pipeline program. Pulumi Cloud picks the integration of your organization whose account (GitHub), group (GitLab), workspace (Bitbucket), organization and project (Azure DevOps) or installation (Entire) holds the repository.
 
 Write the `repository` of a source like this:
 
@@ -36,6 +37,7 @@ Write the `repository` of a source like this:
 - GitLab: `group/subgroup/repo`, the full path
 - Bitbucket: `workspace/repo`
 - Azure DevOps: `org/project/repo`
+- Entire: `project/repo`, the path after `et/` (or `gh/` for a mirror)
 
 ### Install the SDK
 
@@ -284,7 +286,7 @@ curl -X POST \
 
 A source without `trigger` is part of the release but never starts a run. Use this for a shared library repository.
 
-Set `trigger: true` on a `GitHubSource`, `GitLabSource`, `BitbucketSource` or `AzureDevOpsSource` to start a run on every push to the branch.
+Set `trigger: true` on a `GitHubSource`, `GitLabSource`, `BitbucketSource`, `AzureDevOpsSource` or `EntireSource` to start a run on every push to the branch.
 
 Set `trigger: { paths: [...] }` to start a run only when a push changes a file that matches one of the paths:
 

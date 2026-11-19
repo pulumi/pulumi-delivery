@@ -45,6 +45,11 @@ export const decision: typeof import("./decision").decision = null as any;
 export const decisionOutput: typeof import("./decision").decisionOutput = null as any;
 utilities.lazyLoad(exports, ["decision","decisionOutput"], () => require("./decision"));
 
+export { EntireSourceArgs } from "./entireSource";
+export type EntireSource = import("./entireSource").EntireSource;
+export const EntireSource: typeof import("./entireSource").EntireSource = null as any;
+utilities.lazyLoad(exports, ["EntireSource"], () => require("./entireSource"));
+
 export { GitHubSourceArgs } from "./gitHubSource";
 export type GitHubSource = import("./gitHubSource").GitHubSource;
 export const GitHubSource: typeof import("./gitHubSource").GitHubSource = null as any;
@@ -125,6 +130,8 @@ const _module = {
                 return new AzureDevOpsSource(name, <any>undefined, { urn })
             case "delivery:index:BitbucketSource":
                 return new BitbucketSource(name, <any>undefined, { urn })
+            case "delivery:index:EntireSource":
+                return new EntireSource(name, <any>undefined, { urn })
             case "delivery:index:GitHubSource":
                 return new GitHubSource(name, <any>undefined, { urn })
             case "delivery:index:GitLabSource":

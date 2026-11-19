@@ -45,7 +45,7 @@ func NewAzureDevOpsSource(ctx *pulumi.Context,
 type azureDevOpsSourceArgs struct {
 	// Branch of the source.
 	Branch string `pulumi:"branch"`
-	// Repository of the source. Use `owner/repo` on GitHub, `group/subgroup/repo` (the full path) on GitLab, `workspace/repo` on Bitbucket and `org/project/repo` on Azure DevOps. Pulumi Cloud picks the integration of the organization whose account (GitHub), group (GitLab), workspace (Bitbucket) or organization and project (Azure DevOps) holds the repository.
+	// Repository of the source. Use `owner/repo` on GitHub, `group/subgroup/repo` (the full path) on GitLab, `workspace/repo` on Bitbucket, `org/project/repo` on Azure DevOps and `project/repo` on Entire. Pulumi Cloud picks the integration of the organization whose account (GitHub), group (GitLab), workspace (Bitbucket), organization and project (Azure DevOps) or installation (Entire) holds the repository.
 	Repository string `pulumi:"repository"`
 	// Starts a run when someone pushes to the branch. Set true for every push, or { paths } for pushes that change a matching file. If you omit it, the source is part of the release but never starts a run.
 	Trigger interface{} `pulumi:"trigger"`
@@ -55,7 +55,7 @@ type azureDevOpsSourceArgs struct {
 type AzureDevOpsSourceArgs struct {
 	// Branch of the source.
 	Branch pulumi.StringInput
-	// Repository of the source. Use `owner/repo` on GitHub, `group/subgroup/repo` (the full path) on GitLab, `workspace/repo` on Bitbucket and `org/project/repo` on Azure DevOps. Pulumi Cloud picks the integration of the organization whose account (GitHub), group (GitLab), workspace (Bitbucket) or organization and project (Azure DevOps) holds the repository.
+	// Repository of the source. Use `owner/repo` on GitHub, `group/subgroup/repo` (the full path) on GitLab, `workspace/repo` on Bitbucket, `org/project/repo` on Azure DevOps and `project/repo` on Entire. Pulumi Cloud picks the integration of the organization whose account (GitHub), group (GitLab), workspace (Bitbucket), organization and project (Azure DevOps) or installation (Entire) holds the repository.
 	Repository pulumi.StringInput
 	// Starts a run when someone pushes to the branch. Set true for every push, or { paths } for pushes that change a matching file. If you omit it, the source is part of the release but never starts a run.
 	Trigger pulumi.Input

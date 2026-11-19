@@ -46,6 +46,7 @@ var referencePatches = []struct {
 	{[]string{"resources", "delivery:index:GitLabSource", "inputProperties", "trigger"}, sourceTrigger},
 	{[]string{"resources", "delivery:index:BitbucketSource", "inputProperties", "trigger"}, sourceTrigger},
 	{[]string{"resources", "delivery:index:AzureDevOpsSource", "inputProperties", "trigger"}, sourceTrigger},
+	{[]string{"resources", "delivery:index:EntireSource", "inputProperties", "trigger"}, sourceTrigger},
 	{[]string{"resources", typePipeline, "inputProperties", "runtime"}, func() map[string]any { return ref("delivery:index:WorkflowsRuntime") }},
 	{[]string{"resources", typeJob, "inputProperties", "runtime"}, func() map[string]any { return ref("delivery:index:WorkflowsRuntime") }},
 	{[]string{"types", "delivery:index:StacksEntry", "properties", "runtime"}, func() map[string]any { return ref("delivery:index:WorkflowsRuntime") }},

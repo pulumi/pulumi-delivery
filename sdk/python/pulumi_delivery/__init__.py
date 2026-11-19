@@ -15,6 +15,7 @@ from .artifact import *
 from .azure_dev_ops_source import *
 from .bitbucket_source import *
 from .decision import *
+from .entire_source import *
 from .git_hub_source import *
 from .git_lab_source import *
 from .http import *
@@ -48,6 +49,7 @@ _utilities.register(
    "delivery:index:Artifact": "Artifact",
    "delivery:index:AzureDevOpsSource": "AzureDevOpsSource",
    "delivery:index:BitbucketSource": "BitbucketSource",
+   "delivery:index:EntireSource": "EntireSource",
    "delivery:index:GitHubSource": "GitHubSource",
    "delivery:index:GitLabSource": "GitLabSource",
    "delivery:index:Job": "Job",

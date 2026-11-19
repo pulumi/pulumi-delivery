@@ -67,6 +67,7 @@ func newProvider() (p.Provider, error) {
 			infer.ComponentF(notInferred[SourceArgs, *GitLabSource]),
 			infer.ComponentF(notInferred[SourceArgs, *BitbucketSource]),
 			infer.ComponentF(notInferred[SourceArgs, *AzureDevOpsSource]),
+			infer.ComponentF(notInferred[SourceArgs, *EntireSource]),
 		).
 		WithFunctions(
 			infer.Function(Approval{}),

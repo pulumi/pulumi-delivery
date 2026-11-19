@@ -145,6 +145,10 @@ type AzureDevOpsSource struct {
 	pulumi.ResourceState
 	Commit pulumi.StringOutput `pulumi:"commit"`
 }
+type EntireSource struct {
+	pulumi.ResourceState
+	Commit pulumi.StringOutput `pulumi:"commit"`
+}
 
 type PipelineSourceArgs struct {
 	// Pipeline is the upstream pipeline as project/stack.
@@ -190,6 +194,7 @@ var sourceKinds = map[string]string{
 	"delivery:index:GitLabSource":      "gitlab",
 	"delivery:index:BitbucketSource":   "bitbucket",
 	"delivery:index:AzureDevOpsSource": "azure_devops",
+	"delivery:index:EntireSource":      "entire",
 }
 
 const (

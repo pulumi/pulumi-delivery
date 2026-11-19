@@ -29,6 +29,8 @@ func (m *module) Construct(ctx *pulumi.Context, name, typ, urn string) (r pulumi
 		r = &AzureDevOpsSource{}
 	case "delivery:index:BitbucketSource":
 		r = &BitbucketSource{}
+	case "delivery:index:EntireSource":
+		r = &EntireSource{}
 	case "delivery:index:GitHubSource":
 		r = &GitHubSource{}
 	case "delivery:index:GitLabSource":

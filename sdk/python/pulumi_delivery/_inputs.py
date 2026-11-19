@@ -1081,7 +1081,7 @@ class StacksEntryArgsDict(TypedDict):
     """
     Directory of the stack project, relative to the repository root.
     """
-    source: pulumi.Input[Union['_git_hub_source.GitHubSource', '_git_lab_source.GitLabSource', '_bitbucket_source.BitbucketSource', '_azure_dev_ops_source.AzureDevOpsSource']]
+    source: pulumi.Input[Union['_git_hub_source.GitHubSource', '_git_lab_source.GitLabSource', '_bitbucket_source.BitbucketSource', '_azure_dev_ops_source.AzureDevOpsSource', '_entire_source.EntireSource']]
     """
     VCS source to check out. The update uses the commit of the run for this source.
     """
@@ -1118,7 +1118,7 @@ class StacksEntryArgsDict(TypedDict):
 class StacksEntryArgs:
     def __init__(__self__, *,
                  directory: pulumi.Input[_builtins.str],
-                 source: pulumi.Input[Union['_git_hub_source.GitHubSource', '_git_lab_source.GitLabSource', '_bitbucket_source.BitbucketSource', '_azure_dev_ops_source.AzureDevOpsSource']],
+                 source: pulumi.Input[Union['_git_hub_source.GitHubSource', '_git_lab_source.GitLabSource', '_bitbucket_source.BitbucketSource', '_azure_dev_ops_source.AzureDevOpsSource', '_entire_source.EntireSource']],
                  stack: pulumi.Input[_builtins.str],
                  config: pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
                  environment: pulumi.Input[Optional[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
@@ -1130,7 +1130,7 @@ class StacksEntryArgs:
         One target stack that a Stacks resource updates.
 
         :param pulumi.Input[_builtins.str] directory: Directory of the stack project, relative to the repository root.
-        :param pulumi.Input[Union['_git_hub_source.GitHubSource', '_git_lab_source.GitLabSource', '_bitbucket_source.BitbucketSource', '_azure_dev_ops_source.AzureDevOpsSource']] source: VCS source to check out. The update uses the commit of the run for this source.
+        :param pulumi.Input[Union['_git_hub_source.GitHubSource', '_git_lab_source.GitLabSource', '_bitbucket_source.BitbucketSource', '_azure_dev_ops_source.AzureDevOpsSource', '_entire_source.EntireSource']] source: VCS source to check out. The update uses the commit of the run for this source.
         :param pulumi.Input[_builtins.str] stack: Target stack as project/stack. It must exist before the first run, in the organization of the pipeline.
         :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] config: Config values that Delivery sets on the target stack before the update. Values are plain strings. Delivery rejects secret values. Keep secrets in the config file of the target stack or in an ESC environment.
         :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] environment: Environment variables for the update, for example cloud credentials. Secret values stay secret. The names PULUMI_ACCESS_TOKEN and PULUMI_BACKEND_URL, and all names that start with DELIVERY_, are reserved.
@@ -1169,14 +1169,14 @@ class StacksEntryArgs:
 
     @_builtins.property
     @pulumi.getter
-    def source(self) -> pulumi.Input[Union['_git_hub_source.GitHubSource', '_git_lab_source.GitLabSource', '_bitbucket_source.BitbucketSource', '_azure_dev_ops_source.AzureDevOpsSource']]:
+    def source(self) -> pulumi.Input[Union['_git_hub_source.GitHubSource', '_git_lab_source.GitLabSource', '_bitbucket_source.BitbucketSource', '_azure_dev_ops_source.AzureDevOpsSource', '_entire_source.EntireSource']]:
         """
         VCS source to check out. The update uses the commit of the run for this source.
         """
         return pulumi.get(self, "source")
 
     @source.setter
-    def source(self, value: pulumi.Input[Union['_git_hub_source.GitHubSource', '_git_lab_source.GitLabSource', '_bitbucket_source.BitbucketSource', '_azure_dev_ops_source.AzureDevOpsSource']]):
+    def source(self, value: pulumi.Input[Union['_git_hub_source.GitHubSource', '_git_lab_source.GitLabSource', '_bitbucket_source.BitbucketSource', '_azure_dev_ops_source.AzureDevOpsSource', '_entire_source.EntireSource']]):
         pulumi.set(self, "source", value)
 
     @_builtins.property
@@ -1266,6 +1266,7 @@ class StacksEntryArgs:
 
 from . import azure_dev_ops_source as _azure_dev_ops_source
 from . import bitbucket_source as _bitbucket_source
+from . import entire_source as _entire_source
 from . import git_hub_source as _git_hub_source
 from . import git_lab_source as _git_lab_source
 from . import workflows_runtime as _workflows_runtime
