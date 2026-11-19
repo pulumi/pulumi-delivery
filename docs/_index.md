@@ -604,6 +604,8 @@ Not supported:
 
 A field that the response lacks makes the evaluation fail, and the gate keeps waiting. Guard optional fields with `has()`: `has(body.status) && body.status == "ok"`.
 
+Numbers in a JSON body are read as floating point. Integers above 2^53 lose precision, so return such values as strings and compare them as strings.
+
 More examples:
 
 - `status in [200, 204]`
