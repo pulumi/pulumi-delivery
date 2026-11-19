@@ -150,6 +150,9 @@ func validateRuleValue(value property.Value, depth int) error {
 		}
 		for _, name := range []string{"interval", "requestTimeout", "timeout"} {
 			if v, known := text(name); known {
+				if v == "" && rule.Get(name).IsString() {
+					return fmt.Errorf("rule.%s must be a positive whole-second duration", name)
+				}
 				if err := validateDuration(name, v); err != nil {
 					return err
 				}

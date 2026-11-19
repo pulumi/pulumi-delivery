@@ -338,6 +338,31 @@ func TestHTTPLimits(t *testing.T) {
 	}
 }
 
+func TestRawHTTPRuleRejectsEmptyDurations(t *testing.T) {
+	httpRule := func(extra map[string]property.Value) property.Value {
+		fields := map[string]property.Value{
+			"kind":              property.New("http"),
+			"url":               property.New("https://example.com"),
+			"successExpression": property.New("status == 200"),
+		}
+		for k, v := range extra {
+			fields[k] = v
+		}
+		return property.New(property.NewMap(fields))
+	}
+	for _, name := range []string{"interval", "requestTimeout", "timeout"} {
+		empty := map[string]property.Value{name: property.New("")}
+		assert.ErrorContains(t, validateRuleValue(httpRule(empty), 1), "rule."+name+" must be a positive whole-second")
+		nested := property.New(property.NewMap(map[string]property.Value{
+			"kind":  property.New("all"),
+			"rules": property.New(property.NewArray([]property.Value{httpRule(empty)})),
+		}))
+		assert.ErrorContains(t, validateRuleValue(nested, 1), "rule."+name+" must be a positive whole-second")
+		assert.NoError(t, validateRuleValue(httpRule(map[string]property.Value{name: property.New(property.Null)}), 1))
+	}
+	assert.NoError(t, validateRuleValue(httpRule(nil), 1))
+}
+
 func TestHTTPMethodSkipsUnknown(t *testing.T) {
 	raw := property.New(property.NewMap(map[string]property.Value{
 		"kind":              property.New("http"),

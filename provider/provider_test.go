@@ -708,6 +708,43 @@ func TestSchemaOfTheTimeouts(t *testing.T) {
 		stripDescription(t, schema.Types["delivery:index:StacksEntry"].Properties["timeout"]))
 }
 
+func TestSchemaOfTheHTTPRule(t *testing.T) {
+	resp, err := newServer(t).GetSchema(p.GetSchemaRequest{})
+	require.NoError(t, err)
+	var schema struct {
+		Functions map[string]struct {
+			Inputs struct {
+				Properties map[string]json.RawMessage `json:"properties"`
+			} `json:"inputs"`
+		} `json:"functions"`
+		Types map[string]struct {
+			Properties map[string]json.RawMessage `json:"properties"`
+			Enum       []struct {
+				Value string `json:"value"`
+			} `json:"enum"`
+		} `json:"types"`
+	}
+	require.NoError(t, json.Unmarshal([]byte(resp.Schema), &schema))
+	for name, props := range map[string]map[string]json.RawMessage{
+		"Rule":          schema.Types["delivery:index:Rule"].Properties,
+		"http function": schema.Functions["delivery:index:http"].Inputs.Properties,
+	} {
+		assert.Contains(t, props, "requestTimeout", name)
+		assert.Contains(t, props, "timeout", name)
+		assert.NotContains(t, props, "headersEnvironment", name)
+		var method struct {
+			Ref string `json:"$ref"`
+		}
+		require.NoError(t, json.Unmarshal(props["method"], &method), name)
+		assert.Equal(t, "#/types/delivery:index:HTTPMethod", method.Ref, name)
+	}
+	var methods []string
+	for _, e := range schema.Types["delivery:index:HTTPMethod"].Enum {
+		methods = append(methods, e.Value)
+	}
+	assert.Equal(t, []string{"GET", "POST", "PUT", "PATCH", "HEAD"}, methods)
+}
+
 func stripDescription(t *testing.T, raw json.RawMessage) string {
 	t.Helper()
 	var node map[string]any
