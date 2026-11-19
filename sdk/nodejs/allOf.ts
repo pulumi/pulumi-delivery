@@ -95,6 +95,10 @@ export interface AllOfResult {
      */
     readonly questions?: {[key: string]: outputs.DecisionQuestion};
     /**
+     * Time allowed for each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+     */
+    readonly requestTimeout?: string;
+    /**
      * Child rules for all and any rules. At least one is required.
      */
     readonly rules?: outputs.Rule[];
@@ -103,7 +107,7 @@ export interface AllOfResult {
      */
     readonly successExpression?: string;
     /**
-     * Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+     * How long the gate may wait in total, counted from when the gate opens for a run, as a Go duration, such as 24h. Use a whole number of seconds from 1m to 168h (7 days), and at least the interval. The default is 24h. When the time passes without a check passing, the run fails.
      */
     readonly timeout?: string;
     /**

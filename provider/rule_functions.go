@@ -50,6 +50,7 @@ type Rule struct {
 	Body              string            `pulumi:"body,optional"`
 	SuccessExpression string            `pulumi:"successExpression,optional"`
 	Interval          string            `pulumi:"interval,optional"`
+	RequestTimeout    string            `pulumi:"requestTimeout,optional"`
 	Timeout           string            `pulumi:"timeout,optional"`
 	Rules             []Rule            `pulumi:"rules,optional"`
 	// Description tells the person who continues a manual gate what to check.
@@ -79,10 +80,27 @@ func validateDuration(name, value string) error {
 	if name == "interval" && duration > time.Hour {
 		return fmt.Errorf("rule.interval must be at most 1 hour")
 	}
-	if name == "timeout" && duration > 20*time.Second {
-		return fmt.Errorf("rule.timeout must be at most 20 seconds")
+	if name == "requestTimeout" && duration > 20*time.Second {
+		return fmt.Errorf("rule.requestTimeout must be at most 20 seconds")
+	}
+	if name == "timeout" && duration < time.Minute {
+		return fmt.Errorf("rule.timeout must be at least 1 minute")
+	}
+	if name == "timeout" && duration > 168*time.Hour {
+		return fmt.Errorf("rule.timeout must be at most 168 hours")
 	}
 	return nil
+}
+
+// validateWait checks that the timeout of an http rule is at least its interval. It skips a value that is empty
+// or malformed, which validateDuration reports.
+func validateWait(interval, timeout string) error {
+	i, errI := time.ParseDuration(interval)
+	t, errT := time.ParseDuration(timeout)
+	if errI != nil || errT != nil || t >= i {
+		return nil
+	}
+	return fmt.Errorf("rule.timeout must be at least the interval")
 }
 
 // validateRuleValue checks a rule in the raw inputs. It skips what is unknown and looks through secrets, so
@@ -130,12 +148,17 @@ func validateRuleValue(value property.Value, depth int) error {
 				return err
 			}
 		}
-		for _, name := range []string{"interval", "timeout"} {
+		for _, name := range []string{"interval", "requestTimeout", "timeout"} {
 			if v, known := text(name); known {
 				if err := validateDuration(name, v); err != nil {
 					return err
 				}
 			}
+		}
+		interval, _ := text("interval")
+		timeout, _ := text("timeout")
+		if err := validateWait(interval, timeout); err != nil {
+			return err
 		}
 	case "manual":
 	case "decision":
@@ -187,10 +210,13 @@ func validateRule(r Rule, d int) error {
 		if err := validateDuration("interval", r.Interval); err != nil {
 			return err
 		}
+		if err := validateDuration("requestTimeout", r.RequestTimeout); err != nil {
+			return err
+		}
 		if err := validateDuration("timeout", r.Timeout); err != nil {
 			return err
 		}
-		return nil
+		return validateWait(r.Interval, r.Timeout)
 	case "manual":
 		return nil
 	case "decision":
@@ -318,20 +344,24 @@ type HTTPArgs struct {
 	Body              string            `pulumi:"body,optional"`
 	SuccessExpression string            `pulumi:"successExpression"`
 	Interval          string            `pulumi:"interval,optional"`
+	RequestTimeout    string            `pulumi:"requestTimeout,optional"`
 	Timeout           string            `pulumi:"timeout,optional"`
 }
 
 func (HTTP) Invoke(ctx context.Context, req infer.FunctionRequest[HTTPArgs]) (infer.FunctionResponse[Rule], error) {
 	a := req.Input
-	method, interval, timeout := a.Method, a.Interval, a.Timeout
+	method, interval, requestTimeout, timeout := a.Method, a.Interval, a.RequestTimeout, a.Timeout
 	if method == nil {
 		method = &defaultHTTPMethod
 	}
 	if interval == "" {
 		interval = "1m"
 	}
+	if requestTimeout == "" {
+		requestTimeout = "10s"
+	}
 	if timeout == "" {
-		timeout = "10s"
+		timeout = "24h"
 	}
 	rule := Rule{
 		Kind:              "http",
@@ -342,6 +372,7 @@ func (HTTP) Invoke(ctx context.Context, req infer.FunctionRequest[HTTPArgs]) (in
 		Body:              a.Body,
 		SuccessExpression: a.SuccessExpression,
 		Interval:          interval,
+		RequestTimeout:    requestTimeout,
 		Timeout:           timeout,
 	}
 	if err := validateRule(rule, 1); err != nil {

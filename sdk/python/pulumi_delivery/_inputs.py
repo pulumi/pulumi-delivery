@@ -422,6 +422,10 @@ class RuleDict(TypedDict):
     """
     Named judgments and their deterministic risk thresholds for a decision rule.
     """
+    request_timeout: NotRequired[_builtins.str]
+    """
+    Time allowed for each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+    """
     rules: NotRequired[Sequence['RuleDict']]
     """
     Child rules for all and any rules. At least one is required.
@@ -432,7 +436,7 @@ class RuleDict(TypedDict):
     """
     timeout: NotRequired[_builtins.str]
     """
-    Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+    How long the gate may wait in total, counted from when the gate opens for a run, as a Go duration, such as 24h. Use a whole number of seconds from 1m to 168h (7 days), and at least the interval. The default is 24h. When the time passes without a check passing, the run fails.
     """
     url: NotRequired[_builtins.str]
     """
@@ -453,6 +457,7 @@ class Rule:
                  method: Optional['HTTPMethod'] = None,
                  name: Optional[_builtins.str] = None,
                  questions: Optional[Mapping[str, 'DecisionQuestion']] = None,
+                 request_timeout: Optional[_builtins.str] = None,
                  rules: Optional[Sequence['Rule']] = None,
                  success_expression: Optional[_builtins.str] = None,
                  timeout: Optional[_builtins.str] = None,
@@ -471,9 +476,10 @@ class Rule:
         :param 'HTTPMethod' method: HTTP request method. Valid values are GET, POST, PUT, PATCH, and HEAD. The default is GET.
         :param _builtins.str name: Rule name. Omit it to let Delivery assign one.
         :param Mapping[str, 'DecisionQuestion'] questions: Named judgments and their deterministic risk thresholds for a decision rule.
+        :param _builtins.str request_timeout: Time allowed for each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
         :param Sequence['Rule'] rules: Child rules for all and any rules. At least one is required.
         :param _builtins.str success_expression: CEL expression that decides whether the gate passes. It must return a boolean. It can use `status` (the HTTP status code), `headers` (response header names in lower case) and `body` (the parsed JSON, or the text when the body is not JSON), for example `status == 200 && body.status == "ok"`. At most 1024 bytes. A field that the response lacks keeps the gate waiting; guard optional fields with `has()`. Required for http rules.
-        :param _builtins.str timeout: Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+        :param _builtins.str timeout: How long the gate may wait in total, counted from when the gate opens for a run, as a Go duration, such as 24h. Use a whole number of seconds from 1m to 168h (7 days), and at least the interval. The default is 24h. When the time passes without a check passing, the run fails.
         :param _builtins.str url: URL to call. Required for http rules. It must use https, contain no credentials, be at most 2048 bytes and point to a public address. Redirects are not followed.
         """
         pulumi.set(__self__, "kind", kind)
@@ -497,6 +503,8 @@ class Rule:
             pulumi.set(__self__, "name", name)
         if questions is not None:
             pulumi.set(__self__, "questions", questions)
+        if request_timeout is not None:
+            pulumi.set(__self__, "request_timeout", request_timeout)
         if rules is not None:
             pulumi.set(__self__, "rules", rules)
         if success_expression is not None:
@@ -639,6 +647,18 @@ class Rule:
         pulumi.set(self, "questions", value)
 
     @_builtins.property
+    @pulumi.getter(name="requestTimeout")
+    def request_timeout(self) -> Optional[_builtins.str]:
+        """
+        Time allowed for each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+        """
+        return pulumi.get(self, "request_timeout")
+
+    @request_timeout.setter
+    def request_timeout(self, value: Optional[_builtins.str]):
+        pulumi.set(self, "request_timeout", value)
+
+    @_builtins.property
     @pulumi.getter
     def rules(self) -> Optional[Sequence['Rule']]:
         """
@@ -666,7 +686,7 @@ class Rule:
     @pulumi.getter
     def timeout(self) -> Optional[_builtins.str]:
         """
-        Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+        How long the gate may wait in total, counted from when the gate opens for a run, as a Go duration, such as 24h. Use a whole number of seconds from 1m to 168h (7 days), and at least the interval. The default is 24h. When the time passes without a check passing, the run fails.
         """
         return pulumi.get(self, "timeout")
 
@@ -735,6 +755,10 @@ class RuleArgsDict(TypedDict):
     """
     Named judgments and their deterministic risk thresholds for a decision rule.
     """
+    request_timeout: NotRequired[pulumi.Input[Optional[_builtins.str]]]
+    """
+    Time allowed for each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+    """
     rules: NotRequired[pulumi.Input[Optional[Sequence[pulumi.Input['RuleArgsDict']]]]]
     """
     Child rules for all and any rules. At least one is required.
@@ -745,7 +769,7 @@ class RuleArgsDict(TypedDict):
     """
     timeout: NotRequired[pulumi.Input[Optional[_builtins.str]]]
     """
-    Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+    How long the gate may wait in total, counted from when the gate opens for a run, as a Go duration, such as 24h. Use a whole number of seconds from 1m to 168h (7 days), and at least the interval. The default is 24h. When the time passes without a check passing, the run fails.
     """
     url: NotRequired[pulumi.Input[Optional[_builtins.str]]]
     """
@@ -766,6 +790,7 @@ class RuleArgs:
                  method: pulumi.Input[Optional['HTTPMethod']] = None,
                  name: pulumi.Input[Optional[_builtins.str]] = None,
                  questions: pulumi.Input[Optional[Mapping[str, pulumi.Input['DecisionQuestionArgs']]]] = None,
+                 request_timeout: pulumi.Input[Optional[_builtins.str]] = None,
                  rules: pulumi.Input[Optional[Sequence[pulumi.Input['RuleArgs']]]] = None,
                  success_expression: pulumi.Input[Optional[_builtins.str]] = None,
                  timeout: pulumi.Input[Optional[_builtins.str]] = None,
@@ -784,9 +809,10 @@ class RuleArgs:
         :param pulumi.Input['HTTPMethod'] method: HTTP request method. Valid values are GET, POST, PUT, PATCH, and HEAD. The default is GET.
         :param pulumi.Input[_builtins.str] name: Rule name. Omit it to let Delivery assign one.
         :param pulumi.Input[Mapping[str, pulumi.Input['DecisionQuestionArgs']]] questions: Named judgments and their deterministic risk thresholds for a decision rule.
+        :param pulumi.Input[_builtins.str] request_timeout: Time allowed for each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
         :param pulumi.Input[Sequence[pulumi.Input['RuleArgs']]] rules: Child rules for all and any rules. At least one is required.
         :param pulumi.Input[_builtins.str] success_expression: CEL expression that decides whether the gate passes. It must return a boolean. It can use `status` (the HTTP status code), `headers` (response header names in lower case) and `body` (the parsed JSON, or the text when the body is not JSON), for example `status == 200 && body.status == "ok"`. At most 1024 bytes. A field that the response lacks keeps the gate waiting; guard optional fields with `has()`. Required for http rules.
-        :param pulumi.Input[_builtins.str] timeout: Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+        :param pulumi.Input[_builtins.str] timeout: How long the gate may wait in total, counted from when the gate opens for a run, as a Go duration, such as 24h. Use a whole number of seconds from 1m to 168h (7 days), and at least the interval. The default is 24h. When the time passes without a check passing, the run fails.
         :param pulumi.Input[_builtins.str] url: URL to call. Required for http rules. It must use https, contain no credentials, be at most 2048 bytes and point to a public address. Redirects are not followed.
         """
         pulumi.set(__self__, "kind", kind)
@@ -810,6 +836,8 @@ class RuleArgs:
             pulumi.set(__self__, "name", name)
         if questions is not None:
             pulumi.set(__self__, "questions", questions)
+        if request_timeout is not None:
+            pulumi.set(__self__, "request_timeout", request_timeout)
         if rules is not None:
             pulumi.set(__self__, "rules", rules)
         if success_expression is not None:
@@ -952,6 +980,18 @@ class RuleArgs:
         pulumi.set(self, "questions", value)
 
     @_builtins.property
+    @pulumi.getter(name="requestTimeout")
+    def request_timeout(self) -> pulumi.Input[Optional[_builtins.str]]:
+        """
+        Time allowed for each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+        """
+        return pulumi.get(self, "request_timeout")
+
+    @request_timeout.setter
+    def request_timeout(self, value: pulumi.Input[Optional[_builtins.str]]):
+        pulumi.set(self, "request_timeout", value)
+
+    @_builtins.property
     @pulumi.getter
     def rules(self) -> pulumi.Input[Optional[Sequence[pulumi.Input['RuleArgs']]]]:
         """
@@ -979,7 +1019,7 @@ class RuleArgs:
     @pulumi.getter
     def timeout(self) -> pulumi.Input[Optional[_builtins.str]]:
         """
-        Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+        How long the gate may wait in total, counted from when the gate opens for a run, as a Go duration, such as 24h. Use a whole number of seconds from 1m to 168h (7 days), and at least the interval. The default is 24h. When the time passes without a check passing, the run fails.
         """
         return pulumi.get(self, "timeout")
 

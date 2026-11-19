@@ -801,11 +801,13 @@ type Rule struct {
 	Name *string `pulumi:"name"`
 	// Named judgments and their deterministic risk thresholds for a decision rule.
 	Questions map[string]DecisionQuestion `pulumi:"questions"`
+	// Time allowed for each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+	RequestTimeout *string `pulumi:"requestTimeout"`
 	// Child rules for all and any rules. At least one is required.
 	Rules []Rule `pulumi:"rules"`
 	// CEL expression that decides whether the gate passes. It must return a boolean. It can use `status` (the HTTP status code), `headers` (response header names in lower case) and `body` (the parsed JSON, or the text when the body is not JSON), for example `status == 200 && body.status == "ok"`. At most 1024 bytes. A field that the response lacks keeps the gate waiting; guard optional fields with `has()`. Required for http rules.
 	SuccessExpression *string `pulumi:"successExpression"`
-	// Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+	// How long the gate may wait in total, counted from when the gate opens for a run, as a Go duration, such as 24h. Use a whole number of seconds from 1m to 168h (7 days), and at least the interval. The default is 24h. When the time passes without a check passing, the run fails.
 	Timeout *string `pulumi:"timeout"`
 	// URL to call. Required for http rules. It must use https, contain no credentials, be at most 2048 bytes and point to a public address. Redirects are not followed.
 	Url *string `pulumi:"url"`
@@ -846,11 +848,13 @@ type RuleArgs struct {
 	Name pulumi.StringPtrInput `pulumi:"name"`
 	// Named judgments and their deterministic risk thresholds for a decision rule.
 	Questions DecisionQuestionMapInput `pulumi:"questions"`
+	// Time allowed for each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+	RequestTimeout pulumi.StringPtrInput `pulumi:"requestTimeout"`
 	// Child rules for all and any rules. At least one is required.
 	Rules RuleArrayInput `pulumi:"rules"`
 	// CEL expression that decides whether the gate passes. It must return a boolean. It can use `status` (the HTTP status code), `headers` (response header names in lower case) and `body` (the parsed JSON, or the text when the body is not JSON), for example `status == 200 && body.status == "ok"`. At most 1024 bytes. A field that the response lacks keeps the gate waiting; guard optional fields with `has()`. Required for http rules.
 	SuccessExpression pulumi.StringPtrInput `pulumi:"successExpression"`
-	// Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+	// How long the gate may wait in total, counted from when the gate opens for a run, as a Go duration, such as 24h. Use a whole number of seconds from 1m to 168h (7 days), and at least the interval. The default is 24h. When the time passes without a check passing, the run fails.
 	Timeout pulumi.StringPtrInput `pulumi:"timeout"`
 	// URL to call. Required for http rules. It must use https, contain no credentials, be at most 2048 bytes and point to a public address. Redirects are not followed.
 	Url pulumi.StringPtrInput `pulumi:"url"`
@@ -1014,6 +1018,11 @@ func (o RuleOutput) Questions() DecisionQuestionMapOutput {
 	return o.ApplyT(func(v Rule) map[string]DecisionQuestion { return v.Questions }).(DecisionQuestionMapOutput)
 }
 
+// Time allowed for each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+func (o RuleOutput) RequestTimeout() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v Rule) *string { return v.RequestTimeout }).(pulumi.StringPtrOutput)
+}
+
 // Child rules for all and any rules. At least one is required.
 func (o RuleOutput) Rules() RuleArrayOutput {
 	return o.ApplyT(func(v Rule) []Rule { return v.Rules }).(RuleArrayOutput)
@@ -1024,7 +1033,7 @@ func (o RuleOutput) SuccessExpression() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v Rule) *string { return v.SuccessExpression }).(pulumi.StringPtrOutput)
 }
 
-// Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+// How long the gate may wait in total, counted from when the gate opens for a run, as a Go duration, such as 24h. Use a whole number of seconds from 1m to 168h (7 days), and at least the interval. The default is 24h. When the time passes without a check passing, the run fails.
 func (o RuleOutput) Timeout() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v Rule) *string { return v.Timeout }).(pulumi.StringPtrOutput)
 }
@@ -1168,6 +1177,16 @@ func (o RulePtrOutput) Questions() DecisionQuestionMapOutput {
 	}).(DecisionQuestionMapOutput)
 }
 
+// Time allowed for each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+func (o RulePtrOutput) RequestTimeout() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *Rule) *string {
+		if v == nil {
+			return nil
+		}
+		return v.RequestTimeout
+	}).(pulumi.StringPtrOutput)
+}
+
 // Child rules for all and any rules. At least one is required.
 func (o RulePtrOutput) Rules() RuleArrayOutput {
 	return o.ApplyT(func(v *Rule) []Rule {
@@ -1188,7 +1207,7 @@ func (o RulePtrOutput) SuccessExpression() pulumi.StringPtrOutput {
 	}).(pulumi.StringPtrOutput)
 }
 
-// Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+// How long the gate may wait in total, counted from when the gate opens for a run, as a Go duration, such as 24h. Use a whole number of seconds from 1m to 168h (7 days), and at least the interval. The default is 24h. When the time passes without a check passing, the run fails.
 func (o RulePtrOutput) Timeout() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Rule) *string {
 		if v == nil {

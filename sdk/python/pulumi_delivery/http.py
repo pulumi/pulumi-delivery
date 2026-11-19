@@ -28,7 +28,7 @@ class HttpResult:
     """
     Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.
     """
-    def __init__(__self__, approvers=None, body=None, context=None, count=None, description=None, headers=None, interval=None, kind=None, method=None, name=None, questions=None, rules=None, success_expression=None, timeout=None, url=None):
+    def __init__(__self__, approvers=None, body=None, context=None, count=None, description=None, headers=None, interval=None, kind=None, method=None, name=None, questions=None, request_timeout=None, rules=None, success_expression=None, timeout=None, url=None):
         if approvers and not isinstance(approvers, list):
             raise TypeError("Expected argument 'approvers' to be a list")
         pulumi.set(__self__, "approvers", approvers)
@@ -62,6 +62,9 @@ class HttpResult:
         if questions and not isinstance(questions, dict):
             raise TypeError("Expected argument 'questions' to be a dict")
         pulumi.set(__self__, "questions", questions)
+        if request_timeout and not isinstance(request_timeout, str):
+            raise TypeError("Expected argument 'request_timeout' to be a str")
+        pulumi.set(__self__, "request_timeout", request_timeout)
         if rules and not isinstance(rules, list):
             raise TypeError("Expected argument 'rules' to be a list")
         pulumi.set(__self__, "rules", rules)
@@ -164,6 +167,14 @@ class HttpResult:
         return pulumi.get(self, "questions")
 
     @_builtins.property
+    @pulumi.getter(name="requestTimeout")
+    def request_timeout(self) -> Optional[_builtins.str]:
+        """
+        Time allowed for each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+        """
+        return pulumi.get(self, "request_timeout")
+
+    @_builtins.property
     @pulumi.getter
     def rules(self) -> Optional[Sequence['outputs.Rule']]:
         """
@@ -183,7 +194,7 @@ class HttpResult:
     @pulumi.getter
     def timeout(self) -> Optional[_builtins.str]:
         """
-        Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+        How long the gate may wait in total, counted from when the gate opens for a run, as a Go duration, such as 24h. Use a whole number of seconds from 1m to 168h (7 days), and at least the interval. The default is 24h. When the time passes without a check passing, the run fails.
         """
         return pulumi.get(self, "timeout")
 
@@ -213,6 +224,7 @@ class AwaitableHttpResult(HttpResult):
             method=self.method,
             name=self.name,
             questions=self.questions,
+            request_timeout=self.request_timeout,
             rules=self.rules,
             success_expression=self.success_expression,
             timeout=self.timeout,
@@ -224,12 +236,13 @@ def http(body: Optional[_builtins.str] = None,
          interval: Optional[_builtins.str] = None,
          method: Optional['HTTPMethod'] = None,
          name: Optional[_builtins.str] = None,
+         request_timeout: Optional[_builtins.str] = None,
          success_expression: Optional[_builtins.str] = None,
          timeout: Optional[_builtins.str] = None,
          url: Optional[_builtins.str] = None,
          opts: Optional[pulumi.InvokeOptions] = None) -> AwaitableHttpResult:
     """
-    Builds an http rule for the when property of a Stage. Delivery calls the URL at an interval, and the gate passes when the success expression is true. A check that does not pass never fails the run, so the gate keeps waiting until you cancel the run. A request can repeat, so the endpoint must be safe to call more than once. The console shows the result of the last check, not the URL, headers, body or expression. Do not put secrets in the name or description, because the console shows them. See the Gates section of the guide for the expression syntax.
+    Builds an http rule for the when property of a Stage. Delivery calls the URL at an interval, and the gate passes when the success expression is true. A request error or a check that does not pass never fails the run by itself. The gate keeps waiting until a check passes or the timeout (24h by default) ends the run. You can also cancel the run. A request can repeat, so the endpoint must be safe to call more than once. The console shows the result of the last check, not the URL, headers, body or expression. Do not put secrets in the name or description, because the console shows them. See the Gates section of the guide for the expression syntax.
 
     ## Example Usage
 
@@ -238,8 +251,9 @@ def http(body: Optional[_builtins.str] = None,
     :param _builtins.str interval: Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds and the maximum is 1 hour. The default is 1m.
     :param 'HTTPMethod' method: HTTP request method. Valid values are GET, POST, PUT, PATCH, and HEAD. The default is GET.
     :param _builtins.str name: Rule name. Omit it to let Delivery assign one. The console shows the name, so do not put a secret in it.
+    :param _builtins.str request_timeout: Time allowed for each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
     :param _builtins.str success_expression: CEL expression that decides whether the gate passes. It must return a boolean. It can use `status` (the HTTP status code), `headers` (response header names in lower case) and `body` (the parsed JSON, or the text when the body is not JSON), for example `status == 200 && body.status == "ok"`. At most 1024 bytes. A field that the response lacks keeps the gate waiting; guard optional fields with `has()`. Required.
-    :param _builtins.str timeout: Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+    :param _builtins.str timeout: How long the gate may wait in total, counted from when the gate opens for a run, as a Go duration, such as 24h. Use a whole number of seconds from 1m to 168h (7 days), and at least the interval. The default is 24h. When the time passes without a check passing, the run fails.
     :param _builtins.str url: URL to call. Required. It must use https, contain no credentials, be at most 2048 bytes and point to a public address. Redirects are not followed.
     """
     __args__ = dict()
@@ -248,6 +262,7 @@ def http(body: Optional[_builtins.str] = None,
     __args__['interval'] = interval
     __args__['method'] = method
     __args__['name'] = name
+    __args__['requestTimeout'] = request_timeout
     __args__['successExpression'] = success_expression
     __args__['timeout'] = timeout
     __args__['url'] = url
@@ -266,6 +281,7 @@ def http(body: Optional[_builtins.str] = None,
         method=pulumi.get(__ret__, 'method'),
         name=pulumi.get(__ret__, 'name'),
         questions=pulumi.get(__ret__, 'questions'),
+        request_timeout=pulumi.get(__ret__, 'request_timeout'),
         rules=pulumi.get(__ret__, 'rules'),
         success_expression=pulumi.get(__ret__, 'success_expression'),
         timeout=pulumi.get(__ret__, 'timeout'),
@@ -275,12 +291,13 @@ def http_output(body: pulumi.Input[Optional[Optional[_builtins.str]]] = None,
                 interval: pulumi.Input[Optional[Optional[_builtins.str]]] = None,
                 method: pulumi.Input[Optional[Optional['HTTPMethod']]] = None,
                 name: pulumi.Input[Optional[Optional[_builtins.str]]] = None,
+                request_timeout: pulumi.Input[Optional[Optional[_builtins.str]]] = None,
                 success_expression: pulumi.Input[Optional[_builtins.str]] = None,
                 timeout: pulumi.Input[Optional[Optional[_builtins.str]]] = None,
                 url: pulumi.Input[Optional[_builtins.str]] = None,
                 opts: Optional[Union[pulumi.InvokeOptions, pulumi.InvokeOutputOptions]] = None) -> pulumi.Output[HttpResult]:
     """
-    Builds an http rule for the when property of a Stage. Delivery calls the URL at an interval, and the gate passes when the success expression is true. A check that does not pass never fails the run, so the gate keeps waiting until you cancel the run. A request can repeat, so the endpoint must be safe to call more than once. The console shows the result of the last check, not the URL, headers, body or expression. Do not put secrets in the name or description, because the console shows them. See the Gates section of the guide for the expression syntax.
+    Builds an http rule for the when property of a Stage. Delivery calls the URL at an interval, and the gate passes when the success expression is true. A request error or a check that does not pass never fails the run by itself. The gate keeps waiting until a check passes or the timeout (24h by default) ends the run. You can also cancel the run. A request can repeat, so the endpoint must be safe to call more than once. The console shows the result of the last check, not the URL, headers, body or expression. Do not put secrets in the name or description, because the console shows them. See the Gates section of the guide for the expression syntax.
 
     ## Example Usage
 
@@ -289,8 +306,9 @@ def http_output(body: pulumi.Input[Optional[Optional[_builtins.str]]] = None,
     :param _builtins.str interval: Time between HTTP requests, as a Go duration, such as 1m. Use a whole number of seconds. The minimum is 60 seconds and the maximum is 1 hour. The default is 1m.
     :param 'HTTPMethod' method: HTTP request method. Valid values are GET, POST, PUT, PATCH, and HEAD. The default is GET.
     :param _builtins.str name: Rule name. Omit it to let Delivery assign one. The console shows the name, so do not put a secret in it.
+    :param _builtins.str request_timeout: Time allowed for each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
     :param _builtins.str success_expression: CEL expression that decides whether the gate passes. It must return a boolean. It can use `status` (the HTTP status code), `headers` (response header names in lower case) and `body` (the parsed JSON, or the text when the body is not JSON), for example `status == 200 && body.status == "ok"`. At most 1024 bytes. A field that the response lacks keeps the gate waiting; guard optional fields with `has()`. Required.
-    :param _builtins.str timeout: Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+    :param _builtins.str timeout: How long the gate may wait in total, counted from when the gate opens for a run, as a Go duration, such as 24h. Use a whole number of seconds from 1m to 168h (7 days), and at least the interval. The default is 24h. When the time passes without a check passing, the run fails.
     :param _builtins.str url: URL to call. Required. It must use https, contain no credentials, be at most 2048 bytes and point to a public address. Redirects are not followed.
     """
     __args__ = dict()
@@ -299,6 +317,7 @@ def http_output(body: pulumi.Input[Optional[Optional[_builtins.str]]] = None,
     __args__['interval'] = interval
     __args__['method'] = method
     __args__['name'] = name
+    __args__['requestTimeout'] = request_timeout
     __args__['successExpression'] = success_expression
     __args__['timeout'] = timeout
     __args__['url'] = url
@@ -316,6 +335,7 @@ def http_output(body: pulumi.Input[Optional[Optional[_builtins.str]]] = None,
         method=pulumi.get(__response__, 'method'),
         name=pulumi.get(__response__, 'name'),
         questions=pulumi.get(__response__, 'questions'),
+        request_timeout=pulumi.get(__response__, 'request_timeout'),
         rules=pulumi.get(__response__, 'rules'),
         success_expression=pulumi.get(__response__, 'success_expression'),
         timeout=pulumi.get(__response__, 'timeout'),

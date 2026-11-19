@@ -8,7 +8,7 @@ import * as enums from "./types/enums";
 import * as utilities from "./utilities";
 
 /**
- * Builds an http rule for the when property of a Stage. Delivery calls the URL at an interval, and the gate passes when the success expression is true. A check that does not pass never fails the run, so the gate keeps waiting until you cancel the run. A request can repeat, so the endpoint must be safe to call more than once. The console shows the result of the last check, not the URL, headers, body or expression. Do not put secrets in the name or description, because the console shows them. See the Gates section of the guide for the expression syntax.
+ * Builds an http rule for the when property of a Stage. Delivery calls the URL at an interval, and the gate passes when the success expression is true. A request error or a check that does not pass never fails the run by itself. The gate keeps waiting until a check passes or the timeout (24h by default) ends the run. You can also cancel the run. A request can repeat, so the endpoint must be safe to call more than once. The console shows the result of the last check, not the URL, headers, body or expression. Do not put secrets in the name or description, because the console shows them. See the Gates section of the guide for the expression syntax.
  *
  * ## Example Usage
  *
@@ -30,6 +30,7 @@ export function http(args: HttpArgs, opts?: pulumi.InvokeOptions): Promise<HttpR
         "interval": args.interval,
         "method": args.method,
         "name": args.name,
+        "requestTimeout": args.requestTimeout,
         "successExpression": args.successExpression,
         "timeout": args.timeout,
         "url": args.url,
@@ -61,11 +62,15 @@ export interface HttpArgs {
      */
     name?: string;
     /**
+     * Time allowed for each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+     */
+    requestTimeout?: string;
+    /**
      * CEL expression that decides whether the gate passes. It must return a boolean. It can use `status` (the HTTP status code), `headers` (response header names in lower case) and `body` (the parsed JSON, or the text when the body is not JSON), for example `status == 200 && body.status == "ok"`. At most 1024 bytes. A field that the response lacks keeps the gate waiting; guard optional fields with `has()`. Required.
      */
     successExpression: string;
     /**
-     * Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+     * How long the gate may wait in total, counted from when the gate opens for a run, as a Go duration, such as 24h. Use a whole number of seconds from 1m to 168h (7 days), and at least the interval. The default is 24h. When the time passes without a check passing, the run fails.
      */
     timeout?: string;
     /**
@@ -123,6 +128,10 @@ export interface HttpResult {
      */
     readonly questions?: {[key: string]: outputs.DecisionQuestion};
     /**
+     * Time allowed for each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+     */
+    readonly requestTimeout?: string;
+    /**
      * Child rules for all and any rules. At least one is required.
      */
     readonly rules?: outputs.Rule[];
@@ -131,7 +140,7 @@ export interface HttpResult {
      */
     readonly successExpression?: string;
     /**
-     * Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+     * How long the gate may wait in total, counted from when the gate opens for a run, as a Go duration, such as 24h. Use a whole number of seconds from 1m to 168h (7 days), and at least the interval. The default is 24h. When the time passes without a check passing, the run fails.
      */
     readonly timeout?: string;
     /**
@@ -140,7 +149,7 @@ export interface HttpResult {
     readonly url?: string;
 }
 /**
- * Builds an http rule for the when property of a Stage. Delivery calls the URL at an interval, and the gate passes when the success expression is true. A check that does not pass never fails the run, so the gate keeps waiting until you cancel the run. A request can repeat, so the endpoint must be safe to call more than once. The console shows the result of the last check, not the URL, headers, body or expression. Do not put secrets in the name or description, because the console shows them. See the Gates section of the guide for the expression syntax.
+ * Builds an http rule for the when property of a Stage. Delivery calls the URL at an interval, and the gate passes when the success expression is true. A request error or a check that does not pass never fails the run by itself. The gate keeps waiting until a check passes or the timeout (24h by default) ends the run. You can also cancel the run. A request can repeat, so the endpoint must be safe to call more than once. The console shows the result of the last check, not the URL, headers, body or expression. Do not put secrets in the name or description, because the console shows them. See the Gates section of the guide for the expression syntax.
  *
  * ## Example Usage
  *
@@ -162,6 +171,7 @@ export function httpOutput(args: HttpOutputArgs, opts?: pulumi.InvokeOutputOptio
         "interval": args.interval,
         "method": args.method,
         "name": args.name,
+        "requestTimeout": args.requestTimeout,
         "successExpression": args.successExpression,
         "timeout": args.timeout,
         "url": args.url,
@@ -193,11 +203,15 @@ export interface HttpOutputArgs {
      */
     name?: pulumi.Input<string | undefined>;
     /**
+     * Time allowed for each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+     */
+    requestTimeout?: pulumi.Input<string | undefined>;
+    /**
      * CEL expression that decides whether the gate passes. It must return a boolean. It can use `status` (the HTTP status code), `headers` (response header names in lower case) and `body` (the parsed JSON, or the text when the body is not JSON), for example `status == 200 && body.status == "ok"`. At most 1024 bytes. A field that the response lacks keeps the gate waiting; guard optional fields with `has()`. Required.
      */
     successExpression: pulumi.Input<string>;
     /**
-     * Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+     * How long the gate may wait in total, counted from when the gate opens for a run, as a Go duration, such as 24h. Use a whole number of seconds from 1m to 168h (7 days), and at least the interval. The default is 24h. When the time passes without a check passing, the run fails.
      */
     timeout?: pulumi.Input<string | undefined>;
     /**

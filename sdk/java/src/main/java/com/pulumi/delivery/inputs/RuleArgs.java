@@ -194,6 +194,21 @@ public final class RuleArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
+     * Time allowed for each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+     * 
+     */
+    @Import(name="requestTimeout")
+    private @Nullable Output<String> requestTimeout;
+
+    /**
+     * @return Time allowed for each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+     * 
+     */
+    public Optional<Output<String>> requestTimeout() {
+        return Optional.ofNullable(this.requestTimeout);
+    }
+
+    /**
      * Child rules for all and any rules. At least one is required.
      * 
      */
@@ -224,14 +239,14 @@ public final class RuleArgs extends com.pulumi.resources.ResourceArgs {
     }
 
     /**
-     * Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+     * How long the gate may wait in total, counted from when the gate opens for a run, as a Go duration, such as 24h. Use a whole number of seconds from 1m to 168h (7 days), and at least the interval. The default is 24h. When the time passes without a check passing, the run fails.
      * 
      */
     @Import(name="timeout")
     private @Nullable Output<String> timeout;
 
     /**
-     * @return Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+     * @return How long the gate may wait in total, counted from when the gate opens for a run, as a Go duration, such as 24h. Use a whole number of seconds from 1m to 168h (7 days), and at least the interval. The default is 24h. When the time passes without a check passing, the run fails.
      * 
      */
     public Optional<Output<String>> timeout() {
@@ -267,6 +282,7 @@ public final class RuleArgs extends com.pulumi.resources.ResourceArgs {
         this.method = $.method;
         this.name = $.name;
         this.questions = $.questions;
+        this.requestTimeout = $.requestTimeout;
         this.rules = $.rules;
         this.successExpression = $.successExpression;
         this.timeout = $.timeout;
@@ -553,6 +569,27 @@ public final class RuleArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
+         * @param requestTimeout Time allowed for each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+         * 
+         * @return builder
+         * 
+         */
+        public Builder requestTimeout(@Nullable Output<String> requestTimeout) {
+            $.requestTimeout = requestTimeout;
+            return this;
+        }
+
+        /**
+         * @param requestTimeout Time allowed for each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+         * 
+         * @return builder
+         * 
+         */
+        public Builder requestTimeout(String requestTimeout) {
+            return requestTimeout(Output.of(requestTimeout));
+        }
+
+        /**
          * @param rules Child rules for all and any rules. At least one is required.
          * 
          * @return builder
@@ -605,7 +642,7 @@ public final class RuleArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param timeout Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+         * @param timeout How long the gate may wait in total, counted from when the gate opens for a run, as a Go duration, such as 24h. Use a whole number of seconds from 1m to 168h (7 days), and at least the interval. The default is 24h. When the time passes without a check passing, the run fails.
          * 
          * @return builder
          * 
@@ -616,7 +653,7 @@ public final class RuleArgs extends com.pulumi.resources.ResourceArgs {
         }
 
         /**
-         * @param timeout Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+         * @param timeout How long the gate may wait in total, counted from when the gate opens for a run, as a Go duration, such as 24h. Use a whole number of seconds from 1m to 168h (7 days), and at least the interval. The default is 24h. When the time passes without a check passing, the run fails.
          * 
          * @return builder
          * 

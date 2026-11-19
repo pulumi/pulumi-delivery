@@ -61,6 +61,10 @@ namespace Pulumi.Delivery.Outputs
         /// </summary>
         public readonly ImmutableDictionary<string, Outputs.DecisionQuestion>? Questions;
         /// <summary>
+        /// Time allowed for each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+        /// </summary>
+        public readonly string? RequestTimeout;
+        /// <summary>
         /// Child rules for all and any rules. At least one is required.
         /// </summary>
         public readonly ImmutableArray<Outputs.Rule> Rules;
@@ -69,7 +73,7 @@ namespace Pulumi.Delivery.Outputs
         /// </summary>
         public readonly string? SuccessExpression;
         /// <summary>
-        /// Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+        /// How long the gate may wait in total, counted from when the gate opens for a run, as a Go duration, such as 24h. Use a whole number of seconds from 1m to 168h (7 days), and at least the interval. The default is 24h. When the time passes without a check passing, the run fails.
         /// </summary>
         public readonly string? Timeout;
         /// <summary>
@@ -101,6 +105,8 @@ namespace Pulumi.Delivery.Outputs
 
             ImmutableDictionary<string, Outputs.DecisionQuestion>? questions,
 
+            string? requestTimeout,
+
             ImmutableArray<Outputs.Rule> rules,
 
             string? successExpression,
@@ -120,6 +126,7 @@ namespace Pulumi.Delivery.Outputs
             Method = method;
             Name = name;
             Questions = questions;
+            RequestTimeout = requestTimeout;
             Rules = rules;
             SuccessExpression = successExpression;
             Timeout = timeout;

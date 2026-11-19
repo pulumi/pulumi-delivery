@@ -145,6 +145,10 @@ export interface Rule {
      */
     questions?: {[key: string]: inputs.DecisionQuestion};
     /**
+     * Time allowed for each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+     */
+    requestTimeout?: string;
+    /**
      * Child rules for all and any rules. At least one is required.
      */
     rules?: inputs.Rule[];
@@ -153,7 +157,7 @@ export interface Rule {
      */
     successExpression?: string;
     /**
-     * Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+     * How long the gate may wait in total, counted from when the gate opens for a run, as a Go duration, such as 24h. Use a whole number of seconds from 1m to 168h (7 days), and at least the interval. The default is 24h. When the time passes without a check passing, the run fails.
      */
     timeout?: string;
     /**
@@ -211,6 +215,10 @@ export interface RuleArgs {
      */
     questions?: pulumi.Input<{[key: string]: pulumi.Input<inputs.DecisionQuestionArgs>} | undefined>;
     /**
+     * Time allowed for each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+     */
+    requestTimeout?: pulumi.Input<string | undefined>;
+    /**
      * Child rules for all and any rules. At least one is required.
      */
     rules?: pulumi.Input<pulumi.Input<inputs.RuleArgs>[] | undefined>;
@@ -219,7 +227,7 @@ export interface RuleArgs {
      */
     successExpression?: pulumi.Input<string | undefined>;
     /**
-     * Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+     * How long the gate may wait in total, counted from when the gate opens for a run, as a Go duration, such as 24h. Use a whole number of seconds from 1m to 168h (7 days), and at least the interval. The default is 24h. When the time passes without a check passing, the run fails.
      */
     timeout?: pulumi.Input<string | undefined>;
     /**

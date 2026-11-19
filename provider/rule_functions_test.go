@@ -268,28 +268,36 @@ func TestHTTPDefaults(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, HTTPMethod("GET"), *rule.Method)
 	assert.Equal(t, "1m", rule.Interval)
-	assert.Equal(t, "10s", rule.Timeout)
+	assert.Equal(t, "10s", rule.RequestTimeout)
+	assert.Equal(t, "24h", rule.Timeout)
 
-	rule, err = invokeHTTP(HTTPArgs{Method: ptr(HTTPMethod("POST")), Interval: "5m", Timeout: "3s"})
+	rule, err = invokeHTTP(HTTPArgs{Method: ptr(HTTPMethod("POST")), Interval: "5m", RequestTimeout: "3s", Timeout: "2h"})
 	require.NoError(t, err)
 	assert.Equal(t, HTTPMethod("POST"), *rule.Method)
 	assert.Equal(t, "5m", rule.Interval)
-	assert.Equal(t, "3s", rule.Timeout)
+	assert.Equal(t, "3s", rule.RequestTimeout)
+	assert.Equal(t, "2h", rule.Timeout)
 }
 
 func TestHTTPLimits(t *testing.T) {
 	for _, tc := range []struct {
-		name, interval, timeout, method, wantErr string
+		name, interval, requestTimeout, timeout, method, wantErr string
 	}{
 		{name: "interval 59s", interval: "59s", wantErr: "at least 60 seconds"},
 		{name: "interval 60s", interval: "60s"},
 		{name: "interval 1h", interval: "1h"},
 		{name: "interval 61m", interval: "61m", wantErr: "at most 1 hour"},
 		{name: "interval 90s.5", interval: "90.5s", wantErr: "whole-second"},
-		{name: "timeout 0", timeout: "0s", wantErr: "positive whole-second"},
-		{name: "timeout 1s", timeout: "1s"},
-		{name: "timeout 20s", timeout: "20s"},
-		{name: "timeout 21s", timeout: "21s", wantErr: "at most 20 seconds"},
+		{name: "requestTimeout 0", requestTimeout: "0s", wantErr: "positive whole-second"},
+		{name: "requestTimeout 1s", requestTimeout: "1s"},
+		{name: "requestTimeout 20s", requestTimeout: "20s"},
+		{name: "requestTimeout 21s", requestTimeout: "21s", wantErr: "at most 20 seconds"},
+		{name: "timeout 59s", timeout: "59s", wantErr: "at least 1 minute"},
+		{name: "timeout 1m", timeout: "1m"},
+		{name: "timeout 168h", timeout: "168h"},
+		{name: "timeout 169h", timeout: "169h", wantErr: "at most 168 hours"},
+		{name: "timeout below interval", interval: "10m", timeout: "5m", wantErr: "at least the interval"},
+		{name: "timeout equals interval", interval: "10m", timeout: "10m"},
 		{name: "method PATCH", method: "PATCH"},
 		{name: "method HEAD", method: "HEAD"},
 		{name: "method DELETE", method: "DELETE", wantErr: "rule.method must be one of"},
@@ -301,13 +309,13 @@ func TestHTTPLimits(t *testing.T) {
 				method = ptr(HTTPMethod(tc.method))
 			}
 			rule := Rule{Kind: "http", URL: "https://example.com", SuccessExpression: "status == 200",
-				Interval: tc.interval, Timeout: tc.timeout, Method: method}
+				Interval: tc.interval, RequestTimeout: tc.requestTimeout, Timeout: tc.timeout, Method: method}
 			fields := map[string]property.Value{
 				"kind":              property.New("http"),
 				"url":               property.New("https://example.com"),
 				"successExpression": property.New("status == 200"),
 			}
-			for k, v := range map[string]string{"interval": tc.interval, "timeout": tc.timeout, "method": tc.method} {
+			for k, v := range map[string]string{"interval": tc.interval, "requestTimeout": tc.requestTimeout, "timeout": tc.timeout, "method": tc.method} {
 				if v != "" {
 					fields[k] = property.New(v)
 				}
@@ -320,7 +328,7 @@ func TestHTTPLimits(t *testing.T) {
 					assert.ErrorContains(t, err, tc.wantErr, name)
 				}
 			}
-			_, err := invokeHTTP(HTTPArgs{Method: method, Interval: tc.interval, Timeout: tc.timeout})
+			_, err := invokeHTTP(HTTPArgs{Method: method, Interval: tc.interval, RequestTimeout: tc.requestTimeout, Timeout: tc.timeout})
 			if tc.wantErr == "" {
 				assert.NoError(t, err)
 			} else {

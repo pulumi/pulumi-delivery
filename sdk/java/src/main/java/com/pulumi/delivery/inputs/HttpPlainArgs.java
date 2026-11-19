@@ -93,6 +93,21 @@ public final class HttpPlainArgs extends com.pulumi.resources.InvokeArgs {
     }
 
     /**
+     * Time allowed for each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+     * 
+     */
+    @Import(name="requestTimeout")
+    private @Nullable String requestTimeout;
+
+    /**
+     * @return Time allowed for each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+     * 
+     */
+    public Optional<String> requestTimeout() {
+        return Optional.ofNullable(this.requestTimeout);
+    }
+
+    /**
      * CEL expression that decides whether the gate passes. It must return a boolean. It can use `status` (the HTTP status code), `headers` (response header names in lower case) and `body` (the parsed JSON, or the text when the body is not JSON), for example `status == 200 &amp;&amp; body.status == &#34;ok&#34;`. At most 1024 bytes. A field that the response lacks keeps the gate waiting; guard optional fields with `has()`. Required.
      * 
      */
@@ -108,14 +123,14 @@ public final class HttpPlainArgs extends com.pulumi.resources.InvokeArgs {
     }
 
     /**
-     * Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+     * How long the gate may wait in total, counted from when the gate opens for a run, as a Go duration, such as 24h. Use a whole number of seconds from 1m to 168h (7 days), and at least the interval. The default is 24h. When the time passes without a check passing, the run fails.
      * 
      */
     @Import(name="timeout")
     private @Nullable String timeout;
 
     /**
-     * @return Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+     * @return How long the gate may wait in total, counted from when the gate opens for a run, as a Go duration, such as 24h. Use a whole number of seconds from 1m to 168h (7 days), and at least the interval. The default is 24h. When the time passes without a check passing, the run fails.
      * 
      */
     public Optional<String> timeout() {
@@ -145,6 +160,7 @@ public final class HttpPlainArgs extends com.pulumi.resources.InvokeArgs {
         this.interval = $.interval;
         this.method = $.method;
         this.name = $.name;
+        this.requestTimeout = $.requestTimeout;
         this.successExpression = $.successExpression;
         this.timeout = $.timeout;
         this.url = $.url;
@@ -224,6 +240,17 @@ public final class HttpPlainArgs extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
+         * @param requestTimeout Time allowed for each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+         * 
+         * @return builder
+         * 
+         */
+        public Builder requestTimeout(@Nullable String requestTimeout) {
+            $.requestTimeout = requestTimeout;
+            return this;
+        }
+
+        /**
          * @param successExpression CEL expression that decides whether the gate passes. It must return a boolean. It can use `status` (the HTTP status code), `headers` (response header names in lower case) and `body` (the parsed JSON, or the text when the body is not JSON), for example `status == 200 &amp;&amp; body.status == &#34;ok&#34;`. At most 1024 bytes. A field that the response lacks keeps the gate waiting; guard optional fields with `has()`. Required.
          * 
          * @return builder
@@ -235,7 +262,7 @@ public final class HttpPlainArgs extends com.pulumi.resources.InvokeArgs {
         }
 
         /**
-         * @param timeout Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+         * @param timeout How long the gate may wait in total, counted from when the gate opens for a run, as a Go duration, such as 24h. Use a whole number of seconds from 1m to 168h (7 days), and at least the interval. The default is 24h. When the time passes without a check passing, the run fails.
          * 
          * @return builder
          * 

@@ -74,6 +74,11 @@ public final class Rule {
      */
     private @Nullable Map<String,DecisionQuestion> questions;
     /**
+     * @return Time allowed for each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+     * 
+     */
+    private @Nullable String requestTimeout;
+    /**
      * @return Child rules for all and any rules. At least one is required.
      * 
      */
@@ -84,7 +89,7 @@ public final class Rule {
      */
     private @Nullable String successExpression;
     /**
-     * @return Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+     * @return How long the gate may wait in total, counted from when the gate opens for a run, as a Go duration, such as 24h. Use a whole number of seconds from 1m to 168h (7 days), and at least the interval. The default is 24h. When the time passes without a check passing, the run fails.
      * 
      */
     private @Nullable String timeout;
@@ -173,6 +178,13 @@ public final class Rule {
         return this.questions == null ? Map.of() : this.questions;
     }
     /**
+     * @return Time allowed for each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+     * 
+     */
+    public Optional<String> requestTimeout() {
+        return Optional.ofNullable(this.requestTimeout);
+    }
+    /**
      * @return Child rules for all and any rules. At least one is required.
      * 
      */
@@ -187,7 +199,7 @@ public final class Rule {
         return Optional.ofNullable(this.successExpression);
     }
     /**
-     * @return Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+     * @return How long the gate may wait in total, counted from when the gate opens for a run, as a Go duration, such as 24h. Use a whole number of seconds from 1m to 168h (7 days), and at least the interval. The default is 24h. When the time passes without a check passing, the run fails.
      * 
      */
     public Optional<String> timeout() {
@@ -221,6 +233,7 @@ public final class Rule {
         private @Nullable HTTPMethod method;
         private @Nullable String name;
         private @Nullable Map<String,DecisionQuestion> questions;
+        private @Nullable String requestTimeout;
         private @Nullable List<Rule> rules;
         private @Nullable String successExpression;
         private @Nullable String timeout;
@@ -239,6 +252,7 @@ public final class Rule {
     	      this.method = defaults.method;
     	      this.name = defaults.name;
     	      this.questions = defaults.questions;
+    	      this.requestTimeout = defaults.requestTimeout;
     	      this.rules = defaults.rules;
     	      this.successExpression = defaults.successExpression;
     	      this.timeout = defaults.timeout;
@@ -317,6 +331,12 @@ public final class Rule {
             return this;
         }
         @CustomType.Setter
+        public Builder requestTimeout(@Nullable String requestTimeout) {
+
+            this.requestTimeout = requestTimeout;
+            return this;
+        }
+        @CustomType.Setter
         public Builder rules(@Nullable List<Rule> rules) {
 
             this.rules = rules;
@@ -356,6 +376,7 @@ public final class Rule {
             _resultValue.method = method;
             _resultValue.name = name;
             _resultValue.questions = questions;
+            _resultValue.requestTimeout = requestTimeout;
             _resultValue.rules = rules;
             _resultValue.successExpression = successExpression;
             _resultValue.timeout = timeout;

@@ -554,7 +554,7 @@ Gates are rules in `when`.
 
 #### HTTP gates
 
-`http()` makes Pulumi Cloud call a URL on an interval. The gate passes when the `successExpression` is true. A check that does not pass never fails the run, so the gate keeps waiting until a check passes or you cancel the run. Requests can repeat, so the endpoint must be safe to call more than once.
+`http()` makes Pulumi Cloud call a URL on an interval. The gate passes when the `successExpression` is true. A request error or a check that does not pass never fails the run by itself. The gate keeps waiting until a check passes or the `timeout` ends the wait. **The `timeout` defaults to 24 hours**, so a gate that never passes fails its run after one day. Cancelling the run or a newer run that replaces it also ends the wait. Requests can repeat, so the endpoint must be safe to call more than once.
 
 ```typescript
 const prod = new delivery.Stage("prod", {
@@ -576,7 +576,8 @@ Use `httpOutput()` when a header or the body is a secret, for example `headers: 
 | `headers` | At most 50 headers and 8 KiB in total. Each name can appear once, and names compare without case. Pulumi Cloud sets some headers itself and refuses them: `Host`, `Content-Length`, `Connection`, `Keep-Alive`, `Proxy-Authenticate`, `Proxy-Authorization`, `TE`, `Trailer`, `Transfer-Encoding` and `Upgrade`. Values can be secrets. |
 | `body` | At most 16 KiB. It can be a secret. |
 | `interval` | Time between checks, a Go duration of whole seconds from `60s` to `1h`. The default is `1m`. |
-| `timeout` | Time limit of each request, a Go duration of whole seconds from `1s` to `20s`. The default is `10s`. |
+| `requestTimeout` | Time allowed for one request, a Go duration of whole seconds from `1s` to `20s`. The default is `10s`. |
+| `timeout` | How long the gate may wait in total, counted from when the gate opens for a run. A Go duration of whole seconds from `1m` to `168h` (7 days), and at least `interval`. The default is `24h`. When it passes without a check passing, the run fails with a message such as `The HTTP check "probe" did not pass within 24h.` |
 | `successExpression` | Required. A [CEL](https://cel.dev) expression of at most 1024 bytes that returns a boolean. |
 
 The expression can use these variables:

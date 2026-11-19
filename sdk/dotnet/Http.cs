@@ -12,7 +12,7 @@ namespace Pulumi.Delivery
     public static class Http
     {
         /// <summary>
-        /// Builds an http rule for the when property of a Stage. Delivery calls the URL at an interval, and the gate passes when the success expression is true. A check that does not pass never fails the run, so the gate keeps waiting until you cancel the run. A request can repeat, so the endpoint must be safe to call more than once. The console shows the result of the last check, not the URL, headers, body or expression. Do not put secrets in the name or description, because the console shows them. See the Gates section of the guide for the expression syntax.
+        /// Builds an http rule for the when property of a Stage. Delivery calls the URL at an interval, and the gate passes when the success expression is true. A request error or a check that does not pass never fails the run by itself. The gate keeps waiting until a check passes or the timeout (24h by default) ends the run. You can also cancel the run. A request can repeat, so the endpoint must be safe to call more than once. The console shows the result of the last check, not the URL, headers, body or expression. Do not put secrets in the name or description, because the console shows them. See the Gates section of the guide for the expression syntax.
         /// 
         /// ## Example Usage
         /// 
@@ -30,7 +30,7 @@ namespace Pulumi.Delivery
             => global::Pulumi.Deployment.Instance.InvokeAsync<HttpResult>("delivery:index:http", args ?? new HttpArgs(), options.WithDefaults());
 
         /// <summary>
-        /// Builds an http rule for the when property of a Stage. Delivery calls the URL at an interval, and the gate passes when the success expression is true. A check that does not pass never fails the run, so the gate keeps waiting until you cancel the run. A request can repeat, so the endpoint must be safe to call more than once. The console shows the result of the last check, not the URL, headers, body or expression. Do not put secrets in the name or description, because the console shows them. See the Gates section of the guide for the expression syntax.
+        /// Builds an http rule for the when property of a Stage. Delivery calls the URL at an interval, and the gate passes when the success expression is true. A request error or a check that does not pass never fails the run by itself. The gate keeps waiting until a check passes or the timeout (24h by default) ends the run. You can also cancel the run. A request can repeat, so the endpoint must be safe to call more than once. The console shows the result of the last check, not the URL, headers, body or expression. Do not put secrets in the name or description, because the console shows them. See the Gates section of the guide for the expression syntax.
         /// 
         /// ## Example Usage
         /// 
@@ -48,7 +48,7 @@ namespace Pulumi.Delivery
             => global::Pulumi.Deployment.Instance.Invoke<HttpResult>("delivery:index:http", args ?? new HttpInvokeArgs(), options.WithDefaults());
 
         /// <summary>
-        /// Builds an http rule for the when property of a Stage. Delivery calls the URL at an interval, and the gate passes when the success expression is true. A check that does not pass never fails the run, so the gate keeps waiting until you cancel the run. A request can repeat, so the endpoint must be safe to call more than once. The console shows the result of the last check, not the URL, headers, body or expression. Do not put secrets in the name or description, because the console shows them. See the Gates section of the guide for the expression syntax.
+        /// Builds an http rule for the when property of a Stage. Delivery calls the URL at an interval, and the gate passes when the success expression is true. A request error or a check that does not pass never fails the run by itself. The gate keeps waiting until a check passes or the timeout (24h by default) ends the run. You can also cancel the run. A request can repeat, so the endpoint must be safe to call more than once. The console shows the result of the last check, not the URL, headers, body or expression. Do not put secrets in the name or description, because the console shows them. See the Gates section of the guide for the expression syntax.
         /// 
         /// ## Example Usage
         /// 
@@ -106,13 +106,19 @@ namespace Pulumi.Delivery
         public string? Name { get; set; }
 
         /// <summary>
+        /// Time allowed for each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+        /// </summary>
+        [Input("requestTimeout")]
+        public string? RequestTimeout { get; set; }
+
+        /// <summary>
         /// CEL expression that decides whether the gate passes. It must return a boolean. It can use `status` (the HTTP status code), `headers` (response header names in lower case) and `body` (the parsed JSON, or the text when the body is not JSON), for example `status == 200 &amp;&amp; body.status == "ok"`. At most 1024 bytes. A field that the response lacks keeps the gate waiting; guard optional fields with `has()`. Required.
         /// </summary>
         [Input("successExpression", required: true)]
         public string SuccessExpression { get; set; } = null!;
 
         /// <summary>
-        /// Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+        /// How long the gate may wait in total, counted from when the gate opens for a run, as a Go duration, such as 24h. Use a whole number of seconds from 1m to 168h (7 days), and at least the interval. The default is 24h. When the time passes without a check passing, the run fails.
         /// </summary>
         [Input("timeout")]
         public string? Timeout { get; set; }
@@ -168,13 +174,19 @@ namespace Pulumi.Delivery
         public Input<string>? Name { get; set; }
 
         /// <summary>
+        /// Time allowed for each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+        /// </summary>
+        [Input("requestTimeout")]
+        public Input<string>? RequestTimeout { get; set; }
+
+        /// <summary>
         /// CEL expression that decides whether the gate passes. It must return a boolean. It can use `status` (the HTTP status code), `headers` (response header names in lower case) and `body` (the parsed JSON, or the text when the body is not JSON), for example `status == 200 &amp;&amp; body.status == "ok"`. At most 1024 bytes. A field that the response lacks keeps the gate waiting; guard optional fields with `has()`. Required.
         /// </summary>
         [Input("successExpression", required: true)]
         public Input<string> SuccessExpression { get; set; } = null!;
 
         /// <summary>
-        /// Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+        /// How long the gate may wait in total, counted from when the gate opens for a run, as a Go duration, such as 24h. Use a whole number of seconds from 1m to 168h (7 days), and at least the interval. The default is 24h. When the time passes without a check passing, the run fails.
         /// </summary>
         [Input("timeout")]
         public Input<string>? Timeout { get; set; }
@@ -240,6 +252,10 @@ namespace Pulumi.Delivery
         /// </summary>
         public readonly ImmutableDictionary<string, Outputs.DecisionQuestion>? Questions;
         /// <summary>
+        /// Time allowed for each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+        /// </summary>
+        public readonly string? RequestTimeout;
+        /// <summary>
         /// Child rules for all and any rules. At least one is required.
         /// </summary>
         public readonly ImmutableArray<Outputs.Rule> Rules;
@@ -248,7 +264,7 @@ namespace Pulumi.Delivery
         /// </summary>
         public readonly string? SuccessExpression;
         /// <summary>
-        /// Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+        /// How long the gate may wait in total, counted from when the gate opens for a run, as a Go duration, such as 24h. Use a whole number of seconds from 1m to 168h (7 days), and at least the interval. The default is 24h. When the time passes without a check passing, the run fails.
         /// </summary>
         public readonly string? Timeout;
         /// <summary>
@@ -280,6 +296,8 @@ namespace Pulumi.Delivery
 
             ImmutableDictionary<string, Outputs.DecisionQuestion>? questions,
 
+            string? requestTimeout,
+
             ImmutableArray<Outputs.Rule> rules,
 
             string? successExpression,
@@ -299,6 +317,7 @@ namespace Pulumi.Delivery
             Method = method;
             Name = name;
             Questions = questions;
+            RequestTimeout = requestTimeout;
             Rules = rules;
             SuccessExpression = successExpression;
             Timeout = timeout;

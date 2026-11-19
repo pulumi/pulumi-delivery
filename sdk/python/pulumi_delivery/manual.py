@@ -28,7 +28,7 @@ class ManualResult:
     """
     Rule that a release must pass to enter a stage. A rule can contain other rules, up to three levels deep.
     """
-    def __init__(__self__, approvers=None, body=None, context=None, count=None, description=None, headers=None, interval=None, kind=None, method=None, name=None, questions=None, rules=None, success_expression=None, timeout=None, url=None):
+    def __init__(__self__, approvers=None, body=None, context=None, count=None, description=None, headers=None, interval=None, kind=None, method=None, name=None, questions=None, request_timeout=None, rules=None, success_expression=None, timeout=None, url=None):
         if approvers and not isinstance(approvers, list):
             raise TypeError("Expected argument 'approvers' to be a list")
         pulumi.set(__self__, "approvers", approvers)
@@ -62,6 +62,9 @@ class ManualResult:
         if questions and not isinstance(questions, dict):
             raise TypeError("Expected argument 'questions' to be a dict")
         pulumi.set(__self__, "questions", questions)
+        if request_timeout and not isinstance(request_timeout, str):
+            raise TypeError("Expected argument 'request_timeout' to be a str")
+        pulumi.set(__self__, "request_timeout", request_timeout)
         if rules and not isinstance(rules, list):
             raise TypeError("Expected argument 'rules' to be a list")
         pulumi.set(__self__, "rules", rules)
@@ -164,6 +167,14 @@ class ManualResult:
         return pulumi.get(self, "questions")
 
     @_builtins.property
+    @pulumi.getter(name="requestTimeout")
+    def request_timeout(self) -> Optional[_builtins.str]:
+        """
+        Time allowed for each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+        """
+        return pulumi.get(self, "request_timeout")
+
+    @_builtins.property
     @pulumi.getter
     def rules(self) -> Optional[Sequence['outputs.Rule']]:
         """
@@ -183,7 +194,7 @@ class ManualResult:
     @pulumi.getter
     def timeout(self) -> Optional[_builtins.str]:
         """
-        Timeout of each HTTP request, as a Go duration, such as 10s. Use a whole number of seconds from 1 to 20. The default is 10s.
+        How long the gate may wait in total, counted from when the gate opens for a run, as a Go duration, such as 24h. Use a whole number of seconds from 1m to 168h (7 days), and at least the interval. The default is 24h. When the time passes without a check passing, the run fails.
         """
         return pulumi.get(self, "timeout")
 
@@ -213,6 +224,7 @@ class AwaitableManualResult(ManualResult):
             method=self.method,
             name=self.name,
             questions=self.questions,
+            request_timeout=self.request_timeout,
             rules=self.rules,
             success_expression=self.success_expression,
             timeout=self.timeout,
@@ -248,6 +260,7 @@ def manual(description: Optional[_builtins.str] = None,
         method=pulumi.get(__ret__, 'method'),
         name=pulumi.get(__ret__, 'name'),
         questions=pulumi.get(__ret__, 'questions'),
+        request_timeout=pulumi.get(__ret__, 'request_timeout'),
         rules=pulumi.get(__ret__, 'rules'),
         success_expression=pulumi.get(__ret__, 'success_expression'),
         timeout=pulumi.get(__ret__, 'timeout'),
@@ -280,6 +293,7 @@ def manual_output(description: pulumi.Input[Optional[Optional[_builtins.str]]] =
         method=pulumi.get(__response__, 'method'),
         name=pulumi.get(__response__, 'name'),
         questions=pulumi.get(__response__, 'questions'),
+        request_timeout=pulumi.get(__response__, 'request_timeout'),
         rules=pulumi.get(__response__, 'rules'),
         success_expression=pulumi.get(__response__, 'success_expression'),
         timeout=pulumi.get(__response__, 'timeout'),
