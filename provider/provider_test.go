@@ -528,7 +528,7 @@ func TestNestedDependenciesBelongToTheirProperty(t *testing.T) {
 	request := jobRequest(false)
 	request.Dependencies = nil
 	request.Inputs = request.Inputs.Set("environment", property.New(property.NewMap(map[string]property.Value{
-		"A": property.New("status == 200").WithDependencies([]resource.URN{other}),
+		"A": property.New("x").WithDependencies([]resource.URN{other}),
 		"B": property.New(property.NewArray([]property.Value{property.New("y").WithDependencies([]resource.URN{other})})),
 	})))
 

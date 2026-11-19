@@ -287,7 +287,7 @@ func TestHTTPLimits(t *testing.T) {
 		{name: "interval 60s", interval: "60s"},
 		{name: "interval 1h", interval: "1h"},
 		{name: "interval 61m", interval: "61m", wantErr: "at most 1 hour"},
-		{name: "interval 90s.5", interval: "90.5s", wantErr: "whole-second"},
+		{name: "interval 90.5s", interval: "90.5s", wantErr: "whole-second"},
 		{name: "requestTimeout 0", requestTimeout: "0s", wantErr: "positive whole-second"},
 		{name: "requestTimeout 1s", requestTimeout: "1s"},
 		{name: "requestTimeout 20s", requestTimeout: "20s"},

@@ -355,7 +355,8 @@ func (HTTP) Invoke(ctx context.Context, req infer.FunctionRequest[HTTPArgs]) (in
 	a := req.Input
 	method, interval, requestTimeout, timeout := a.Method, a.Interval, a.RequestTimeout, a.Timeout
 	if method == nil {
-		method = &defaultHTTPMethod
+		m := defaultHTTPMethod
+		method = &m
 	}
 	if interval == "" {
 		interval = "1m"
