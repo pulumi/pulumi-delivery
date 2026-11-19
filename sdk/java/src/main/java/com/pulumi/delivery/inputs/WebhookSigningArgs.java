@@ -8,6 +8,8 @@ import com.pulumi.core.annotations.Import;
 import com.pulumi.exceptions.MissingRequiredPropertyException;
 import java.lang.String;
 import java.util.Objects;
+import java.util.Optional;
+import javax.annotation.Nullable;
 
 
 /**
@@ -17,6 +19,21 @@ import java.util.Objects;
 public final class WebhookSigningArgs extends com.pulumi.resources.ResourceArgs {
 
     public static final WebhookSigningArgs Empty = new WebhookSigningArgs();
+
+    /**
+     * Request header that carries the signature or the token, such as X-Hub-Signature-256 for GitHub. The default is X-Signature-256 for hmac-sha256, where Linear-Signature is accepted too, and Authorization for token.
+     * 
+     */
+    @Import(name="header")
+    private @Nullable Output<String> header;
+
+    /**
+     * @return Request header that carries the signature or the token, such as X-Hub-Signature-256 for GitHub. The default is X-Signature-256 for hmac-sha256, where Linear-Signature is accepted too, and Authorization for token.
+     * 
+     */
+    public Optional<Output<String>> header() {
+        return Optional.ofNullable(this.header);
+    }
 
     /**
      * Kind of signature: hmac-sha256 (an HMAC over the raw body) or token (a shared secret).
@@ -51,6 +68,7 @@ public final class WebhookSigningArgs extends com.pulumi.resources.ResourceArgs 
     private WebhookSigningArgs() {}
 
     private WebhookSigningArgs(WebhookSigningArgs $) {
+        this.header = $.header;
         this.kind = $.kind;
         this.secret = $.secret;
     }
@@ -71,6 +89,27 @@ public final class WebhookSigningArgs extends com.pulumi.resources.ResourceArgs 
 
         public Builder(WebhookSigningArgs defaults) {
             $ = new WebhookSigningArgs(Objects.requireNonNull(defaults));
+        }
+
+        /**
+         * @param header Request header that carries the signature or the token, such as X-Hub-Signature-256 for GitHub. The default is X-Signature-256 for hmac-sha256, where Linear-Signature is accepted too, and Authorization for token.
+         * 
+         * @return builder
+         * 
+         */
+        public Builder header(@Nullable Output<String> header) {
+            $.header = header;
+            return this;
+        }
+
+        /**
+         * @param header Request header that carries the signature or the token, such as X-Hub-Signature-256 for GitHub. The default is X-Signature-256 for hmac-sha256, where Linear-Signature is accepted too, and Authorization for token.
+         * 
+         * @return builder
+         * 
+         */
+        public Builder header(String header) {
+            return header(Output.of(header));
         }
 
         /**

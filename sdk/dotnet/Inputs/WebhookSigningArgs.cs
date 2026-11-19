@@ -16,6 +16,12 @@ namespace Pulumi.Delivery.Inputs
     public sealed class WebhookSigningArgs : global::Pulumi.ResourceArgs
     {
         /// <summary>
+        /// Request header that carries the signature or the token, such as X-Hub-Signature-256 for GitHub. The default is X-Signature-256 for hmac-sha256, where Linear-Signature is accepted too, and Authorization for token.
+        /// </summary>
+        [Input("header")]
+        public Input<string>? Header { get; set; }
+
+        /// <summary>
         /// Kind of signature: hmac-sha256 (an HMAC over the raw body) or token (a shared secret).
         /// </summary>
         [Input("kind", required: true)]

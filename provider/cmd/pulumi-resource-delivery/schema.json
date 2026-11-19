@@ -344,6 +344,10 @@
     "delivery:index:WebhookSigning": {
       "description": "How the service verifies a post to a webhook source.",
       "properties": {
+        "header": {
+          "type": "string",
+          "description": "Request header that carries the signature or the token, such as X-Hub-Signature-256 for GitHub. The default is X-Signature-256 for hmac-sha256, where Linear-Signature is accepted too, and Authorization for token."
+        },
         "kind": {
           "type": "string",
           "description": "Kind of signature: hmac-sha256 (an HMAC over the raw body) or token (a shared secret)."

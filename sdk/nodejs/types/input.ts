@@ -293,6 +293,10 @@ export interface StacksEntryArgs {
  */
 export interface WebhookSigningArgs {
     /**
+     * Request header that carries the signature or the token, such as X-Hub-Signature-256 for GitHub. The default is X-Signature-256 for hmac-sha256, where Linear-Signature is accepted too, and Authorization for token.
+     */
+    header?: pulumi.Input<string | undefined>;
+    /**
      * Kind of signature: hmac-sha256 (an HMAC over the raw body) or token (a shared secret).
      */
     kind: pulumi.Input<string>;

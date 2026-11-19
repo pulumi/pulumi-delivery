@@ -1278,20 +1278,28 @@ class WebhookSigningArgsDict(TypedDict):
     """
     Secret that the external system signs with. It stays secret.
     """
+    header: NotRequired[pulumi.Input[Optional[_builtins.str]]]
+    """
+    Request header that carries the signature or the token, such as X-Hub-Signature-256 for GitHub. The default is X-Signature-256 for hmac-sha256, where Linear-Signature is accepted too, and Authorization for token.
+    """
 
 @pulumi.input_type
 class WebhookSigningArgs:
     def __init__(__self__, *,
                  kind: pulumi.Input[_builtins.str],
-                 secret: pulumi.Input[_builtins.str]):
+                 secret: pulumi.Input[_builtins.str],
+                 header: pulumi.Input[Optional[_builtins.str]] = None):
         """
         How the service verifies a post to a webhook source.
 
         :param pulumi.Input[_builtins.str] kind: Kind of signature: hmac-sha256 (an HMAC over the raw body) or token (a shared secret).
         :param pulumi.Input[_builtins.str] secret: Secret that the external system signs with. It stays secret.
+        :param pulumi.Input[_builtins.str] header: Request header that carries the signature or the token, such as X-Hub-Signature-256 for GitHub. The default is X-Signature-256 for hmac-sha256, where Linear-Signature is accepted too, and Authorization for token.
         """
         pulumi.set(__self__, "kind", kind)
         pulumi.set(__self__, "secret", secret)
+        if header is not None:
+            pulumi.set(__self__, "header", header)
 
     @_builtins.property
     @pulumi.getter
@@ -1316,6 +1324,18 @@ class WebhookSigningArgs:
     @secret.setter
     def secret(self, value: pulumi.Input[_builtins.str]):
         pulumi.set(self, "secret", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def header(self) -> pulumi.Input[Optional[_builtins.str]]:
+        """
+        Request header that carries the signature or the token, such as X-Hub-Signature-256 for GitHub. The default is X-Signature-256 for hmac-sha256, where Linear-Signature is accepted too, and Authorization for token.
+        """
+        return pulumi.get(self, "header")
+
+    @header.setter
+    def header(self, value: pulumi.Input[Optional[_builtins.str]]):
+        pulumi.set(self, "header", value)
 
 
 from . import azure_dev_ops_source as _azure_dev_ops_source

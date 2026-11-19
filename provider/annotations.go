@@ -512,4 +512,5 @@ func (r *WebhookSigning) Annotate(a infer.Annotator) {
 	a.Describe(r, "How the service verifies a post to a webhook source.")
 	a.Describe(&r.Kind, "Kind of signature: hmac-sha256 (an HMAC over the raw body) or token (a shared secret).")
 	a.Describe(&r.Secret, "Secret that the external system signs with. It stays secret.")
+	a.Describe(&r.Header, "Request header that carries the signature or the token, such as X-Hub-Signature-256 for GitHub. The default is X-Signature-256 for hmac-sha256, where Linear-Signature is accepted too, and Authorization for token.")
 }

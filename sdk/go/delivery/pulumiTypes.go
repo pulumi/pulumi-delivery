@@ -1561,6 +1561,8 @@ func (o StacksEntryMapOutput) MapIndex(k pulumi.StringInput) StacksEntryOutput {
 
 // How the service verifies a post to a webhook source.
 type WebhookSigning struct {
+	// Request header that carries the signature or the token, such as X-Hub-Signature-256 for GitHub. The default is X-Signature-256 for hmac-sha256, where Linear-Signature is accepted too, and Authorization for token.
+	Header *string `pulumi:"header"`
 	// Kind of signature: hmac-sha256 (an HMAC over the raw body) or token (a shared secret).
 	Kind string `pulumi:"kind"`
 	// Secret that the external system signs with. It stays secret.
@@ -1580,6 +1582,8 @@ type WebhookSigningInput interface {
 
 // How the service verifies a post to a webhook source.
 type WebhookSigningArgs struct {
+	// Request header that carries the signature or the token, such as X-Hub-Signature-256 for GitHub. The default is X-Signature-256 for hmac-sha256, where Linear-Signature is accepted too, and Authorization for token.
+	Header pulumi.StringPtrInput `pulumi:"header"`
 	// Kind of signature: hmac-sha256 (an HMAC over the raw body) or token (a shared secret).
 	Kind pulumi.StringInput `pulumi:"kind"`
 	// Secret that the external system signs with. It stays secret.
@@ -1664,6 +1668,11 @@ func (o WebhookSigningOutput) ToWebhookSigningPtrOutputWithContext(ctx context.C
 	}).(WebhookSigningPtrOutput)
 }
 
+// Request header that carries the signature or the token, such as X-Hub-Signature-256 for GitHub. The default is X-Signature-256 for hmac-sha256, where Linear-Signature is accepted too, and Authorization for token.
+func (o WebhookSigningOutput) Header() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v WebhookSigning) *string { return v.Header }).(pulumi.StringPtrOutput)
+}
+
 // Kind of signature: hmac-sha256 (an HMAC over the raw body) or token (a shared secret).
 func (o WebhookSigningOutput) Kind() pulumi.StringOutput {
 	return o.ApplyT(func(v WebhookSigning) string { return v.Kind }).(pulumi.StringOutput)
@@ -1696,6 +1705,16 @@ func (o WebhookSigningPtrOutput) Elem() WebhookSigningOutput {
 		var ret WebhookSigning
 		return ret
 	}).(WebhookSigningOutput)
+}
+
+// Request header that carries the signature or the token, such as X-Hub-Signature-256 for GitHub. The default is X-Signature-256 for hmac-sha256, where Linear-Signature is accepted too, and Authorization for token.
+func (o WebhookSigningPtrOutput) Header() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *WebhookSigning) *string {
+		if v == nil {
+			return nil
+		}
+		return v.Header
+	}).(pulumi.StringPtrOutput)
 }
 
 // Kind of signature: hmac-sha256 (an HMAC over the raw body) or token (a shared secret).

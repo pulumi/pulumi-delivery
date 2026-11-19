@@ -45,6 +45,8 @@ type Pipeline struct {
 type WebhookSigning struct {
 	Kind   string `pulumi:"kind"`
 	Secret string `pulumi:"secret" provider:"secret"`
+	// Header is the request header that carries the signature or the token. Empty means the default of the kind.
+	Header string `pulumi:"header,optional"`
 }
 
 type WebhookSourceArgs struct {
